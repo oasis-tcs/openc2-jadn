@@ -46,17 +46,11 @@ the only two representation formats, but they are used to specify four loosely d
 * **table**, a map from a domain of map keys to a domain of map values, that are mostly of the same semantics.
 * **struct**, a map from a domain of map keys as defined by the specification to a domain of map values the semantics of each of which is bound to a specific map key.
 
-Instances of Integer types and integers used as map keys are serialized according to their value:
-* values 0..23 are serialized as a simple value (#7.0..23)
-* values 24-255 are serialized as a simple value with additional byte (#7.24)
-* values >255 are serialized as unsigned integer (#0)
-* values <0 are serialized as negative integer (#1)
-
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
 | **Binary** | **bstr**: a byte string (#2). |
 | **Boolean** | **bool**: a Boolean value (False = #7.20, True = #7.21). |
-| **Integer** | **int**: a simple value (#7.0..24), unsigned integer (#0) or negative integer (#1) |
+| **Integer** | **int**: an unsigned integer (#0) or negative integer (#1) |
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
 | **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
