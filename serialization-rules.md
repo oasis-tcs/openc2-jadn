@@ -8,7 +8,7 @@ The following JSON serialization rules are used to represent JADN data types in 
 2) Object keys are serialized as meaningful strings
 3) Binary values such as IP addresses are serialized using type-specific text representations
 
-| OpenC2 Data Type | JSON Serialization Requirement |
+| JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
 | **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
 | **Binary.x** | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
@@ -52,7 +52,7 @@ Instances of Integer types and integers used as map keys are serialized accordin
 * values >255 are serialized as unsigned integer (#0)
 * values <0 are serialized as negative integer (#1)
 
-| OpenC2 Data Type | CBOR Serialization Requirement |
+| JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
 | **Binary** | **bstr**: a byte string (#2). |
 | **Boolean** | **bool**: a Boolean value (False = #7.20, True = #7.21). |
@@ -78,7 +78,7 @@ M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON pre
 * All suffixes to Binary and Array types used for human-friendly serialization (e.g., Binary.x) are ignored.
 * The .ID suffix on Choice, Enumerated and Map types is ignored.
 
-| OpenC2 Data Type | M2M JSON Serialization Requirement |
+| JADN Type | M2M JSON Serialization Requirement |
 | :--- | :--- |
 | **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
 | **Boolean** | JSON **true** or **false** |
