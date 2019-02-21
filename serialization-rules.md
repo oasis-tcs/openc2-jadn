@@ -34,7 +34,7 @@ The following JSON serialization rules are used to represent JADN data types in 
 ### 3.2 CBOR Serialization
 
 When using Concise Binary Object Representation [CBOR] serialization, instances of JADN datatypes
-are serialized using the following  types.  CBOR type (#x.y) = Major type x, Additional information y.
+are serialized using the following  types.  CBOR type #x.y = Major type x, Additional information y.
 
 * All suffixes to Binary and Array types used for human-friendly serialization (e.g., Binary.x) are ignored.
 * The .ID suffix on Choice, Enumerated and Map types is ignored.
