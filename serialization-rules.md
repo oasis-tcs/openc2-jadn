@@ -24,11 +24,11 @@ The following JSON serialization rules are used to represent JADN data types in 
 | **Array.ipv6-net** | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
 | **ArrayOf** | JSON **array** |
 | **Choice** | JSON **object** with one member.  Member key is the field name.   |
-| **Choice.ID** | JSON **object** with one member. Member key is the integer field id converted to string. |
+| **Choice.ID** | JSON **object** with one member. Member key is the integer tag converted to string. |
 | **Enumerated** | JSON **string** |
 | **Enumerated.ID** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are field names. |
-| **Map.ID** | JSON **object**. Member keys are integer field ids converted to strings. |
+| **Map.ID** | JSON **object**. Member keys are integer tags converted to strings. |
 | **Record** | JSON **object**. Member keys are field names. |
 
 ### 3.2 CBOR Serialization
@@ -82,7 +82,7 @@ M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON pre
 | **String** | JSON **string** |
 | **Array** | JSON **array** |
 | **ArrayOf** | JSON **array** |
-| **Choice** | JSON **object** with one member. Member key is the integer field id converted to string. |
+| **Choice** | JSON **object** with one member. Member key is the integer tag converted to string. |
 | **Enumerated** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are integer tags converted to strings. |
 | **Record** | JSON **array**. |
