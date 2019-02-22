@@ -42,7 +42,7 @@ are serialized using the following  types.  CBOR type #x.y = Major type x, Addit
 Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  For structure types, arrays and maps are
 the only two representation formats, but they are used to specify four distinguishable styles of composition:
 * **vector**, an array of elements that have the same semantics.
-* **record**, an array the elements of which have different, positionally defined semantics, as detailed in the data structure definition.
+* **record**, an array of elements that have different, positionally defined semantics, as detailed in the data structure definition.
 * **table**, a map from a domain of map keys to a domain of map values that have the same semantics.
 * **struct**, a map from a domain of map keys as defined by the specification to a domain of map values that have semantics bound to the map key.
 
