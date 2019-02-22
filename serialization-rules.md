@@ -43,8 +43,8 @@ Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  F
 the only two representation formats, but they are used to specify four distinguishable styles of composition:
 * **vector**, an array of elements that have the same semantics.
 * **record**, an array of elements that have different, positionally defined semantics, as detailed in the data structure definition.
-* **table**, a map from a domain of map keys to a domain of map values that have the same semantics.
-* **struct**, a map from a domain of map keys as defined by the specification to a domain of map values that have semantics bound to the map key.
+* **table**, a map from a domain of keys to a domain of values that have the same semantics.
+* **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -56,9 +56,9 @@ the only two representation formats, but they are used to specify four distingui
 | **String** | **tstr**: a text string (#3). |
 | **Array** | **record**: an array of data items (#4). |
 | **ArrayOf** | **vector**: an array of data items (#4). |
-| **Choice** | **struct**: a map (#5) containing one pair. First item is the tag, second item is the value. |
+| **Choice** | **struct**: a map (#5) containing one pair. The first item (key) is an integer tag, the second item is the value. |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) |
-| **Map** | **struct**: a map (#5) of pairs. In each pair, first item is an integer tag, second item is the value. |
+| **Map** | **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer tag, the second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
 ### 3.3 M2M JSON Serialization Requirements:
