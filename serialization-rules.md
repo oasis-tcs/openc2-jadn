@@ -40,11 +40,11 @@ are serialized using the following  types.  CBOR type #x.y = Major type x, Addit
 * The .ID suffix on Choice, Enumerated and Map types is ignored.
 
 Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  For structure types, arrays and maps are
-the only two representation formats, but they are used to specify four loosely distinguishable styles of composition:
-* **vector**, an array of elements that are mostly of the same semantics.
+the only two representation formats, but they are used to specify four distinguishable styles of composition:
+* **vector**, an array of elements that have the same semantics.
 * **record**, an array the elements of which have different, positionally defined semantics, as detailed in the data structure definition.
-* **table**, a map from a domain of map keys to a domain of map values, that are mostly of the same semantics.
-* **struct**, a map from a domain of map keys as defined by the specification to a domain of map values the semantics of each of which is bound to a specific map key.
+* **table**, a map from a domain of map keys to a domain of map values that have the same semantics.
+* **struct**, a map from a domain of map keys as defined by the specification to a domain of map values that have semantics bound to the map key.
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -57,7 +57,7 @@ the only two representation formats, but they are used to specify four loosely d
 | **Array** | **record**: an array of data items (#4). |
 | **ArrayOf** | **vector**: an array of data items (#4). |
 | **Choice** | **struct**: a map (#5) containing one pair. First item is the tag, second item is the value. |
-| **Enumerated** | **int**: a simple value (#7.0..24), unsigned integer (#0) or negative integer (#1) |
+| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) |
 | **Map** | **struct**: a map (#5) of pairs. In each pair, first item is an integer tag, second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
