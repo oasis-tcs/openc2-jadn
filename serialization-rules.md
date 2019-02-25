@@ -63,14 +63,13 @@ the only two representation formats, but they are used to specify four distingui
 | **MapOf** | **table**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
-### 3.3 M2M JSON Serialization Requirements:
+### 3.3 M2M JSON Serialization:
 
-The following JSON serialization rules are used to represent JADN data types in a compact format optimized for machine-to-machine communication, where:
+M2M JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to CBOR serialization using CDDL's JSON preface ([CDDL] Appendix E):
 1) Records are serialized as arrays
 2) Object keys are serialized as integer ids in string format
 3) Binary values are serialized in Base64url format
 
-M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON preface ([CDDL] Appendix E).
 * Serialization options (e.g., /x) to Binary and Array types do not affect serialized values.
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
