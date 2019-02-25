@@ -11,17 +11,17 @@ The following JSON serialization rules are used to represent JADN data types in 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
 | **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
-| **Binary.x** | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
-| **Binary.ipv4-addr** | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP]. |
-| **Binary.ipv6-addr** | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. |
+| **Binary /x** | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
+| **Binary /ipv4-addr** | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP]. |
+| **Binary /ipv6-addr** | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. |
 | **Boolean** | JSON **true** or **false** |
 | **Integer** | JSON **number** |
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
 | **Array** | JSON **array** |
-| **Array.ipv4-net** | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. |
-| **Array.ipv6-net** | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
+| **Array /ipv4-net** | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. |
+| **Array /ipv6-net** | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
 | **ArrayOf** | JSON **array** |
 | **Choice** | JSON **object** with one member.  Member key is the field name.   |
 | **Choice.ID** | JSON **object** with one member. Member key is the integer tag converted to string. |
@@ -36,8 +36,8 @@ The following JSON serialization rules are used to represent JADN data types in 
 When using Concise Binary Object Representation [CBOR] serialization, instances of JADN datatypes
 are serialized using the following  types.  CBOR type #x.y = Major type x, Additional information y.
 
-* All suffixes to Binary and Array types used for human-friendly serialization (e.g., Binary.x) are ignored.
-* The .ID suffix on Choice, Enumerated and Map types is ignored.
+* Serialization options (e.g., /x) to Binary and Array types do not affect serialized values.
+* The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  For structure types, arrays and maps are
 the only two representation formats, but they are used to specify four distinguishable styles of composition:
@@ -69,8 +69,8 @@ The following JSON serialization rules are used to represent JADN data types in 
 3) Binary values are serialized in Base64url format
 
 M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON preface ([CDDL] Appendix E).
-* All suffixes to Binary and Array types used for human-friendly serialization (e.g., Binary.x) are ignored.
-* The .ID suffix on Choice, Enumerated and Map types is ignored.
+* Serialization options (e.g., /x) to Binary and Array types do not affect serialized values.
+* The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 | JADN Type | M2M JSON Serialization Requirement |
 | :--- | :--- |
