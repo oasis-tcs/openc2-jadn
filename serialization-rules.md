@@ -24,11 +24,11 @@ The following JSON serialization rules are used to represent JADN data types in 
 | **Array /ipv6-net** | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
 | **ArrayOf** | JSON **array** |
 | **Choice** | JSON **object** with one member.  Member key is the field name.   |
-| **Choice.ID** | JSON **object** with one member. Member key is the integer tag converted to string. |
+| **Choice.ID** | JSON **object** with one member. Member key is the integer id converted to string. |
 | **Enumerated** | JSON **string** |
 | **Enumerated.ID** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are field names. |
-| **Map.ID** | JSON **object**. Member keys are integer tags converted to strings. |
+| **Map.ID** | JSON **object**. Member keys are integer ids converted to strings. |
 | **Record** | JSON **object**. Member keys are field names. |
 
 ### 3.2 CBOR Serialization
@@ -56,16 +56,16 @@ the only two representation formats, but they are used to specify four distingui
 | **String** | **tstr**: a text string (#3). |
 | **Array** | **record**: an array of data items (#4). |
 | **ArrayOf** | **vector**: an array of data items (#4). |
-| **Choice** | **struct**: a map (#5) containing one pair. The first item (key) is an integer tag, the second item is the value. |
+| **Choice** | **struct**: a map (#5) containing one pair. The first item (key) is an integer id, the second item is the value. |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) |
-| **Map** | **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer tag, the second item is the value. |
+| **Map** | **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
 ### 3.3 M2M JSON Serialization Requirements:
 
 The following JSON serialization rules are used to represent JADN data types in a compact format optimized for machine-to-machine communication, where:
 1) Records are serialized as arrays
-2) Object keys are serialized as integer tags in string format
+2) Object keys are serialized as integer ids in string format
 3) Binary values are serialized in Base64url format
 
 M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON preface ([CDDL] Appendix E).
@@ -82,7 +82,7 @@ M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON pre
 | **String** | JSON **string** |
 | **Array** | JSON **array** |
 | **ArrayOf** | JSON **array** |
-| **Choice** | JSON **object** with one member. Member key is the integer tag converted to string. |
+| **Choice** | JSON **object** with one member. Member key is the integer id converted to string. |
 | **Enumerated** | JSON **integer** |
-| **Map** | JSON **object**. Member keys are integer tags converted to strings. |
+| **Map** | JSON **object**. Member keys are integer ids converted to strings. |
 | **Record** | JSON **array**. |
