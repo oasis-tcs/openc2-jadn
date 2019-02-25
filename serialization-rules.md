@@ -37,7 +37,7 @@ The following JSON serialization rules are used to represent JADN data types in 
 When using Concise Binary Object Representation [CBOR] serialization, instances of JADN datatypes
 are serialized using the following  types.  CBOR type #x.y = Major type x, Additional information y.
 
-* Serialization options (e.g., /x) to Binary and Array types do not affect serialized values.
+* Serialization options (e.g., /x) on Binary and Array types do not affect serialized values.
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  For structure types, arrays and maps are
@@ -70,7 +70,8 @@ M2M JSON serialization rules represent JADN data types in a compact format optim
 2) Object keys are serialized as integer ids in string format
 3) Binary values are serialized in Base64url format
 
-* Serialization options (e.g., /x) to Binary and Array types do not affect serialized values.
+As with CBOR,
+* Serialization options (e.g., /x) on Binary and Array types do not affect serialized values.
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 | JADN Type | M2M JSON Serialization Requirement |
