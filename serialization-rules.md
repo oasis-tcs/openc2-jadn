@@ -29,6 +29,7 @@ The following JSON serialization rules are used to represent JADN data types in 
 | **Enumerated.ID** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are field names. |
 | **Map.ID** | JSON **object**. Member keys are integer ids converted to strings. |
+| **MapOf** | JSON **object**. Member keys are specified by enum type. |
 | **Record** | JSON **object**. Member keys are field names. |
 
 ### 3.2 CBOR Serialization
@@ -59,6 +60,7 @@ the only two representation formats, but they are used to specify four distingui
 | **Choice** | **struct**: a map (#5) containing one pair. The first item (key) is an integer id, the second item is the value. |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) |
 | **Map** | **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
+| **MapOf** | **table**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
 ### 3.3 M2M JSON Serialization Requirements:
@@ -85,4 +87,5 @@ M2M JSON serialization is equivalent to CBOR serialization using CDDL's JSON pre
 | **Choice** | JSON **object** with one member. Member key is the integer id converted to string. |
 | **Enumerated** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are integer ids converted to strings. |
+| **MapOf** | JSON **object**. Member keys are integer ids converted to strings. |
 | **Record** | JSON **array**. |
