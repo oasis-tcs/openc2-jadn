@@ -41,11 +41,12 @@ are serialized using the following  types.  CBOR type #x.y = Major type x, Addit
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  For structure types, arrays and maps are
-the only two representation formats, but they are used to specify four distinguishable styles of composition:
+the only two representation formats, but they are used to specify five distinguishable styles of composition:
 * **vector**, an array of elements that have the same semantics.
-* **record**, an array of elements that have different, positionally defined semantics, as detailed in the data structure definition.
+* **array**, an array of elements that have different positionally-defined semantics, as detailed in the structure definition.
 * **table**, a map from a domain of keys to a domain of values that have the same semantics.
 * **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
+* **record**, an ordered map from keys that have positions to values that have positionally-defined semantics, as detailed in the structure definition.
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -55,7 +56,7 @@ the only two representation formats, but they are used to specify four distingui
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
 | **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
-| **Array** | **record**: an array of data items (#4). |
+| **Array** | **array**: an array of data items (#4). |
 | **ArrayOf** | **vector**: an array of data items (#4). |
 | **Choice** | **struct**: a map (#5) containing one pair. The first item (key) is an integer id, the second item is the value. |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) |
