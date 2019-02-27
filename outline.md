@@ -9,7 +9,16 @@ This document specifies a vocabulary to describe the meaning of structured data,
 * Multiple schema documentation formats
 * Multiple serialization formats to communicate data instances between applications
 
-## 2. Schema mechanism
+## 2. Information vs. Data
+* Informal:
+    * RFC 3444
+    * PIM vs. PDM
+* Heuristic:
+    * Authoritative definition
+    * Unambiguous definition
+    * Information theory
+
+## 3. Schema mechanism
 A JADN schema is a structured data instance that can be validated, consisting of:
 * meta-information about the schema
 * type definitions
@@ -20,8 +29,8 @@ JADN type definitions provide:
 * Structure composition styles similar to CDDL
 * Serialization options
 
-## 3. Schema Formats
+## 4. Schema Formats
 JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-ish)
 
-## 4. Serialization
+## 5. Serialization
 JSON, M-JSON, CBOR, XML
