@@ -5,6 +5,9 @@ A JADN schema is a structured information object that can be serialized and tran
 
 ## Non-Normative References
 
+###### [TEXTREP]
+*"Textual Representation of IPv4 and IPv6 Addresses"*, https://tools.ietf.org/html/draft-main-ipaddr-text-rep-02#section-3.1
+
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
 
@@ -18,8 +21,8 @@ This document specifies a vocabulary to describe the meaning of structured data,
 * Multiple serialization formats to communicate data instances between applications
 
 ## 2. Information vs. Data
-This non-normative section describes what is meant by "information model" and "information-centric" type definitions.
-### 2.1 Information Models
+This section is Non-Normative.
+
 RFC 3444 describes differences between information models (IMs) and data models (DMs):
 * The main purpose of an IM is to model managed objects at a conceptual level,
 independent of any specific implementations or protocols used to transport
@@ -43,25 +46,23 @@ In the context of data definitions within a Model Driven Architecture [MDA]:
 mapping to one or more platforms.
 * A DM is part of a Platform Specific model (PSM) that combines the specifications in the PIM with the details
 required to stipulate how a system uses a particular type of platform. 
-### 2.3 Abstraction
+
 Information refers to *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information theory defines information as the unexpected data or
 "entropy" contained in a message.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting and framing contains zero entropy because it is known a priori.
-If the serialization is non-canonical, any additional entropy introduced into the data (e.g., whitespace) is discarded
-on deserialization.
+If the serialization is non-canonical, any additional entropy introduced into the data during serialization
+(e.g., whitespace) is discarded on deserialization.
 
 For example, in an Information model an IPv4 address ([RFC791]) is a 32 bit value because it contains 32 bits of
 information that an application cares about. Data Models define how an IPv4 address is serialized, for example:
-* Textual representation of an IPv4 address [TEXTREP] contained in a JSON string:
-"192.168.141.240" (17 bytes / 136 bits of data).
+* IPv4 Dotted Octet Format [TEXTREP] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits of data).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
 The data is different when using different DMs, but the information in these three examples is the same.
 
 ## 3. JADN Types
-
 
 JADN type definitions provide:
 * Value constraints (enumerations, size and value ranges, regex patterns, semantic validation keywords)
