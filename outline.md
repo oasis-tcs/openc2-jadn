@@ -1,5 +1,5 @@
 ## Abstract
-JSON Abstract Data Notation (JADN) is an information modeling language. It is based on the CBOR data model (JSON types plus byte string), but JADN types are designed to be information-centric rather than data-centric. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent a type instance using a specific data format.
+JSON Abstract Data Notation (JADN) is an information modeling language. It is based on the CBOR data model (JSON types plus integers and byte strings), but JADN types are designed to be information-centric rather than data-centric. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent an instance of a type using a specific data format.
 
 A JADN schema is a structured information object that can be serialized and transferred between applications, displayed in multiple documentation formats such as tables and text-based data definition languages, and translated into concrete schemas for specific data formats.
 
@@ -70,17 +70,24 @@ JADN type definitions provide:
 * Structure composition styles similar to CDDL
 * Serialization options
 
-## 4. Serialization
-JSON, M-JSON, CBOR, XML
+For structure types, arrays and maps are
+the only two representation formats, but they are used to specify five distinguishable styles of composition:
+* **vector**, an array of elements that have the same semantics.
+* **array**, an array of elements that have different positionally-defined semantics, as detailed in the structure definition.
+* **table**, a map from a domain of keys to a domain of values that have the same semantics.
+* **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
+* **record**, an ordered map from keys that have positions to values that have positionally-defined semantics, as detailed in the structure definition.
 
-JADN type definitions are agnostic of any particular serialization format. Three formats are defined here; additional formats are possible.
+## 4. Serialization
+Serialization rules define how to represent an instance of a type using a specific data format.  Three serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
 
 ### 4.1 JSON Serialization
 
-The following JSON serialization rules are used to represent JADN data types in human-friendly format, where:
+The following JSON serialization rules are used to represent JADN data types in a human-friendly format, where:
 1) Records are serialized as objects
-2) Object keys are serialized as meaningful strings
-3) Binary values such as IP addresses are serialized using type-specific text representations
+2) Enumerated values and Object keys are serialized as meaningful strings, or as integer IDs if the .ID suffix is specified
+3) Binary values are serialized using type-specific text representations if if specified with a serialization option (e.g., /x)
+4) Serialization options other than those defined in this section do not affect serialized values
 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
@@ -108,19 +115,12 @@ The following JSON serialization rules are used to represent JADN data types in 
 
 ### 4.2 CBOR Serialization
 
-When using Concise Binary Object Representation [CBOR] serialization, instances of JADN datatypes
-are serialized using the following  types.  CBOR type #x.y = Major type x, Additional information y.
-
-* Serialization options (e.g., /x) on Binary and Array types do not affect serialized values.
+The following serialization rules are used to represent JADN data types in Concise Binary
+Object Representation [CBOR] format, where CBOR type #x.y = Major type x, Additional information y.
+* Serialization options (e.g., /x) do not affect serialized values.
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
-Names for CBOR types are as shown in Concise Data Definition Language [CDDL].  For structure types, arrays and maps are
-the only two representation formats, but they are used to specify five distinguishable styles of composition:
-* **vector**, an array of elements that have the same semantics.
-* **array**, an array of elements that have different positionally-defined semantics, as detailed in the structure definition.
-* **table**, a map from a domain of keys to a domain of values that have the same semantics.
-* **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
-* **record**, an ordered map from keys that have positions to values that have positionally-defined semantics, as detailed in the structure definition.
+CBOR type names from Concise Data Definition Language [CDDL] are shown here for reference.
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -138,15 +138,16 @@ the only two representation formats, but they are used to specify five distingui
 | **MapOf** | **table**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
-### 4.3 M2M JSON Serialization:
+### 4.3 M-JSON Serialization:
 
-M2M JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to CBOR serialization using CDDL's JSON preface ([CDDL] Appendix E):
+Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to CBOR serialization using the JSON preface defined in [CDDL] Appendix E.
 1) Records are serialized as arrays
-2) Object keys are serialized as integer ids in string format
-3) Binary values are serialized in Base64url format
+2) Enumerated values are serialized as integers
+3) Object keys are serialized as integer ids in string format
+4) Binary values are serialized as Base64url strings
 
 As with CBOR,
-* Serialization options (e.g., /x) on Binary and Array types do not affect serialized values.
+* Serialization options (e.g., /x) do not affect serialized values.
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 | JADN Type | M2M JSON Serialization Requirement |
@@ -164,7 +165,6 @@ As with CBOR,
 | **Map** | JSON **object**. Member keys are integer ids converted to strings. |
 | **MapOf** | JSON **object**. Member keys are integer ids converted to strings. |
 | **Record** | JSON **array**. |
-
 
 ## 5. Schema Formats
 A JADN schema is a structured data instance that can be validated, consisting of:
