@@ -1,7 +1,7 @@
 ## Abstract
-JSON Abstract Data Notation (JADN) is an information modeling language. It is based on the CBOR data model (JSON types plus byte string), but JADN types are information-centric rather than data-centric. As with ASN.1, JADN specifications have two parts: abstract type definitions and serialization rules. Type definitions are independent of data format.  Serialization rules define how to represent instances of JADN types using specific data formats such as XML, JSON, or CBOR.
+JSON Abstract Data Notation (JADN) is an information modeling language. It is based on the CBOR data model (JSON types plus byte string), but JADN types are information-centric rather than data-centric. JADN specifications have two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent an instance of a type in a specific data format such as XML, JSON, or CBOR.
 
-JADN schemas are structured information objects that can be serialized and transferred between applications, displayed in multiple formats such as tables or text-based data definition languages, and translated into concrete schemas for specific data formats.
+A JADN schema is a structured information object that can be serialized and transferred between applications, displayed in multiple documentation formats such as tables and text-based data definition languages, and translated into concrete schemas for specific data formats.
 
 ## Non-Normative References
 
@@ -11,7 +11,6 @@ JADN schemas are structured information objects that can be serialized and trans
 ###### [RFC3444]
 *"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444
 
-
 ## 1. Purpose
 This document specifies a vocabulary to describe the meaning of structured data, to provide hints for user interfaces working with structured data, and to make assertions about the validity of structured data.
 * A schema mechanism to constrain and validate the content of data instances
@@ -19,13 +18,12 @@ This document specifies a vocabulary to describe the meaning of structured data,
 * Multiple serialization formats to communicate data instances between applications
 
 ## 2. Information vs. Data
-This non-normative section provides rationale and context for JADN.
+This non-normative section describes what is meant by "information model" and "information-centric" type definitions.
 ### 2.1 Information Models
 RFC 3444 describes differences between information models (IMs) and data models (DMs):
 * The main purpose of an IM is to model managed objects at a conceptual level,
 independent of any specific implementations or protocols used to transport
-the data. In order to make the overall design as clear as possible, an IM
-should hide all protocol and implementation details.
+the data.
 * DMs, conversely, are defined at a lower level of abstraction and include
 many details. They are intended for implementors and include protocol-specific
 constructs.
@@ -39,35 +37,31 @@ constructs.
 ```
 Since conceptual models can be implemented in different ways, multiple DMs
 can be derived from a single IM.
-### 2.2 Model Driven Architecture
-In Model Driven Architecture [MDA], the IM is part of a Platform Independent Model (**PIM**) and DMs
-are used in Platform Specific Models (**PSM**), where:
-* A PIM exhibits a sufficient degree of independence so as to enable its
-mapping to one or more platforms. This is commonly achieved by defining a set of
-services in a way that abstracts out technical details.
-* A PSM combines the specifications in the PIM with the details
+
+In the context of data definitions within a Model Driven Architecture [MDA]:
+* An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
+mapping to one or more platforms.
+* A DM is part of a Platform Specific model (PSM) that combines the specifications in the PIM with the details
 required to stipulate how a system uses a particular type of platform. 
-### 2.3 Abstracting Information
-Information theory defines *information* as the amount of unexpected data, or "entropy", contained in a message.
-An IM defines just the information (unexpected data) in a message, while DMs based on serialization rules add
-greater or lesser amounts of expected data (containing no information) in order to format the information
-for transmission. If the serialization is canonical it adds no unexpected data; if not, all unexpected data
-added during serialization is discarded on deserialization.
+### 2.3 Abstraction
+Information refers to *what* needs to be communicated between applications, and data is *how* that information
+is represented when communicating.  More formally, information theory defines information as the unexpected data or
+"entropy" contained in a message.  When information is serialized for transmission in a canonical format, the additional
+data used for purposes such as text conversion, delimiting and framing contains zero entropy because it is known a priori.
+If the serialization is non-canonical, any additional entropy introduced into the data (e.g., whitespace) is discarded
+on deserialization.
 
-That theoretical description has practical implications when designing information models:
-1) if there are multiple equivalent representations of an item, the shortest is **always** that item's information.
-2) bookkeeping data (such as string lengths, item separators, and framing data) is **never** information.
+For example, in an Information model an IPv4 address ([RFC791]) is a 32 bit value because it contains 32 bits of
+information that an application cares about. Data Models define how an IPv4 address is serialized, for example:
+* Textual representation of an IPv4 address [TEXTREP] contained in a JSON string:
+"192.168.141.240" (17 bytes / 136 bits of data).
+* Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
+* CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
-Deciding what constitutes an IM is illustrated through examples.
-* Heuristic:
-    * Authoritative definition
-    * Unambiguous definition
-    * Information theory
+The data is different when using different DMs, but the information in these three examples is the same.
 
-## 3. Schema mechanism
-A JADN schema is a structured data instance that can be validated, consisting of:
-* meta-information about the schema
-* type definitions
+## 3. JADN Types
+
 
 JADN type definitions provide:
 * Value constraints (enumerations, size and value ranges, regex patterns, semantic validation keywords)
@@ -76,6 +70,10 @@ JADN type definitions provide:
 * Serialization options
 
 ## 4. Schema Formats
+A JADN schema is a structured data instance that can be validated, consisting of:
+* meta-information about the schema
+* type definitions
+
 JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-ish)
 
 ## 5. Serialization
