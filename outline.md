@@ -37,7 +37,7 @@ can be derived from a single IM.
 In the context of data definitions within a Model Driven Architecture [MDA]:
 * An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
 mapping to one or more platforms.
-* A DM is part of a Platform Specific model (PSM) that combines the specifications in the PIM with the details
+* A DM is part of a Platform Specific Model (PSM) that combines the specifications in the PIM with the details
 required to stipulate how a system uses a particular type of platform. 
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
@@ -138,9 +138,12 @@ When using CBOR serialization:
 | **String** | **tstr**: a text string (#3). |
 | **Array** | **array**: an array of data items (#4). |
 | **ArrayOf** | **vector**: an array of data items (#4). |
-| **Choice, Choice.ID** | **struct**: a map (#5) containing one pair. The first item (key) is an integer id, the second item is the value. |
-| **Enumerated, Enumerated.ID** | **int**: an unsigned integer (#0) or negative integer (#1) |
-| **Map, Map.ID**| **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
+| **Choice** | **struct**: a map (#5) containing one pair. The first item (key) is an integer id, the second item is the value. |
+| **Choice.ID** | **struct**: a map (#5) containing one pair. The first item (key) is an integer id, the second item is the value. |
+| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) |
+| **Enumerated.ID** | **int**: an unsigned integer (#0) or negative integer (#1) |
+| **Map** | **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
+| **Map.ID** | **struct**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
 | **MapOf** | **table**: a map (#5) of pairs. In each pair the first item (key) is an integer id, the second item is the value. |
 | **Record** | **record**: an array of data items (#4). |
 
@@ -157,8 +160,8 @@ As with CBOR,
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
 When using CBOR serialization:
-* 3.2.1. Serialization options MUST be ignored
-* 3.2.2. Instances of JADN types MUST be serialized as:
+* 3.3.1. Serialization options MUST be ignored
+* 3.3.2. Instances of JADN types MUST be serialized as:
 
 | JADN Type | M2M JSON Serialization Requirement |
 | :--- | :--- |
@@ -170,15 +173,21 @@ When using CBOR serialization:
 | **String** | JSON **string** |
 | **Array** | JSON **array** |
 | **ArrayOf** | JSON **array** |
-| **Choice, Choice.ID** | JSON **object** with one member. Member key is the integer id converted to string. |
-| **Enumerated, Enumerated.ID** | JSON **integer** |
-| **Map, Map.ID** | JSON **object**. Member keys are integer ids converted to strings. |
+| **Choice** | JSON **object** with one member. Member key is the integer id converted to string. |
+| **Choice.ID** | JSON **object** with one member. Member key is the integer id converted to string. |
+| **Enumerated** | JSON **integer** |
+| **Enumerated.ID** | JSON **integer** |
+| **Map** | JSON **object**. Member keys are integer ids converted to strings. |
+| **Map.ID** | JSON **object**. Member keys are integer ids converted to strings. |
 | **MapOf** | JSON **object**. Member keys are integer ids converted to strings. |
 | **Record** | JSON **array**. |
 
-## 4. Schema Formats
+## 4. JADN Schema Formats
 A JADN schema is a structured data instance that can be validated, consisting of:
 * meta-information about the schema
 * type definitions
 
 JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-ish)
+
+## 5. Data Model Generation
+A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
