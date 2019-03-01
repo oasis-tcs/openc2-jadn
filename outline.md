@@ -58,25 +58,30 @@ data examples.
 
 ## 2. JADN Types
 
-JADN type definitions provide:
-* Value constraints (enumerations, size and value ranges, regex patterns, semantic validation keywords)
-* Names for enumerated values and structure fields
-* Structure composition styles similar to CDDL
-* Serialization options
 
 ### 2.1. Types
+A JADN Information Model is built using the following types:
 
-A JADN type definition consists of:
-
-1. **TypeName:** the name of the type being defined
-2. **BaseType:** the name of the built-in type (from this section) of the type being defined
-3. **TypeOptions:** a list of zero or more options applicable to the type being defined
-4. **TypeDescription:** an optional comment describing the type
-5. **Fields:** if applicable to BaseType, a list of one or more field definitions
-
-A JADN field defintion consists of:
-1. **ID:** the integer identifier of the field
-2. **FieldName:** the name of the field
+| Type | Description |
+| :--- | :--- |
+| **Primitive Types** |   |
+| Binary | A sequence of octets.  Length is the number of octets. |
+| Boolean | A variable that can have one of two values: `true` and `false`. |
+| Integer | A whole number. |
+| Number | A real number. |
+| Null | An unspecified or non-existent value. |
+| String | A sequence of characters. Each character must have a valid Unicode codepoint.  Length is the number of characters. |
+| **Structures** |   |
+| Array | An ordered list of unnamed fields that have positionally-defined semantics. Each field has an ordinal position and a type. |
+| ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same semantics. Each field has an ordinal position and its value has type *vtype*. Represents a vector. |
+| Choice | One field selected from a set of named fields. The value has a name and a type. |
+| Choice.ID | One field selected from a set of fields.  The API value has an id and a type. |
+| Enumerated | A set of named integral constants. The API value is a name. |
+| Enumerated.ID | A set of unnamed integral constants. The API value is an id. |
+| Map | An unordered set of named fields. Each field has an id, name and type. |
+| Map.ID | An unordered set of fields.  Each field has an id and type. |
+| MapOf(*enum*, *vtype*) | A map from a set of keys to values that have the same semantics.  Each field has a key from *enum* and its value has type *vtype* |
+| Record | An ordered map from keys that have positions to values that have positionally-defined semantics. Each field has an ordinal position, name, and type. Represents a row in a table. |
 
 #### 2.1.1 Primitive Types
 Table
@@ -92,6 +97,25 @@ the only two representation formats, but they are used to specify five distingui
 * **table**, a map from a domain of keys to a domain of values that have the same semantics.
 * **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
 * **record**, an ordered map from keys that have positions to values that have positionally-defined semantics, as detailed in the structure definition.
+
+### 2.2. Type Definitions
+
+JADN type definitions provide:
+* Value constraints (enumerations, size and value ranges, regex patterns, semantic validation keywords)
+* Names for enumerated values and structure fields
+* Structure composition styles similar to CDDL
+* Serialization options
+A JADN type definition consists of:
+
+1. **TypeName:** the name of the type being defined
+2. **BaseType:** the name of the built-in type (from this section) of the type being defined
+3. **TypeOptions:** a list of zero or more options applicable to the type being defined
+4. **TypeDescription:** an optional comment describing the type
+5. **Fields:** if applicable to BaseType, a list of one or more field definitions
+
+A JADN field defintion consists of:
+1. **ID:** the integer identifier of the field
+2. **FieldName:** the name of the field
 
 ### 2.2. Value Constraints
 
