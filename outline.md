@@ -53,8 +53,8 @@ information that applications care about.  Different DMs define how an IPv4 addr
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
-The serialized data is different when using different DMs, but the 32 bit information value represented by these
-data examples is the same.
+The serialized data is different when using different DMs, but the same 32 bit information value is represented by these
+data examples.
 
 ## 2. JADN Types
 
@@ -65,6 +65,19 @@ JADN type definitions provide:
 * Serialization options
 
 ### 2.1. Types
+
+A JADN type definition consists of:
+
+1. **TypeName:** the name of the type being defined
+2. **BaseType:** the name of the built-in type (from this section) of the type being defined
+3. **TypeOptions:** a list of zero or more options applicable to the type being defined
+4. **TypeDescription:** an optional comment describing the type
+5. **Fields:** if applicable to BaseType, a list of one or more field definitions
+
+A JADN field defintion consists of:
+1. **ID:** the integer identifier of the field
+2. **FieldName:** the name of the field
+
 #### 2.1.1 Primitive Types
 Table
 #### 2.1.2 Composition Types
@@ -98,10 +111,10 @@ Serialization rules define how to represent an instance of a type using a specif
 The following JSON serialization rules are used to represent JADN data types in a human-friendly format, where:
 1) Records are serialized as objects
 2) Enumerated values and Object keys are serialized as meaningful strings, or as integer IDs if the .ID suffix is specified
-3) Binary values are serialized using type-specific text representations if if specified with a serialization option (e.g., /x)
+3) Binary values are serialized using type-specific text representations if a serialization option (e.g., /x) is specified
 
 When using JSON serialization:
-* 3.1.1. Instances of JADN types without serialization options defined in this section MUST be serialized as:
+* 3.1.1. Instances of JADN types without a serialization option defined in this section MUST be serialized as:
 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
@@ -123,7 +136,9 @@ When using JSON serialization:
 | **Record** | JSON **object**. Member keys are field names. |
 
 **JSON Serialization Options**
-* 3.1.2. Instances of JADN types with the following serialization options MUST be serialized as:
+JADN type definitions with more than one of the following options are invalid.
+JADN type definitions with a type other than that applicable to the option are invalid.
+* 3.1.2. Instances of JADN types with one of the following options MUST be serialized as:
 
 | Serialization Option | JADN Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
