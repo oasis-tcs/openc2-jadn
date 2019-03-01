@@ -53,7 +53,7 @@ information that applications care about.  Different DMs define how an IPv4 addr
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
-The serialized data is different when using different DMs, but these instances all represent the same 32 bit information value.
+The serialized data is different when using different DMs, but these example instances represent the same 32 bit information value.
 
 ## 2. JADN Types
 
@@ -110,10 +110,10 @@ When using JSON serialization:
 | Serialization Option | Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
 | **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
-| **/ipv4-addr** | Binary | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP].  IM value is a binary IPv4 address as defined in [RFC791]. |
-| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. IM value is a binary IPv6 address as defined in [RFC8200]. |
-| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. IM value is a two element array containing a binary IPv4 address and an integer prefix length. |
-| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. IM value is a two element array containing a binary IPv6 address and an integer prefix length. | 
+| **/ipv4-addr** | Binary | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP].  IM value is an IPv4 address as defined in [RFC791]. |
+| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. IM value is an IPv6 address as defined in [RFC8200]. |
+| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. IM value is an IPv4 address and a prefix length. |
+| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. IM value is an IPv6 address and a prefix length. | 
 
 ### 3.2 CBOR Serialization
 
