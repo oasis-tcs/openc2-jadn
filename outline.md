@@ -16,7 +16,7 @@ JSON Abstract Data Notation (JADN) is an information modeling language. It is ba
 This section is Non-Normative.
 
 JSON Abstract Data Notation (JADN) is an information modeling language. 
-RFC 3444 describes the difference between an information model (IM) and adata model (DM):
+RFC 3444 describes the difference between an information model (IM) and a data model (DM):
 * The main purpose of an IM is to model managed objects at a conceptual level,
 independent of any specific implementations or protocols used to transport
 the data.
@@ -41,19 +41,20 @@ mapping to one or more platforms.
 required to stipulate how a system uses a particular type of platform. 
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
-is represented when communicating.  More formally, information theory defines information as the unexpected data or
-"entropy" contained in a message.  When information is serialized for transmission in a canonical format, the additional
-data used for purposes such as text conversion, delimiting and framing contains no entropy because it is known a priori.
+is represented when communicating.  More formally, information is the unexpected data, or "entropy",
+contained in a message.  When information is serialized for transmission in a canonical format, the additional
+data used for purposes such as text conversion, delimiting, and framing contains no entropy because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced into the data during serialization
 (e.g., whitespace) is discarded on deserialization.
 
 For example, in an IM an IPv4 address [RFC791] is a 32 bit value because it contains 32 bits of
 information that applications care about.  Different DMs define how an IPv4 address is serialized, for example:
-* IPv4 Dotted Octet Format [TEXTREP] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits of data).
+* IPv4 Dotted Octet Format [TEXTREP] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
-The serialized data is different when using different DMs, but these example instances represent the same 32 bit information value.
+The serialized data is different when using different DMs, but the 32 bit information value represented by these
+data examples is the same.
 
 ## 2. JADN Types
 
@@ -82,7 +83,7 @@ The following JSON serialization rules are used to represent JADN data types in 
 3) Binary values are serialized using type-specific text representations if if specified with a serialization option (e.g., /x)
 
 When using JSON serialization:
-* 3.1.1. Instances of JADN types without serialization options MUST be serialized as:
+* 3.1.1. Instances of JADN types without serialization options defined in this section MUST be serialized as:
 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
@@ -104,10 +105,9 @@ When using JSON serialization:
 | **Record** | JSON **object**. Member keys are field names. |
 
 **JSON Serialization Options**
-* 3.1.2. Serialization options other than those defined below MUST be ignored
-* 3.1.3. Instances of JADN types with the following serialization options MUST be serialized as:
+* 3.1.2. Instances of JADN types with the following serialization options MUST be serialized as:
 
-| Serialization Option | Type | JSON Serialization Requirement |
+| Serialization Option | JADN Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
 | **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
 | **/ipv4-addr** | Binary | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP].  IM value is an IPv4 address as defined in [RFC791]. |
