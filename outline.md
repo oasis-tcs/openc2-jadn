@@ -64,6 +64,14 @@ JADN type definitions provide:
 * Structure composition styles similar to CDDL
 * Serialization options
 
+### 2.1. Types
+#### 2.1.1 Primitive Types
+Table
+#### 2.1.2 Composition Types
+Discussion of information-centric composition types vs. data-centric composition styles
+
+Table
+
 For structure types, arrays and maps are
 the only two representation formats, but they are used to specify five distinguishable styles of composition:
 * **vector**, an array of elements that have the same semantics.
@@ -71,6 +79,16 @@ the only two representation formats, but they are used to specify five distingui
 * **table**, a map from a domain of keys to a domain of values that have the same semantics.
 * **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
 * **record**, an ordered map from keys that have positions to values that have positionally-defined semantics, as detailed in the structure definition.
+
+### 2.2. Value Constraints
+
+### 2.3. Semantic Validation Keywords
+Non-transforming (email)
+Serialization options include value constraints
+* IM value is an IPv4 address as defined in [RFC791].
+* IM value is an IPv6 address as defined in [RFC8200]. 
+* IM value is an IPv4 address and a prefix length as specified in Section 3.1 of RFC 4632.
+* IM value is an IPv6 address and a prefix length as specified in Section 2.3 of RFC 4291.
 
 ## 3. Serialization
 Serialization rules define how to represent an instance of a type using a specific data format.  Three serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
@@ -110,10 +128,10 @@ When using JSON serialization:
 | Serialization Option | JADN Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
 | **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
-| **/ipv4-addr** | Binary | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP].  IM value is an IPv4 address as defined in [RFC791]. |
-| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. IM value is an IPv6 address as defined in [RFC8200]. |
-| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. IM value is an IPv4 address and a prefix length. |
-| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. IM value is an IPv6 address and a prefix length. | 
+| **/ipv4-addr** | Binary | JSON **string** containing the text representation of an IPv4 address as specified in Section 3 of "Textual Representation of IPv4 and IPv6 Addresses" [TEXTREP]. |
+| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. |
+| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. |
+| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
 
 ### 3.2 CBOR Serialization
 
@@ -125,8 +143,7 @@ Object Representation [CBOR] format, where CBOR type #x.y = Major type x, Additi
 CBOR type names from Concise Data Definition Language [CDDL] are shown here for reference.
 
 When using CBOR serialization:
-* 3.2.1. Serialization options MUST be ignored
-* 3.2.2. Instances of JADN types MUST be serialized as:
+* 3.2.1. Instances of JADN types MUST be serialized as:
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -159,11 +176,10 @@ As with CBOR,
 * Serialization options (e.g., /x) do not affect serialized values.
 * The .ID suffix on Choice, Enumerated and Map types does not affect serialized values.
 
-When using CBOR serialization:
-* 3.3.1. Serialization options MUST be ignored
-* 3.3.2. Instances of JADN types MUST be serialized as:
+When using M-JSON serialization:
+* 3.3.1. Instances of JADN types MUST be serialized as:
 
-| JADN Type | M2M JSON Serialization Requirement |
+| JADN Type | M-JSON Serialization Requirement |
 | :--- | :--- |
 | **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
 | **Boolean** | JSON **true** or **false** |
