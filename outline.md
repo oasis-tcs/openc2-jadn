@@ -1,16 +1,18 @@
 ## Abstract
 JSON Abstract Data Notation (JADN) is an information modeling language. It is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but JADN types are information-centric rather than data-centric. JADN-based specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent an instance of a type using a specific data format.  A JADN schema is a structured information object that can be serialized and transferred between applications, displayed in multiple documentation formats such as tables and text-based data definition languages, and translated into concrete schemas for specific data formats.
 
-## Non-Normative References
+## Normative References
 
-###### [TEXTREP]
-*"Textual Representation of IPv4 and IPv6 Addresses"*, https://tools.ietf.org/html/draft-main-ipaddr-text-rep-02#section-3.1
+## Non-Normative References
 
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
 
 ###### [RFC3444]
 *"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444
+
+###### [TEXTREP]
+*"Textual Representation of IPv4 and IPv6 Addresses"*, https://tools.ietf.org/html/draft-main-ipaddr-text-rep-02#section-3.1
 
 ## 1. Information vs. Data
 This section is Non-Normative.
@@ -58,37 +60,44 @@ data examples.
 
 ## 2. JADN Types
 
-
-### 2.1. Types
-A JADN Information Model is built using the following types:
+Each JADN type is defined by the characteristics it exhibits. Applications represent instances of these types in any manner that results in the defined behavior.
 
 | Type | Description |
 | :--- | :--- |
 | **Primitive Types** |   |
 | Binary | A sequence of octets.  Length is the number of octets. |
-| Boolean | A variable that can have one of two values: `true` and `false`. |
+| Boolean | A variable with one of two values: true and false. |
 | Integer | A whole number. |
 | Number | A real number. |
 | Null | An unspecified or non-existent value. |
-| String | A sequence of characters. Each character must have a valid Unicode codepoint.  Length is the number of characters. |
+| String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 | **Structures** |   |
-| Array | An ordered list of unnamed fields that have positionally-defined semantics. Each field has an ordinal position and a type. |
-| ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same semantics. Each field has an ordinal position and its value has type *vtype*. Represents a vector. |
-| Choice | One field selected from a set of named fields. The value has a name and a type. |
-| Choice.ID | One field selected from a set of fields.  The API value has an id and a type. |
-| Enumerated | A set of named integral constants. The API value is a name. |
-| Enumerated.ID | A set of unnamed integral constants. The API value is an id. |
-| Map | An unordered set of named fields. Each field has an id, name and type. |
-| Map.ID | An unordered set of fields.  Each field has an id and type. |
-| MapOf(*enum*, *vtype*) | A map from a set of keys to values that have the same semantics.  Each field has a key from *enum* and its value has type *vtype* |
-| Record | An ordered map from keys that have positions to values that have positionally-defined semantics. Each field has an ordinal position, name, and type. Represents a row in a table. |
+| Array | An ordered list of unnamed fields that have positionally-defined types. Each field has a position and a type. |
+| ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. |
+| Choice | One field selected from a set of named fields. The value has an id, name, and type. |
+| Choice.ID | One field selected from a set of numbered fields.  The value has an id and type. |
+| Enumerated | One value selected from a set of named integers. |
+| Enumerated.ID | One value selected from a set of unnamed integers. |
+| Map | An unordered set of named fields. Each field has an id, name, and type. |
+| Map.ID | An unordered set of numbered fields.  Each field has an id and type. |
+| MapOf(*enum*, *vtype*) | An unordered set of fields that have the same type. Each field has a key from *enum* and type *vtype* |
+| Record | An ordered set of named fields. Each field has a position, name, and type. |
 
-#### 2.1.1 Primitive Types
-Table
-#### 2.1.2 Composition Types
-Discussion of information-centric composition types vs. data-centric composition styles
 
-Table
+### Array
+
+### ArrayOf
+
+### Choice
+
+### Enumerated
+
+### Map
+
+### MapOf
+
+### Record
+
 
 For structure types, arrays and maps are
 the only two representation formats, but they are used to specify five distinguishable styles of composition:
