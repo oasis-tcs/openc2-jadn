@@ -1,5 +1,5 @@
 ## Abstract
-JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, and providing hints for user interfaces working with structured data. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using a specific data format.  A JADN schema is a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, and providing hints for user interfaces working with structured data. It is designed to promote protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats.  A JADN schema is a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 ## Normative References
 
@@ -16,7 +16,7 @@ JSON Abstract Data Notation (JADN) is an information modeling language based on 
 
 ## 1. Information vs. Data
 JSON Abstract Data Notation (JADN) is an information modeling language. 
-RFC 3444 describes the difference between an information model (IM) and a data model (DM):
+[RFC3444] describes the difference between an information model (IM) and a data model (DM):
 * The main purpose of an IM is to model managed objects at a conceptual level,
 independent of any specific implementations or protocols used to transport
 the data.
@@ -58,12 +58,16 @@ data examples.
 
 ## 2. JADN Types
 JADN is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but its types are information-centric rather than data-centric: each type is defined by the characteristics it exhibits.
-* JSON has a number type and JSON Schema defines integer as a value constraint: "'integer' matches any number with a zero fractional part". JADN has an Integer first-class type that is distinct from the Number type.
-* CBOR has array and map types and CDDL says: "While these are only two representation formats, they are used to specify four loosely-distinguishable styles of composition".  JADN has five first-class composition types.
+
+| Data-centric design | Information-centric design |
+| --- | --- |
+| JSON has a number type and JSON Schema defines integer as a value constraint: "integer matches any number with a zero fractional part". | Integer first-class type is distinct from the Number type. |
+| CBOR has array and map types and CDDL says: "While these are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types represent distinct composition styles. |
+| Protocol data is often designed to be Anglocentric | JADN structurally isolates natural-language strings in type definitions, allowing serialization rules to easily produce language-agnostic protocols. |
 
 Conformance to a JADN IM is based on the correctness of serialized data. Implementations are free to use any internal methods that result in the defined external data.
 
-| Type | Description |
+| JADN Type | Definition |
 | :--- | :--- |
 | **Primitive Types** |   |
 | Binary | A sequence of octets.  Length is the number of octets. |
@@ -73,24 +77,16 @@ Conformance to a JADN IM is based on the correctness of serialized data. Impleme
 | Null | An unspecified or non-existent value. |
 | String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 | **Structures** |   |
+| Enumerated | One value selected from a set of named integers. |
+| Enumerated.ID | One value selected from a set of unnamed integers. |
+| Choice | One field selected from a set of named fields. The value has an id, name, and type. |
+| Choice.ID | One field selected from a set of numbered fields.  The value has an id and type. |
 | Array | An ordered list of unnamed fields that have positionally-defined types. Each field has a position and a type. Corresponds to CDDL *record*. |
 | ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered set of named fields. Each field has an id, name, and type. Corresponds to CDDL *struct*. |
 | Map.ID | An unordered set of numbered fields.  Each field has an id and type. |
-| MapOf(*enum*, *vtype*) | An unordered set of fields that have the same type. Each field has a key from *enum* and type *vtype*. Represents a lookup table. Corresponds to CDDL *table*. |
-| Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no equivalent composition style. |
-| Choice | One field selected from a set of named fields. The value has an id, name, and type. |
-| Choice.ID | One field selected from a set of numbered fields.  The value has an id and type. |
-| Enumerated | One value selected from a set of named integers. |
-| Enumerated.ID | One value selected from a set of unnamed integers. |
-
-For structure types, arrays and maps are
-the only two representation formats, but they are used to specify five distinguishable styles of composition:
-* **vector**, an array of elements that have the same semantics.
-* **array**, an array of elements that have different positionally-defined semantics, as detailed in the structure definition.
-* **table**, a map from a domain of keys to a domain of values that have the same semantics.
-* **struct**, a map from a domain of keys as defined by the specification to a domain of values that have semantics bound to the key.
-* **record**, an ordered map from keys that have positions to values that have positionally-defined semantics, as detailed in the structure definition.
+| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a lookup table with keys specified by category rather than individually. Corresponds to CDDL *table*. |
+| Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
 ### 2.2. Type Definitions
 
@@ -112,6 +108,9 @@ A JADN field defintion consists of:
 2. **FieldName:** the name of the field
 
 ### 2.2. Value Constraints
+
+pure constraints
+serialization option constraints
 
 ### 2.3. Semantic Validation Keywords
 Non-transforming (email)
