@@ -1,5 +1,5 @@
 ## Abstract
-JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, and providing hints for user interfaces working with structured data. It is designed to promote protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats.  A JADN schema is a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats.  A JADN schema is a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 ## Normative References
 
@@ -47,25 +47,23 @@ data used for purposes such as text conversion, delimiting, and framing contains
 If the serialization is non-canonical, any additional entropy introduced into the data during serialization
 (e.g., whitespace) is discarded on deserialization.
 
-For example, in an IM an IPv4 address [RFC791] is a 32 bit value because it contains 32 bits of
-information that applications care about.  Different DMs define how an IPv4 address is serialized, for example:
+For example, an IPv4 address [RFC791] contains 32 bits of information. But different data is used to
+represent the same information:
 * IPv4 Dotted Octet Format [TEXTREP] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
-The serialized data is different when using different DMs, but the same 32 bit information value is represented by these
-data examples.
+JADN is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but it has an
+information-centric focus:
 
-## 2. JADN Types
-JADN is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but its types are information-centric rather than data-centric: each type is defined by the characteristics it exhibits.
-
-| Data-centric design | Information-centric design |
+| Data-centric | Information-centric |
 | --- | --- |
 | JSON has a number type and JSON Schema defines integer as a value constraint: "integer matches any number with a zero fractional part". | Integer first-class type is distinct from the Number type. |
 | CBOR has array and map types and CDDL says: "While these are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types represent distinct composition styles. |
-| Protocol data is often designed to be Anglocentric | JADN structurally isolates natural-language strings in type definitions, allowing serialization rules to easily produce language-agnostic protocols. |
+| Data-centric protocols are often designed to be Anglocentric | Information-centric types support definition of language-agnostic protocols. |
 
-Conformance to a JADN IM is based on the correctness of serialized data. Implementations are free to use any internal methods that result in the defined external data.
+## 2. JADN Types
+JADN types are defined in terms of their characteristics:
 
 | JADN Type | Definition |
 | :--- | :--- |
