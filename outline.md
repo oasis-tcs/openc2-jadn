@@ -1,5 +1,5 @@
 ## Abstract
-JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats.  A JADN schema is a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats.  A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 ## Normative References
 
@@ -67,7 +67,7 @@ JADN types are defined in terms of their characteristics:
 
 | JADN Type | Definition |
 | :--- | :--- |
-| **Primitive Types** |   |
+| **Primitives** |   |
 | Binary | A sequence of octets.  Length is the number of octets. |
 | Boolean | An element with one of two values: true or false. |
 | Integer | A whole number. |
@@ -78,25 +78,30 @@ JADN types are defined in terms of their characteristics:
 | Enumerated | One value selected from a set of named integers. |
 | Enumerated.ID | One value selected from a set of unnamed integers. |
 | Choice | One field selected from a set of named fields. The value has an id, name, and type. |
-| Choice.ID | One field selected from a set of numbered fields.  The value has an id and type. |
+| Choice.ID | One field selected from a set of unnamed fields.  The value has an id and type. |
 | Array | An ordered list of unnamed fields that have positionally-defined types. Each field has a position and a type. Corresponds to CDDL *record*. |
 | ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered set of named fields. Each field has an id, name, and type. Corresponds to CDDL *struct*. |
-| Map.ID | An unordered set of numbered fields.  Each field has an id and type. |
-| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a lookup table with keys specified by category rather than individually. Corresponds to CDDL *table*. |
+| Map.ID | An unordered set of unnamed fields.  Each field has an id and type. |
+| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys specified by category rather than individually. Corresponds to CDDL *table*. |
 | Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
-### 2.2. Type Definitions
+Every field in structured types has both an integer id and a string name. The Enumerated, Choice, and Map types have ".ID" variants where fields are "unnamed".  The difference is that with the named variants, the name is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With the unnamed variants names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if populated they may be used as non-normative labels for user interface purposes. Field names within ".ID" type definitions may be freely customized without affecting interoperability.
+
+For example a list of HTTP status codes could include the field (403, "Forbidden").  With the Enumerated type either the id or the name could appear in protocol data depending on the serialization rules.  With the Enumerated.ID type only the id 403 can be used in protocols, but the name "Forbidden" could be displayed in user interfaces, as could the names "Not Allowed", "Verboten", or "Interdit".
+
+### 2.1. Type Definitions
 
 JADN type definitions provide:
 * Value constraints (enumerations, size and value ranges, regex patterns, semantic validation keywords)
 * Names for enumerated values and structure fields
 * Structure composition styles similar to CDDL
 * Serialization options
+
 A JADN type definition consists of:
 
 1. **TypeName:** the name of the type being defined
-2. **BaseType:** the name of the built-in type (from this section) of the type being defined
+2. **BaseType:** the name of the JADN type of the type being defined
 3. **TypeOptions:** a list of zero or more options applicable to the type being defined
 4. **TypeDescription:** an optional comment describing the type
 5. **Fields:** if applicable to BaseType, a list of one or more field definitions
@@ -105,12 +110,16 @@ A JADN field defintion consists of:
 1. **ID:** the integer identifier of the field
 2. **FieldName:** the name of the field
 
-### 2.2. Value Constraints
+### 2.2. Options
+
+#### 2.2.1. Structural Options
+
+#### 2.2.2. Value Constraints
 
 pure constraints
 serialization option constraints
 
-### 2.3. Semantic Validation Keywords
+#### 2.2.3. Semantic Validation Keywords
 Non-transforming (email)
 Serialization options include value constraints
 * IM value is an IPv4 address as defined in [RFC791].
