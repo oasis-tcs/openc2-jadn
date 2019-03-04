@@ -44,10 +44,10 @@ Information is *what* needs to be communicated between applications, and data is
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a message.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no entropy because it is known a priori.
-If the serialization is non-canonical, any additional entropy introduced into the data during serialization
-(e.g., whitespace) is discarded on deserialization.
+If the serialization is non-canonical, any additional entropy introduced during serialization
+(e.g., whitespace, case-insensitive capitalization) is discarded on deserialization.
 
-For example, an IPv4 address [RFC791] contains 32 bits of information. But different data is used to
+For example, an IPv4 address [RFC791] contains 32 bits of information. But different data may be used to
 represent the same information:
 * IPv4 Dotted Octet Format [TEXTREP] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
@@ -58,8 +58,8 @@ information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
-| JSON has a number type and JSON Schema defines integer as a value constraint: "integer matches any number with a zero fractional part". | Integer first-class type is distinct from the Number type. |
-| CBOR has array and map types and CDDL says: "While these are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types represent distinct composition styles. |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer first-class type is distinct from the Number type. |
+| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types represent distinct composition styles. |
 | Data-centric protocols are often designed to be Anglocentric | Information-centric types support definition of language-agnostic protocols. |
 
 ## 2. JADN Types
