@@ -58,9 +58,10 @@ information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
-| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer first-class type is distinct from the Number type. |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct first-class types for Integer and Number. |
 | CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types represent distinct composition styles. |
-| Data-centric protocols are often designed to be Anglocentric | Information-centric types support definition of language-agnostic protocols. |
+| No table-specific schema support. | Tables are a fundamental way of organizing information. The Record first-class type enables both map and array representations of tabular data. |
+| Data-centric protocols are often designed to be Anglocentric | Information-centric types support definition of natural-language-agnostic protocols. |
 
 ## 2. JADN Types
 JADN types are defined in terms of their characteristics:
@@ -83,27 +84,20 @@ JADN types are defined in terms of their characteristics:
 | ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered set of named fields. Each field has an id, name, and type. Corresponds to CDDL *struct*. |
 | Map.ID | An unordered set of unnamed fields.  Each field has an id and type. |
-| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys specified by category rather than individually. Corresponds to CDDL *table*. |
+| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys either enumerated or in a well-defined category specified by, e.g., a semantic validation keyword. Corresponds to CDDL *table*. |
 | Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
-Every field in structured types has both an integer id and a string name. The Enumerated, Choice, and Map types have ".ID" variants where fields are "unnamed".  The difference is that with the named variants, the name is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With the unnamed variants names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if populated they may be used as non-normative labels for user interface purposes. Field names within ".ID" type definitions may be freely customized without affecting interoperability.
+Every field in structured types has both an integer id and a string name. The Enumerated, Choice, and Map types have ".ID" variants where fields are "unnamed".  The difference is that with the named variants, the name is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With the unnamed variants names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if populated they may be used as non-normative labels. Field names within ".ID" type definitions may be freely customized without affecting interoperability.
 
-For example a list of HTTP status codes could include the field (403, "Forbidden").  With the Enumerated type either the id or the name could appear in protocol data depending on the serialization rules.  With the Enumerated.ID type only the id 403 can be used in protocols, but the name "Forbidden" could be displayed in user interfaces, as could the names "Not Allowed", "Verboten", or "Interdit".
+For example a list of HTTP status codes could include the field (403, "Forbidden").  With the Enumerated type, serialization rules determine whether the id or the name is used in protocol data.  With the Enumerated.ID type only the id 403 is used in protocols, but the label "Forbidden" could appear in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
 ### 2.1. Type Definitions
-
-JADN type definitions provide:
-* Value constraints (enumerations, size and value ranges, regex patterns, semantic validation keywords)
-* Names for enumerated values and structure fields
-* Structure composition styles similar to CDDL
-* Serialization options
-
-A JADN type definition consists of:
+The JADN type definition format is designed to be 1) easily processed, with a fixed, regular structure, and 2) easily extended, without affecting the structure, through use of options. Each type definition consists of four elements, plus for compound types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
-2. **BaseType:** the name of the JADN type of the type being defined
+2. **BaseType:** the name of the built-in type that the type being defined is based on
 3. **TypeOptions:** a list of zero or more options applicable to the type being defined
-4. **TypeDescription:** an optional comment describing the type
+4. **TypeDescription:** a non-normative comment
 5. **Fields:** if applicable to BaseType, a list of one or more field definitions
 
 A JADN field defintion consists of:
