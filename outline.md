@@ -8,11 +8,12 @@ JSON Abstract Data Notation (JADN) is an information modeling language based on 
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
 
+###### [RFC2673]
+*"Binary Labels in the Domain Name System"*, https://tools.ietf.org/html/rfc2673
+
 ###### [RFC3444]
 *"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444
 
-###### [TEXTREP]
-*"Textual Representation of IPv4 and IPv6 Addresses"*, https://tools.ietf.org/html/draft-main-ipaddr-text-rep-02#section-3.1
 
 ## 1. Information vs. Data
 JSON Abstract Data Notation (JADN) is an information modeling language. 
@@ -49,7 +50,7 @@ If the serialization is non-canonical, any additional entropy introduced during 
 
 For example, an IPv4 address [RFC791] contains 32 bits of information. But different data may be used to
 represent the same information:
-* IPv4 Dotted Octet Format [TEXTREP] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
+* "Dotted-quad" [RFC2673] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
@@ -64,7 +65,7 @@ information-centric focus:
 | Data-centric protocols are often designed to be Anglocentric | Information-centric types support definition of natural-language-agnostic protocols. |
 
 ## 2. JADN Types
-JADN types are defined in terms of their characteristics:
+The JADN built-in (base) types are defined in terms of their characteristics:
 
 | JADN Type | Definition |
 | :--- | :--- |
@@ -84,7 +85,7 @@ JADN types are defined in terms of their characteristics:
 | ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered set of named fields. Each field has an id, name, and type. Corresponds to CDDL *struct*. |
 | Map.ID | An unordered set of unnamed fields.  Each field has an id and type. |
-| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys either enumerated or in a well-defined category specified by, e.g., a semantic validation keyword. Corresponds to CDDL *table*. |
+| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys that are either enumerated or members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
 Every field in structured types has both an integer id and a string name. The Enumerated, Choice, and Map types have ".ID" variants where fields are "unnamed".  The difference is that with the named variants, the name is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With the unnamed variants names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if populated they may be used as non-normative labels. Field names within ".ID" type definitions may be freely customized without affecting interoperability.
