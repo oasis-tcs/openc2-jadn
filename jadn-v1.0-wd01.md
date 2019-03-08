@@ -13,23 +13,19 @@
 
 ### Chairs:
 * Joe Brule (jmbrule@radium.ncsc.mil), [National Security Agency](https://www.nsa.gov/)
-* Sounil Yu (sounil.yu@bankofamerica.com), [Bank of America](http://www.bankofamerica.com/)
+* Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
 
 ### Editor:
 * David Kemp (dkemp@mobility-challenge.com), [National Security Agency](https://www.nsa.gov/)
 
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* XML schemas: (list file names or directory name)
-* Other parts (list titles and/or file names)
-* `(Note: Any normative computer language definitions that are part of the Work Product, such as XML instances, schemas and Java(TM) code, including fragments of such, must be (a) well formed and valid, (b) provided in separate plain text files, (c) referenced from the Work Product; and (d) where any definition in these separate files disagrees with the definition found in the specification, the definition in the separate file prevails. Remove this note before submitting for publication.)`
+* JADN Schemas: (JSON, CDDL)
 
 ### Related work:
 
 ### Abstract:
-JSON Abstract Data Notation (JADN) has several purposes, including definition of data structures and validation of data instances. This document specifies a vocabulary to describe the meaning of structured data, to provide hints for user interfaces working with structured data, and to make assertions about what a valid instance must look like.  JADN structure definitions are format-neutral.
-
-Serialization rules define how JADN instances are represented in specific data formats such as JSON, XML, and CBOR.
+JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 ### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date. The level of approval is also listed above. Check the "Latest version" location noted above for possible later revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
@@ -86,6 +82,12 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
+*Capabilities developed in XML, various means to move to JSON, then CBOR.*
+
+*Standards are created using data definition tables with a goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN defines a table structure that translates completely and unambiguously to a machine-usable schema. The schema serves as "byte code" that can be transferred between applications and interpreted to validate application data. It can be embedded to produce self-describing data.*
+
+*Numerous data definition languages are in use. JADN doesn't replace any of them, but serves as a Rosetta stone to facilitate translation among them.*
+
 The text in this section may all be replaced, but the following three sections (1.1, 1.2, and 1.3) are required for OASIS publications. Section 1.1 (IPR Policy) must not be changed by the TC. Section 1.2 (Terminology) may be modified to include other terminology-related information used in this specification. Section 1.3 (Normative References) should be modified to include additional references, as needed. Section 1.4 (Non-Normative References) is not required, but should be modified to include additional references, as needed.
 
 Here is a customized command line which will generate HTML from this markdown file (named jadn-v1.0-wd01.md):
@@ -119,6 +121,18 @@ Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14,
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
 
 ## 1.4 Non-Normative References
+
+###### [MDA]
+*"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
+
+###### [RFC791]
+
+
+###### [RFC2673]
+*"Binary Labels in the Domain Name System"*, https://tools.ietf.org/html/rfc2673
+
+###### [RFC3444]
+*"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444
 
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
@@ -254,28 +268,269 @@ Add horizontal rule lines where page breaks are desired in the PDF - before each
 
 -------
 
-# 2 Section Heading
-text.
+# 2 Information vs. Data
+JSON Abstract Data Notation (JADN) is an information modeling language. 
+[RFC3444] describes the difference between an information model (IM) and a data model (DM):
+* The main purpose of an IM is to model managed objects at a conceptual level,
+independent of any specific implementations or protocols used to transport
+the data.
+* DMs, conversely, are defined at a lower level of abstraction and include
+many details. They are intended for implementors and include protocol-specific
+constructs.
+```
+             IM                --> conceptual/abstract model
+              |                    for designers and operators
+   +----------+---------+
+   |          |         |
+   DM        DM         DM     --> concrete/detailed model
+                                   for implementors
+```
+Since conceptual models can be implemented in different ways, multiple DMs
+can be derived from a single IM.
 
-## 2.1 Level 2 Heading
-text.
+In the context of data definitions within a Model Driven Architecture [MDA]:
+* An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
+mapping to one or more platforms.
+* A DM is part of a Platform Specific Model (PSM) that combines the specifications in the PIM with the details
+required to stipulate how a system uses a particular type of platform. 
 
-### 2.1.1 Level 3 Heading
-text.
+Information is *what* needs to be communicated between applications, and data is *how* that information
+is represented when communicating.  More formally, information is the unexpected data, or "entropy",
+contained in a message.  When information is coded for transmission in a canonical format, the additional
+data used for purposes such as text conversion, delimiting, and framing contains no entropy because it is known a priori.
+If the serialization is non-canonical, any additional entropy introduced during serialization
+(e.g., whitespace, leading zeroes, case-insensitive capitalization) is discarded on deserialization.
 
-#### 2.1.1.1 Level 4 Heading
-text.
+For example, an IPv4 address [RFC791] contains 32 bits of information. But different data may be used to
+represent the same information:
+* IPv4 dotted-quad [RFC2673] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
+* Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
+* CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
-##### 2.1.1.1.1 Level 5 Heading
-This is the deepest level, because six # gets transformed into a Reference tag.
+JADN is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but has an
+information-centric focus:
 
+| Data-centric | Information-centric |
+| --- | --- |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
+| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types represent distinct composition styles. |
+| No table composition style is specified. | Tables are a fundamental way of organizing information. The Record first class type can represent tabular information in both array and map formats. |
+| Data-centric design is often Anglocentric. | Information-centric types encourage definition of natural-language-agnostic protocols. |
 
-## 2.2 Next Heading
-text.
+# 3 JADN Types
+JADN first-class types are defined in terms of their characteristics:
+
+| JADN Type | Definition |
+| :--- | :--- |
+| **Primitive** |   |
+| Binary | A sequence of octets.  Length is the number of octets. |
+| Boolean | An element with one of two values: true or false. |
+| Integer | A whole number. |
+| Number | A real number. |
+| Null | An unspecified or non-existent value. |
+| String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
+| **Structure** |   |
+| Enumerated | One value selected from a set of named integers. |
+| Enumerated.ID | One value selected from a set of unnamed integers. |
+| Choice | One field selected from a set of named fields. The value has an id, name, and type. |
+| Choice.ID | One field selected from a set of unnamed fields.  The value has an id and type. |
+| Array | An ordered list of unnamed fields that have positionally-defined types. Each field has a position and a type. Corresponds to CDDL *record*. |
+| ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
+| Map | An unordered set of named fields. Each field has an id, name, and type. Corresponds to CDDL *struct*. |
+| Map.ID | An unordered set of unnamed fields.  Each field has an id and type. |
+| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
+| Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
+
+Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types have ".ID" variants where fields are "unnamed".  The difference is that with the named variants, names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With the unnamed variants, names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field names within ".ID" type definitions may be freely customized without affecting interoperability.
+
+For example a list of HTTP status codes could include the field (403, "Forbidden").  With the Enumerated type, serialization rules determine whether the id or name is used in protocol data. With the Enumerated.ID type only the id 403 is used in protocols, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
+
+## 3.1 Type Definitions
+JADN type definitions have a simple, regular structure designed to be both easily processed and extensible. Each JADN type definition has four elements, plus for some types, a list of fields:
+
+1. **TypeName:** the name of the type being defined
+2. **BaseType:** the JADN type of the type being defined
+3. **TypeOptions:** a list of zero or more options applicable to the type being defined
+4. **TypeDescription:** a non-normative comment
+5. **Fields:** a list of one or more field definitions, if applicable to BaseType
+
+Primitive, ArrayOf, and MapOf base types have no field definitions.
+
+Field definitions for the Enumerated base type have three elements:
+1. **FieldID:** the integer identifier of the field
+2. **FieldName:** the name of the field
+3. **FieldDescription:** a non-normative comment
+
+Field definitions for the Array, Choice, Map, and Record base types have five elements:
+1. **FieldID:** the integer identifier of the field
+2. **FieldName:** the name of the field
+3. **FieldType:** the type of the field
+4. **FieldOptions:** a list of zero or more options applicable to the field
+5. **FieldDescription:** a non-normative comment
+
+FieldID and FieldName values MUST be unique within a type definition.
+For Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
+For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another field within the type.
+
+## 3.2 Options
+
+### 3.2.1 Type Options
+| Option ID | Type | Definition |
+| --- | --- | --- |
+| 0x3d `=` | boolean | id: If present, type is an ".ID" variant where FieldName is a non-normative label |
+| 0x2f `/` | string | sopt: Semantic validation keyword and serialization option |
+| 0x40 `@` | string | fmt: Semantic validation keyword |
+| 0x7b `{` | integer | minv: Minimum string length, integer value, array length, property count |
+| 0x7d `}` | integer | maxv: Maximum string length, integer value, array length, property count |
+| 0x2a `*` | string | vtype: ArrayOf/MapOf element type, or Enumerated value from the named type  |
+| 0x2b `+` | string | ktype: MapOf key type |
+| 0x24 `$` | string | pat: regular expression used to validate a String type |
+| 0x21 `!` | string | def: default value for an instance of this type |
+
+Within a type definition,
+* TypeOptions MUST contain no more than one instance of any option except 0x2f (serialization option).
+* TypeOptions MUST contain no more than one serialization option defined for any serialization format.
+
+### 3.2.2 Field Options
+FieldOptions may include 
+| Option ID | Type | Definition |
+| --- | --- | --- |
+| 0x5b `[` | integer | minc: Minimum cardinality |
+| 0x5d `]` | integer | maxc: Maximum cardinality |
+| 0x26 `&` | enum | tfield: field that specifies the type of this field |
+
+### 3.2.3 Semantic Validation Keywords
+Non-transforming (email)
+Serialization options include value constraints
+* IM value is an IPv4 address as defined in [RFC791].
+* IM value is an IPv6 address as defined in [RFC8200]. 
+* IM value is an IPv4 address and a prefix length as specified in Section 3.1 of RFC 4632.
+* IM value is an IPv6 address and a prefix length as specified in Section 2.3 of RFC 4291.
+
+# 4 Serialization
+Serialization rules define how to represent an instance of a type using a specific data format.  Several serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
+
+## 4.1 JSON Serialization
+
+The following JSON serialization rules are used to represent JADN data types in a human-friendly format.
+
+When using JSON serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
+
+| JADN Type | JSON Serialization Requirement |
+| :--- | :--- |
+| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
+| **Boolean** | JSON **true** or **false** |
+| **Integer** | JSON **number** |
+| **Number** | JSON **number** |
+| **Null** | JSON **null** |
+| **String** | JSON **string** |
+| **Array** | JSON **array** |
+| **ArrayOf** | JSON **array** |
+| **Choice** | JSON **object** with one member.  Member key is FieldName.   |
+| **Choice.ID** | JSON **object** with one member. Member key is FieldID converted to string. |
+| **Enumerated** | JSON **string** |
+| **Enumerated.ID** | JSON **integer** |
+| **Map** | JSON **object**. Member keys are FieldNames. |
+| **Map.ID** | JSON **object**. Member keys are FieldIDs converted to strings. |
+| **MapOf** | JSON **object**. Member keys are instances of *ktype*. |
+| **Record** | JSON **object**. Member keys are FieldNames. |
+
+**JSON Serialization Options**
+* JADN type definitions with more than one of the following options are invalid.
+* JADN type definitions with a type other than that applicable to the option are invalid.
+
+When using JSON serialization, instances of JADN types with one of the following options MUST be serialized as:
+
+| Serialization Option | JADN Type | JSON Serialization Requirement |
+| :--- | :--- | :--- |
+| **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
+| **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC2673]. |
+| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. |
+| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. |
+| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
+
+## 4.2 CBOR Serialization
+
+The following serialization rules are used to represent JADN data types in Concise Binary
+Object Representation [CBOR] format, where CBOR type #x.y = Major type x, Additional information y.
+* Serialization options and .ID variants do not affect serialized values.
+
+CBOR type names from Concise Data Definition Language [CDDL] are shown for reference.
+
+When using CBOR serialization, instances of JADN types MUST be serialized as:
+
+| JADN Type | CBOR Serialization Requirement |
+| :--- | :--- |
+| **Binary** | **bstr**: a byte string (#2). |
+| **Boolean** | **bool**: a Boolean value (False = #7.20, True = #7.21). |
+| **Integer** | **int**: an unsigned integer (#0) or negative integer (#1) |
+| **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
+| **Null** | **null**: (#7.22) |
+| **String** | **tstr**: a text string (#3). |
+| **Array** | **array**: an array of data items (#4) with types specified by FieldType. |
+| **ArrayOf** | **vector**: an array of data items (#4) of type *vtype*. |
+| **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
+| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) FieldID. |
+| **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
+| **MapOf** | **table**: a map (#5) of pairs. In each pair the first item has type *ktype*, the second item has type *vtype*. |
+| **Record** | **record**: an array of values (#4) with types positionally specified by FieldType. |
+
+## 4.3 M-JSON Serialization:
+
+Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to CBOR serialization using the JSON preface defined in [CDDL] Appendix E. As with CBOR,
+* Serialization options and .ID variants do not affect serialized values.
+
+When using M-JSON serialization, instances of JADN types MUST be serialized as:
+
+| JADN Type | M-JSON Serialization Requirement |
+| :--- | :--- |
+| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
+| **Boolean** | JSON **true** or **false** |
+| **Integer** | JSON **number** |
+| **Number** | JSON **number** |
+| **Null** | JSON **null** |
+| **String** | JSON **string** |
+| **Array** | JSON **array** of values with types positionally specified by FieldType. |
+| **ArrayOf** | JSON **array** |
+| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
+| **Enumerated** | JSON **integer** |
+| **Map** | JSON **object**. Member keys are FieldIDs converted to strings with value has the . |
+| **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
+| **Record** | JSON **array** of values with types positionally specified by FieldType. |
+
+## 4.4 XML Serialization:
+
+When using XML serialization, instances of JADN types MUST be serialized as:
+
+| JADN Type | XML Serialization Requirement |
+| :--- | :--- |
+| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
+| **Boolean** | JSON **true** or **false** |
+| **Integer** | JSON **number** |
+| **Number** | JSON **number** |
+| **Null** | JSON **null** |
+| **String** | JSON **string** |
+| **Array** | JSON **array** of values with types positionally specified by FieldType. |
+| **ArrayOf** | JSON **array** |
+| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
+| **Enumerated** | JSON **integer** |
+| **Map** | JSON **object**. Member keys are FieldIDs converted to strings with value has the . |
+| **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
+| **Record** | JSON **array** of values with types positionally specified by FieldType. |
+
+# 5 JADN Schema Formats
+A JADN schema is a structured data instance that can be validated, consisting of:
+* meta-information about the schema
+* type definitions
+
+JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-ish)
+
+# 6 Data Model Generation
+A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
 
 -------
 
-# 3 Security Considerations
+# 7 Security Considerations
 (Note: OASIS strongly recommends that Technical Committees consider issues that could affect security when implementing their specification and document them for implementers and adopters. For some purposes, you may find it required, e.g. if you apply for IANA registration.
 
 While it may not be immediately obvious how your specification might make systems vulnerable to attack, most specifications, because they involve communications between systems, message formats, or system settings, open potential channels for exploit. For example, IETF [[RFC3552](#rfc3552)] lists “eavesdropping, replay, message insertion, deletion, modification, and man-in-the-middle” as well as potential denial of service attacks as threats that must be considered and, if appropriate, addressed in IETF RFCs. 
@@ -288,7 +543,7 @@ Remove this note before submitting for publication.)
 
 -------
 
-# 4 Conformance
+# 8 Conformance
 (Note: The [OASIS TC Process](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsConfClause) requires that a specification approved by the TC at the Committee Specification Public Review Draft, Committee Specification or OASIS Standard level must include a separate section, listing a set of numbered conformance clauses, to which any implementation of the specification must adhere in order to claim conformance to the specification (or any optional portion thereof). This is done by listing the conformance clauses here.
 For the definition of "conformance clause," see [OASIS Defined Terms](https://www.oasis-open.org/policies-guidelines/oasis-defined-terms-2017-05-26#dConformanceClause).
 
@@ -302,24 +557,29 @@ Remove this note before submitting for publication.)
 
 # Appendix A. Acknowledgments
 
-(Note: A Work Product approved by the TC must include a list of people who participated in the development of the Work Product. This is generally done by collecting the list of names in this appendix. This list shall be initially compiled by the Chair, and any Member of the TC may add or remove their names from the list by request.  
-Remove this note before submitting for publication.)
-
 The following individuals have participated in the creation of this specification and are gratefully acknowledged:
 
 **OpenC2 TC Members:**
 
 | First Name | Last Name | Company |
 | :--- | :--- | :--- |
-Philippe | Alcoy | Arbor Networks
-Alex | Amirnovin | Viasat
-Kris | Anderson | Trend Micro
-Darren | Anstee | Arbor Networks
+| Jason | | |
+| Bret | | |
+| Brian | | |
 
 -------
 
 # Appendix B. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | yyyy-mm-dd | Editor Name | Initial working draft |
+| jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
+# Appendix C. JADN Information Model for JADN
+## Table format
+## JSON format
+## CBOR format
+
+# Appendix D. JSON-Schema Data Model for JADN
+JSON Schema generated from the IM of Appendix C, validates any JADN schema in JSON format
+# Appendix E. CDDL Data Model for JADN
+CDDL generated from the IM of Appendix C, validates any JADN schema in CBOR format
