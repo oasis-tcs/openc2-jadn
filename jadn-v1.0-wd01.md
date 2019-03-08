@@ -341,7 +341,9 @@ JADN first-class types are defined in terms of their characteristics:
 | MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
-Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types have ".ID" variants where fields are "unnamed".  The difference is that with the named variants, names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With the unnamed variants, names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field names within ".ID" type definitions may be freely customized without affecting interoperability.
+**Named and Unnamed Fields**
+
+Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types have ".ID" variants (designated by presence of the "id" type option, section 3.2.1) where fields are "unnamed".  With named variants, names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed variants, names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field names within unnamed type definitions may be freely customized without affecting interoperability.
 
 For example a list of HTTP status codes could include the field (403, "Forbidden").  With the Enumerated type, serialization rules determine whether the id or name is used in protocol data. With the Enumerated.ID type only the id 403 is used in protocols, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
@@ -375,29 +377,33 @@ For Enumerated, Choice and Map base types, FieldID may be any integer tag that d
 ## 3.2 Options
 
 ### 3.2.1 Type Options
-| Option ID | Type | Definition |
+
+| Option ID | Type | Label: Definition |
 | --- | --- | --- |
-| 0x3d `=` | boolean | id: If present, type is an ".ID" variant where FieldName is a non-normative label |
-| 0x2f `/` | string | sopt: Semantic validation keyword and serialization option |
-| 0x40 `@` | string | fmt: Semantic validation keyword |
-| 0x7b `{` | integer | minv: Minimum string length, integer value, array length, property count |
-| 0x7d `}` | integer | maxv: Maximum string length, integer value, array length, property count |
-| 0x2a `*` | string | vtype: ArrayOf/MapOf element type, or Enumerated value from the named type  |
-| 0x2b `+` | string | ktype: MapOf key type |
-| 0x24 `$` | string | pat: regular expression used to validate a String type |
-| 0x21 `!` | string | def: default value for an instance of this type |
+| 0x3d `'='` | boolean | id: If present, type is an ".ID" variant where FieldName is a non-normative label |
+| 0x2f `'/'` | string | sopt: Semantic validation keyword and serialization option |
+| 0x40 `'@'` | string | format: Semantic validation keyword |
+| 0x7b `'{'` | integer | minv: Minimum string length, integer value, array length, map member count |
+| 0x7d `'}'` | integer | maxv: Maximum string length, integer value, array length, map member count |
+| 0x2a `'*'` | string | vtype: ArrayOf/MapOf element type, or Enumerated value from the named type  |
+| 0x2b `'+'` | string | ktype: MapOf key type |
+| 0x24 `'$'` | string | pattern: regular expression used to validate a String type |
+| 0x21 `'!'` | string | default: default value for an instance of this type |
 
 Within a type definition,
-* TypeOptions MUST contain no more than one instance of any option except 0x2f (serialization option).
-* TypeOptions MUST contain no more than one serialization option defined for any serialization format.
+* TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
+* For each serialization format, TypeOptions MUST contain zero or one serialization option defined by that format.
 
 ### 3.2.2 Field Options
-FieldOptions may include 
+When a field creates an anonymous type (FieldType is a JADN type), the type options applicable to FieldType may be included in FieldOptions. When a field references a schema-defined type (FieldType is not a JADN type), FieldOptions MUST NOT contain any type options.
+
+FieldOptions MUST contain zero or one instance of each of the following field options:  
+
 | Option ID | Type | Definition |
 | --- | --- | --- |
-| 0x5b `[` | integer | minc: Minimum cardinality |
-| 0x5d `]` | integer | maxc: Maximum cardinality |
-| 0x26 `&` | enum | tfield: field that specifies the type of this field |
+| 0x5b `'['` | integer | minc: Minimum cardinality |
+| 0x5d `']'` | integer | maxc: Maximum cardinality |
+| 0x26 `'&'` | enum | tfield: field that specifies the type of this field |
 
 ### 3.2.3 Semantic Validation Keywords
 Non-transforming (email)
