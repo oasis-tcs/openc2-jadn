@@ -20,7 +20,7 @@
 
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JADN Schemas: (JSON, CDDL)
+* *Editor's Note: list JADN Schemas: (JSON, CDDL)*
 
 ### Related work:
 
@@ -270,7 +270,7 @@ Add horizontal rule lines where page breaks are desired in the PDF - before each
 
 # 2 Information vs. Data
 JSON Abstract Data Notation (JADN) is an information modeling language. 
-[RFC3444] describes the difference between an information model (IM) and a data model (DM):
+[RFC 3444](#rfc3444) describes the difference between an information model (IM) and a data model (DM):
 * The main purpose of an IM is to model managed objects at a conceptual level,
 independent of any specific implementations or protocols used to transport
 the data.
@@ -288,7 +288,7 @@ constructs.
 Since conceptual models can be implemented in different ways, multiple DMs
 can be derived from a single IM.
 
-In the context of data definitions within a Model Driven Architecture [MDA]:
+In the context of data definitions within a Model Driven Architecture ([MDA](#mda)):
 * An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
 mapping to one or more platforms.
 * A DM is part of a Platform Specific Model (PSM) that combines the specifications in the PIM with the details
@@ -301,9 +301,9 @@ data used for purposes such as text conversion, delimiting, and framing contains
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, case-insensitive capitalization) is discarded on deserialization.
 
-For example, an IPv4 address [RFC791] contains 32 bits of information. But different data may be used to
+For example, an IPv4 address ([RFC 791](#rfc791)) contains 32 bits of information. But different data may be used to
 represent the same information:
-* IPv4 dotted-quad [RFC2673] contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
+* IPv4 dotted-quad ([RFC 2673](#rfc2673)) contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
@@ -334,12 +334,12 @@ JADN first-class types are defined in terms of their characteristics:
 | Enumerated.ID | One value selected from a set of unnamed integers. |
 | Choice | One field selected from a set of named fields. The value has an id, name, and type. |
 | Choice.ID | One field selected from a set of unnamed fields.  The value has an id and type. |
-| Array | An ordered list of unnamed fields that have positionally-defined types. Each field has a position and a type. Corresponds to CDDL *record*. |
-| ArrayOf(*vtype*) | An ordered list of unnamed fields that have the same type. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
-| Map | An unordered set of named fields. Each field has an id, name, and type. Corresponds to CDDL *struct*. |
-| Map.ID | An unordered set of unnamed fields.  Each field has an id and type. |
-| MapOf(*ktype*, *vtype*) | An unordered set of fields that have the same type. Each field has key type *ktype* and value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
-| Record | An ordered set of named fields. Each field has a position, name, and type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
+| Array | An ordered list of unnamed fields with positionally-defined semantics. Each field has a position and type. Corresponds to CDDL *record*. |
+| ArrayOf(*vtype*) | An ordered list of unnamed fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
+| Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name, and is mapped to a type. Corresponds to CDDL *struct*. |
+| Map.ID | An unordered map from a set of specified keys to values with semantics bound to each key.  Each key has an id, and is mapped to a type. |
+| MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
+| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
 **Named and Unnamed Fields**
 
@@ -430,16 +430,16 @@ When using JSON serialization, instances of JADN types without a serialization o
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Array** | JSON **array** |
-| **ArrayOf** | JSON **array** |
+| **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
+| **ArrayOf** | JSON **array** of values with type *vtype*. |
 | **Choice** | JSON **object** with one member.  Member key is FieldName.   |
 | **Choice.ID** | JSON **object** with one member. Member key is FieldID converted to string. |
 | **Enumerated** | JSON **string** |
 | **Enumerated.ID** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are FieldNames. |
 | **Map.ID** | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object**. Member keys are instances of *ktype*. |
-| **Record** | JSON **object**. Member keys are FieldNames. |
+| **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
+| **Record** | Same as **Map**. |
 
 **JSON Serialization Options**
 * JADN type definitions with more than one of the following options are invalid.
@@ -473,13 +473,13 @@ When using CBOR serialization, instances of JADN types MUST be serialized as:
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
 | **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
-| **Array** | **array**: an array of data items (#4) with types specified by FieldType. |
-| **ArrayOf** | **vector**: an array of data items (#4) of type *vtype*. |
+| **Array** | **array**: an array of values (#4) with types specified by FieldType. Unspecified values are **null** (#7.22) if before the last specified value, otherwise omitted. |
+| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*. |
 | **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) FieldID. |
 | **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
 | **MapOf** | **table**: a map (#5) of pairs. In each pair the first item has type *ktype*, the second item has type *vtype*. |
-| **Record** | **record**: an array of values (#4) with types positionally specified by FieldType. |
+| **Record** | Same as **Array**. |
 
 ## 4.3 M-JSON Serialization:
 
@@ -496,17 +496,18 @@ When using M-JSON serialization, instances of JADN types MUST be serialized as:
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Array** | JSON **array** of values with types positionally specified by FieldType. |
-| **ArrayOf** | JSON **array** |
+| **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
+| **ArrayOf** | JSON **array** of values with type *vtype*. |
 | **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
 | **Enumerated** | JSON **integer** |
-| **Map** | JSON **object**. Member keys are FieldIDs converted to strings with value has the . |
+| **Map** | JSON **object**. Member keys are FieldIDs converted to strings. |
 | **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
-| **Record** | JSON **array** of values with types positionally specified by FieldType. |
+| **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
 
 When using XML serialization, instances of JADN types MUST be serialized as:
+*Editor's Note: Define XML rules*
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
@@ -522,7 +523,7 @@ When using XML serialization, instances of JADN types MUST be serialized as:
 | **Enumerated** | JSON **integer** |
 | **Map** | JSON **object**. Member keys are FieldIDs converted to strings with value has the . |
 | **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
-| **Record** | JSON **array** of values with types positionally specified by FieldType. |
+| **Record** | Same as **Array**. |
 
 # 5 JADN Schema Formats
 A JADN schema is a structured data instance that can be validated, consisting of:
