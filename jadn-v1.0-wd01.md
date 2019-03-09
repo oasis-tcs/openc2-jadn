@@ -88,18 +88,6 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 *Numerous data definition languages are in use. JADN doesn't replace any of them, but serves as a Rosetta stone to facilitate translation among them.*
 
-The text in this section may all be replaced, but the following three sections (1.1, 1.2, and 1.3) are required for OASIS publications. Section 1.1 (IPR Policy) must not be changed by the TC. Section 1.2 (Terminology) may be modified to include other terminology-related information used in this specification. Section 1.3 (Normative References) should be modified to include additional references, as needed. Section 1.4 (Non-Normative References) is not required, but should be modified to include additional references, as needed.
-
-Here is a customized command line which will generate HTML from this markdown file (named jadn-v1.0-wd01.md):
-
-pandoc -f gfm -t html jadn-v1.0-wd01.md -c styles/markdown-styles-v1.7.css --toc --toc-depth=5 -s -o jadn-v1.0-wd01.html --metadata title="Specification for JSON Abstract Data Notation Version 1.0"
-
-We are currently using pandoc 2.6 from https://github.com/jgm/pandoc/releases/tag/2.6.
-
-This also requires the presence of a .css file containing the HTML styles (like styles/markdown-styles-v1.7.css).
-
-Note this command generates a Table of Contents (TOC) in HTML which is located at the top of the HTML document, and which requires additional editing in order to be published in the expected OASIS style. This editing will be handled by OASIS staff during publication.
-
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
@@ -107,26 +95,29 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
 ## 1.3 Normative References
-
-(Reference sources:
-For references to IETF RFCs, use the approved citation formats at:  
-http://docs.oasis-open.org/templates/ietf-rfc-list/ietf-rfc-list.html.  
-For references to W3C Recommendations, use the approved citation formats at:  
-http://docs.oasis-open.org/templates/w3c-recommendations-list/w3c-recommendations-list.html.  
-Remove this note before submitting for publication.)
+###### [RFC791]
 
 ###### [RFC2119]
 Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
+###### [RFC2673]
+
+###### [RFC4291]
+
+###### [RFC4632]
+
+###### [RFC4648]
+
+###### [RFC5952]
+
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
+
+###### [RFC8200]
 
 ## 1.4 Non-Normative References
 
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
-
-###### [RFC791]
-
 
 ###### [RFC2673]
 *"Binary Labels in the Domain Name System"*, https://tools.ietf.org/html/rfc2673
@@ -136,135 +127,6 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
-
-## 1.5 Some markdown usage examples
-
-**Text.**
-
-Note that text paragraphs in markdown should be separated by a blank line between them -
-
-Otherwise the separate paragraphs will be joined together when the HTML is generated.
-Even if the text appears to be separate lines in the markdown source.
-
-To avoid having the usual vertical space between paragraphs,  
-append two or more space characters to the end of the lines  
-which will generate an HTML break tag instead of a new paragraph tag  
-(as demonstrated here).
-
-### 1.5.1 Figures and Captions
-
-FIGURE EXAMPLE:
-<note caption is best ABOVE figure, to allow a link to it to display image - same for table captions>
-
-###### Figure 1 -- Title of Figure
-![image-label should be meaningful](images/image_0.png) (this image is missing)
-
-###### Figure 2 -- OpenC2 Message Exchange
-![message exchange](images/image_1.png)
-
-
-### 1.5.2 Tables
-
-#### 1.5.2.1 Basic Table
-**Table 1-1. Table Label**
-
-| Item | Description |
-| :--- | :--- |
-| Item 1 | Something<br>(second line) |
-| Item 2 | Something |
-| Item 3 | Something<br>(second line) |
-| Item 4 | text |
-
-#### 1.5.2.2 Table with Three Columns and Some Bold Text
-text.
-
-| Title 1 | Title 2 | title 3 |
-| :--- | :--- | :--- |
-| something | something | something else that is a long string of text that **might** need to wrap around inside the table box and will just continue until the column divider is reached |
-| something | something | something |
-
-#### 1.5.2.3 Table with a caption which can be referenced
-
-###### Table 1-5. See reference label construction
-
-| Name | Description |
-| :--- | :--- |
-| **content** | Message body as specified by content_type and msg_type. |
-
-Here is a reference to the table caption:
-Please see [Table 1-5 or other meaningful label](#table-1-5-see-reference-label-construction) 
-
-
-### 1.5.3 Lists
-
-Bulleted list:
-* bullet item 1.
-* **Bold** bullet item 2.
-* bullet item 3.
-* bullet item 4.
-
-Indented or multi-level bullet list - add two spaces per level before bullet character (* or -):
-* main bullet type
-  * Example second bullet
-    * See third level
-      * fourth level
-
-Numbered list:
-1. item 1
-2. item 2
-3. item 3
-
-### 1.5.4 Reference Label Construction
-
-REFERENCES and ANCHORS
-- in markdown source, format the Reference tags as level 6 headings like: `###### [RFC2119]`
-###### [RFC2119]
-Bradner, S., "Key words ..."
-
-- reference text has to be on a separate line below the tag
-
-- format cross-references (citations of the references) like: `see [[RFC2119](#rfc2119)]`  
-"see [[RFC2119](#rfc2119)]"  
-(note the outer square brackets in markdown will appear in the visible HTML text)
-
-- The text in the Reference tag (following ###### ) will become an HTML anchor using the following conversion rules:  
--- punctuation marks will be dropped (including "[" )  
--- leading white spaces will be dropped  
--- upper case will be converted to lower  
--- spaces between letters will be converted to a single hyphen
-
-- The same HTML anchor construction rules apply to cross-references and to section headings.  
--- Thus, a section heading like "## 1.3 Normative References"  
--- becomes an anchor in HTML like `<a href="#13-normative-references">`  
--- referenced in the markdown like: see [Section 1.3](#13-normative-references)  
--- (in markdown: `"see [Section 1.3](#13-normative-references"`)  
--- similar HTML anchors are also used in constructing the TOC
-
-### 1.5.5 Code Blocks
-
-Text to appear as an indented code block with grey background and monospace font - use three back-ticks before and after the code block).
-
-Note the actual backticks will not appear in the HTML version. If it's necessary to display visible backticks, place a back-slash before them like: \``` .
-
-```
-{   
-    "target": {
-        "x_kmip_2.0": {
-            {"kmip_type": "json"},
-            {"operation": "RekeyKeyPair"},
-            {"name": "publicWebKey11DEC2017"}
-        }
-    }
-}
-```
-
-Text to be highlighted as code can also be surrounded by a single "backtick" character: 
-`code text`
-
-## 1.6 Page Breaks
-Add horizontal rule lines where page breaks are desired in the PDF - before each major section
-- insert the line rules in markdown by inserting 3 or more hyphens on a line by themselves:  ---
-- place these before each main section in markdown (usually "#" - which generates the HTML `<h1>` tag)
 
 -------
 
@@ -301,9 +163,9 @@ data used for purposes such as text conversion, delimiting, and framing contains
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, case-insensitive capitalization) is discarded on deserialization.
 
-For example, an IPv4 address ([RFC 791](#rfc791)) contains 32 bits of information. But different data may be used to
+For example, an IPv4 address contains 32 bits of information. But different data may be used to
 represent the same information:
-* IPv4 dotted-quad ([RFC 2673](#rfc2673)) contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
+* IPv4 dotted-quad contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
@@ -352,9 +214,9 @@ JADN type definitions have a simple, regular structure designed to be both easil
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type of the type being defined
-3. **TypeOptions:** a list of zero or more options applicable to the type being defined
+3. **TypeOptions:** an array of zero or more options applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
-5. **Fields:** a list of one or more field definitions, if applicable to BaseType
+5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
 Primitive, ArrayOf, and MapOf base types have no field definitions.
 
@@ -367,7 +229,7 @@ Field definitions for the Array, Choice, Map, and Record base types have five el
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name of the field
 3. **FieldType:** the type of the field
-4. **FieldOptions:** a list of zero or more options applicable to the field
+4. **FieldOptions:** an array of zero or more options applicable to the field
 5. **FieldDescription:** a non-normative comment
 
 FieldID and FieldName values MUST be unique within a type definition.
@@ -378,24 +240,25 @@ For Enumerated, Choice and Map base types, FieldID may be any integer tag that d
 
 ### 3.2.1 Type Options
 
-| Option ID | Type | Label: Definition |
-| --- | --- | --- |
-| 0x3d `'='` | boolean | id: If present, type is an ".ID" variant where FieldName is a non-normative label |
-| 0x2f `'/'` | string | sopt: Semantic validation keyword and serialization option |
-| 0x40 `'@'` | string | format: Semantic validation keyword |
-| 0x7b `'{'` | integer | minv: Minimum string length, integer value, array length, map member count |
-| 0x7d `'}'` | integer | maxv: Maximum string length, integer value, array length, map member count |
-| 0x2a `'*'` | string | vtype: ArrayOf/MapOf element type, or Enumerated value from the named type  |
-| 0x2b `'+'` | string | ktype: MapOf key type |
-| 0x24 `'$'` | string | pattern: regular expression used to validate a String type |
-| 0x21 `'!'` | string | default: default value for an instance of this type |
+| Option ID | Option Value | Applicable To | Label: Definition |
+| --- | --- | --- | --- |
+| 0x3d `'='` | none | Enumerated, Choice, Map | id: If present, type is an ".ID" variant where FieldName is a non-normative label |
+| 0x2f `'/'` | string | Any | sopt: Semantic validation keyword and serialization option |
+| 0x40 `'@'` | string | Any | format: Semantic validation keyword |
+| 0x7b `'{'` | integer | Integer, String, Array, ArrayOf, Map, MapOf | minv: Minimum integer value, string length, array length, map member count |
+| 0x7d `'}'` | integer | Integer, String, Array, ArrayOf, Map, MapOf | maxv: Maximum integer value, string length, array length, map member count |
+| 0x2a `'*'` | string | ArrayOf, MapOf | vtype: ArrayOf/MapOf element type, or Enumerated value from the named type  |
+| 0x2b `'+'` | string | MapOf | ktype: MapOf key type |
+| 0x24 `'$'` | string | String | pattern: regular expression used to validate a String type |
+| 0x21 `'!'` | string | Any | default: default value for an instance of this type |
 
 Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
 * For each serialization format, TypeOptions MUST contain zero or one serialization option defined by that format.
 
 ### 3.2.2 Field Options
-When a field creates an anonymous type (FieldType is a JADN type), the type options applicable to FieldType may be included in FieldOptions. When a field references a schema-defined type (FieldType is not a JADN type), FieldOptions MUST NOT contain any type options.
+When FieldType is a JADN type, FieldOptions may contain type options applicable to that FieldType.
+When FieldType is not a JADN type, FieldOptions MUST NOT contain any type options.
 
 FieldOptions MUST contain zero or one instance of each of the following field options:  
 
@@ -408,10 +271,10 @@ FieldOptions MUST contain zero or one instance of each of the following field op
 ### 3.2.3 Semantic Validation Keywords
 Non-transforming (email)
 Serialization options include value constraints
-* IM value is an IPv4 address as defined in [RFC791].
-* IM value is an IPv6 address as defined in [RFC8200]. 
-* IM value is an IPv4 address and a prefix length as specified in Section 3.1 of RFC 4632.
-* IM value is an IPv6 address and a prefix length as specified in Section 2.3 of RFC 4291.
+* IM value is an IPv4 address as defined in [RFC 791](#rfc791).
+* IM value is an IPv6 address as defined in [RFC 8200](#rfc8200). 
+* IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
+* IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
 
 # 4 Serialization
 Serialization rules define how to represent an instance of a type using a specific data format.  Several serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
@@ -424,7 +287,7 @@ When using JSON serialization, instances of JADN types without a serialization o
 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
-| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
+| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648). |
 | **Boolean** | JSON **true** or **false** |
 | **Integer** | JSON **number** |
 | **Number** | JSON **number** |
@@ -449,11 +312,11 @@ When using JSON serialization, instances of JADN types with one of the following
 
 | Serialization Option | JADN Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
-| **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of RFC 4648. Note that the Base16 alphabet does not include lower-case letters. |
-| **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC2673]. |
-| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of RFC 5952. |
-| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of RFC 4632. |
-| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of RFC 4291. | 
+| **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of [RFC 4648](#rfc4648). Note that the Base16 alphabet does not include lower-case letters. |
+| **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC 2673](#rfc2673). |
+| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of [RFC 5952](#rfc5952). |
+| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of [RFC 4632](#rfc4632). The type MUST be an Array with two fields: a Binary IPv4 address and an Integer prefix length. |
+| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of [RFC 4291](#rfc4291). The type MUST be an Array with two fields: a Binary IPv6 address and an Integer prefix length. |
 
 ## 4.2 CBOR Serialization
 
@@ -559,7 +422,6 @@ http://docs.oasis-open.org/templates/TCHandbook/ConformanceGuidelines.html.
 
 Remove this note before submitting for publication.)
 
-
 -------
 
 # Appendix A. Acknowledgments
@@ -581,7 +443,7 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Information Model for JADN
+# Appendix C. JADN Information Model
 ## Table format
 ## JSON format
 ## CBOR format
