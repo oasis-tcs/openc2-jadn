@@ -169,6 +169,8 @@ represent the same information:
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 
+**Information Modeling**
+
 JADN is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but has an
 information-centric focus:
 
@@ -176,8 +178,8 @@ information-centric focus:
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Composition styles lead to five first-class types that can be represented in multiple data formats. |
-| No table composition style is specified. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as both arrays and maps in multiple data formats. |
+| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types derived from composition styles can be represented in multiple data formats. |
+| No table composition style is specified. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localization of identifiers within applications. |
 
 # 3 JADN Types
@@ -194,7 +196,7 @@ JADN first-class types are defined in terms of their characteristics:
 | String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 | **Structure** |   |
 | Enumerated | One value selected from a set of named or unnamed integers. |
-| Choice | One field selected from a set of named or unnamed fields. The value has an id, name or label, and type. |
+| Choice | One key and value selected from a set of named or unnamed fields. The key has an id and name or label, and is mapped to a type. |
 | Array | An ordered list of unnamed fields with positionally-defined semantics. Each field has a position and type. Corresponds to CDDL *record*. |
 | ArrayOf(*vtype*) | An ordered list of unnamed fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. Corresponds to CDDL *struct*. |
@@ -203,7 +205,7 @@ JADN first-class types are defined in terms of their characteristics:
 
 **Named and Unnamed Fields**
 
-Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option (section 3.2.1) indicating that fields of that type are unnamed.  With named types, names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field labels may be freely customized without affecting interoperability.
+Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option ([section 3.2.1](#321-type-options)) indicating that fields of that type are unnamed.  With named types, names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field labels may be freely customized without affecting interoperability.
 
 For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  Without the "id" option, serialization rules determine whether the id or name is used in protocol data. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
@@ -238,17 +240,17 @@ For Enumerated, Choice and Map base types, FieldID may be any integer tag that d
 
 ### 3.2.1 Type Options
 
-| Option | ID | Value | Applies To | Definition |
+| ID | Label | Type | Applies To | Definition |
 | --- | --- | --- | --- | --- |
-| id | 0x3d `'='` | none | Enumerated,<br> Choice, Map | If present, FieldName is a non-normative label rather than a defined name |
-| sopt | 0x2f `'/'` | string | Any | Serialization option, may also include semantic validation |
-| format | 0x40 `'@'` | string | Any | Semantic validation keyword |
-| minv | 0x7b `'{'` | integer | Integer, String,<br> Array, ArrayOf,<br> Map, MapOf | Minimum integer value, string length, array length, map member count |
-| maxv | 0x7d `'}'` | integer | Integer, String,<br> Array, ArrayOf,<br> Map, MapOf | Maximum integer value, string length, array length, map member count |
-| vtype | 0x2a `'*'` | string | ArrayOf, MapOf | Value type of ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
-| ktype | 0x2b `'+'` | string | MapOf | MapOf key type |
-| pattern | 0x24 `'$'` | string | String | regular expression used to validate a String type |
-| default | 0x21 `'!'` | string | Any | default value for an instance of this type |
+| 0x3d `'='` | id | none | Enumerated,<br> Choice, Map | If present, FieldName is a non-normative label rather than a defined name |
+| 0x2f `'/'` | sopt | string | Any | Serialization option, may also include semantic validation |
+| 0x40 `'@'` | format | string | Any | Semantic validation keyword |
+| 0x7b `'{'` | minv | integer | Integer, String,<br> Array, ArrayOf,<br> Map, MapOf | Minimum integer value, string length, array length, map member count |
+| 0x7d `'}'` | maxv | integer | Integer, String,<br> Array, ArrayOf,<br> Map, MapOf | Maximum integer value, string length, array length, map member count |
+| 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type of ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
+| 0x2b `'+'` | ktype | string | MapOf | MapOf key type |
+| 0x24 `'$'` | pattern | string | String | regular expression used to validate a String type |
+| 0x21 `'!'` | default | string | Any | default value for an instance of this type |
 
 Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
@@ -260,11 +262,11 @@ When FieldType is not a JADN type, FieldOptions MUST NOT contain any type option
 
 FieldOptions MUST contain zero or one instance of each of the following field options:  
 
-| Option | ID | Type | Definition |
+| ID | Label | Type | Definition |
 | --- | --- | --- | --- |
-| minc | 0x5b `'['` | integer | Minimum cardinality |
-| maxc | 0x5d `']'` | integer | Maximum cardinality |
-| tfield | 0x26 `'&'` | enum | field that specifies the type of this field |
+| 0x5b `'['` | minc | integer | Minimum cardinality |
+| 0x5d `']'` | maxc | integer | Maximum cardinality |
+| 0x26 `'&'` | tfield | enum | field that specifies the type of this field |
 
 ### 3.2.3 Semantic Validation Keywords
 Non-transforming (email)
@@ -367,8 +369,9 @@ When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
 ## 4.4 XML Serialization:
 
-When using XML serialization, instances of JADN types MUST be serialized as:
 *Editor's Note: Define XML rules*
+
+When using XML serialization, instances of JADN types MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
@@ -430,9 +433,6 @@ The following individuals have participated in the creation of this specificatio
 
 | First Name | Last Name | Company |
 | :--- | :--- | :--- |
-| Jason | | |
-| Bret | | |
-| Brian | | |
 
 -------
 
