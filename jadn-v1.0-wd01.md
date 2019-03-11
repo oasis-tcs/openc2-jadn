@@ -121,6 +121,9 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 
 ## 1.4 Non-Normative References
 
+###### [DRY]
+*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
 
@@ -193,6 +196,8 @@ information-centric focus:
 # 3 JADN Types
 JADN first-class types are defined in terms of their characteristics:
 
+###### Table 3-1. JADN Types
+
 | JADN Type | Definition |
 | :--- | :--- |
 | **Primitive** |   |
@@ -218,10 +223,10 @@ Each field in a structured type definition has both an integer id and a string n
 For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
 ## 3.1 Type Definitions
-JADN type definitions have a simple, regular structure designed to be both easily processed and extensible. Each JADN type definition has four elements, plus for some types, a list of fields:
+JADN type definitions have a simple, regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
-2. **BaseType:** the JADN type of the type being defined
+2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
 3. **TypeOptions:** an array of zero or more options applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
@@ -255,8 +260,11 @@ JADN type definitions are themselves information objects that can be represented
 ```
 
 ## 3.2 Options
+As shown in [Section 3.1](#31-type-definitions), the type definition structure is rigidly regular.  This section defines a set of options that provide semantic richness within that structure.
 
 ### 3.2.1 Type Options
+
+###### Table 3-2. Type Options
 
 | ID | Label | Type | Applies To | Definition |
 | --- | --- | --- | --- | --- |
@@ -280,6 +288,8 @@ When FieldType is not a JADN type, FieldOptions MUST NOT contain any type option
 
 FieldOptions MUST contain zero or one instance of each of the following field options:  
 
+###### Table 3-3. Field Options
+
 | ID | Label | Type | Definition |
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | integer | Minimum cardinality |
@@ -295,6 +305,14 @@ FieldOptions MUST contain zero or one instance of each of the following field op
 * IM value is an IPv6 address as defined in [RFC 8200](#rfc8200). 
 * IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
 * IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
+
+### 3.2.4 Syntactic Sugar
+JADN includes several options that make type definitions more compact or to support the [DRY](#dry) software design principle:
+* Field Multiplicity -> Explicit ArrayOf
+* Derived Enumerated -> Explicit Enumerated
+* MapOf with Enumerated key -> Explicit Map
+
+*Description of expansion to aid understanding, and within validator implementations to reduce code complexity.*
 
 # 4 Serialization
 Serialization rules define how to represent an instance of a type using a specific data format.  Several serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
