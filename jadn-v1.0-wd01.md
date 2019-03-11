@@ -82,6 +82,8 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
+*Editors Notes:*
+
 *Capabilities developed in XML, various means to move to JSON, then CBOR.*
 
 *Standards are created using data definition tables with a goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN defines a table structure that translates completely and unambiguously to a machine-usable schema. The schema serves as "byte code" that can be transferred between applications and interpreted to validate application data. It can be embedded to produce self-describing data.*
@@ -108,6 +110,9 @@ Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14,
 ###### [RFC4648]
 
 ###### [RFC5952]
+
+###### [RFC7049]
+*"Concise Binary Object Representation (CBOR)"*, https://tools.ietf.org/html/rfc7049
 
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
@@ -153,7 +158,7 @@ constructs.
 Since conceptual models can be implemented in different ways, multiple DMs
 can be derived from a single IM.
 
-In the context of data definitions within a Model Driven Architecture ([MDA](#mda)):
+Within a Model Driven Architecture ([MDA](#mda)):
 * An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
 mapping to one or more platforms.
 * A DM is part of a Platform Specific Model (PSM) that combines the specifications in the PIM with the details
@@ -174,15 +179,15 @@ represent the same information:
 
 **Information Modeling**
 
-JADN is based on the CBOR data model (JSON types plus integers, special numbers, and byte strings), but has an
+JADN is based on the [CBOR](#rfc7049) data model (JSON types plus integers, special numbers, and byte strings), but has an
 information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Five first-class types derived from composition styles can be represented in multiple data formats. |
-| No table composition style is specified. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
+| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
+| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localization of identifiers within applications. |
 
 # 3 JADN Types
@@ -208,9 +213,9 @@ JADN first-class types are defined in terms of their characteristics:
 
 **Named and Unnamed Fields**
 
-Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option ([section 3.2.1](#321-type-options)) indicating that fields of that type are unnamed.  With named types, names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field labels may be freely customized without affecting interoperability.
+Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option ([section 3.2.1](#321-type-options)) indicating that fields of that type are unnamed. The Record first-class type has no "id" option because Array is its unnamed equivalent. With named types, field names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, field names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field labels may be freely customized without affecting interoperability.
 
-For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  Without the "id" option, serialization rules determine whether the id or name is used in protocol data. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
+For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
 ## 3.1 Type Definitions
 JADN type definitions have a simple, regular structure designed to be both easily processed and extensible. Each JADN type definition has four elements, plus for some types, a list of fields:
@@ -221,14 +226,14 @@ JADN type definitions have a simple, regular structure designed to be both easil
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-Primitive, ArrayOf, and MapOf base types have no field definitions.
+Primitive, ArrayOf, and MapOf base types MUST have no field definitions.
 
-Field definitions for the Enumerated base type have three elements:
+Field definitions for the Enumerated base type MUST have three elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldDescription:** a non-normative comment
 
-Field definitions for the Array, Choice, Map, and Record base types have five elements:
+Field definitions for the Array, Choice, Map, and Record base types MUST have five elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
@@ -237,7 +242,7 @@ Field definitions for the Array, Choice, Map, and Record base types have five el
 
 FieldID and FieldName values MUST be unique within a type definition.
 For Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
-For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another field within the type definition.
+For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another FIeldID within the type definition.
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) in JSON format defines a Record type called Person with three fields, the third of which is optional:
 
@@ -255,11 +260,11 @@ JADN type definitions are themselves information objects that can be represented
 
 | ID | Label | Type | Applies To | Definition |
 | --- | --- | --- | --- | --- |
-| 0x3d `'='` | id | none | Enumerated,<br> Choice, Map | If present, FieldName is a non-normative label rather than a defined name |
-| 0x2f `'/'` | sopt | string | Any | Serialization option, may also include semantic validation |
-| 0x40 `'@'` | format | string | Any | Semantic validation keyword |
-| 0x7b `'{'` | minv | integer | Integer, String,<br> Array, ArrayOf,<br> Map, MapOf | Minimum integer value, string length, array length, map member count |
-| 0x7d `'}'` | maxv | integer | Integer, String,<br> Array, ArrayOf,<br> Map, MapOf | Maximum integer value, string length, array length, map member count |
+| 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a non-normative label rather than a defined name |
+| 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
+| 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.3](#323-semantic-validation-keywords) |
+| 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf | Minimum numeric value, octet or character count, array length, map member count |
+| 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf | Maximum numeric value, octet or character count, array length, map member count |
 | 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type of ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
 | 0x2b `'+'` | ktype | string | MapOf | MapOf key type |
 | 0x24 `'$'` | pattern | string | String | regular expression used to validate a String type |
@@ -282,8 +287,10 @@ FieldOptions MUST contain zero or one instance of each of the following field op
 | 0x26 `'&'` | tfield | enum | field that specifies the type of this field |
 
 ### 3.2.3 Semantic Validation Keywords
-Non-transforming (email)
-Serialization options include value constraints
+*Non-transforming options (e.g., email)*
+
+*Serialization options may include value constraints applicable to all data formats.*
+
 * IM value is an IPv4 address as defined in [RFC 791](#rfc791).
 * IM value is an IPv6 address as defined in [RFC 8200](#rfc8200). 
 * IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
@@ -291,6 +298,10 @@ Serialization options include value constraints
 
 # 4 Serialization
 Serialization rules define how to represent an instance of a type using a specific data format.  Several serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
+
+*Editor's note: conformance requirements for serialization rules:*
+* MUST define a rule for each data type
+* MUST define how each option applicable to that type affects serialized values
 
 ## 4.1 JSON Serialization
 
@@ -415,15 +426,13 @@ A JADN schema can be combined with a set of serialization rules to produce a DM,
 -------
 
 # 7 Security Considerations
-(Note: OASIS strongly recommends that Technical Committees consider issues that could affect security when implementing their specification and document them for implementers and adopters. For some purposes, you may find it required, e.g. if you apply for IANA registration.
+This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
 
-While it may not be immediately obvious how your specification might make systems vulnerable to attack, most specifications, because they involve communications between systems, message formats, or system settings, open potential channels for exploit. For example, IETF [[RFC3552](#rfc3552)] lists “eavesdropping, replay, message insertion, deletion, modification, and man-in-the-middle” as well as potential denial of service attacks as threats that must be considered and, if appropriate, addressed in IETF RFCs. 
+Additional security considerations applicable to JADN-based specifications:
+* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
+* Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-In addition to considering and describing foreseeable risks, this section should include guidance on how implementers and adopters can protect against these risks.
-
-We encourage editors and TC members concerned with this subject to read _Guidelines for Writing RFC Text on Security Considerations_, IETF [[RFC3552](#rfc3552)], for more information.
-
-Remove this note before submitting for publication.)
+Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
 -------
 
