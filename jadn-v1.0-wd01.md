@@ -119,6 +119,9 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
 
+###### [PROTO]
+*"Protocol Buffers"*, https://developers.google.com/protocol-buffers/
+
 ###### [RFC2673]
 *"Binary Labels in the Domain Name System"*, https://tools.ietf.org/html/rfc2673
 
@@ -235,6 +238,16 @@ Field definitions for the Array, Choice, Map, and Record base types have five el
 FieldID and FieldName values MUST be unique within a type definition.
 For Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another field within the type definition.
+
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) in JSON format defines a Record type called Person with three fields, the third of which is optional:
+
+```
+["Person", "Record", [], "", [
+  [1, "name", "String", [], ""],
+  [2, "id", "Integer", [], ""],
+  [3, "email", "String", ["[0"], ""]
+]]
+```
 
 ## 3.2 Options
 
