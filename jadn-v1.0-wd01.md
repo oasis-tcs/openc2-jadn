@@ -139,6 +139,9 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
 
+###### [THRIFT]
+*"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html
+
 -------
 
 # 2 Information vs. Data
@@ -267,6 +270,16 @@ The same JADN definition in Markdown table format is:
 | 1 | **name** | String | 1 | |
 | 2 | **id** | Integer | 1 | |
 | 3 | **email** | String | 0..1 | |
+
+The same JADN definition in an IDL format similar to [Apache Thrift](#thrift) is:
+```
+record Person {
+  1: string name,
+  2: integer id,
+  3: optional string email,
+}
+```
+Of these three example definitions, only the JSON format is data that can be read unambiguously by applications with no JADN-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats, and specifications that include JADN definitions in other formats SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
 This section defines a mechanism to support expressive and varied type definitions within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options, or as a last resort a new base type, without affecting that structure.
