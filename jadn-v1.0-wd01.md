@@ -43,8 +43,6 @@ https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html
 Permanent "Latest version" URI:  
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html
 
-(Note: Publication URIs are managed by OASIS TC Administration; please don't modify.)
-
 ### Citation format:
 When referencing this specification the following citation format should be used:
 
@@ -221,9 +219,9 @@ JADN first-class types are defined in terms of their characteristics:
 
 **Named and Unnamed Fields**
 
-Each field in a structured type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option ([section 3.2.1](#321-type-options)) indicating that fields of that type are unnamed. The Record first-class type has no "id" option because Array is its unnamed equivalent. With named types, field names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, field names are not included in the semantics, may be empty in the type definition, never appear in serialized data, but if present they may be used as non-normative labels. Field labels may be freely customized without affecting interoperability.
+Each field in a type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option ([section 3.2.1](#321-type-options)) indicating that fields of that type are unnamed. The Record first-class type has no "id" option because Array is its unnamed equivalent. With named types, field names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, field names are not included in the semantics, may be empty in the type definition, never appear in serialized data, and are defined to be non-normative labels. Field labels may be freely customized without affecting interoperability.
 
-For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
+For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data, and the name "Forbidden" must be used verbatim. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
 ## 3.1 Type Definitions
 JADN type definitions have a simple, regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
@@ -279,13 +277,14 @@ record Person {
   3: optional string email,
 }
 ```
-Of these three example definitions, only the JSON format is data that can be read unambiguously by applications with no JADN-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats, and specifications that include JADN definitions in other formats SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in another format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
-This section defines a mechanism to support expressive and varied type definitions within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options, or as a last resort a new base type, without affecting that structure.
+This section defines a mechanism to support expressive and varied type definitions within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options without affecting that structure.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole - they
+Type options apply to the type definition as a whole.
+
 ###### Table 3-2. Type Options
 
 | ID | Label | Type | Applies To | Definition |
@@ -305,8 +304,10 @@ Within a type definition,
 * For each serialization format, TypeOptions MUST contain zero or one serialization option defined by that format.
 
 ### 3.2.2 Field Options
-When FieldType is a JADN type, FieldOptions may contain type options applicable to that FieldType.
-When FieldType is not a JADN type, FieldOptions MUST NOT contain any type options.
+Field options apply to one field within a type definition.
+
+If FieldType is a JADN type ([Table 3-1](#table-3-1-jadn-types)), FieldOptions may contain type options applicable to that FieldType.
+If FieldType is not a JADN type, FieldOptions MUST NOT contain any type options ([Table 3-2](#table-3-2-type-options)).
 
 FieldOptions MUST contain zero or one instance of each of the following field options:  
 
@@ -363,15 +364,15 @@ When using JSON serialization, instances of JADN types without a serialization o
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*. |
-| **Choice** | JSON **object** with one member.  Member key is FieldName.   |
-| **Choice** with "id" | JSON **object** with one member. Member key is FieldID converted to string. |
 | **Enumerated** | JSON **string** |
 | **Enumerated** with "id" | JSON **integer** |
+| **Choice** | JSON **object** with one member.  Member key is FieldName.   |
+| **Choice** with "id" | JSON **object** with one member. Member key is FieldID converted to string. |
+| **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
+| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
 | **Map** | JSON **object**. Member keys are FieldNames. |
 | **Map** with "id" | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
+| **MapOf** | JSON **object**, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. |
 | **Record** | Same as **Map**. |
 
 **JSON Serialization Options**
@@ -406,12 +407,12 @@ When using CBOR serialization, instances of JADN types MUST be serialized as:
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
 | **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
-| **Array** | **array**: an array of values (#4) with types specified by FieldType. Unspecified values are **null** (#7.22) if before the last specified value, otherwise omitted. |
-| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*. |
-| **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) FieldID. |
+| **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
+| **Array** | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
+| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is Null. |
 | **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
-| **MapOf** | **table**: a map (#5) of pairs. In each pair the first item has type *ktype*, the second item has type *vtype*. |
+| **MapOf** | **table**: a map (#5) of pairs, or **null** if *vtype* is Null. In each pair the first item has type *ktype*, the second item has type *vtype*. |
 | **Record** | Same as **Array**. |
 
 ## 4.3 M-JSON Serialization:
@@ -429,12 +430,12 @@ When using M-JSON serialization, instances of JADN types MUST be serialized as:
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*. |
-| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
 | **Enumerated** | JSON **integer** |
+| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
+| **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
+| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
 | **Map** | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
+| **MapOf** | JSON **object**, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. |
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
@@ -451,12 +452,12 @@ When using XML serialization, instances of JADN types MUST be serialized as:
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Array** | JSON **array** of values with types positionally specified by FieldType. |
-| **ArrayOf** | JSON **array** |
-| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
 | **Enumerated** | JSON **integer** |
+| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
+| **Array** | JSON **array** of values with types positionally specified by FieldType. |
+| **ArrayOf** | JSON **array**, or JSON **null** if *vtype* is Null. |
 | **Map** | JSON **object**. Member keys are FieldIDs converted to strings with value has the . |
-| **MapOf** | JSON **object**. Members have key type *ktype* and value type *vtype*. |
+| **MapOf** | JSON **object**, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. |
 | **Record** | Same as **Array**. |
 
 # 5 JADN Schema Formats
