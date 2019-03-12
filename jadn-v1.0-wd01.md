@@ -277,7 +277,7 @@ record Person {
   3: optional string email,
 }
 ```
-Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in another format SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
 This section defines a mechanism to support expressive and varied type definitions within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options without affecting that structure.
@@ -470,9 +470,17 @@ JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-i
 # 6 Data Model Generation
 A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
 
+# 7 Operational Considerations
+* Serialization (bulk vs pull)
+* Validation (integrated with serialization, separate)
+* Schema expansion (unsweetening) - optional
+* Localization
+* Schema embedding - self-describing data
+* Bridging
+* Tabular data (not too many optional columns, sort fields by required/optional.  Tuples.)
 -------
 
-# 7 Security Considerations
+# 8 Security Considerations
 This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
 
 Additional security considerations applicable to JADN-based specifications:
@@ -483,7 +491,7 @@ Writers of JADN specifications are strongly encouraged to value simplicity and t
 
 -------
 
-# 8 Conformance
+# 9 Conformance
 (Note: The [OASIS TC Process](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsConfClause) requires that a specification approved by the TC at the Committee Specification Public Review Draft, Committee Specification or OASIS Standard level must include a separate section, listing a set of numbered conformance clauses, to which any implementation of the specification must adhere in order to claim conformance to the specification (or any optional portion thereof). This is done by listing the conformance clauses here.
 For the definition of "conformance clause," see [OASIS Defined Terms](https://www.oasis-open.org/policies-guidelines/oasis-defined-terms-2017-05-26#dConformanceClause).
 
