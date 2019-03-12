@@ -292,12 +292,12 @@ Type options apply to the type definition as a whole.
 | 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a non-normative label rather than a defined name |
 | 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
 | 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.3](#323-semantic-validation-keywords) |
-| 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf | Minimum numeric value, octet or character count, array length, map member count |
-| 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf | Maximum numeric value, octet or character count, array length, map member count |
-| 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type of ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
-| 0x2b `'+'` | ktype | string | MapOf | MapOf key type |
-| 0x24 `'$'` | pattern | string | String | regular expression used to validate a String type |
-| 0x21 `'!'` | default | string | Any | default value for an instance of this type |
+| 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Minimum numeric value, octet or character count, or element count |
+| 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Maximum numeric value, octet or character count, or element count |
+| 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
+| 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
+| 0x24 `'$'` | pattern | string | String | Regular expression used to validate a String type |
+| 0x21 `'!'` | default | string | Any | Default value for an instance of this type |
 
 Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
