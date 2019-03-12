@@ -249,7 +249,7 @@ FieldID and FieldName values MUST be unique within a type definition.
 For Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another FIeldID within the type definition.
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) in JSON format defines a Record type called Person with three fields, the third of which is optional:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) of a JADN definition in JSON format defines a Record type called Person with three fields, the third of which is optional:
 
 ```
 ["Person", "Record", [], "", [
@@ -258,12 +258,21 @@ JADN type definitions are themselves information objects that can be represented
   [3, "email", "String", ["[0"], ""]
 ]]
 ```
+The same JADN definition in Markdown table format is:
+
+***Type: Person (Record)***
+
+| ID | Name | Type | # | Description |
+| ---: | --- | --- | ---: | --- |
+| 1 | **name** | String | 1 | |
+| 2 | **id** | Integer | 1 | |
+| 3 | **email** | String | 0..1 | |
 
 ## 3.2 Options
-As shown in [Section 3.1](#31-type-definitions), the type definition structure is rigidly regular.  This section defines a set of options that provide semantic richness within that structure.
+This section defines a mechanism to support expressive and varied type definitions within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options, or as a last resort a new base type, without affecting that structure.
 
 ### 3.2.1 Type Options
-
+Type options apply to the type definition as a whole - they
 ###### Table 3-2. Type Options
 
 | ID | Label | Type | Applies To | Definition |
@@ -307,12 +316,18 @@ FieldOptions MUST contain zero or one instance of each of the following field op
 * IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
 
 ### 3.2.4 Syntactic Sugar
-JADN includes several options that make type definitions more compact or to support the [DRY](#dry) software design principle:
+JADN includes several options that make type definitions more compact or that support the [DRY](#dry) software design principle:
+* Type Definition within fields -> Explicit type definition
 * Field Multiplicity -> Explicit ArrayOf
 * Derived Enumerated -> Explicit Enumerated
 * MapOf with Enumerated key -> Explicit Map
 
-*Description of expansion to aid understanding, and within validator implementations to reduce code complexity.*
+These are referred to as "syntactic sugar" because they are stylistic options that can be eliminated without affecting the meaning of a type definition. Removing sugar results in more but simpler type definitions, simplifying the code needed to serialize and validate data instances. 
+
+#### Type Definition within fields
+#### Field Multiplicity
+#### Derived Enumerated
+#### MapOf with Enumerated key
 
 # 4 Serialization
 Serialization rules define how to represent an instance of a type using a specific data format.  Several serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
