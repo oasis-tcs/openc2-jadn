@@ -376,19 +376,21 @@ When using JSON serialization, instances of JADN types without a serialization o
 | **Record** | Same as **Map**. |
 
 **JSON Serialization Options**
+
 Regardless of serialization:
 * A JADN type definition MUST NOT contain more than one of the following options.
 * A JADN type definition MUST NOT contain a serialization option not applicable to its type.
+* API values MUST satisfy semantic validation requirements associated with a serialization option.
 
 When using JSON serialization, instances of JADN types with one of the following options MUST be serialized as:
 
-| Serialization Option | JADN Type | JSON Serialization Requirement |
-| :--- | :--- | :--- |
-| **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of [RFC 4648](#rfc4648). Note that the Base16 alphabet does not include lower-case letters. |
-| **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC 2673](#rfc2673). |
-| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of [RFC 5952](#rfc5952). |
-| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of [RFC 4632](#rfc4632). The type MUST be an Array with two fields: a Binary IPv4 address and an Integer prefix length. |
-| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of [RFC 4291](#rfc4291). The type MUST be an Array with two fields: a Binary IPv6 address and an Integer prefix length. |
+| Option | JADN Type | JSON Serialization Requirement | Semantic Validation Requirement |
+| :--- | :--- | :--- | :--- |
+| **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of [RFC 4648](#rfc4648). Note that the Base16 alphabet does not include lower-case letters. | None |
+| **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC 2673](#rfc2673). | Address as specified in Section 3.1 of [RFC 791](#rfc791) |
+| **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of [RFC 5952](#rfc5952). | Address as specified in Section 3 of [RFC 8200](#rfc8200) |
+| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of [RFC 4632](#rfc4632). | Array with two fields: a Binary IPv4 address and an Integer prefix length. |
+| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of [RFC 4291](#rfc4291). | Array with two fields: a Binary IPv6 address and an Integer prefix length. |
 
 ## 4.2 CBOR Serialization
 
@@ -417,16 +419,18 @@ When using CBOR serialization, instances of JADN types without a serialization o
 | **Record** | Same as **Array**. |
 
 **CBOR Serialization Options**
+
 Regardless of serialization:
 * A JADN type definition MUST NOT contain more than one of the following options.
 * A JADN type definition MUST NOT contain a serialization option not applicable to its type.
+* API values MUST satisfy semantic validation requirements associated with a serialization option.
 
 When using CBOR serialization, instances of JADN types with one of the following options MUST be serialized as:
 
-| Serialization Option | JADN Type | CBOR Serialization Requirement |
-| :--- | :--- | :--- |
-| **/f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). |
-| **/f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
+| Option | JADN Type | CBOR Serialization Requirement | Semantic Validation Requirement |
+| :--- | :--- | :--- | :--- |
+| **/f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). | None |
+| **/f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). | None |
 
 ## 4.3 M-JSON Serialization:
 
