@@ -170,10 +170,10 @@ required to stipulate how a system uses a particular type of platform.
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
-contained in a message.  When information is coded for transmission in a canonical format, the additional
+contained in a message.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no entropy because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., whitespace, leading zeroes, case-insensitive capitalization) is discarded on deserialization.
+(e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
 
 For example, an IPv4 address contains 32 bits of information. But different data may be used to
 represent the same information:
@@ -211,17 +211,17 @@ JADN first-class types are defined in terms of their characteristics:
 | **Structure** |   |
 | Enumerated | One value selected from a set of named or unnamed integers. |
 | Choice | One key and value selected from a set of named or unnamed fields. The key has an id and name or label, and is mapped to a type. |
-| Array | An ordered list of unnamed fields with positionally-defined semantics. Each field has a position and type. Corresponds to CDDL *record*. |
-| ArrayOf(*vtype*) | An ordered list of unnamed fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
+| Array | An ordered list of unnamed fields with positionally-defined semantics. Each field has a position, label, and type. Corresponds to CDDL *record*. |
+| ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. Corresponds to CDDL *struct*. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
-**Named and Unnamed Fields**
+**Named and Unnamed Types**
 
-Each field in a type definition has both an integer id and a string name. The Enumerated, Choice, and Map first-class types include an "id" option ([section 3.2.1](#321-type-options)) indicating that fields of that type are unnamed. The Record first-class type has no "id" option because Array is its unnamed equivalent. With named types, field names are included in the semantics of the type, must be populated in the type definition, and may appear in serialized data. With unnamed types, field names are not included in the semantics, may be empty in the type definition, never appear in serialized data, and are defined to be non-normative labels. Field labels may be freely customized without affecting interoperability.
+The Enumerated, Choice, and Map types have "named" and "unnamed" variants. Presence of the "id" option ([section 3.2.1](#321-type-options)) in a definition of those types indicates that the type is unnamed. The Record type is named and the Array type is its unnamed equivalent. In named types, FieldName ([Section 3.1](#31-type-definitions)) is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed. In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
 
-For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data, and the name "Forbidden" must be used verbatim. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
+For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data, and the name "Forbidden" cannot be changed. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
 
 ## 3.1 Type Definitions
 JADN type definitions have a simple, regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
@@ -280,7 +280,7 @@ record Person {
 Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
-This section defines a mechanism to support expressive and varied type definitions within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options without affecting that structure.
+This section defines the mechanism used to support a richly varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options without affecting that structure.
 
 ### 3.2.1 Type Options
 Type options apply to the type definition as a whole.
@@ -289,7 +289,7 @@ Type options apply to the type definition as a whole.
 
 | ID | Label | Type | Applies To | Definition |
 | --- | --- | --- | --- | --- |
-| 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a non-normative label rather than a defined name |
+| 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
 | 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
 | 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.3](#323-semantic-validation-keywords) |
 | 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Minimum numeric value, octet or character count, or element count |
@@ -376,8 +376,9 @@ When using JSON serialization, instances of JADN types without a serialization o
 | **Record** | Same as **Map**. |
 
 **JSON Serialization Options**
-* JADN type definitions with more than one of the following options are invalid.
-* JADN type definitions with a type other than that applicable to the option are invalid.
+Regardless of serialization:
+* A JADN type definition MUST NOT contain more than one of the following options.
+* A JADN type definition MUST NOT contain a serialization option not applicable to its type.
 
 When using JSON serialization, instances of JADN types with one of the following options MUST be serialized as:
 
@@ -393,11 +394,11 @@ When using JSON serialization, instances of JADN types with one of the following
 
 The following serialization rules are used to represent JADN data types in Concise Binary
 Object Representation [CBOR] format, where CBOR type #x.y = Major type x, Additional information y.
-* Serialization and id TypeOptions do not affect serialized values.
+* The id TypeOption does not affect serialized values.
 
 CBOR type names from Concise Data Definition Language [CDDL] are shown for reference.
 
-When using CBOR serialization, instances of JADN types MUST be serialized as:
+When using CBOR serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -414,6 +415,18 @@ When using CBOR serialization, instances of JADN types MUST be serialized as:
 | **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
 | **MapOf** | **table**: a map (#5) of pairs, or **null** if *vtype* is Null. In each pair the first item has type *ktype*, the second item has type *vtype*. |
 | **Record** | Same as **Array**. |
+
+**CBOR Serialization Options**
+Regardless of serialization:
+* A JADN type definition MUST NOT contain more than one of the following options.
+* A JADN type definition MUST NOT contain a serialization option not applicable to its type.
+
+When using CBOR serialization, instances of JADN types with one of the following options MUST be serialized as:
+
+| Serialization Option | JADN Type | CBOR Serialization Requirement |
+| :--- | :--- | :--- |
+| **/f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). |
+| **/f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
 ## 4.3 M-JSON Serialization:
 
