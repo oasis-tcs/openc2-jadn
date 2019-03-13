@@ -344,11 +344,11 @@ These are referred to as "syntactic sugar" because they are stylistic options th
 #### MapOf with Enumerated key
 
 # 4 Serialization
-Serialization rules define how to represent an instance of a type using a specific data format.  Several serialization formats are defined here.  Other documents may define additional serialization formats by specifying an unambiguous representation of each JADN type.
 
-*Editor's note: conformance requirements for serialization rules:*
-* MUST define a rule for each data type
-* MUST define how each option applicable to that type affects serialized values
+Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. Additional serialization formats defined elsewhere are valid if they:
+* Specify an unambiguous serialized representation for each JADN type
+* Specify how each option applicable to a type affects serialized values
+* Specify any value constraints defined for that format
 
 ## 4.1 JSON Serialization
 
@@ -389,8 +389,8 @@ When using JSON serialization, instances of JADN types with one of the following
 | **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of [RFC 4648](#rfc4648). Note that the Base16 alphabet does not include lower-case letters. | None |
 | **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC 2673](#rfc2673). | Address as specified in Section 3.1 of [RFC 791](#rfc791) |
 | **/ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of [RFC 5952](#rfc5952). | Address as specified in Section 3 of [RFC 8200](#rfc8200) |
-| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of [RFC 4632](#rfc4632). | Array with two fields: a Binary IPv4 address and an Integer prefix length. |
-| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of [RFC 4291](#rfc4291). | Array with two fields: a Binary IPv6 address and an Integer prefix length. |
+| **/ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of [RFC 4632](#rfc4632). | Two components as specified in [RFC 4632](#rfc4632): Binary IPv4 address and Integer prefix length. |
+| **/ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of [RFC 4291](#rfc4291). | Two components as specified in [RFC 4291](#rfc4291): Binary IPv6 address and Integer prefix length. |
 
 ## 4.2 CBOR Serialization
 
