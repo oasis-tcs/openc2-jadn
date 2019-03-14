@@ -23,6 +23,7 @@ This prose specification is one component of a Work Product that also includes:
 * *Editor's Note: list JADN Schemas: (JSON, CDDL)*
 
 ### Related work:
+[Avro](#avro) is a dynamic data serialization system. Like JADN, Avro does not require code generation and supports embedding of schema information to produce self-describing data. Unlike JADN, Avro has its own data format and cannot be used with JSON or CBOR data.
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -118,15 +119,29 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 ###### [RFC8200]
 
 ## 1.4 Non-Normative References
+###### [AVRO]
+*"Apache Avro Documentation"*, https://avro.apache.org/docs/current/
+
+###### [CDDL]
+*"Concise Data Definition Language"*, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07
 
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+
+###### [GFM]
+*"GitHub Flavored Markdown"*, https://github.github.com/gfm/
+
+###### [JSONSCHEMA]
+*"JSON Schema Validation"*, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01
 
 ###### [MDA]
 *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
 
 ###### [PROTO]
 *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/
+
+###### [RELAXNG]
+*"RELAX NG"*, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng
 
 ###### [RFC2673]
 *"Binary Labels in the Domain Name System"*, https://tools.ietf.org/html/rfc2673
@@ -194,6 +209,12 @@ information-centric focus:
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localization of identifiers within applications. |
 
+**Implementation**
+
+Two general approaches can be used to implement IM-based specifications:
+1) Translate the IM to a format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use existing serialization and validation libraries to process data instances in the selected format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data instances without a separate schema-generation or code-generation step. 
+
 # 3 JADN Types
 JADN first-class types are defined in terms of their characteristics:
 
@@ -244,8 +265,9 @@ FieldID and FieldName values MUST be unique within a type definition.
 For Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another FIeldID within the type definition.
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) of a JADN definition in JSON format defines a Record type called Person with three fields, the third of which is optional:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
+JADN definition of Person in JSON format:
 ```
 ["Person", "Record", [], "", [
   [1, "name", "String", [], ""],
@@ -253,7 +275,7 @@ JADN type definitions are themselves information objects that can be represented
   [3, "email", "String", ["[0"], ""]
 ]]
 ```
-The same JADN definition in Markdown table format is:
+JADN definition in [GFM Markdown](#gfm) table format:
 
 ***Type: Person (Record)***
 
@@ -263,7 +285,7 @@ The same JADN definition in Markdown table format is:
 | 2 | **id** | Integer | 1 | |
 | 3 | **email** | String | 0..1 | |
 
-The same JADN definition in an IDL format similar to [Apache Thrift](#thrift) is:
+JADN definition in an IDL format similar to [Apache Thrift](#thrift):
 ```
 record Person {
   1: string name,
