@@ -212,8 +212,8 @@ information-centric focus:
 **Implementation**
 
 Two general approaches can be used to implement IM-based specifications:
-1) Translate the IM to a format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use existing serialization and validation libraries to process data instances in the selected format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data instances without a separate schema-generation or code-generation step. 
+1) Translate the IM to a format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use existing serialization and validation libraries to process data in the selected format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema-generation or code-generation steps. 
 
 # 3 JADN Types
 JADN first-class types are defined in terms of their characteristics:
@@ -247,7 +247,9 @@ JADN type definitions have a simple, regular structure designed to be easily des
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-Primitive, ArrayOf, and MapOf base types MUST have no field definitions.
+Primitive, ArrayOf, and MapOf base types MUST have no field definitions.  
+The ArrayOf base type MUST have a *vtype* option ([Section 3.2.1.2](#3212-vtype-and-ktype)).  
+The MapOf base type MUST have a *ktype* option and a *vtype* option.
 
 Field definitions for the Enumerated base type MUST have three elements:
 1. **FieldID:** the integer identifier of the field
@@ -261,9 +263,9 @@ Field definitions for the Array, Choice, Map, and Record base types MUST have fi
 4. **FieldOptions:** an array of zero or more options applicable to the field
 5. **FieldDescription:** a non-normative comment
 
-FieldID and FieldName values MUST be unique within a type definition.
-For Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
-For Enumerated, Choice and Map base types, FieldID may be any integer tag that does not conflict with another FIeldID within the type definition.
+FieldID and FieldName values MUST be unique within a type definition.  
+In Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
+In Enumerated, Choice and Map base types, FieldID may be any nonconflicting integer tag.
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
@@ -275,7 +277,7 @@ JADN definition of Person in JSON format:
   [3, "email", "String", ["[0"], ""]
 ]]
 ```
-JADN definition in [GFM Markdown](#gfm) table format:
+JADN definition of Person in [GFM Markdown](#gfm) table format:
 
 ***Type: Person (Record)***
 
@@ -285,7 +287,7 @@ JADN definition in [GFM Markdown](#gfm) table format:
 | 2 | **id** | Integer | 1 | |
 | 3 | **email** | String | 0..1 | |
 
-JADN definition in an IDL format similar to [Apache Thrift](#thrift):
+JADN definition of Person in an IDL format similar to [Apache Thrift](#thrift):
 ```
 record Person {
   1: string name,
