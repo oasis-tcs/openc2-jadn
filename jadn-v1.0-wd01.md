@@ -217,12 +217,6 @@ JADN first-class types are defined in terms of their characteristics:
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
-**Named and Unnamed Types**
-
-The Enumerated, Choice, and Map types have "named" and "unnamed" variants. Presence of the "id" option ([section 3.2.1](#321-type-options)) in a definition of those types indicates that the type is unnamed. The Record type is named and the Array type is its unnamed equivalent. In named types, FieldName ([Section 3.1](#31-type-definitions)) is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed. In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
-
-For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data, and the name "Forbidden" cannot be changed. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
-
 ## 3.1 Type Definitions
 JADN type definitions have a simple, regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
 
@@ -280,28 +274,56 @@ record Person {
 Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
-This section defines the mechanism used to support a richly varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements may be accommodated by defining new options without affecting that structure.
+This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements are accommodated by defining new options without needing to update the structure of type definitions.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole.
+Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which values if a type are considered valid.
 
 ###### Table 3-2. Type Options
 
 | ID | Label | Type | Applies To | Definition |
 | --- | --- | --- | --- | --- |
+| - | - | - | - | **Structural Options** |
 | 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
-| 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
-| 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.3](#323-semantic-validation-keywords) |
-| 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Minimum numeric value, octet or character count, or element count |
-| 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Maximum numeric value, octet or character count, or element count |
 | 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
 | 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
-| 0x24 `'$'` | pattern | string | String | Regular expression used to validate a String type |
+| - | - | - | - | **Validation Options** |
+| 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
+| 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
+| 0x24 `'$'` | pattern | string | String | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
+| 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Minimum numeric value, octet or character count, or element count |
+| 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Maximum numeric value, octet or character count, or element count |
 | 0x21 `'!'` | default | string | Any | Default value for an instance of this type |
 
 Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
 * For each serialization format, TypeOptions MUST contain zero or one serialization option defined by that format.
+
+#### 3.2.1.1 id
+
+The Enumerated, Choice, and Map types have "named" and "unnamed" variants. Presence of the "id" option in a definition of those types indicates that the type is unnamed. The Record type is always named and has no "id" option; the Array type is its unnamed equivalent.
+
+* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed.
+* In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
+
+For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data, and the name "Forbidden" cannot be changed. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
+
+#### 3.2.1.2 vtype and ktype
+
+#### 3.2.1.3 Semantic Validation Keywords
+*format*
+
+*sopt - Serialization options may include value constraints applicable to all data formats.*
+* IM value is an IPv4 address as defined in [RFC 791](#rfc791).
+* IM value is an IPv6 address as defined in [RFC 8200](#rfc8200). 
+* IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
+* IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
+
+#### 3.2.1.4 Patterns
+*pattern*
+
+#### 3.2.1.5 Size and Value Constraints
+*minv*, *maxv*
 
 ### 3.2.2 Field Options
 Field options apply to one field within a type definition.
@@ -319,24 +341,14 @@ FieldOptions MUST contain zero or one instance of each of the following field op
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | enum | field that specifies the type of this field |
 
-### 3.2.3 Semantic Validation Keywords
-*Non-transforming options (e.g., email)*
-
-*Serialization options may include value constraints applicable to all data formats.*
-
-* IM value is an IPv4 address as defined in [RFC 791](#rfc791).
-* IM value is an IPv6 address as defined in [RFC 8200](#rfc8200). 
-* IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
-* IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
-
-### 3.2.4 Syntactic Sugar
+### 3.2.3 Syntactic Sugar
 JADN includes several options that make type definitions more compact or that support the [DRY](#dry) software design principle:
 * Type Definition within fields -> Explicit type definition
 * Field Multiplicity -> Explicit ArrayOf
 * Derived Enumerated -> Explicit Enumerated
 * MapOf with Enumerated key -> Explicit Map
 
-These are referred to as "syntactic sugar" because they are stylistic options that can be eliminated without affecting the meaning of a type definition. Removing sugar results in more but simpler type definitions, simplifying the code needed to serialize and validate data instances. 
+These are stylistic options that can be eliminated without affecting the meaning of a type definition. Removing these options simplifies a type definition but creates additional definitions to support it.  This simplifies the code needed to serialize and validate data instances, and may make the original definition easier to understand.
 
 #### Type Definition within fields
 #### Field Multiplicity
