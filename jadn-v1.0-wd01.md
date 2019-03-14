@@ -97,63 +97,49 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## 1.3 Normative References
 ###### [RFC791]
-
+Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
 ###### [RFC2119]
 Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
 ###### [RFC2673]
-
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673
 ###### [RFC4291]
-
+Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
 ###### [RFC4632]
-
+Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
 ###### [RFC4648]
-
+Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
 ###### [RFC5952]
-
+Kawamura S., Kawashima M., "A Recommendation for IPv6 Address Text Representation", RFC 5952, August 2010, http://www.rfc-editor.org/info/rfc5952.
 ###### [RFC7049]
-*"Concise Binary Object Representation (CBOR)"*, https://tools.ietf.org/html/rfc7049
-
+*"Concise Binary Object Representation (CBOR)"*, https://tools.ietf.org/html/rfc7049.
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
-
 ###### [RFC8200]
+Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
 
 ## 1.4 Non-Normative References
 ###### [AVRO]
-*"Apache Avro Documentation"*, https://avro.apache.org/docs/current/
-
+*"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [CDDL]
-*"Concise Data Definition Language"*, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07
-
+*"Concise Data Definition Language"*, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07.
 ###### [DRY]
-*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
-
+*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [GFM]
-*"GitHub Flavored Markdown"*, https://github.github.com/gfm/
-
+*"GitHub Flavored Markdown"*, https://github.github.com/gfm/.
 ###### [JSONSCHEMA]
-*"JSON Schema Validation"*, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01
-
+*"JSON Schema Validation"*, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01.
 ###### [MDA]
-*"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf
-
+*"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf.
 ###### [PROTO]
-*"Protocol Buffers"*, https://developers.google.com/protocol-buffers/
-
+*"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
-*"RELAX NG"*, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng
-
-###### [RFC2673]
-*"Binary Labels in the Domain Name System"*, https://tools.ietf.org/html/rfc2673
-
+*"RELAX NG"*, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
 ###### [RFC3444]
-*"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444
-
+*"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
-
 ###### [THRIFT]
-*"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html
+*"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 
 -------
 
@@ -211,7 +197,7 @@ information-centric focus:
 
 **Implementation**
 
-Two general approaches can be used to implement IM-based specifications:
+Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use existing serialization and validation libraries to process data in the selected format.
 2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema-generation or code-generation steps. 
 
@@ -264,8 +250,9 @@ Field definitions for the Array, Choice, Map, and Record base types MUST have fi
 5. **FieldDescription:** a non-normative comment
 
 FieldID and FieldName values MUST be unique within a type definition.  
-In Array and Record base types, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
-In Enumerated, Choice and Map base types, FieldID may be any nonconflicting integer tag.
+If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
+If BaseType is Enumerated, Choice, or Map, FieldID may be any nonconflicting integer tag.  
+FieldType MUST be either a "JADN type" from Table 3-1 or a "Defined type" from the TypeName of a type definition.  
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
@@ -298,10 +285,10 @@ record Person {
 Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
-This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements are accommodated by defining new options without needing to update the structure of type definitions.
+This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements are accommodated by defining new options without needing to update the definition structure.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which values if a type are considered valid.
+Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of a type.
 
 ###### Table 3-2. Type Options
 
@@ -325,7 +312,7 @@ Within a type definition,
 
 #### 3.2.1.1 id
 
-The Enumerated, Choice, and Map types have "named" and "unnamed" variants. Presence of the "id" option in a definition of those types indicates that the type is unnamed. The Record type is always named and has no "id" option; the Array type is its unnamed equivalent.
+The Enumerated, Choice, and Map types have "named" and "unnamed" variants. Presence of the "id" option in a type definition indicates that the type is unnamed. The Record type is always named and has no "id" option; the Array type is its unnamed equivalent.
 
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed.
 * In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
@@ -353,7 +340,7 @@ For example a list of HTTP status codes could include the field [403, "Forbidden
 Field options apply to one field within a type definition.
 
 If FieldType is a JADN type ([Table 3-1](#table-3-1-jadn-types)), FieldOptions may contain type options applicable to that FieldType.
-If FieldType is not a JADN type, FieldOptions MUST NOT contain any type options ([Table 3-2](#table-3-2-type-options)).
+If FieldType is a Defined type, FieldOptions MUST NOT contain any type options ([Table 3-2](#table-3-2-type-options)).
 
 FieldOptions MUST contain zero or one instance of each of the following field options:  
 
@@ -372,7 +359,7 @@ JADN includes several options that make type definitions more compact or that su
 * Derived Enumerated -> Explicit Enumerated
 * MapOf with Enumerated key -> Explicit Map
 
-These are stylistic options that can be eliminated without affecting the meaning of a type definition. Removing these options simplifies a type definition but creates additional definitions to support it.  This simplifies the code needed to serialize and validate data instances, and may make the original definition easier to understand.
+These are stylistic options that can be eliminated without affecting the meaning of a type definition. Removing these options simplifies a type definition but creates additional definitions to support it.  This simplifies the code needed to serialize and validate data instances, and may make type definitions easier to understand, but can make schemas more difficult to maintain by introducing redundant data that must be kept in sync.
 
 #### Type Definition within fields
 #### Field Multiplicity
@@ -519,6 +506,7 @@ A JADN schema is a structured data instance that can be validated, consisting of
 * type definitions
 
 JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-ish)
+* option format (id/value string for JSON, Multiplicity ... for tables)
 
 # 6 Data Model Generation
 A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
