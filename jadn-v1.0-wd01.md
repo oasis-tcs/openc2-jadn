@@ -20,6 +20,7 @@
 
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
+
 * *Editor's Note: list JADN Schemas: (JSON, CDDL)*
 
 ### Related work:
@@ -81,6 +82,7 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
+
 *Editors Notes:*
 
 *Capabilities developed in XML, various means to move to JSON, then CBOR.*
@@ -89,6 +91,7 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 *Numerous data definition languages are in use. JADN doesn't replace any of them, but serves as a Rosetta stone to facilitate translation among them.*
 
+
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
@@ -96,6 +99,7 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
 ## 1.3 Normative References
+
 ###### [RFC791]
 Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
 ###### [RFC2119]
@@ -556,6 +560,7 @@ Writers of JADN specifications are strongly encouraged to value simplicity and t
 -------
 
 # 9 Conformance
+
 (Note: The [OASIS TC Process](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsConfClause) requires that a specification approved by the TC at the Committee Specification Public Review Draft, Committee Specification or OASIS Standard level must include a separate section, listing a set of numbered conformance clauses, to which any implementation of the specification must adhere in order to claim conformance to the specification (or any optional portion thereof). This is done by listing the conformance clauses here.
 For the definition of "conformance clause," see [OASIS Defined Terms](https://www.oasis-open.org/policies-guidelines/oasis-defined-terms-2017-05-26#dConformanceClause).
 
@@ -591,3 +596,4 @@ The following individuals have participated in the creation of this specificatio
 JSON Schema generated from the IM of Appendix C, validates any JADN schema in JSON format
 # Appendix E. CDDL Data Model for JADN
 CDDL generated from the IM of Appendix C, validates any JADN schema in CBOR format
+
