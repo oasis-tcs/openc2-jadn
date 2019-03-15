@@ -9,7 +9,7 @@
 <div>
 <h3>Description</h3>
 
-<p>JSON Abstract Data Notation (JADN) has several purposes, including definition of data structures and validation of data instances. This document specifies a vocabulary to describe the meaning of structured data, to provide hints for user  interfaces working with structured data, and to make assertions about what a valid instance must look like. JADN structure definitions are format-neutral. Serialization rules define how JADN instances are represented in specific data formats such as JSON, XML, and CBOR.
+<p>JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 This repository is designed to support TC members' work on a formal
 specification that describes JADN, a tool for defining data structures and
@@ -29,12 +29,6 @@ and the associated CSDs mature.
 <div>
 <h3>Licensing</h3>
 <p>Please see the <a href="https://github.com/oasis-tcs/openc2-jadn/blob/master/LICENSE.md">LICENSE</a> file for description of the license terms and OASIS policies applicable to the TC's work in this GitHub project. Content in this repository is intended to be part of the OpenC2 TC's permanent record of activity, visible and freely available for all to use, subject to applicable OASIS policies, as presented in the repository <a href="https://github.com/oasis-tcs/openc2-jadn/blob/master/LICENSE.md">LICENSE</a> file.</p>
-</div>
-
-<div>
-<h3>Further Description of this Repository</h3>
-
-<p>[Any narrative content may be provided here by the TC, for example, if the Members wish to provide an extended statement of purpose.]</p>
 </div>
 
 <div>
