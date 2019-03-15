@@ -23,7 +23,7 @@ This prose specification is one component of a Work Product that also includes:
 * *Editor's Note: list JADN Schemas: (JSON, CDDL)*
 
 ### Related work:
-[Avro](#avro) is a dynamic data serialization system. Like JADN, Avro does not require code generation and supports embedding of schema information to produce self-describing data. Unlike JADN, Avro has its own data format and cannot be used with JSON or CBOR data.
+Like JADN, [Avro](#avro) is a dynamic data serialization system that does not require code generation and supports embedding of schema information to produce self-describing data. Unlike JADN, Avro has its own data format and cannot be used with JSON or CBOR data.
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -176,11 +176,14 @@ data used for purposes such as text conversion, delimiting, and framing contains
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
 
-For example, an IPv4 address contains 32 bits of information. But different data may be used to
+For example, an IPv4 address contains 32 bits of information*. But different data may be used to
 represent the same information:
 * IPv4 dotted-quad contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
+* IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
+
+\* *Note: all references to information in this document assume uniform distribution over all possible values.*
 
 **Information Modeling**
 
@@ -198,8 +201,8 @@ information-centric focus:
 **Implementation**
 
 Two general approaches can be used to implement IM-based protocol specifications:
-1) Translate the IM to a format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use existing serialization and validation libraries to process data in the selected format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema-generation or code-generation steps. 
+1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. 
 
 # 3 JADN Types
 JADN first-class types are defined in terms of their characteristics:
@@ -233,9 +236,10 @@ JADN type definitions have a simple, regular structure designed to be easily des
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-Primitive, ArrayOf, and MapOf base types MUST have no field definitions.  
-The ArrayOf base type MUST have a *vtype* option ([Section 3.2.1.2](#3212-vtype-and-ktype)).  
-The MapOf base type MUST have a *ktype* option and a *vtype* option.
+If BaseType is a Primitive type, ArrayOf, or MapOf, the type definition MUST NOT have Fields.  
+If BaseType is Enumerated, Choice, Array, Map or Record, the type definition MUST have Fields.  
+If BaseType is ArrayOf, TypeOptions MUST have a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
+If BaseType is MapOf, TypeOptions MUST have a *ktype* option and a *vtype* option.
 
 Field definitions for the Enumerated base type MUST have three elements:
 1. **FieldID:** the integer identifier of the field
@@ -264,7 +268,7 @@ JADN definition of Person in JSON format:
   [3, "email", "String", ["[0"], ""]
 ]]
 ```
-JADN definition of Person in [GFM Markdown](#gfm) table format:
+JADN definition of Person in [GFM](#gfm) table format:
 
 ***Type: Person (Record)***
 
@@ -285,10 +289,10 @@ record Person {
 Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
-This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements are accommodated by defining new options without needing to update the definition structure.
+This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements are accommodated by defining new options without modifying that structure.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of a type.
+Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of the type.
 
 ###### Table 3-2. Type Options
 
@@ -296,7 +300,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | --- | --- | --- | --- | --- |
 | - | - | - | - | **Structural Options** |
 | 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
-| 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf/MapOf, or Enumerated value derived from Choice/Map/Array/Record |
+| 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
 | - | - | - | - | **Validation Options** |
 | 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
@@ -337,12 +341,13 @@ For example a list of HTTP status codes could include the field [403, "Forbidden
 *minv*, *maxv*
 
 ### 3.2.2 Field Options
-Field options apply to one field within a type definition.
+Field options apply to one field within a type definition. The options in Table 3-3 are structural elements of the type definition.
 
-If FieldType is a JADN type ([Table 3-1](#table-3-1-jadn-types)), FieldOptions may contain type options applicable to that FieldType.
-If FieldType is a Defined type, FieldOptions MUST NOT contain any type options ([Table 3-2](#table-3-2-type-options)).
-
-FieldOptions MUST contain zero or one instance of each of the following field options:  
+If FieldType is a JADN type ([Table 3-1](#table-3-1-jadn-types)), FieldOptions MAY contain type options from [Table 3-2](#table-3-2-type-options) applicable to that type.  
+If FieldType is a Defined type, FieldOptions MUST NOT contain options from [Table 3-2](#table-3-2-type-options).  
+If FieldOptions contains the *enum* option, FieldType MUST be a type with Fields.  
+FieldOptions MUST contain zero or one instance of each of the options from Table 3-3.  
+FieldOptions MUST NOT contain both *enum* and *tfield*; they are mutually exclusive.  
 
 ###### Table 3-3. Field Options
 
@@ -350,21 +355,39 @@ FieldOptions MUST contain zero or one instance of each of the following field op
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | integer | Minimum cardinality |
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | enum | field that specifies the type of this field |
+| 0x25 `'%'` | enum | none | Enumerated reference to a field in FieldType |
+| 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
 
 ### 3.2.3 Syntactic Sugar
-JADN includes several options that make type definitions more compact or that support the [DRY](#dry) software design principle:
-* Type Definition within fields -> Explicit type definition
-* Field Multiplicity -> Explicit ArrayOf
-* Derived Enumerated -> Explicit Enumerated
-* MapOf with Enumerated key -> Explicit Map
-
-These are stylistic options that can be eliminated without affecting the meaning of a type definition. Removing these options simplifies a type definition but creates additional definitions to support it.  This simplifies the code needed to serialize and validate data instances, and may make type definitions easier to understand, but can make schemas more difficult to maintain by introducing redundant data that must be kept in sync.
+JADN includes several optimizations that make type definitions more compact or that support the
+[DRY](#dry) software design principle. These optimizations can be removed without affecting
+the meaning of a type definition. Removing them simplifies the original definition but creates
+additional definitions to support it. This simplifies the code needed to serialize and validate data
+instances, and examining the expanded definitions may aid understanding. But expansion can make
+schemas more difficult to maintain by introducing redundant data that must be kept in sync.
+The following optimizations may be removed:
 
 #### Type Definition within fields
+A specific type (e.g., an email address) may be defined anonymously within a field of a structure
+definition, or it may be defined in a separate named type that can be used in one or more structures.
+Expansion converts all anonymous type definitions to explicit named types and excludes type options
+([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 #### Field Multiplicity
-#### Derived Enumerated
+Fields may be defined to have multiple values of the same type. Expansion converts each field that can
+have more than one value to an explicit named ArrayOf type. The minimum and maximum cardinality (minc and maxc)
+field options ([Table 3-3](#table-3-3-field-options)) are moved from FieldOptions to the minimum and maximum
+length (minv and maxv) TypeOptions of the new ArrayOf type. The exception is that if minc is 0
+(field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
+length of 1.
+#### Derived Enumerations
+A field defined with the *enum* option contains a reference to a field in FieldType rather than a value of
+that type. Expansion creates an explicit named Enumerated type whose fields are the ID and Name of the fields
+in FieldType, replaces FieldType with the new Enumerated type, and removes the *enum* option from FieldOptions.
 #### MapOf with Enumerated key
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
+ahd replaces it with a Map type with keys from the Enumerated type. This expansion can be used to simplify code
+requirements, enable use of implementations that do not support more general forms of mapping, or to improve
+robustness by limiting keys to a known set.
 
 # 4 Serialization
 
