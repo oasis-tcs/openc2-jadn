@@ -111,7 +111,7 @@ Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Octobe
 ###### [RFC5952]
 Kawamura S., Kawashima M., "A Recommendation for IPv6 Address Text Representation", RFC 5952, August 2010, http://www.rfc-editor.org/info/rfc5952.
 ###### [RFC7049]
-*"Concise Binary Object Representation (CBOR)"*, https://tools.ietf.org/html/rfc7049.
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
 ###### [RFC8200]
@@ -119,27 +119,27 @@ Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RF
 
 ## 1.4 Non-Normative References
 ###### [AVRO]
-*"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
+Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [CDDL]
-*"Concise Data Definition Language"*, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07.
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, Internet-Draft, July 2017, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [GFM]
 *"GitHub Flavored Markdown"*, https://github.github.com/gfm/.
 ###### [JSONSCHEMA]
-*"JSON Schema Validation"*, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01.
+Wright, A., Andrews, H., Luff, G., *"JSON Schema Validation"*, Internet-Draft, March 2018, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01.
 ###### [MDA]
-*"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf.
+Cephas Consulting Group, *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf.
 ###### [PROTO]
-*"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
+Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
-*"RELAX NG"*, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
+OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
 ###### [RFC3444]
-*"On the Difference between Information Models and Data Models"*, https://tools.ietf.org/html/rfc3444.
+Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
 ###### [THRIFT]
-*"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
+Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 
 -------
 
@@ -391,7 +391,7 @@ robustness by limiting keys to a known set.
 
 # 4 Serialization
 
-Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. Additional serialization formats defined elsewhere are valid if they:
+Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
 * Specify how each option applicable to a type affects serialized values
 * Specify any value constraints defined for that format
@@ -441,10 +441,10 @@ When using JSON serialization, instances of JADN types with one of the following
 ## 4.2 CBOR Serialization
 
 The following serialization rules are used to represent JADN data types in Concise Binary
-Object Representation [CBOR] format, where CBOR type #x.y = Major type x, Additional information y.
+Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major type x, Additional information y.
 * The id TypeOption does not affect serialized values.
 
-CBOR type names from Concise Data Definition Language [CDDL] are shown for reference.
+CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown for reference.
 
 When using CBOR serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
 
@@ -480,7 +480,7 @@ When using CBOR serialization, instances of JADN types with one of the following
 
 ## 4.3 M-JSON Serialization:
 
-Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to CBOR serialization using the JSON preface defined in [CDDL] Appendix E. As with CBOR,
+Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to [CDDL](#cddl) serialization using the JSON preface defined in Appendix E. As with CBOR,
 * Serialization and id TypeOptions do not affect serialized values.
 
 When using M-JSON serialization, instances of JADN types MUST be serialized as:
@@ -503,25 +503,25 @@ When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
 ## 4.4 XML Serialization:
 
-*Editor's Note: Define XML rules*
+*Editor's Note: Define XML rules for elements and attributes*
 
 When using XML serialization, instances of JADN types MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
-| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
-| **Boolean** | JSON **true** or **false** |
-| **Integer** | JSON **number** |
-| **Number** | JSON **number** |
-| **Null** | JSON **null** |
-| **String** | JSON **string** |
-| **Enumerated** | JSON **integer** |
-| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
-| **Array** | JSON **array** of values with types positionally specified by FieldType. |
-| **ArrayOf** | JSON **array**, or JSON **null** if *vtype* is Null. |
-| **Map** | JSON **object**. Member keys are FieldIDs converted to strings with value has the . |
-| **MapOf** | JSON **object**, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. |
-| **Record** | Same as **Array**. |
+| **Binary** |  |
+| **Boolean** | |
+| **Integer** | |
+| **Number** | |
+| **Null** | |
+| **String** | |
+| **Enumerated** | |
+| **Choice** | |
+| **Array** | |
+| **ArrayOf** | |
+| **Map** | |
+| **MapOf** | |
+| **Record** | |
 
 # 5 JADN Schema Formats
 A JADN schema is a structured data instance that can be validated, consisting of:
