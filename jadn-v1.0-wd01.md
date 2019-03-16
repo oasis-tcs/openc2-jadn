@@ -240,7 +240,7 @@ JADN type definitions have a regular structure designed to be easily describable
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-If BaseType is Enumerated, Choice, Array, Map or Record, then Fields must be included in the type definition, otherwise it MUST NOT be included.  
+If BaseType is Enumerated, Choice, Array, Map or Record, then Fields MUST be included in the type definition, otherwise it MUST NOT be included.  
 If BaseType is ArrayOf, TypeOptions MUST have a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
 If BaseType is MapOf, TypeOptions MUST have *ktype* and *vtype* options.
 
@@ -332,7 +332,7 @@ The *vtype* option specifies the type of each field in an ArrayOf or MapOf type.
 
 #### 3.2.1.3 Key Type
 
-The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category. For example, "url" is a category but string is not, and the text of Tolstoy's "War and Peace" may be a string but not a key.
+The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
 
 #### 3.2.1.4 Format
 *format*
