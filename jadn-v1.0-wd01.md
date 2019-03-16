@@ -241,8 +241,8 @@ JADN type definitions have a regular structure designed to be easily describable
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
 If BaseType is Enumerated, Choice, Array, Map or Record, then Fields MUST be included in the type definition, otherwise it MUST NOT be included.  
-If BaseType is ArrayOf, TypeOptions MUST have a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
-If BaseType is MapOf, TypeOptions MUST have *ktype* and *vtype* options.
+If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
+If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
 If BaseType is Enumerated, each field definition MUST have three elements:
 1. **FieldID:** the integer identifier of the field
@@ -259,11 +259,11 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-FieldType MUST be either a "JADN type" from Table 3-1 or a "Defined type" referenced by its TypeName.  
+FieldType MUST be a type whose definition does not include Fields.
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
-JADN definition of Person in JSON format:
+**JADN definition of Person in JSON format:**
 ```
 ["Person", "Record", [], "", [
   [1, "name", "String", [], ""],
@@ -271,9 +271,9 @@ JADN definition of Person in JSON format:
   [3, "email", "String", ["[0"], ""]
 ]]
 ```
-JADN definition of Person in [GFM](#gfm) table format:
+**JADN definition of Person in [GFM](#gfm) table format:**
 
-***Type: Person (Record)***
+  *Type: Person (Record)*
 
 | ID | Name | Type | # | Description |
 | ---: | --- | --- | ---: | --- |
@@ -281,7 +281,7 @@ JADN definition of Person in [GFM](#gfm) table format:
 | 2 | **id** | Integer | 1 | |
 | 3 | **email** | String | 0..1 | |
 
-JADN definition of Person in an IDL format similar to [Apache Thrift](#thrift):
+**JADN definition of Person in an IDL format similar to [Apache Thrift](#thrift):**
 ```
 record Person {
   1: string name,
@@ -352,12 +352,6 @@ The *ktype* option specifies the type of each key in a MapOf type. It MUST be a 
 ### 3.2.2 Field Options
 Field options apply to one field within a type definition. The options in Table 3-3 are structural elements of the type definition.
 
-If FieldType is a JADN type ([Table 3-1](#table-3-1-jadn-types)), FieldOptions MAY contain type options from [Table 3-2](#table-3-2-type-options) applicable to that type.  
-If FieldType is a Defined type, FieldOptions MUST NOT contain options from [Table 3-2](#table-3-2-type-options).  
-If FieldOptions contains the *enum* option, FieldType MUST be a type with Fields.  
-FieldOptions MUST contain zero or one instance of each of the options from Table 3-3.  
-FieldOptions MUST NOT contain both *enum* and *tfield*; they are mutually exclusive.  
-
 ###### Table 3-3. Field Options
 
 | ID | Label | Type | Definition |
@@ -366,6 +360,11 @@ FieldOptions MUST NOT contain both *enum* and *tfield*; they are mutually exclus
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
 | 0x25 `'%'` | enum | none | Enumerated reference to a field in FieldType |
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
+
+FieldOptions MUST include zero or one instance of each of the options from Table 3-3.  
+FieldOptions MUST NOT include both *enum* and *tfield*.  
+If FieldOptions includes the *enum* option, FieldType MUST refer to a Defined type with Fields.  
+If FieldOptions includes type options ([Table 3-2](#table-3-2-type-options)), FieldType MUST be a JADN type to which all of those options apply.  
 
 ### 3.2.3 Syntactic Sugar
 JADN includes several optimizations that make type definitions more compact or that support the
