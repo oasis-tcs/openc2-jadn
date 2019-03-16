@@ -232,7 +232,7 @@ JADN first-class types are defined in terms of their characteristics:
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
 
 ## 3.1 Type Definitions
-JADN type definitions have a simple, regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
+JADN type definitions have a regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
@@ -240,17 +240,16 @@ JADN type definitions have a simple, regular structure designed to be easily des
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-If BaseType is a Primitive type, ArrayOf, or MapOf, the type definition MUST NOT have Fields.  
-If BaseType is Enumerated, Choice, Array, Map or Record, the type definition MUST have Fields.  
+If BaseType is Enumerated, Choice, Array, Map or Record, then Fields must be included in the type definition, otherwise it MUST NOT be included.  
 If BaseType is ArrayOf, TypeOptions MUST have a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
-If BaseType is MapOf, TypeOptions MUST have a *ktype* option and a *vtype* option.
+If BaseType is MapOf, TypeOptions MUST have *ktype* and *vtype* options.
 
-Field definitions for the Enumerated base type MUST have three elements:
+If BaseType is Enumerated, each field definition MUST have three elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldDescription:** a non-normative comment
 
-Field definitions for the Array, Choice, Map, and Record base types MUST have five elements:
+If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
@@ -259,8 +258,8 @@ Field definitions for the Array, Choice, Map, and Record base types MUST have fi
 
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
-If BaseType is Enumerated, Choice, or Map, FieldID may be any nonconflicting integer tag.  
-FieldType MUST be either a "JADN type" from Table 3-1 or a "Defined type" from the TypeName of a type definition.  
+If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
+FieldType MUST be either a "JADN type" from Table 3-1 or a "Defined type" referenced by its TypeName.  
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
@@ -290,23 +289,23 @@ record Person {
   3: optional string email,
 }
 ```
-Of these examples, only JSON is data that can be read unambiguously by applications with no format-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
-This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements are accommodated by defining new options without modifying that structure.
+This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of the type.
+Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of the Defined type.
 
 ###### Table 3-2. Type Options
 
 | ID | Label | Type | Applies To | Definition |
 | --- | --- | --- | --- | --- |
-| - | - | - | - | **Structural Options** |
+|  **Structural** | | | | |
 | 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
 | 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
-| - | - | - | - | **Validation Options** |
+| **Validation** | | | | |
 | 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
 | 0x24 `'$'` | pattern | string | String | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
@@ -318,18 +317,24 @@ Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
 * For each serialization format, TypeOptions MUST contain zero or one serialization option defined by that format.
 
-#### 3.2.1.1 id
+#### 3.2.1.1 Id
 
-The Enumerated, Choice, and Map types have "named" and "unnamed" variants. Presence of the "id" option in a type definition indicates that the type is unnamed. The Record type is always named and has no "id" option; the Array type is its unnamed equivalent.
+The Enumerated, Choice, and Map types have named and unnamed variants. Presence of the *id* option in a type definition indicates that the type is unnamed. The Record type is always named and has no *id* option; the Array type is its unnamed equivalent.
 
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed.
 * In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
 
-For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the "id" option, serialization rules determine whether the id or name is used in protocol data, and the name "Forbidden" cannot be changed. With the "id" option only the id 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "Not Allowed", "Verboten", or "Interdit".
+For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option only FieldID 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
-#### 3.2.1.2 vtype and ktype
+#### 3.2.1.2 Value Type
 
-#### 3.2.1.3 Semantic Validation Keywords
+The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
+
+#### 3.2.1.3 Key Type
+
+The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category. For example, "url" is a category but string is not, and the text of Tolstoy's "War and Peace" may be a string but not a key.
+
+#### 3.2.1.4 Format
 *format*
 
 *sopt - Serialization options may include value constraints applicable to all data formats.*
@@ -338,10 +343,10 @@ For example a list of HTTP status codes could include the field [403, "Forbidden
 * IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
 * IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
 
-#### 3.2.1.4 Patterns
+#### 3.2.1.5 Pattern
 *pattern*
 
-#### 3.2.1.5 Size and Value Constraints
+#### 3.2.1.6 Size and Value Constraints
 *minv*, *maxv*
 
 ### 3.2.2 Field Options
@@ -434,7 +439,7 @@ Regardless of serialization:
 
 When using JSON serialization, instances of JADN types with one of the following options MUST be serialized as:
 
-| Option | JADN Type | JSON Serialization Requirement | Semantic Validation Requirement |
+| Option | JADN Type | JSON Serialization Requirement | Validation Requirement |
 | :--- | :--- | :--- | :--- |
 | **/x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of [RFC 4648](#rfc4648). Note that the Base16 alphabet does not include lower-case letters. | None |
 | **/ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC 2673](#rfc2673). | Address as specified in Section 3.1 of [RFC 791](#rfc791) |
@@ -477,7 +482,7 @@ Regardless of serialization:
 
 When using CBOR serialization, instances of JADN types with one of the following options MUST be serialized as:
 
-| Option | JADN Type | CBOR Serialization Requirement | Semantic Validation Requirement |
+| Option | JADN Type | CBOR Serialization Requirement | Validation Requirement |
 | :--- | :--- | :--- | :--- |
 | **/f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). | None |
 | **/f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). | None |
