@@ -99,7 +99,8 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
 ## 1.3 Normative References
-
+###### [EUI]
+"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf
 ###### [RFC791]
 Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
 ###### [RFC2119]
@@ -144,6 +145,8 @@ Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and 
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
+###### [UML]
+"UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html
 
 -------
 
@@ -229,10 +232,10 @@ JADN first-class types are defined in terms of their characteristics:
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. Corresponds to CDDL *struct*. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
-| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL has no corresponding composition style. |
+| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
 
 ## 3.1 Type Definitions
-JADN type definitions have a regular structure designed to be easily describable, easily processed, and extensible. Every JADN type definition has four elements, plus for some types, a list of fields:
+JADN type definitions have a regular structure designed to be easily describable, easily processed, and extensible. Every definition creates a *Defined type* that has four elements, plus for some types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
@@ -261,7 +264,7 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
-4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** applicable to the field
+4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-3](#table-3-3-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
 5. **FieldDescription:** a non-normative comment
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
@@ -273,11 +276,11 @@ FieldID and FieldName values MUST be unique within a type definition.
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
 FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
-If FieldType is not a JADN type, FieldOptions MUST NOT include any TypeOption.  
+If FieldType is a Defined type, FieldOptions MUST NOT include any TypeOption.  
 
 *Note: JADN does not restrict TypeName and FieldName, but protocol specifications may establish naming conventions.*
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. This example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
 **JADN definition of Person in JSON format:**
 ```
@@ -305,7 +308,7 @@ record Person {
   3: optional string email,
 }
 ```
-Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. For that reason, JADN definitions in JSON format are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are structured according to this section and are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -379,7 +382,7 @@ Field options apply to one field within a type definition. The options in Table 
 
 FieldOptions MUST include zero or one instance of each of the options from Table 3-3.  
 FieldOptions MUST NOT include both *enum* and *tfield*.  
-If FieldOptions includes the *enum* option, FieldType MUST refer to a Defined type with Fields.  
+If FieldOptions includes the *enum* option, FieldType MUST be a Defined type based on Array, Choice, Map, or Record.  
 If FieldOptions includes type options ([Table 3-2](#table-3-2-type-options)), FieldType MUST be a JADN type to which all of those options apply.  
 
 ### 3.2.3 Syntactic Sugar
