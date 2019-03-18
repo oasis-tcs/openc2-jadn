@@ -236,11 +236,14 @@ JADN type definitions have a regular structure designed to be easily describable
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
-3. **TypeOptions:** an array of zero or more options applicable to the type being defined
+3. **TypeOptions:** an array of zero or more **TypeOption** applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-If BaseType is Enumerated, Choice, Array, Map or Record, then Fields MUST be included in the type definition, otherwise it MUST NOT be included.  
+If BaseType is a Primitive type, ArrayOf, or MapOf, the type definition MUST NOT include Fields.
+```
+[TypeName, BaseType, [TypeOption, ...], TypeDescription]
+```
 If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
 If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
@@ -248,29 +251,43 @@ If BaseType is Enumerated, each field definition MUST have three elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldDescription:** a non-normative comment
+```
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [
+    [FieldID, FieldName, FieldDescription],
+    ...
+]]
+```
 
 If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
-4. **FieldOptions:** an array of zero or more options applicable to the field
+4. **FieldOptions:** an array of zero or more **FieldOption** applicable to the field
 5. **FieldDescription:** a non-normative comment
+```
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [
+    [FieldID, FieldName, FieldType, [FieldOption, ...], FieldDescription],
+    ...
+]]
+```
+
+* Field Option Format
 
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
 FieldType MUST be a type whose definition does not include Fields.
 
-*Note: JADN does not restrict TypeName and FieldName, but protocol specifications may establish naming conventions.
+*Note: JADN does not restrict TypeName and FieldName, but protocol specifications may establish naming conventions.*
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
 **JADN definition of Person in JSON format:**
 ```
 ["Person", "Record", [], "", [
-  [1, "name", "String", [], ""],
-  [2, "id", "Integer", [], ""],
-  [3, "email", "String", ["[0"], ""]
+    [1, "name", "String", [], ""],
+    [2, "id", "Integer", [], ""],
+    [3, "email", "String", ["[0"], ""]
 ]]
 ```
 **JADN definition of Person in [GFM](#gfm) table format:**
@@ -540,27 +557,6 @@ A JADN schema is:
 ## 5.1 Type Definitions
 ### 5.1.1 JSON Format
 The structure of type definitions in JSON format is specified in [Section 3.1](#31-type-definitions).
-
-**Primitive Types, ArrayOf, MapOf**:
-```
-    [ TypeName, BaseType, [ TypeOption, ... ], TypeDescription]
-```
-**Enumerated**:
-```
-    [ TypeName, BaseType, [ TypeOption, ... ], TypeDescription, [
-      [ FieldID, FieldName, FieldDescription ],
-        ...
-    ]]
-```
-**Array, Choice, Map, Record**
-```
-    [ TypeName, BaseType, [ TypeOption, ... ], TypeDescription, [
-      [ FieldID, FieldName, FieldType, [ FieldOption, ... ], FieldDescription ],
-        ...
-    ]]
-```
-
-* Field Option Format
 
 ### 5.1.2 Table Format
 ### 5.1.3 JADN IDL Format
