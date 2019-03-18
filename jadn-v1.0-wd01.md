@@ -24,7 +24,7 @@ This prose specification is one component of a Work Product that also includes:
 * *Editor's Note: list JADN Schemas: (JSON, CDDL)*
 
 ### Related work:
-Like JADN, [Avro](#avro) is a dynamic data serialization system that does not require code generation and supports embedding of schema information to produce self-describing data. Unlike JADN, Avro has its own data format and cannot be used with JSON or CBOR data.
+[Avro](#avro), like JADN, is a dynamic data serialization system that does not require code generation and supports embedding of schema information to produce self-describing data. Unlike JADN, Avro has its own data format and cannot be used with JSON or CBOR data.
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -260,6 +260,8 @@ FieldID and FieldName values MUST be unique within a type definition.
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
 FieldType MUST be a type whose definition does not include Fields.
+
+*Note: JADN does not restrict TypeName and FieldName, but protocol specifications may establish naming conventions.
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several representation formats, but for concreteness this example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
@@ -532,6 +534,39 @@ When using XML serialization, instances of JADN types MUST be serialized as:
 | **Record** | |
 
 # 5 JADN Schema Formats
+A JADN schema is:
+* a collection of type definitions
+* meta-information related to the schema
+## 5.1 Type Definitions
+### 5.1.1 JSON Format
+The structure of type definitions in JSON format is specified in [Section 3.1](#31-type-definitions).
+
+**Primitive Types, ArrayOf, MapOf**:
+```
+    [ TypeName, BaseType, [ TypeOption, ... ], TypeDescription]
+```
+**Enumerated**:
+```
+    [ TypeName, BaseType, [ TypeOption, ... ], TypeDescription, [
+      [ FieldID, FieldName, FieldDescription ],
+        ...
+    ]]
+```
+**Array, Choice, Map, Record**
+```
+    [ TypeName, BaseType, [ TypeOption, ... ], TypeDescription, [
+      [ FieldID, FieldName, FieldType, [ FieldOption, ... ], FieldDescription ],
+        ...
+    ]]
+```
+
+* Field Option Format
+
+### 5.1.2 Table Format
+### 5.1.3 JADN IDL Format
+
+## 5.2 Meta Information
+
 A JADN schema is a structured data instance that can be validated, consisting of:
 * meta-information about the schema
 * type definitions
@@ -555,7 +590,7 @@ A JADN schema can be combined with a set of serialization rules to produce a DM,
 # 8 Security Considerations
 This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
 
-Additional security considerations applicable to JADN-based specifications:
+Additional security considerations applicable to JADN-based specifications: 
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
