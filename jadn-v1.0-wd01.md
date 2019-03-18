@@ -257,26 +257,23 @@ If BaseType is Enumerated, each field definition MUST have three elements:
     ...
 ]]
 ```
-
 If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
-4. **FieldOptions:** an array of zero or more **FieldOption** applicable to the field
+4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** applicable to the field
 5. **FieldDescription:** a non-normative comment
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-    [FieldID, FieldName, FieldType, [FieldOption, ...], FieldDescription],
+    [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
     ...
 ]]
 ```
-
-* Field Option Format
-
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-FieldType MUST be a type whose definition does not include Fields.
+FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
+If FieldType is not a JADN type, FieldOptions MUST NOT include any TypeOption.  
 
 *Note: JADN does not restrict TypeName and FieldName, but protocol specifications may establish naming conventions.*
 
