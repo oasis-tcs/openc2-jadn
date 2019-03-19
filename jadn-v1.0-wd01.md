@@ -237,17 +237,15 @@ JADN first-class types are defined in terms of their characteristics:
 JADN type definitions have a regular structure designed to be easily describable, easily processed, and extensible. Every definition creates a *Defined type* that has four elements, plus for some types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
-2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
+2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined, or the name of a Defined type
 3. **TypeOptions:** an array of zero or more **TypeOption** applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-If BaseType is a Primitive type, ArrayOf, or MapOf, the type definition MUST NOT include Fields.
+If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields.
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
-If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
-If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
 If BaseType is Enumerated, each field definition MUST have three elements:
 1. **FieldID:** the integer identifier of the field
@@ -277,7 +275,8 @@ If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting int
 FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
 If FieldType is a Defined type, FieldOptions MUST NOT include any TypeOption.  
 
-*Note: JADN does not restrict the content of TypeName and FieldName, but protocol specifications based on JADN MAY define naming requirements.*
+JADN does not restrict the values of TypeName and FieldName.  
+JADN-based protocol specifications SHOULD define requirements (e.g., allowed characters, maximum length, capitalization) for TypeName and FieldName.
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. This example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
@@ -299,7 +298,7 @@ JADN type definitions are themselves information objects that can be represented
 | 2 | **id** | Integer | 1 | |
 | 3 | **email** | String | 0..1 | |
 
-**JADN definition of Person in an IDL format similar to [Apache Thrift](#thrift):**
+**JADN definition of Person in a [Thrift](#thrift)-like IDL format:**
 ```
 record Person {
   1: string name,
@@ -321,6 +320,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | --- | --- | --- | --- | --- |
 |  **Structural** | | | | |
 | 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
+| 0x25 `'%'` | enum | none | Array, Choice, Map, Record | Enumerated type derived from BaseType |
 | 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
 | **Validation** | | | | |
@@ -330,6 +330,10 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Minimum numeric value, octet or character count, or element count |
 | 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Maximum numeric value, octet or character count, or element count |
 | 0x21 `'!'` | default | string | Any | Default value for an instance of this type |
+
+If BaseType is not a JADN type, TypeOptions MUST include the *enum* option.  
+If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
+If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.  
 
 Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
@@ -376,11 +380,9 @@ Field options apply to one field within a type definition. The options in Table 
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | integer | Minimum cardinality |
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
-| 0x25 `'%'` | enum | none | Enumerated reference to a field in FieldType |
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
 
 FieldOptions MUST include zero or one instance of each of the options from Table 3-3.  
-FieldOptions MUST NOT include both *enum* and *tfield*.  
 If FieldOptions includes the *enum* option, FieldType MUST be a Defined type based on Array, Choice, Map, or Record.  
 If FieldOptions includes type options ([Table 3-2](#table-3-2-type-options)), FieldType MUST be a JADN type to which all of those options apply.  
 
@@ -406,9 +408,8 @@ length (minv and maxv) TypeOptions of the new ArrayOf type. The exception is tha
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
 #### Derived Enumerations
-A field defined with the *enum* option contains a reference to a field in FieldType rather than a value of
-that type. Expansion creates an explicit named Enumerated type whose fields are the ID and Name of the fields
-in FieldType, replaces FieldType with the new Enumerated type, and removes the *enum* option from FieldOptions.
+A type defined with the *enum* option acts as an Enumerated type whose fields are the ID and Name of the Defined
+type.  Expansion explicitly creates a new Enumerated type and removes the *enum* option.
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
 ahd creates a Map type with keys from the Enumerated type. This is complementary to derived enumeration,
