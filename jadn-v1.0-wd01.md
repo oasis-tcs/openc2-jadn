@@ -242,7 +242,7 @@ JADN type definitions have a regular structure designed to be easily describable
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields.
+If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
@@ -269,14 +269,15 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
     ...
 ]]
 ```
+
+*Note: JADN does not restrict the values of TypeName and FieldName.*  
+JADN-based protocol specifications SHOULD define requirements (e.g., allowed characters, maximum length, capitalization) for TypeName and FieldName.  
+TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
-If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
+*Note: If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.*  
 FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
 If FieldType is a Defined type, FieldOptions MUST NOT include any TypeOption.  
-
-JADN does not restrict the values of TypeName and FieldName.  
-JADN-based protocol specifications SHOULD define requirements (e.g., allowed characters, maximum length, capitalization) for TypeName and FieldName.
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. This example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
@@ -306,7 +307,9 @@ record Person {
   3: optional string email,
 }
 ```
-Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are structured according to this section and are considered authoritative over other formats. Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are structured according to this section and are considered authoritative over other formats.
+
+Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
