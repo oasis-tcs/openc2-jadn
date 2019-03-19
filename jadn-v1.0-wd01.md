@@ -23,9 +23,6 @@ This prose specification is one component of a Work Product that also includes:
 
 * *Editor's Note: list JADN Schemas: (JSON, CDDL)*
 
-### Related work:
-[Avro](#avro), like JADN, is a dynamic data serialization system that does not require code generation and supports embedding of schema information to produce self-describing data. Unlike JADN, Avro has its own data format and cannot be used with JSON or CBOR data.
-
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
@@ -121,6 +118,8 @@ Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
 ###### [RFC8200]
 Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
+###### [RFC8259]
+Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
 
 ## 1.4 Non-Normative References
 ###### [AVRO]
@@ -179,7 +178,7 @@ required to stipulate how a system uses a particular type of platform.
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a message.  When information is serialized for transmission in a canonical format, the additional
-data used for purposes such as text conversion, delimiting, and framing contains no entropy because it is known a priori.
+data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
 
@@ -194,7 +193,7 @@ represent the same information:
 
 **Information Modeling**
 
-JADN is based on the [CBOR](#rfc7049) data model (JSON types plus integers, special numbers, and byte strings), but has an
+JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers, and byte strings), but has an
 information-centric focus:
 
 | Data-centric | Information-centric |
@@ -278,11 +277,11 @@ If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting int
 FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
 If FieldType is a Defined type, FieldOptions MUST NOT include any TypeOption.  
 
-*Note: JADN does not restrict TypeName and FieldName, but protocol specifications may establish naming conventions.*
+*Note: JADN does not restrict the content of TypeName and FieldName, but protocol specifications based on JADN MAY define naming requirements.*
 
 JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. This example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
 
-**JADN definition of Person in JSON format:**
+**JADN definition of Person in [JSON](#rfc8259) format:**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -304,7 +303,7 @@ JADN type definitions are themselves information objects that can be represented
 ```
 record Person {
   1: string name,
-  2: integer id,
+  2: int id,
   3: optional string email,
 }
 ```
@@ -412,9 +411,10 @@ that type. Expansion creates an explicit named Enumerated type whose fields are 
 in FieldType, replaces FieldType with the new Enumerated type, and removes the *enum* option from FieldOptions.
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
-ahd replaces it with a Map type with keys from the Enumerated type. This expansion can be used to simplify code
-requirements, enable use of implementations that do not support more general forms of mapping, or to improve
-robustness by limiting keys to a known set.
+ahd creates a Map type with keys from the Enumerated type. This is complementary to derived enumeration,
+which creates an Enumerated type from an Array/Choice/Map/Record type.
+This expansion can enable use of implementations that do not support more general forms of mapping,
+or improve robustness by limiting Map keys to a known set. 
 
 # 4 Serialization
 
