@@ -270,12 +270,12 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
 ]]
 ```
 
-*Note: JADN does not restrict the values of TypeName and FieldName.*  
-JADN-based protocol specifications SHOULD define requirements (e.g., allowed characters, maximum length, capitalization) for TypeName and FieldName.  
+JADN does not restrict the values of TypeName and FieldName.  
+JADN-based protocol specifications SHOULD define syntax requirements (e.g., regular expressions specifying allowed characters, maximum length, capitalization) for TypeName and FieldName.  
 TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
-*Note: If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.*  
+If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
 FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
 If FieldType is a Defined type, FieldOptions MUST NOT include any TypeOption.  
 
