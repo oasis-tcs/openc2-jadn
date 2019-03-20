@@ -323,9 +323,9 @@ Type options apply to the type definition as a whole. Structural options are int
 | --- | --- | --- | --- | --- |
 |  **Structural** | | | | |
 | 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
-| 0x25 `'%'` | enum | none | Array, Choice, Map, Record | Enumerated type derived from BaseType |
 | 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
+| 0x25 `'%'` | enum | none | Array, Choice, Map, Record | Enumerated type derived from BaseType |
 | **Validation** | | | | |
 | 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
@@ -337,6 +337,7 @@ Type options apply to the type definition as a whole. Structural options are int
 If BaseType is not a JADN type, TypeOptions MUST include the *enum* option.  
 If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
 If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.  
+TypeOptions MUST NOT include a TypeOption that does not apply to BaseType.  
 
 Within a type definition,
 * TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
@@ -359,7 +360,10 @@ The *vtype* option specifies the type of each field in an ArrayOf or MapOf type.
 
 The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
 
-#### 3.2.1.4 Format
+#### 3.2.1.4 Derived Enumeration
+*enum*
+
+#### 3.2.1.5 Format
 *format*
 
 *sopt - Serialization options may include value constraints applicable to all data formats.*
@@ -368,11 +372,20 @@ The *ktype* option specifies the type of each key in a MapOf type. It MUST be a 
 * IM value is an IPv4 address and a prefix length as specified in Section 3.1 of [RFC 4632](#rfc4632).
 * IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
 
-#### 3.2.1.5 Pattern
+#### 3.2.1.6 Pattern
 *pattern*
 
-#### 3.2.1.6 Size and Value Constraints
+#### 3.2.1.7 Size and Value Constraints
 *minv*, *maxv*
+
+#### 3.2.1.8 Default Value
+*default* - Reserved for future use.
+
+*Note: Intended to specify the value a receiving application uses for a field that is optional and not populated.
+Update conformance statements when this option is defined.*
+
+Specification writers SHOULD NOT use this option.  
+Applications SHOULD ignore this option.
 
 ### 3.2.2 Field Options
 Field options apply to one field within a type definition. The options in Table 3-3 are structural elements of the type definition.
@@ -384,6 +397,26 @@ Field options apply to one field within a type definition. The options in Table 
 | 0x5b `'['` | minc | integer | Minimum cardinality |
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
+| 0x3c `'<'` | flatten | integer | Use FieldName as a namespace prefix for FieldType |
+
+#### 3.2.2.1 Multiplicity
+The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities:
+
+| minc | maxc | Description | Keywords |
+| ---: | ---: | :--- | :--- |
+| 1 | 1 | Exactly one instance | Required |
+| 0 | 1 | No instances or one instance | Optional |
+| 1 | 0 | At least one instance | Required, Repeatable |
+| 0 | 0 | Zero or more instances | Optional, Repeatable |
+| m | n | At least m but no more than n instances | Required, Repeatable |
+
+The default value of both minc and maxc is 1; if neither are specified the field must have exactly one instance of FieldType. If minc is 0, the field is optional. If maxc is 0, the maximum number of elements is unspecified.
+
+#### 3.2.2.2 Referenced Field Type
+*tfield*
+
+#### 3.2.2.3 Flattened Serialization
+*flatten*
 
 FieldOptions MUST include zero or one instance of each of the options from Table 3-3.  
 If FieldOptions includes the *enum* option, FieldType MUST be a Defined type based on Array, Choice, Map, or Record.  
