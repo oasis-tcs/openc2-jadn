@@ -261,7 +261,7 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
-4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-3](#table-3-3-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
+4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-4](#table-3-4-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
 5. **FieldDescription:** a non-normative comment
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
@@ -276,10 +276,11 @@ TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Defined type.  
-If FieldType is a Defined type, FieldOptions MUST NOT include any TypeOption.  
+FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. This example (from [Protobuf](#proto)) defines a Record type called Person with three fields, the third of which is optional:
+**Type Definition Formats**
+
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. The equivalent JADN definition is:
 
 **JADN definition of Person in [JSON](#rfc8259) format:**
 ```
@@ -307,9 +308,7 @@ record Person {
   3: optional string email,
 }
 ```
-Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are structured according to this section and are considered authoritative over other formats.
-
-Specifications that include JADN definitions in a non-data format SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format as defined in this section are considered authoritative over other formats. Specifications that include JADN definitions in another format SHOULD also make available the same definitions in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -319,29 +318,44 @@ Type options apply to the type definition as a whole. Structural options are int
 
 ###### Table 3-2. Type Options
 
-| ID | Label | Type | Applies To | Definition |
-| --- | --- | --- | --- | --- |
-|  **Structural** | | | | |
-| 0x3d `'='` | id | none | Enumerated, Choice, Map | If present, FieldName is a suggested label rather than a defined name |
-| 0x2a `'*'` | vtype | string | ArrayOf, MapOf | Value type for ArrayOf and MapOf |
-| 0x2b `'+'` | ktype | string | MapOf | Key type for MapOf |
-| 0x25 `'%'` | enum | none | Array, Choice, Map, Record | Enumerated type derived from BaseType |
-| **Validation** | | | | |
-| 0x40 `'@'` | format | string | Any | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
-| 0x2f `'/'` | sopt | string | Any | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
-| 0x24 `'$'` | pattern | string | String | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
-| 0x7b `'{'` | minv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Minimum numeric value, octet or character count, or element count |
-| 0x7d `'}'` | maxv | integer | Integer, Number,<br> Binary, String,<br> Array, ArrayOf,<br> Map, MapOf, Record | Maximum numeric value, octet or character count, or element count |
-| 0x21 `'!'` | default | string | Any | Default value for an instance of this type |
+| ID | Label | Type | Definition |
+| --- | --- | --- | --- |
+|  **Structural** | | | |
+| 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than a defined name |
+| 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
+| 0x2b `'+'` | ktype | string | Key type for MapOf |
+| 0x25 `'%'` | enum | none | Enumerated type derived from BaseType |
+| **Validation** | | | |
+| 0x40 `'@'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
+| 0x2f `'/'` | sopt | string | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
+| 0x24 `'$'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
+| 0x7b `'{'` | minv | integer | Minimum numeric value, octet or character count, or element count |
+| 0x7d `'}'` | maxv | integer | Maximum numeric value, octet or character count, or element count |
+| 0x21 `'!'` | default | string | Default value for an instance of this type |
 
-If BaseType is not a JADN type, TypeOptions MUST include the *enum* option.  
-If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option ([Table 3-2](#table-3-2-type-options)).  
+If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.  
 If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.  
-TypeOptions MUST NOT include a TypeOption that does not apply to BaseType.  
+TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).  
+TypeOptions MUST contain zero or one serialization option defined for each serialization format.  
+TypeOptions MUST NOT include a TypeOption that is not allowed for BaseType as listed in Table 3-3.  
 
-Within a type definition,
-* TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
-* For each serialization format, TypeOptions MUST contain zero or one serialization option defined by that format.
+###### Table 3-3. Allowed Options
+
+| BaseType | Allowed Options | Description |
+| :--- | :--- | :--- |
+| Binary | minv, maxv, format, sopt | min/max byte count |
+| Boolean |
+| Integer | minv, maxv, format, sopt | min/max numeric value | 
+| Number | minv, maxv, format, sopt | min/max numeric value |
+| Null | |
+| String | minv, maxv, format, sopt, pattern | min/max character count |
+| Enumerated | id |
+| Choice | id |
+| Array | format, sopt |
+| ArrayOf | vtype, minv, maxv | min/max number of items |
+| Map | id, minv, maxv | min/max number of items |
+| MapOf | ktype, vtype, minv, maxv | min/max number of items |
+| Record | |
 
 #### 3.2.1.1 Id
 
@@ -357,11 +371,12 @@ For example a list of HTTP status codes could include the field [403, "Forbidden
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
 
 #### 3.2.1.3 Key Type
-
 The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
 
 #### 3.2.1.4 Derived Enumeration
-*enum*
+The *enum* option creates a derived enumeration as defined in [Section 3.2.3](#323-syntactic-sugar). This is the only kind of type definition where BaseType is not a JADN type.
+
+If BaseType is not a JADN type, TypeOptions MUST contain only the *enum* option and the definition named by BaseType MUST be one of Choice, Array, Map, or Record.  
 
 #### 3.2.1.5 Format
 *format*
@@ -388,9 +403,9 @@ Specification writers SHOULD NOT use this option.
 Applications SHOULD ignore this option.
 
 ### 3.2.2 Field Options
-Field options apply to one field within a type definition. The options in Table 3-3 are structural elements of the type definition.
+Field options apply to one field within a type definition. The options in Table 3-4 are structural elements of the type definition.
 
-###### Table 3-3. Field Options
+###### Table 3-4. Field Options
 
 | ID | Label | Type | Definition |
 | --- | --- | --- | --- |
@@ -439,7 +454,7 @@ Expansion converts all anonymous type definitions to explicit named types and ex
 #### Field Multiplicity
 Fields may be defined to have multiple values of the same type. Expansion converts each field that can
 have more than one value to an explicit named ArrayOf type. The minimum and maximum cardinality (minc and maxc)
-field options ([Table 3-3](#table-3-3-field-options)) are moved from FieldOptions to the minimum and maximum
+field options ([Table 3-4](#table-3-4-field-options)) are moved from FieldOptions to the minimum and maximum
 length (minv and maxv) TypeOptions of the new ArrayOf type. The exception is that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
