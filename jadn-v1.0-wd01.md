@@ -280,7 +280,7 @@ FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a D
 
 **Type Definition Formats**
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. The equivalent JADN definition is:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. The equivalent JADN definitions are:
 
 **JADN definition of Person in [JSON](#rfc8259) format:**
 ```
@@ -337,25 +337,27 @@ If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.
 If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.  
 TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).  
 TypeOptions MUST contain zero or one serialization option defined for each serialization format.  
-TypeOptions MUST NOT include a TypeOption that is not allowed for BaseType as listed in Table 3-3.  
+TypeOptions MUST NOT include a TypeOption that is not allowed for BaseType as shown in Table 3-3.  
+If BaseType is not a JADN type, TypeOptions MUST contain only the *enum* option and the definition named by BaseType MUST be one of Choice, Array, Map, or Record.  
 
 ###### Table 3-3. Allowed Options
 
 | BaseType | Allowed Options | Description |
 | :--- | :--- | :--- |
 | Binary | minv, maxv, format, sopt | min/max byte count |
-| Boolean |
+| Boolean | |
 | Integer | minv, maxv, format, sopt | min/max numeric value | 
 | Number | minv, maxv, format, sopt | min/max numeric value |
-| Null | |
+| Null | | |
 | String | minv, maxv, format, sopt, pattern | min/max character count |
-| Enumerated | id |
-| Choice | id |
-| Array | format, sopt |
+| Enumerated | id | |
+| Choice | id | |
+| Array | format, sopt | |
 | ArrayOf | vtype, minv, maxv | min/max number of items |
 | Map | id, minv, maxv | min/max number of items |
 | MapOf | ktype, vtype, minv, maxv | min/max number of items |
-| Record | |
+| Record | | |
+| Defined | enum | derived enumeration |
 
 #### 3.2.1.1 Id
 
@@ -375,8 +377,6 @@ The *ktype* option specifies the type of each key in a MapOf type. It MUST be a 
 
 #### 3.2.1.4 Derived Enumeration
 The *enum* option creates a derived enumeration as defined in [Section 3.2.3](#323-syntactic-sugar). This is the only kind of type definition where BaseType is not a JADN type.
-
-If BaseType is not a JADN type, TypeOptions MUST contain only the *enum* option and the definition named by BaseType MUST be one of Choice, Array, Map, or Record.  
 
 #### 3.2.1.5 Format
 *format*
@@ -414,6 +414,9 @@ Field options apply to one field within a type definition. The options in Table 
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
 | 0x3c `'<'` | flatten | integer | Use FieldName as a namespace prefix for FieldType |
 
+FieldOptions MUST include zero or one instance of each of the options from [Table 3-4](#table-3-4-field-options).  
+All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
+
 #### 3.2.2.1 Multiplicity
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities:
 
@@ -432,10 +435,6 @@ The default value of both minc and maxc is 1; if neither are specified the field
 
 #### 3.2.2.3 Flattened Serialization
 *flatten*
-
-FieldOptions MUST include zero or one instance of each of the options from Table 3-3.  
-If FieldOptions includes the *enum* option, FieldType MUST be a Defined type based on Array, Choice, Map, or Record.  
-If FieldOptions includes type options ([Table 3-2](#table-3-2-type-options)), FieldType MUST be a JADN type to which all of those options apply.  
 
 ### 3.2.3 Syntactic Sugar
 JADN includes several optimizations that make type definitions more compact or that support the
