@@ -412,15 +412,15 @@ All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions
 #### 3.2.2.1 Multiplicity
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities:
 
-| minc | maxc | Description | Keywords |
-| ---: | ---: | :--- | :--- |
-| 1 | 1 | Exactly one instance | Required |
-| 0 | 1 | No instances or one instance | Optional |
-| 1 | 0 | At least one instance | Required, Repeatable |
-| 0 | 0 | Zero or more instances | Optional, Repeatable |
-| m | n | At least m but no more than n instances | Required, Repeatable |
+| minc | maxc | Multiplicity | Description | Keywords |
+| ---: | ---: | ---: | :--- | :--- |
+| 1 | 1 | 1 | Exactly one instance | Required |
+| 0 | 1 | 0..1 | No instances or one instance | Optional |
+| 1 | 0 | 1..* | At least one instance | Required, Repeatable |
+| 0 | 0 | 0..* | Zero or more instances | Optional, Repeatable |
+| m | n | m..n | At least m but no more than n instances | Required, Repeatable if m > 1 |
 
-The default value of both minc and maxc is 1; if neither are specified the field must have exactly one instance of FieldType. If minc is 0, the field is optional. If maxc is 0, the maximum number of elements is unspecified.
+The default value of both minc and maxc is 1; if neither are specified the field must have exactly one instance of FieldType. If minc is 0, the field is optional. If maxc is 0, the maximum number of elements is unspecified (*).
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
