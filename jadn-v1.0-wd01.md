@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 01 March 2019
+## 31 March 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -21,7 +21,9 @@
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
 
-* *Editor's Note: list JADN Schemas: (JSON, CDDL)*
+* JADN Schema for JADN specifications
+* JSON Schema for JADN specifications
+* CDDL Schema for JADN specifications
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -79,15 +81,9 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
+Many standards are developed using data definition tables with the goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN is a schema language with definitions that can be both validated for correctness and documented in table format, ensuring that table content is valid. A JADN schema is executable byte code that can be transferred between applications, interpreted to validate application data, and embedded to produce self-describing data.
 
-*Editors Notes:*
-
-*Capabilities developed in XML, various means to move to JSON, then CBOR.*
-
-*Standards are created using data definition tables with a goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN defines a table structure that translates completely and unambiguously to a machine-usable schema. The schema serves as "byte code" that can be transferred between applications and interpreted to validate application data. It can be embedded to produce self-describing data.*
-
-*Numerous data definition languages are in use. JADN doesn't replace any of them, but serves as a Rosetta stone to facilitate translation among them.*
-
+Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -202,7 +198,7 @@ information-centric focus:
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
 | CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
-| Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localization of identifiers within applications. |
+| Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized identifiers within applications. |
 
 **Implementation**
 
@@ -314,7 +310,7 @@ Of these examples, only JSON is data that can be read unambiguously by applicati
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of the Defined type.
+Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of the defined type.
 
 ###### Table 3-2. Type Options
 
@@ -396,14 +392,10 @@ The *enum* option creates a derived enumeration as defined in [Section 3.2.3](#3
 #### 3.2.1.8 Default Value
 *default* - Reserved for future use.
 
-*Note: Intended to specify the value a receiving application uses for a field that is optional and not populated.
-Update conformance statements when this option is defined.*
-
-Specification writers SHOULD NOT use this option.  
-Applications SHOULD ignore this option.
+*Note: Intended to specify the value a receiving application uses for a field that is optional and not transmitted.*
 
 ### 3.2.2 Field Options
-Field options apply to one field within a type definition. The options in Table 3-4 are structural elements of the type definition.
+Field options apply to each field within a type definition. Each option in Table 3-4 is a structural element of the type definition.
 
 ###### Table 3-4. Field Options
 
@@ -674,12 +666,9 @@ The following individuals have participated in the creation of this specificatio
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
 # Appendix C. JADN Information Model
-## Table format
-## JSON format
-## CBOR format
-
+JADN IM validates any JADN schema in any serialized format
 # Appendix D. JSON-Schema Data Model for JADN
-JSON Schema generated from the IM of Appendix C, validates any JADN schema in JSON format
+JSON Schema generated from the JADN IM, validates any JADN schema in JSON format
 # Appendix E. CDDL Data Model for JADN
-CDDL generated from the IM of Appendix C, validates any JADN schema in CBOR format
+CDDL generated from the JADN IM, validates any JADN schema in CBOR format
 
