@@ -203,8 +203,8 @@ information-centric focus:
 **Implementation**
 
 Two general approaches can be used to implement IM-based protocol specifications:
-1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema) or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. 
+1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM-specified data objects regardless of serialization format.
 
 # 3 JADN Types
 JADN first-class types are defined in terms of their characteristics:
@@ -362,7 +362,7 @@ The Enumerated, Choice, and Map types have named and unnamed variants. Presence 
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed.
 * In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
 
-For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option only FieldID 403 is used in protocol data, but the label "Forbidden" could be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
+For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 3.2.1.2 Value Type
 
@@ -464,7 +464,7 @@ or improve robustness by limiting Map keys to a known set.
 Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
 * Specify how each option applicable to a type affects serialized values
-* Specify any value constraints defined for that format
+* Specify any validation requirements defined for that format
 
 ## 4.1 JSON Serialization
 
