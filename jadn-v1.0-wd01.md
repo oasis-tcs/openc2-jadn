@@ -372,7 +372,7 @@ The *vtype* option specifies the type of each field in an ArrayOf or MapOf type.
 The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates a derived enumeration as defined in [Section 3.2.3](#323-syntactic-sugar). This is the only kind of type definition where BaseType is not a JADN type.
+The *enum* option specifies an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). The defined type is refrenced from either the BaseType element or the ktype/vtype options of a type definition. This is the only kind of type definition where BaseType is not a JADN type.
 
 #### 3.2.1.5 Format
 *format*
