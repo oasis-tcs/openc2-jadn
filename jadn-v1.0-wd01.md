@@ -320,7 +320,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than a defined name |
 | 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | Key type for MapOf |
-| 0x24 `'$'` | enum | none | Enumerated type derived from BaseType |
+| 0x24 `'$'` | enum | none | Enumerated type derived from a defined Array, Choice, Map or Record type |
 | **Validation** | | | |
 | 0x40 `'@'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x2f `'/'` | sopt | string | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
