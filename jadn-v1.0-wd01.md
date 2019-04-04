@@ -106,6 +106,8 @@ Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, Febru
 Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
 ###### [RFC4648]
 Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
+###### [RFC5234]
+Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
 ###### [RFC5952]
 Kawamura S., Kawashima M., "A Recommendation for IPv6 Address Text Representation", RFC 5952, August 2010, http://www.rfc-editor.org/info/rfc5952.
 ###### [RFC7049]
@@ -266,13 +268,20 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
 ]]
 ```
 
-JADN does not restrict the values of TypeName and FieldName.  
-JADN-based protocol specifications SHOULD define syntax requirements (e.g., regular expressions specifying allowed characters, maximum length, capitalization) for TypeName and FieldName.  
+JADN-based protocol specifications MAY define syntax requirements for TypeName and FieldName. Specifications that do not define an alternate name syntax MUST use the default name syntax, specified in [ABNF](#rfc5234):
+
+```
+TypeName   =
+FieldName  =
+SEP        = 0x2f    ; '/' 'SOLIDUS' (U+002F)
+SYS        = 0x24    ; '$' 'DOLLAR SIGN' (U+0024)
+```
+
 TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
 FieldID and FieldName values MUST be unique within a type definition.  
 If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-FieldType MUST be a JADN type without Fields (Primitive, ArrayOf, MapOf), or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
+FieldType MUST be a JADN type without individually-defined Fields (Primitive, ArrayOf, MapOf), or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
 
 **Type Definition Formats**
 
