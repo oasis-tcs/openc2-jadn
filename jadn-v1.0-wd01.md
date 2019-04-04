@@ -304,7 +304,7 @@ record Person {
   3: optional string email,
 }
 ```
-Of these examples, only JSON is data that can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format as defined in this section are considered authoritative over other formats. Specifications that include JADN definitions in another format SHOULD also make available the same definitions in JSON format.
+Of these examples, only JSON is data that is structured as shown and can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make the same definitions available in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -317,14 +317,14 @@ Type options apply to the type definition as a whole. Structural options are int
 | ID | Label | Type | Definition |
 | --- | --- | --- | --- |
 |  **Structural** | | | |
-| 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than a defined name |
+| 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than an immutable name |
 | 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | Key type for MapOf |
-| 0x25 `'%'` | enum | none | Enumerated type derived from BaseType |
+| 0x24 `'$'` | enum | none | Enumerated type derived from a defined Array, Choice, Map or Record type |
 | **Validation** | | | |
 | 0x40 `'@'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x2f `'/'` | sopt | string | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
-| 0x24 `'$'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
+| 0x25 `'%'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
 | 0x7b `'{'` | minv | integer | Minimum numeric value, octet or character count, or element count |
 | 0x7d `'}'` | maxv | integer | Maximum numeric value, octet or character count, or element count |
 | 0x21 `'!'` | default | string | Default value for an instance of this type |
@@ -359,7 +359,7 @@ If BaseType is not a JADN type, TypeOptions MUST contain only the *enum* option 
 
 The Enumerated, Choice, and Map types have named and unnamed variants. Presence of the *id* option in a type definition indicates that the type is unnamed. The Record type is always named and has no *id* option; the Array type is its unnamed equivalent.
 
-* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed.
+* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed without affecting interoperability.
 * In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
 
 For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
@@ -372,7 +372,7 @@ The *vtype* option specifies the type of each field in an ArrayOf or MapOf type.
 The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates a derived enumeration as defined in [Section 3.2.3](#323-syntactic-sugar). This is the only kind of type definition where BaseType is not a JADN type.
+The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). The referenced type is specified by either the BaseType element or the ktype/vtype options of a type definition. This is the only kind of type definition where BaseType is not a JADN type.
 
 #### 3.2.1.5 Format
 *format*
@@ -430,34 +430,35 @@ The default value of both minc and maxc is 1; if neither are specified the field
 
 ### 3.2.3 Syntactic Sugar
 JADN includes several optimizations that make type definitions more compact or that support the
-[DRY](#dry) software design principle. These optimizations can be removed without affecting
+[DRY](#dry) software design principle. These can be removed without affecting
 the meaning of a type definition. Removing them simplifies the original definition but creates
 additional definitions to support it. This simplifies the code needed to serialize and validate data
 instances, and examining the expanded definitions may aid understanding. But expansion can make
-schemas more difficult to maintain by introducing redundant data that must be kept in sync.
-The following optimizations may be removed:
+specifications more difficult to maintain by introducing redundant data that must be kept in sync.
+
+An optimized specification can be translated into an expanded version that does not include
+the following options:
 
 #### Type Definition within fields
 A specific type (e.g., an email address) may be defined anonymously within a field of a structure
 definition, or it may be defined in a separate named type that can be used in one or more structures.
-Expansion converts all anonymous type definitions to explicit named types and excludes type options
+Expansion converts all anonymous type definitions to explicit named types and excludes all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 #### Field Multiplicity
 Fields may be defined to have multiple values of the same type. Expansion converts each field that can
-have more than one value to an explicit named ArrayOf type. The minimum and maximum cardinality (minc and maxc)
+have more than one value to an explicit ArrayOf type. The minimum and maximum cardinality (minc and maxc)
 field options ([Table 3-4](#table-3-4-field-options)) are moved from FieldOptions to the minimum and maximum
-length (minv and maxv) TypeOptions of the new ArrayOf type. The exception is that if minc is 0
+length (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
 #### Derived Enumerations
-A type defined with the *enum* option acts as an Enumerated type whose fields are the ID and Name of the Defined
-type.  Expansion explicitly creates a new Enumerated type and removes the *enum* option.
+A type defined with the *enum* option generates an anonymous Enumerated type whose fields are the ID and Name values
+of the the referenced type.  Expansion explicitly creates a new Enumerated type definition and removes the *enum* option.
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
-ahd creates a Map type with keys from the Enumerated type. This is complementary to derived enumeration,
-which creates an Enumerated type from an Array/Choice/Map/Record type.
-This expansion can enable use of implementations that do not support more general forms of mapping,
-or improve robustness by limiting Map keys to a known set. 
+ahd creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
+enumeration. This expansion can simplify specifications that do not require the more general MapOf type,
+and improve robustness by limiting Map keys to a known set. 
 
 # 4 Serialization
 
@@ -550,7 +551,7 @@ When using CBOR serialization, instances of JADN types with one of the following
 
 ## 4.3 M-JSON Serialization:
 
-Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to [CDDL](#cddl) serialization using the JSON preface defined in Appendix E. As with CBOR,
+Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to [CDDL](#cddl) serialization using the JSON preface defined in CDDL Appendix E.
 * Serialization and id TypeOptions do not affect serialized values.
 
 When using M-JSON serialization, instances of JADN types MUST be serialized as:
