@@ -91,15 +91,19 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
+The keyword "iff" is interpreted to mean "if and only if".  A requirement "X MUST be considered valid iff Y" means that an implementation does not conform unless it evaluates every otherwise valid instance of X for which Y is true as valid, and every instance of X for which Y is false as invalid.
+
 ## 1.3 Normative References
+###### [ES9]
+ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
 ###### [EUI]
-"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf
+"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
 ###### [RFC791]
 Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
 ###### [RFC2119]
 Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
 ###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
 ###### [RFC4291]
 Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
 ###### [RFC4632]
@@ -143,7 +147,7 @@ Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Conside
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
-"UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html
+"UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html.
 
 -------
 
@@ -379,10 +383,12 @@ For example a list of HTTP status codes could include the field [403, "Forbidden
 #### 3.2.1.2 Value Type
 
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
+* An ArrayOf or MapOf instance MUST be considered valid iff each of its elements is an instance of *vtype*.
 
 #### 3.2.1.3 Key Type
 The *ktype* option specifies the type of each key in a MapOf type. 
 * *ktype* MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+* A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
 The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). The referenced type is specified by either the BaseType element or the ktype/vtype options of a type definition. This is the only kind of type definition where BaseType is not a JADN type.
@@ -397,10 +403,16 @@ The *enum* option creates an enumeration derived from a referenced Array, Choice
 * IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
 
 #### 3.2.1.6 Pattern
-*pattern*
+The *pattern* option specifies a regular expression used to validate a String instance.
+* The *pattern* option SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
+* A String instance MUST be considered valid iff it matches the regular expression specified by *pattern*.
 
 #### 3.2.1.7 Size and Value Constraints
-*minv*, *maxv*
+The *minv* and *maxv* options specify size or value limits.
+* A Binary instance MUST be considered valid iff its number of bytes is at least *minv* and no more than *maxv*.
+* A String instance MUST be considered valid iff its number of characters is at least *minv* and no more than *maxv*.
+* An Integer or Number instance MUST be considered valid iff its value is at least *minv* and no more than *maxv*.
+* An ArrayOf, Map, or MapOf instance MUST be considered valid iff it contains at least *minv* and no more than *maxv* elements.
 
 #### 3.2.1.8 Default Value
 *default* - Reserved for future use.
@@ -419,7 +431,7 @@ Field options apply to each field within a type definition. Each option in Table
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
 | 0x3c `'<'` | flatten | integer | Use FieldName as a namespace prefix for FieldType |
 
-* FieldOptions MUST include zero or one instance of each of the options from [Table 3-4](#table-3-4-field-options).  
+* FieldOptions MUST include zero or one instance of each of the options in [Table 3-4](#table-3-4-field-options).  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
