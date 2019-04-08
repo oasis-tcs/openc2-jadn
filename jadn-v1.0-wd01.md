@@ -279,16 +279,23 @@ JADN does not restrict the format of TypeName and FieldName, but naming requirem
 ; Name Format Definitions
 TypeName   = UC *31(UC / LC / DIGIT / HYPHEN / Sys)   ; e.g., Color-Values, length = 1-32 characters
 FieldName  = LC *31(UC / LC / DIGIT / UNDER)          ; e.g., color_values, length = 1-32 characters
-FieldSep   = 0x2f     ; '/' 'SOLIDUS' (U+002F)        Path separator reserved for qualified names, not allowed in FieldName
-Sys        = 0x24     ; '$' 'DOLLAR SIGN' (U+0024)    Reserved for tool-generated type names, e.g., $Colors.
+FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator reserved for qualified names, not allowed in FieldName
+Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
 
 ; Constants
-HYPHEN     = %x2D     ; '-' 'HYPHEN-MINUS' (U+002D)
-UNDER      = %x5F     ; '_' 'LOW LINE' (U+005F)
+HYPHEN     = "-"      ; 'HYPHEN-MINUS' (U+002D)
+UNDER      = "_"      ; 'LOW LINE' (U+005F)
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
+DIGIT      = %x30-39  ; 0-9
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF
+
+```
+TypeName:  ^([A-Z]([-A-Za-z0-9]|\$){,31})$
+FieldName: ^([a-z][A-Z_a-z0-9]{,31})$
+```
+###### Figure 3-2: JADN Default Name Syntax Regular Expressions
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
 * FieldID and FieldName values MUST be unique within a type definition.  
@@ -360,22 +367,22 @@ Type options apply to the type definition as a whole. Structural options are int
 
 ###### Table 3-3. Allowed Options
 
-| BaseType | Allowed Options | Description |
-| :--- | :--- | :--- |
-| Binary | minv, maxv, format, sopt | min/max byte count |
+| BaseType | Allowed Options |
+| :--- | :--- |
+| Binary | minv, maxv, format, sopt |
 | Boolean | |
-| Integer | minv, maxv, format, sopt | min/max numeric value | 
-| Number | minv, maxv, format, sopt | min/max numeric value |
-| Null | | |
-| String | minv, maxv, format, sopt, pattern | min/max character count |
-| Enumerated | id | |
-| Choice | id | |
-| Array | format, sopt | |
-| ArrayOf | vtype, minv, maxv | min/max number of items |
-| Map | id, minv, maxv | min/max number of items |
-| MapOf | ktype, vtype, minv, maxv | min/max number of items |
-| Record | | |
-| Defined | enum | derived enumeration |
+| Integer | minv, maxv, format, sopt |
+| Number | minv, maxv, format, sopt |
+| Null | |
+| String | minv, maxv, format, sopt, pattern |
+| Enumerated | id |
+| Choice | id |
+| Array | format, sopt |
+| ArrayOf | vtype, minv, maxv |
+| Map | id, minv, maxv |
+| MapOf | ktype, vtype, minv, maxv |
+| Record | |
+| Defined | enum |
 
 * If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
 * If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
@@ -425,9 +432,7 @@ The *minv* and *maxv* options specify size or value limits.
 * An ArrayOf, Map, or MapOf instance MUST be considered valid iff it contains at least *minv* and no more than *maxv* elements.
 
 #### 3.2.1.8 Default Value
-*default* - Reserved for future use.
-
-*Note: Intended to specify the value a receiving application uses for a field that is optional and not transmitted.*
+The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ### 3.2.2 Field Options
 Field options apply to each field within a type definition. Each option in Table 3-4 is a structural element of the type definition.
