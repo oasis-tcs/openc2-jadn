@@ -277,14 +277,12 @@ JADN does not restrict the format of TypeName and FieldName, but naming requirem
 
 ```
 ; Name Format Definitions
-TypeName   = UC *31(UC / LC / DIGIT / HYPHEN / Sys)   ; e.g., Color-Values, length = 1-32 characters
-FieldName  = LC *31(UC / LC / DIGIT / UNDER)          ; e.g., color_values, length = 1-32 characters
+TypeName   = UC *31("-" / UC / LC / DIGIT / Sys)   ; e.g., Color-Values, length = 1-32 characters
+FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
 FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator reserved for qualified names, not allowed in FieldName
 Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
 
 ; Constants
-HYPHEN     = "-"      ; 'HYPHEN-MINUS' (U+002D)
-UNDER      = "_"      ; 'LOW LINE' (U+005F)
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
@@ -293,7 +291,7 @@ DIGIT      = %x30-39  ; 0-9
 
 ```
 TypeName:  ^([A-Z]([-A-Za-z0-9]|\$){,31})$
-FieldName: ^([a-z][A-Z_a-z0-9]{,31})$
+FieldName: ^([a-z][_A-Za-z0-9]{,31})$
 ```
 ###### Figure 3-2: JADN Default Name Syntax Regular Expressions
 
