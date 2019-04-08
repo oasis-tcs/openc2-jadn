@@ -272,23 +272,30 @@ JADN type definitions have a regular structure designed to be easily describable
 ]]
 ```
 
-JADN-based protocol specifications MAY define naming requirements.
-* Specifications that do not define an alternate name syntax MUST use the default name syntax, specified in [ABNF](#rfc5234):
+JADN does not restrict the format of TypeName and FieldName, but naming requirements are needed in order to validate JADN specifications. JADN-based protocol specifications MAY define their own name format requirements.  
+* Specifications that do not define an alternate name format MUST use the default format defined in Figure 3-1 using [ABNF](#rfc5234).
 
 ```
-TypeName   = [A-Z](A-Za-z0-9-)*   ; (note: convert RE to ABNF) 
-FieldName  = [a-z](A-Za-z0-9_)*
-TypeRef    = 
-SEP        = 0x2f       ; '/' 'SOLIDUS' (U+002F)
-SYS        = 0x24       ; '$' 'DOLLAR SIGN' (U+0024)
+; Name Format Definitions
+TypeName   = UC *31(UC / LC / DIGIT / HYPHEN / Sys)   ; e.g., Color-Values, length = 1-32 characters
+FieldName  = LC *31(UC / LC / DIGIT / UNDER)          ; e.g., color_values, length = 1-32 characters
+FieldSep   = 0x2f     ; '/' 'SOLIDUS' (U+002F)        Path separator reserved for qualified names, not allowed in FieldName
+Sys        = 0x24     ; '$' 'DOLLAR SIGN' (U+0024)    Reserved for tool-generated type names, e.g., $Colors.
+
+; Constants
+HYPHEN     = %x2D     ; '-' 'HYPHEN-MINUS' (U+002D)
+UNDER      = %x5F     ; '_' 'LOW LINE' (U+005F)
+UC         = %x41-5A  ; A-Z
+LC         = %x61-7A  ; a-z
 ```
+###### Figure 3-1: JADN Default Name Syntax in ABNF
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
 * FieldID and FieldName values MUST be unique within a type definition.  
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-* FieldType MUST be a JADN type without individually-defined Fields (Primitive, ArrayOf, MapOf), or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
 
 **Type Definition Formats**
 
@@ -306,21 +313,21 @@ JADN type definitions are themselves information objects that can be represented
 
   *Type: Person (Record)*
 
-| ID | Name | Type | # | Description |
-| ---: | --- | --- | ---: | --- |
-| 1 | **name** | String | 1 | |
-| 2 | **id** | Integer | 1 | |
-| 3 | **email** | String | 0..1 | |
+|  ID  |    Name   |   Type  |   #  | Description |
+| ---: | --------- | ------- | ---: | ----------- |
+|   1  | **name**  | String  |    1 |             |
+|   2  | **id**    | Integer |    1 |             |
+|   3  | **email** | String  | 0..1 |             |
 
 **JADN definition of Person in a [Thrift](#thrift)-like IDL format:**
 ```
 record Person {
   1: string name,
   2: int id,
-  3: optional string email,
+  3: optional string email
 }
 ```
-Of these examples, only JSON is data that is structured as shown and can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make the same definitions available in JSON format.
+These examples represent identical IM definitions, but the JSON data is structured as defined in this section and can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make the same definitions available in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -336,7 +343,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than an immutable name |
 | 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | Key type for MapOf |
-| 0x24 `'$'` | enum | none | Enumerated type derived from a defined Array, Choice, Map or Record type |
+| 0x24 `'$'` | enum | string | Enumerated type derived from a defined Array, Choice, Map or Record type |
 | **Validation** | | | |
 | 0x40 `'@'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x2f `'/'` | sopt | string | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
@@ -345,12 +352,11 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x7d `'}'` | maxv | integer | Maximum numeric value, octet or character count, or element count |
 | 0x21 `'!'` | default | string | Default value for an instance of this type |
 
-* If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.  
-* If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.  
-* TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).  
-* TypeOptions MUST contain zero or one serialization option defined for each serialization format.  
-* TypeOptions MUST NOT include a TypeOption that is not allowed for BaseType as shown in Table 3-3.  
-* If BaseType is not a JADN type, TypeOptions MUST contain only the *enum* option and the definition named by BaseType MUST be one of Choice, Array, Map, or Record.  
+* If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.
+* If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
+* TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
+* TypeOptions MUST contain zero or one serialization option defined for each serialization format.
+* TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
 
 ###### Table 3-3. Allowed Options
 
@@ -370,6 +376,10 @@ Type options apply to the type definition as a whole. Structural options are int
 | MapOf | ktype, vtype, minv, maxv | min/max number of items |
 | Record | | |
 | Defined | enum | derived enumeration |
+
+* If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
+* If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
+* If TypeOptions is *vtype* or *ktype*, ...
 
 #### 3.2.1.1 Id
 
@@ -429,7 +439,7 @@ Field options apply to each field within a type definition. Each option in Table
 | 0x5b `'['` | minc | integer | Minimum cardinality |
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
-| 0x3c `'<'` | flatten | integer | Use FieldName as a namespace prefix for FieldType |
+| 0x3c `'<'` | flatten | integer | Use FieldName as a path qualifier for FieldType |
 
 * FieldOptions MUST include zero or one instance of each of the options in [Table 3-4](#table-3-4-field-options).  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
