@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 31 March 2019
+## 9 April 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -91,15 +91,19 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
+The keyword "iff" is interpreted to mean "if and only if".  A requirement "X MUST be considered valid iff Y" means that an implementation does not conform unless it evaluates every otherwise valid instance of X for which Y is true as valid, and every instance of X for which Y is false as invalid.
+
 ## 1.3 Normative References
+###### [ES9]
+ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
 ###### [EUI]
-"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf
+"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
 ###### [RFC791]
 Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
 ###### [RFC2119]
 Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
 ###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
 ###### [RFC4291]
 Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
 ###### [RFC4632]
@@ -143,7 +147,7 @@ Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Conside
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
-"UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html
+"UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html.
 
 -------
 
@@ -197,6 +201,7 @@ information-centric focus:
 | Data-centric | Information-centric |
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
+| Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
 | CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
@@ -240,12 +245,12 @@ JADN type definitions have a regular structure designed to be easily describable
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
+* If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
 
-If BaseType is Enumerated, each field definition MUST have three elements:
+* If BaseType is Enumerated, each field definition MUST have three elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldDescription:** a non-normative comment
@@ -255,7 +260,7 @@ If BaseType is Enumerated, each field definition MUST have three elements:
     ...
 ]]
 ```
-If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
+* If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
@@ -268,20 +273,36 @@ If BaseType is Array, Choice, Map, or Record, each field definition MUST have fi
 ]]
 ```
 
-JADN-based protocol specifications MAY define syntax requirements for TypeName and FieldName. Specifications that do not define an alternate name syntax MUST use the default name syntax, specified in [ABNF](#rfc5234):
+JADN does not restrict the format of TypeName and FieldName, but naming requirements are needed in order to validate JADN specifications. JADN-based specifications MAY define their own name format requirements.
+* Specifications that define name formats MUST define:
+    * The permitted format for TypeName
+    * The permitted format for FieldName
+    * A Field Separator character not permitted in FieldName of type definitions, used to serialize qualified field names
+    * A "System" character allowed in TypeName but reserved for naming tool-generated types
+* Specifications that do not define an alternate name format MUST use the default format defined in Figure 3-1, in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 
 ```
-TypeName   =
-FieldName  =
-SEP        = 0x2f    ; '/' 'SOLIDUS' (U+002F)
-SYS        = 0x24    ; '$' 'DOLLAR SIGN' (U+0024)
-```
+ABNF:
+TypeName   = UC *31("-" / UC / LC / DIGIT / Sys)   ; e.g., Color-Values, length = 1-32 characters
+FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
+FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator reserved for qualified names, not allowed in FieldName
+Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
+UC         = %x41-5A  ; A-Z
+LC         = %x61-7A  ; a-z
+DIGIT      = %x30-39  ; 0-9
 
-TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
-FieldID and FieldName values MUST be unique within a type definition.  
-If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.  
+Regular Expression:
+TypeName:  ^([A-Z]([-A-Za-z0-9]|\$){,31})$
+FieldName: ^([a-z][_A-Za-z0-9]{,31})$
+```
+###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
+
+* TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
+* FieldID and FieldName values MUST be unique within a type definition.  
+* If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
+
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-FieldType MUST be a JADN type without individually-defined Fields (Primitive, ArrayOf, MapOf), or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
 
 **Type Definition Formats**
 
@@ -299,21 +320,21 @@ JADN type definitions are themselves information objects that can be represented
 
   *Type: Person (Record)*
 
-| ID | Name | Type | # | Description |
-| ---: | --- | --- | ---: | --- |
-| 1 | **name** | String | 1 | |
-| 2 | **id** | Integer | 1 | |
-| 3 | **email** | String | 0..1 | |
+|  ID  |    Name   |   Type  |   #  | Description |
+| ---: | --------- | ------- | ---: | ----------- |
+|   1  | **name**  | String  |    1 |             |
+|   2  | **id**    | Integer |    1 |             |
+|   3  | **email** | String  | 0..1 |             |
 
 **JADN definition of Person in a [Thrift](#thrift)-like IDL format:**
 ```
 record Person {
   1: string name,
   2: int id,
-  3: optional string email,
+  3: optional string email
 }
 ```
-Of these examples, only JSON is data that is structured as shown and can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make the same definitions available in JSON format.
+These examples represent identical IM definitions, but the JSON data is structured as defined in this section and can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make the same definitions available in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -338,31 +359,33 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x7d `'}'` | maxv | integer | Maximum numeric value, octet or character count, or element count |
 | 0x21 `'!'` | default | string | Default value for an instance of this type |
 
-If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.  
-If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.  
-TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).  
-TypeOptions MUST contain zero or one serialization option defined for each serialization format.  
-TypeOptions MUST NOT include a TypeOption that is not allowed for BaseType as shown in Table 3-3.  
-If BaseType is not a JADN type, TypeOptions MUST contain only the *enum* option and the definition named by BaseType MUST be one of Choice, Array, Map, or Record.  
+* If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.
+* If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
+* TypeOptions MUST contain zero or one instance of each type option except 0x2f (serialization option).
+* TypeOptions MUST contain zero or one serialization option defined for each serialization format.
+* TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
 
 ###### Table 3-3. Allowed Options
 
-| BaseType | Allowed Options | Description |
-| :--- | :--- | :--- |
-| Binary | minv, maxv, format, sopt | min/max byte count |
+| BaseType | Allowed Options |
+| :--- | :--- |
+| Binary | minv, maxv, format, sopt |
 | Boolean | |
-| Integer | minv, maxv, format, sopt | min/max numeric value | 
-| Number | minv, maxv, format, sopt | min/max numeric value |
-| Null | | |
-| String | minv, maxv, format, sopt, pattern | min/max character count |
-| Enumerated | id | |
-| Choice | id | |
-| Array | format, sopt | |
-| ArrayOf | vtype, minv, maxv | min/max number of items |
-| Map | id, minv, maxv | min/max number of items |
-| MapOf | ktype, vtype, minv, maxv | min/max number of items |
-| Record | | |
-| Defined | enum | derived enumeration |
+| Integer | minv, maxv, format, sopt |
+| Number | minv, maxv, format, sopt |
+| Null | |
+| String | minv, maxv, format, sopt, pattern |
+| Enumerated | id |
+| Choice | id |
+| Array | format, sopt |
+| ArrayOf | vtype, minv, maxv |
+| Map | id, minv, maxv |
+| MapOf | ktype, vtype, minv, maxv |
+| Record | |
+| Defined | enum |
+
+* If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
+* If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
 
 #### 3.2.1.1 Id
 
@@ -376,12 +399,15 @@ For example a list of HTTP status codes could include the field [403, "Forbidden
 #### 3.2.1.2 Value Type
 
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
+* An ArrayOf or MapOf instance MUST be considered valid iff each of its elements is an instance of *vtype*.
 
 #### 3.2.1.3 Key Type
-The *ktype* option specifies the type of each key in a MapOf type. It MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+The *ktype* option specifies the type of each key in a MapOf type. 
+* *ktype* MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+* A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). The referenced type is specified by either the BaseType element or the ktype/vtype options of a type definition. This is the only kind of type definition where BaseType is not a JADN type.
+The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). This is the only kind of type definition where BaseType is not a JADN type.
 
 #### 3.2.1.5 Format
 *format*
@@ -393,15 +419,19 @@ The *enum* option creates an enumeration derived from a referenced Array, Choice
 * IM value is an IPv6 address and a prefix length as specified in Section 2.3 of [RFC 4291](#rfc4291).
 
 #### 3.2.1.6 Pattern
-*pattern*
+The *pattern* option specifies a regular expression used to validate a String instance.
+* The *pattern* option SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
+* A String instance MUST be considered valid iff it matches the regular expression specified by *pattern*.
 
 #### 3.2.1.7 Size and Value Constraints
-*minv*, *maxv*
+The *minv* and *maxv* options specify size or value limits.
+* A Binary instance MUST be considered valid iff its number of bytes is at least *minv* and no more than *maxv*.
+* A String instance MUST be considered valid iff its number of characters is at least *minv* and no more than *maxv*.
+* An Integer or Number instance MUST be considered valid iff its value is at least *minv* and no more than *maxv*.
+* An ArrayOf, Map, or MapOf instance MUST be considered valid iff it contains at least *minv* and no more than *maxv* elements.
 
 #### 3.2.1.8 Default Value
-*default* - Reserved for future use.
-
-*Note: Intended to specify the value a receiving application uses for a field that is optional and not transmitted.*
+The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ### 3.2.2 Field Options
 Field options apply to each field within a type definition. Each option in Table 3-4 is a structural element of the type definition.
@@ -413,10 +443,10 @@ Field options apply to each field within a type definition. Each option in Table
 | 0x5b `'['` | minc | integer | Minimum cardinality |
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
-| 0x3c `'<'` | flatten | integer | Use FieldName as a namespace prefix for FieldType |
+| 0x3c `'<'` | flatten | integer | Use FieldName as a path qualifier for FieldType |
 
-FieldOptions MUST include zero or one instance of each of the options from [Table 3-4](#table-3-4-field-options).  
-All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
+* FieldOptions MUST include zero or one instance of each of the options in [Table 3-4](#table-3-4-field-options).  
+* All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities:
@@ -480,7 +510,7 @@ Applications may use any internal information representation that exhibits the c
 
 The following JSON serialization rules are used to represent JADN data types in a human-friendly format.
 
-When using JSON serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
+* 4.1-1: When using JSON serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
@@ -506,9 +536,10 @@ When using JSON serialization, instances of JADN types without a serialization o
 Regardless of serialization:
 * A JADN type definition MUST NOT contain more than one of the following options.
 * A JADN type definition MUST NOT contain a serialization option not applicable to its type.
-* API values MUST satisfy semantic validation requirements associated with a serialization option.
+* API values MUST satisfy the validation requirements associated with a serialization option.
 
-When using JSON serialization, instances of JADN types with one of the following options MUST be serialized as:
+When using JSON serialization:
+* instances of JADN types with one of the following options MUST be serialized as:
 
 | Option | JADN Type | JSON Serialization Requirement | Validation Requirement |
 | :--- | :--- | :--- | :--- |
@@ -526,7 +557,7 @@ Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major ty
 
 CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown for reference.
 
-When using CBOR serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
+* When using CBOR serialization, instances of JADN types without a serialization option defined in this section MUST be serialized as:
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -549,9 +580,10 @@ When using CBOR serialization, instances of JADN types without a serialization o
 Regardless of serialization:
 * A JADN type definition MUST NOT contain more than one of the following options.
 * A JADN type definition MUST NOT contain a serialization option not applicable to its type.
-* API values MUST satisfy semantic validation requirements associated with a serialization option.
+* API values MUST satisfy the validation requirements associated with a serialization option.
 
-When using CBOR serialization, instances of JADN types with one of the following options MUST be serialized as:
+When using CBOR serialization:
+* Instances of JADN types with one of the following options MUST be serialized as:
 
 | Option | JADN Type | CBOR Serialization Requirement | Validation Requirement |
 | :--- | :--- | :--- | :--- |
@@ -563,7 +595,8 @@ When using CBOR serialization, instances of JADN types with one of the following
 Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to [CDDL](#cddl) serialization using the JSON preface defined in CDDL Appendix E.
 * Serialization and id TypeOptions do not affect serialized values.
 
-When using M-JSON serialization, instances of JADN types MUST be serialized as:
+When using M-JSON serialization:
+* Instances of JADN types MUST be serialized as:
 
 | JADN Type | M-JSON Serialization Requirement |
 | :--- | :--- |
@@ -585,7 +618,8 @@ When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
 *Editor's Note: Define XML rules for elements and attributes*
 
-When using XML serialization, instances of JADN types MUST be serialized as:
+When using XML serialization:
+* Instances of JADN types MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
