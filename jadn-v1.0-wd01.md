@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 31 March 2019
+## 9 April 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -201,6 +201,7 @@ information-centric focus:
 | Data-centric | Information-centric |
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
+| Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
 | CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
@@ -272,28 +273,29 @@ JADN type definitions have a regular structure designed to be easily describable
 ]]
 ```
 
-JADN does not restrict the format of TypeName and FieldName, but naming requirements are needed in order to validate JADN specifications. JADN-based protocol specifications MAY define their own name format requirements.  
-* Specifications that do not define an alternate name format MUST use the default format defined in Figure 3-1 using [ABNF](#rfc5234).
+JADN does not restrict the format of TypeName and FieldName, but naming requirements are needed in order to validate JADN specifications. JADN-based specifications MAY define their own name format requirements.
+* Specifications that define name formats MUST define:
+    * The permitted format for TypeName
+    * The permitted format for FieldName
+    * A Field Separator character not permitted in FieldName of type definitions, used to serialize qualified field names
+    * A "System" character allowed in TypeName but reserved for naming tool-generated types
+* Specifications that do not define an alternate name format MUST use the default format defined in Figure 3-1, in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 
 ```
-; Name Format Definitions
+ABNF:
 TypeName   = UC *31("-" / UC / LC / DIGIT / Sys)   ; e.g., Color-Values, length = 1-32 characters
 FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
 FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator reserved for qualified names, not allowed in FieldName
 Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
-
-; Constants
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
-```
-###### Figure 3-1: JADN Default Name Syntax in ABNF
 
-```
+Regular Expression:
 TypeName:  ^([A-Z]([-A-Za-z0-9]|\$){,31})$
 FieldName: ^([a-z][_A-Za-z0-9]{,31})$
 ```
-###### Figure 3-2: JADN Default Name Syntax Regular Expressions
+###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
 * FieldID and FieldName values MUST be unique within a type definition.  
@@ -348,7 +350,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than an immutable name |
 | 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | Key type for MapOf |
-| 0x24 `'$'` | enum | string | Enumerated type derived from a defined Array, Choice, Map or Record type |
+| 0x24 `'$'` | enum | none | Enumerated type derived from a defined Array, Choice, Map or Record type |
 | **Validation** | | | |
 | 0x40 `'@'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x2f `'/'` | sopt | string | Serialization option from [Section 4](#4-serialization), may also include semantic validation |
@@ -384,7 +386,6 @@ Type options apply to the type definition as a whole. Structural options are int
 
 * If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
 * If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
-* If TypeOptions is *vtype* or *ktype*, ...
 
 #### 3.2.1.1 Id
 
@@ -406,7 +407,7 @@ The *ktype* option specifies the type of each key in a MapOf type.
 * A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). The referenced type is specified by either the BaseType element or the ktype/vtype options of a type definition. This is the only kind of type definition where BaseType is not a JADN type.
+The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). This is the only kind of type definition where BaseType is not a JADN type.
 
 #### 3.2.1.5 Format
 *format*
