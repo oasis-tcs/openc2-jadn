@@ -334,7 +334,7 @@ record Person {
   3: optional string email
 }
 ```
-These examples represent identical IM definitions, but the JSON data is structured as defined in this section and can be read unambiguously by applications with no language-specific parsing code. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make the same definitions available in JSON format.
+These examples represent the same IM definition, but the JSON example is data as specified in this section that can be read unambiguously by applications with no language-specific parser. JADN definitions in JSON format are considered authoritative over other formats; specifications that include JADN definitions in another format SHOULD also make them available in JSON format.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -637,15 +637,32 @@ When using XML serialization:
 | **MapOf** | |
 | **Record** | |
 
-# 5 JADN Schema Formats
-A JADN schema is:
-* a collection of type definitions
-* meta-information related to the schema
+# 5 JADN Schemas
+A JADN module consists of a set of type definitions, plus metadata related to the module.
+JADN modules can be developed independently without knowledge of or coordination with each other,
+and types defined in one module can be used in others.
+
+A JADN schema defines the full interface to an application or service, and consists of definitions
+contained in one or more modules. A schema is constructed by starting with the base module for an
+interface and recursively incorporating definitions from each module listed as an import.
+
 ## 5.1 Type Definitions
 ### 5.1.1 JSON Format
 The structure of type definitions in JSON format is specified in [Section 3.1](#31-type-definitions).
 
 ### 5.1.2 Table Format
+```
++----------+-----------------+----------+
+| TypeName | Type Definition | TypeDesc |
++----------+-----------------+----------+
+```
+followed by
+```
++---------+-----------+------------------+-----------+
+| FieldID | FieldName | Field Definition | FieldDesc |
++---------+-----------+------------------+-----------+
+```
+
 ### 5.1.3 JADN IDL Format
 
 ## 5.2 Meta Information
