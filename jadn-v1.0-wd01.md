@@ -213,8 +213,10 @@ Two general approaches can be used to implement IM-based protocol specifications
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
 2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM-specified data objects regardless of serialization format.
 
+Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to select either approach. 
+
 # 3 JADN Types
-JADN first-class types are defined in terms of their characteristics:
+JADN first-class types are defined in terms of their characteristics; applications may use any programming language variable types or mechanisms that support those characteristics.
 
 ###### Table 3-1. JADN Types
 
@@ -235,6 +237,14 @@ JADN first-class types are defined in terms of their characteristics:
 | Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. Corresponds to CDDL *struct*. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
+
+The mechanisms chosen by a developer or defined by an IM library to represent these types constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value, e.g.:
+
+| Python IM API |   JADN Type   |   Serialization |
+| ------------- | ------------- | ----------------|
+| bytes<br>bytearray | Binary   | JSON string (base64, hex, or other)<br>CBOR #2 byte string |
+| True          | Boolean       | JSON true<br>CBOR #7.21 |
+| ... | |
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, and extensible. Every definition creates a *Defined type* that has four elements, plus for some types, a list of fields:
