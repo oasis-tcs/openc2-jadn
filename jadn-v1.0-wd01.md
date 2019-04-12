@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 9 April 2019
+## 12 April 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -230,17 +230,17 @@ JADN first-class types are defined in terms of their characteristics; applicatio
 | Null | An unspecified or non-existent value. |
 | String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 | **Structure** |   |
-| Enumerated | One value selected from a set of named or unnamed integers. |
-| Choice | One key and value selected from a set of named or unnamed fields. The key has an id and name or label, and is mapped to a type. |
-| Array | An ordered list of unnamed fields with positionally-defined semantics. Each field has a position, label, and type. Corresponds to CDDL *record*. |
+| Enumerated | One value selected from a set of named or labeled integers. |
+| Choice | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
+| Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. Corresponds to CDDL *record*. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
 | Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. Corresponds to CDDL *struct*. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the central point of convergence between multiple programming language APIs and multiple serialization formats, for example:
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats -- Python and C++ and Java APIs define how applications represent instances of Binary data, and JSON and CBOR and XML serialization rules define how instances of Binary data are serialized:
 
-| Python IM API |  JADN Type  |   Serialization |
+| Python IM API |  JADN Type  |   Serialization Rules |
 | ------------- | ----------- | ----------------|
 | bytes<br>bytearray | Binary | JSON string (base64, hex, or other)<br>CBOR #2 byte string |
 | True          | Boolean     | JSON true<br>CBOR #7.21 |
@@ -289,13 +289,12 @@ JADN does not restrict the format of TypeName and FieldName, but naming requirem
     * The permitted format for FieldName
     * A Field Separator character not permitted in FieldName of type definitions, used to serialize qualified field names
     * A "System" character allowed in TypeName but reserved for naming tool-generated types
-* Specifications that do not define an alternate name format MUST use the default format defined in Figure 3-1, in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
-
+* Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
 ABNF:
 TypeName   = UC *31("-" / UC / LC / DIGIT / Sys)   ; e.g., Color-Values, length = 1-32 characters
 FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
-FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator reserved for qualified names, not allowed in FieldName
+FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, not allowed in FieldName
 Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
@@ -399,14 +398,13 @@ Type options apply to the type definition as a whole. Structural options are int
 * If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
 * If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
 
-#### 3.2.1.1 Id
+#### 3.2.1.1 Field Identifiers
 
-The Enumerated, Choice, and Map types have named and unnamed variants. Presence of the *id* option in a type definition indicates that the type is unnamed. The Record type is always named and has no *id* option; the Array type is its unnamed equivalent.
-
+Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types have an *id* option that determines which identifier is used in API instances of these types. If the *id* option is absent, API instances use FieldName and the type is referred to as "named". If the *id* option is present, API instances use FieldID and the type is referred to as "labeled". The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed without affecting interoperability.
-* In unnamed types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
+* In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
 
-For example a list of HTTP status codes could include the field [403, "Forbidden"].  If the Enumerated type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
+For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 3.2.1.2 Value Type
 
@@ -687,24 +685,30 @@ A JADN schema defines the full interface to an application or service, and consi
 contained in one or more modules. A schema is constructed by starting with the base module for an
 interface and recursively incorporating definitions from each module listed as an import.
 
-## 5.1 Type Definitions
-### 5.1.1 JSON Format
-The structure of type definitions in JSON format is specified in [Section 3.1](#31-type-definitions).
+## 5.1 Type Definition Styles
+[Section 3.1](#31-type-definitions) specifies the authoritative format of JADN type definitions.
+Although JSON data is unambiguous and machine-readable, it is not an ideal presentation format.
+This section describes two presentation styles for JADN type definitions that ...
 
-### 5.1.2 Table Format
+### 5.1.1 Table Style
 ```
-+----------+-----------------+----------+
-| TypeName | Type Definition | TypeDesc |
-+----------+-----------------+----------+
++----------+------------+----------+
+| TypeName | TypeString | TypeDesc |
++----------+------------+----------+
 ```
 followed by
 ```
-+---------+-----------+------------------+-----------+
-| FieldID | FieldName | Field Definition | FieldDesc |
-+---------+-----------+------------------+-----------+
++---------+-----------+-------------+-----------+
+| FieldID | FieldName | FieldString | FieldDesc |
++---------+-----------+-------------+-----------+
+or
++---------+-------------+-----------------------+
+| FieldID | FieldString | FieldName:: FieldDesc |
++---------+-------------+-----------------------+
 ```
 
-### 5.1.3 JADN IDL Format
+### 5.1.2 IDL Style
+
 
 ## 5.2 Meta Information
 
