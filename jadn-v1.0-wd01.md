@@ -414,7 +414,7 @@ The *ktype* option specifies the type of each key in a MapOf type.
 * A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)).
+The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-syntactic-sugar)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -504,7 +504,7 @@ The default value of both minc and maxc is 1; if neither are specified the field
 #### 3.2.2.3 Flattened Serialization
 *flatten*
 
-### 3.2.3 Syntactic Sugar
+### 3.3 Type Simplification
 JADN includes several optimizations that make type definitions more compact or that support the
 [DRY](#dry) software design principle. These can be removed without affecting
 the meaning of a type definition. Removing them simplifies the original definition but creates
@@ -518,7 +518,7 @@ the following options:
 #### Type Definition within fields
 A specific type (e.g., an email address) may be defined anonymously within a field of a structure
 definition, or it may be defined in a separate named type that can be used in one or more structures.
-Expansion converts all anonymous type definitions to explicit named types and excludes all type options
+* Expansion MUST convert all anonymous type definitions to explicit named types and exclude all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 #### Field Multiplicity
 Fields may be defined to have multiple values of the same type. Expansion converts each field that can
@@ -528,8 +528,10 @@ length (minv and maxv) TypeOptions of the new ArrayOf type. The only exception i
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
 #### Derived Enumerations
-A type defined with the *enum* option generates an Enumerated type whose fields are the ID and Name values
-of the the referenced type.  Expansion removes the *enum* option and adds the referenced fields.
+A type defined with the *enum* option generates an Enumerated type with fields copied from the type
+referenced by BaseType.
+* Expansion MUST change BaseType to Enumerated, remove *enum* from Type Options, and add fields containing
+FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
@@ -726,6 +728,25 @@ See "Guidelines to Writing Conformance Clauses":
 http://docs.oasis-open.org/templates/TCHandbook/ConformanceGuidelines.html.
 
 Remove this note before submitting for publication.)
+
+Conformance targets:
+
+* JADN Schema Translator
+    * Validate type definitions per Sections 3.1 and 3.2
+    * Perform type simplification operations per Section 3.3
+    * Translate JSON definitions to Table and IDL formats per Section 5.1
+    * Merge schema modules per Section 5.2
+* JADN Reverse Schema Translator
+    * Translate Table and IDL definitions to JSON format per Section 5.1
+* JADN Concrete Schema Generator
+    * Generate a schema in a format-specific language per serialization rules in Section 4.x.
+    Conformance testing requires JADN validator and format-specific validator to agree on all
+    good and bad data instances.
+* JADN Encoder/Decoder
+    * Validate type definition correctness per Sections 3.1 and 3.2
+    * Perform type simplification operations per Section 3.3
+    * Encode and decode data instances per serialization rules for formats \<X\> and \<Y\> in Section 4.x. 
+    Conformance testing requires the implementation under test to support any two serialization formats.
 
 -------
 
