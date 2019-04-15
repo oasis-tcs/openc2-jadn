@@ -249,10 +249,11 @@ JADN type definitions have a regular structure designed to be easily describable
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined, or the name of a Defined type
-3. **TypeOptions:** an array of zero or more **TypeOption** applicable to the type being defined
+3. **TypeOptions:** an array of zero or more **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
+* TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
 * If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
@@ -280,12 +281,11 @@ JADN type definitions have a regular structure designed to be easily describable
     ...
 ]]
 ```
-* TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).  
-* FieldID and FieldName values MUST be unique within a type definition.  
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Defined type.
+* FieldID and FieldName values MUST be unique within a type definition.
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 
-If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.  
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Derived Enumeration ([Section 3.2.1.4](#3214-derived-enumeration)).
+If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 
 ### 3.1.1 Naming Requirements
 JADN does not restrict the syntax of TypeName and FieldName, but naming requirements are needed in order to validate JADN specifications. JADN-based specifications MAY define their own name format requirements.
@@ -546,7 +546,7 @@ Applications may use any internal information representation that exhibits the c
 ## 4.1 JSON Serialization
 The following serialization rules are used to represent JADN data types in a human-friendly JSON format.
 
-* 4.1-1: When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+* When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
 | JADN Type | JSON Serialization Requirement |
 | :--- | :--- |
@@ -568,7 +568,7 @@ The following serialization rules are used to represent JADN data types in a hum
 | **Record** | Same as **Map**. |
 
 **Format options that affect JSON serialization**
-4.1-2: When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
+* When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
 | Option | JADN Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
@@ -584,7 +584,7 @@ Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major ty
 
 CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown for reference.
 
-4.2-1: When using CBOR serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+* When using CBOR serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -603,7 +603,7 @@ CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown 
 | **Record** | Same as **Array**. |
 
 **Format options that affect CBOR Serialization**
-4.2-2: When using CBOR serialization, instances of JADN types with one of the following format options MUST be serialized as:
+* When using CBOR serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
 | Option | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- | :--- |
@@ -613,7 +613,7 @@ CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown 
 ## 4.3 M-JSON Serialization:
 Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to [CDDL](#cddl) serialization using the JSON preface defined in CDDL Appendix E.
 
-4.3-1: When using M-JSON serialization, instances of JADN types MUST be serialized as:
+* When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
 | JADN Type | M-JSON Serialization Requirement |
 | :--- | :--- |
@@ -632,7 +632,7 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
-4.4-1: When using XML serialization, instances of JADN types MUST be serialized as:
+* When using XML serialization, instances of JADN types MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
