@@ -112,8 +112,6 @@ Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address
 Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
 ###### [RFC5234]
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
-###### [RFC5952]
-Kawamura S., Kawashima M., "A Recommendation for IPv6 Address Text Representation", RFC 5952, August 2010, http://www.rfc-editor.org/info/rfc5952.
 ###### [RFC7049]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
 ###### [RFC8174]
@@ -416,7 +414,7 @@ The *ktype* option specifies the type of each key in a MapOf type.
 * A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an enumeration derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)). This is the only kind of type definition where BaseType is not a JADN type.
+The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.2.3](#323-syntactic-sugar)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -445,12 +443,14 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | relative-json-pointer | String | [JSONP](#jsonp) |
 | regex        | String | [ECMA 262](#es9) |
 | **JADN format** | | |
-| x            | Binary | Used by some serialization rules, no semantic validation requirement |
 | eui          | Binary | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui) |
 | ipv4-addr    | Binary | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1 |
 | ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
 | ipv4-net     | Array  | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| x            | Binary | Used by some serialization rules, no semantic validation requirement |
+| f16          | Number | Used by some serialization rules, no semantic validation requirement |
+| f32          | Number | Used by some serialization rules, no semantic validation requirement |
 
 * *Note: There is currently no referenceable standard for JSON Schema. When one is available, it will*
 *be referenced as an authoritative source of semantic validation keywords.*
@@ -528,8 +528,9 @@ length (minv and maxv) TypeOptions of the new ArrayOf type. The only exception i
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
 #### Derived Enumerations
-A type defined with the *enum* option generates an anonymous Enumerated type whose fields are the ID and Name values
-of the the referenced type.  Expansion explicitly creates a new Enumerated type definition and removes the *enum* option.
+A type defined with the *enum* option generates an Enumerated type whose fields are the ID and Name values
+of the the referenced type.  Expansion removes the *enum* option and adds the referenced fields.
+
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
 ahd creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
@@ -571,11 +572,11 @@ The following serialization rules are used to represent JADN data types in a hum
 
 | Option | JADN Type | JSON Serialization Requirement |
 | :--- | :--- | :--- |
-| **x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in Section 8 of [RFC 4648](#rfc4648). Note that the Base16 alphabet does not include lower-case letters. |
-| **ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in Section 3.2 of [RFC 2673](#rfc2673). |
-| **ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in Section 4 of [RFC 5952](#rfc5952). |
-| **ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in Section 3.1 of [RFC 4632](#rfc4632). |
-| **ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in Section 2.3 of [RFC 4291](#rfc4291). |
+| **x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
+| **ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2. |
+| **ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2. |
+| **ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1. |
+| **ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3. |
 
 ## 4.2 CBOR Serialization
 The following serialization rules are used to represent JADN data types in Concise Binary
