@@ -448,9 +448,6 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
 | ipv4-net     | Array  | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| x            | Binary | Used by some serialization rules, no semantic validation requirement |
-| f16          | Number | Used by some serialization rules, no semantic validation requirement |
-| f32          | Number | Used by some serialization rules, no semantic validation requirement |
 
 * *Note: There is currently no referenceable standard for JSON Schema. When one is available, it will*
 *be referenced as an authoritative source of semantic validation keywords.*
@@ -732,19 +729,20 @@ Remove this note before submitting for publication.)
 Conformance targets:
 
 * JADN Schema Translator
-    * Validate type definitions per Sections 3.1 and 3.2
-    * Perform type simplification operations per Section 3.3
-    * Translate JSON definitions to Table and IDL formats per Section 5.1
-    * Merge schema modules per Section 5.2
+    * Validate type definitions per Sections 3.1 and 3.2.
+    * Perform type simplification operations per Section 3.3.
+    * Translate JSON definitions to Table and IDL formats per Section 5.1.
+    * Merge schema modules per Section 5.2.
 * JADN Reverse Schema Translator
-    * Translate Table and IDL definitions to JSON format per Section 5.1
+    * Translate Table and IDL definitions to JSON format per Section 5.1.
 * JADN Concrete Schema Generator
     * Generate a schema in a format-specific language per serialization rules in Section 4.x.
     Conformance testing requires JADN validator and format-specific validator to agree on all
     good and bad data instances.
 * JADN Encoder/Decoder
-    * Validate type definition correctness per Sections 3.1 and 3.2
-    * Perform type simplification operations per Section 3.3
+    * Validate type definition correctness per Sections 3.1 and 3.2.
+    * Perform type simplification operations per Section 3.3.
+    * Validate API values against type definitions per Sections 3.1 and 3.2.
     * Encode and decode data instances per serialization rules for formats \<X\> and \<Y\> in Section 4.x. 
     Conformance testing requires the implementation under test to support any two serialization formats.
 
