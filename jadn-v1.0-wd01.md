@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 12 April 2019
+## 19 April 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -21,9 +21,9 @@
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
 
-* JADN Schema for JADN specifications
-* JSON Schema for JADN specifications
-* CDDL Schema for JADN specifications
+* Examples
+* Conformance test data
+* Schema for JADN specifications
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -373,8 +373,11 @@ Type options apply to the type definition as a whole. Structural options are int
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
 * If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.
 * If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
+
+*Delete* {
 * If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
 * If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
+}
 
 ###### Table 3-3. Allowed Options
 
@@ -386,14 +389,13 @@ Type options apply to the type definition as a whole. Structural options are int
 | Number | minv, maxv, format |
 | Null | |
 | String | minv, maxv, format, pattern |
-| Enumerated | id |
+| Enumerated | id, enum |
 | Choice | id |
 | Array | format |
 | ArrayOf | vtype, minv, maxv |
 | Map | id, minv, maxv |
 | MapOf | ktype, vtype, minv, maxv |
 | Record | |
-| Defined | enum |
 
 #### 3.2.1.1 Field Identifiers
 
@@ -764,10 +766,13 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Information Model
-JADN IM validates any JADN schema in any serialized format
-# Appendix D. JSON-Schema Data Model for JADN
-JSON Schema generated from the JADN IM, validates any JADN schema in JSON format
-# Appendix E. CDDL Data Model for JADN
-CDDL generated from the JADN IM, validates any JADN schema in CBOR format
+# Appendix C. Examples
+Illustrate JADN specifications
+
+# Appendix D. Conformance Tests
+JADN pecifications with good and bad examples
+
+# Appendix E. Schema for JADN specifications
+Used to validate a JADN specification.  In JADN, JSON Schema, and CDDL formats
+
 
