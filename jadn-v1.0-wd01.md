@@ -21,9 +21,9 @@
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
 
-* Examples
-* Conformance test data
 * Schema for JADN specifications
+* Conformance test data
+* Examples
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -288,7 +288,7 @@ JADN type definitions have a regular structure designed to be easily describable
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 
 ### 3.1.1 Naming Requirements
-JADN does not restrict the syntax of TypeName and FieldName, but naming requirements are needed in order to validate JADN specifications. JADN-based specifications MAY define their own name format requirements.
+JADN does not restrict the syntax of TypeName and FieldName, but naming requirements can aid readability of specifications by highlighting inconsistencies. JADN-based specifications MAY define their own name format requirements.
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
@@ -315,7 +315,7 @@ Specifications MAY define the same syntax for TypeName and FieldName; using dist
 
 ### 3.1.2 Examples
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several equivalent representation formats. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. The equivalent JADN definitions are:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several styles that can be applied to type definitions in much the same manner as css styles are applied to html documents. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. Corresponding JADN styles include:
 
 **JADN definition of Person in [JSON](#rfc8259) format:**
 ```
@@ -766,13 +766,12 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. Examples
-Illustrate JADN specifications
+# Appendix C. Schema for JADN specifications
+Used to validate a JADN specification.  In JADN, JSON Schema, and CDDL formats
 
 # Appendix D. Conformance Tests
-JADN pecifications with good and bad examples
+Specifications including correct and incorrect definitions used to check implementation conformance.
 
-# Appendix E. Schema for JADN specifications
-Used to validate a JADN specification.  In JADN, JSON Schema, and CDDL formats
+# Appendix E. Examples
 
 
