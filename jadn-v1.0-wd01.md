@@ -534,7 +534,7 @@ Enumerated type. Expansion MUST then replace the type reference with the name of
 
 Example:
 
-    Pixel = Array {
+    Pixel = Map {
         1 red   Integer,
         2 green Integer,
         3 blue  Integer
@@ -553,9 +553,14 @@ Expansion replaces the references with:
 
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
-ahd creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
+and creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
 enumeration. This expansion can simplify specifications that do not require the more general MapOf type,
-and improve robustness by limiting Map keys to a known set. 
+and improve robustness by limiting Map keys to a known set.
+
+Example: given an Enumerated type Channel, expansion replaces the MapOf definition with the explicit Map shown above.
+
+    Pixel = MapOf(Channel, Integer)
+
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
