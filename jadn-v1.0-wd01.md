@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 19 April 2019
+## 26 April 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -361,7 +361,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than an immutable name |
 | 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | Key type for MapOf |
-| 0x24 `'$'` | enum | none | Enumerated type derived from a defined Array, Choice, Map or Record type |
+| 0x24 `'$'` | enum | string | Enumerated type derived from the specified Array, Choice, Map or Record type |
 | **Validation** | | | |
 | 0x2f `'/'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
 | 0x25 `'%'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
@@ -373,11 +373,6 @@ Type options apply to the type definition as a whole. Structural options are int
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
 * If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.
 * If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
-
-*Delete* {
-* If BaseType is not a JADN type, TypeOptions MUST NOT contain any option other than *enum*.
-* If TypeOptions is *enum*, the definition named by BaseType MUST have a BaseType of Choice, Array, Map, or Record.
-}
 
 ###### Table 3-3. Allowed Options
 
@@ -416,7 +411,7 @@ The *ktype* option specifies the type of each key in a MapOf type.
 * A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-syntactic-sugar)).
+The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -527,10 +522,34 @@ length (minv and maxv) TypeOptions of the new ArrayOf type. The only exception i
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
 #### Derived Enumerations
-A type defined with the *enum* option generates an Enumerated type with fields copied from the type
-referenced by BaseType.
-* Expansion MUST change BaseType to Enumerated, remove *enum* from Type Options, and add fields containing
+An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
+instead of listed in the definition.
+* Expansion MUST remove *enum* from Type Options and add fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
+
+A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
+type derived from the referenced type.
+* Expansion MUST reference an explicit Enumerated type if it exists, otherwise it MUST create an explicit
+Enumerated type. Expansion MUST then replace the type reference with the name of the explicit Enumerated type.
+
+Example:
+
+    Pixel = Array {
+        1 red   Integer,
+        2 green Integer,
+        3 blue  Integer
+    }
+    Channel = Enumerated(Enum(Pixel)) 
+    ChannelMask = ArrayOf(Enum(Pixel))
+
+Expansion replaces the references with:
+
+    Channel = Enumerated {
+        1 red,
+        2 green,
+        3 blue
+    }
+    ChannelMask = ArrayOf(Channel)
 
 #### MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
