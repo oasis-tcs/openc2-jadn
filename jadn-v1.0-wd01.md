@@ -557,7 +557,7 @@ and creates a Map type with keys from the Enumerated type. This is the complemen
 enumeration. This expansion can simplify specifications that do not require the more general MapOf type,
 and improve robustness by limiting Map keys to a known set.
 
-Example: given an Enumerated type Channel, expansion replaces the MapOf definition with the explicit Map shown above.
+Example: given an Enumerated type Channel, expansion replaces the following MapOf definition with the explicit Map shown above.
 
     Pixel = MapOf(Channel, Integer)
 
