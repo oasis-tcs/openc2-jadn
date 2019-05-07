@@ -189,6 +189,8 @@ represent the same information:
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
+In an IM, an IPv4 address is always *defined* to be a 32 bit value regardless the DMs used to *represent* it for processing within applications, communication among applications, or storage.
+
 \* *Note: all references to information in this document assume uniform distribution over all possible values.*
 
 **Information Modeling**
@@ -223,7 +225,7 @@ JADN first-class types are defined in terms of their characteristics; applicatio
 | **Primitive** |   |
 | Binary | A sequence of octets.  Length is the number of octets. |
 | Boolean | An element with one of two values: true or false. |
-| Integer | A whole number. |
+| Integer | A positive or negative whole number. |
 | Number | A real number. |
 | Null | An unspecified or non-existent value. |
 | String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
@@ -657,12 +659,12 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
-* When using XML serialization, instances of JADN types MUST be serialized as:
+* When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
-| **Binary** |  |
-| **Boolean** | |
+| **Binary** | XML \<Base64Binary\> element with a base64Binary canonical lexical value |
+| **Boolean** | XML attribute with the value "true" or "false" |
 | **Integer** | |
 | **Number** | |
 | **Null** | |
@@ -674,6 +676,13 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Map** | |
 | **MapOf** | |
 | **Record** | |
+
+**Format options that affect XML serialization**
+* When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
+
+| Option | JADN Type | XML Serialization Requirement |
+| :--- | :--- | :--- |
+| **x** | Binary | XML \<HexBinary\> element with a hexBinary canonical lexical value. |
 
 # 5 JADN Schemas
 A JADN module consists of a set of type definitions, plus metadata related to the module.
