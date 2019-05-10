@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 26 April 2019
+## 10 May 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -140,6 +140,8 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+###### [RFC7493]
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
@@ -220,14 +222,14 @@ JADN first-class types are defined in terms of their characteristics; applicatio
 
 | JADN Type | Definition |
 | :--- | :--- |
-| **Primitive** |   |
+| **Simple** |   |
 | Binary | A sequence of octets.  Length is the number of octets. |
 | Boolean | An element with one of two values: true or false. |
 | Integer | A positive or negative whole number. |
 | Number | A real number. |
 | Null | An unspecified or non-existent value. |
 | String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
-| **Structure** |   |
+| **Compound** |   |
 | Enumerated | One value selected from a set of named or labeled integers. |
 | Choice | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
 | Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. Corresponds to CDDL *record*. |
@@ -254,7 +256,7 @@ JADN type definitions have a regular structure designed to be easily describable
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
-* If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
+* If BaseType is a Simple type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
@@ -281,7 +283,7 @@ JADN type definitions have a regular structure designed to be easily describable
     ...
 ]]
 ```
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Defined type.
+* FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 * FieldID and FieldName values MUST be unique within a type definition.
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 
@@ -755,6 +757,8 @@ This document presents a language for expressing the information needs of commun
 Additional security considerations applicable to JADN-based specifications: 
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
+
+Security and size efficiency are the primary reasons for creating an information model. Enumerating strings and map keys means defining the information content of those values, which greatly reduces opportunities for exploitation.  A firewall with a security policy of "Allow these specific things I understand, plus everything I don't understand" is less secure than a firewall that allows only things that it understands. The "Must-Ignore" policy of [RFC 7493](#rfc7493) is in direct conflict with information modeling's "Must-Understand" policy, which accommodates new protocol elements by adding them to the IM's lists of things that are understood.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
