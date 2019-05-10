@@ -317,9 +317,9 @@ Specifications MAY define the same syntax for TypeName and FieldName; using dist
 
 ### 3.1.2 Examples
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several styles that can be applied to type definitions in much the same manner as css styles are applied to html documents. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. Corresponding JADN styles include:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines several styles that can be applied to type definitions in much the same manner as css styles are applied to html documents. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. Corresponding JADN representations include:
 
-**JADN definition of Person in [JSON](#rfc8259) format:**
+**JADN definition of Person:**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -327,7 +327,8 @@ JADN type definitions are themselves information objects that can be represented
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-**JADN definition of Person in [GFM](#gfm) table format:**
+
+**JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.1](#511-table-style)):**
 
   *Type: Person (Record)*
 
@@ -337,7 +338,16 @@ JADN type definitions are themselves information objects that can be represented
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-**JADN definition of Person in a [Thrift](#thrift)-like IDL format:**
+**JADN definition of Person in JADN IDL style ([Section 5.1.2](#512-idl-style)):**
+```
+Person = Record {
+  1 name   String,
+  2 id     Integer,
+  3 email  String optional
+}
+```
+
+**JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
 ```
 record Person {
   1: string name,
