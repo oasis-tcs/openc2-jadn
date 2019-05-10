@@ -91,8 +91,6 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
-The keyword "iff" is interpreted to mean "if and only if".  A requirement "X MUST be considered valid iff Y" means that an implementation does not conform unless it evaluates every otherwise valid instance of X for which Y is true as valid, and every instance of X for which Y is false as invalid.
-
 ## 1.3 Normative References
 ###### [ES9]
 ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
@@ -405,15 +403,15 @@ For example an Enumerated list of HTTP status codes could include the field [403
 #### 3.2.1.2 Value Type
 
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
-* An ArrayOf or MapOf instance MUST be considered valid iff each of its elements is an instance of *vtype*.
+* An ArrayOf or MapOf instance MUST be considered invalid if any of its elements is not an instance of *vtype*.
 
 #### 3.2.1.3 Key Type
 The *ktype* option specifies the type of each key in a MapOf type. 
-* *ktype* MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
-* A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
+* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+* A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
+The *enum* option is a schema optimization that creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -447,21 +445,32 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
 | ipv4-net     | Array  | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| i8           | Integer | Signed 8 bit integer, value must be between -128 and 127.
+| i16          | Integer | Signed 16 bit integer, value must be between -32768 and 32767.
+| i32          | Integer | Signed 32 bit integer, value must be between ... and ...
+| u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
 
 * *Note: There is currently no referenceable standard for JSON Schema. When one is available, it will*
 *be referenced as an authoritative source of semantic validation keywords.*
 
 #### 3.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
-* The *pattern* option SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
-* A String instance MUST be considered valid iff it matches the regular expression specified by *pattern*.
+* The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
+* A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
 
 #### 3.2.1.7 Size and Value Constraints
-The *minv* and *maxv* options specify size or value limits. If *minv* is not present, the lower limit is unspecified.  If *maxv* is not present, the upper limit is unspecified.
-* A Binary instance MUST be considered valid iff its number of bytes is at least *minv* and no more than *maxv*.
-* A String instance MUST be considered valid iff its number of characters is at least *minv* and no more than *maxv*.
-* An Integer or Number instance MUST be considered valid iff its value is at least *minv* and no more than *maxv*.
-* An ArrayOf, Map, or MapOf instance MUST be considered valid iff it contains at least *minv* and no more than *maxv* elements.
+The *minv* and *maxv* options specify size or value limits.
+
+* For Binary, String, ArrayOf, Map, or MapOf types:
+    * if *minv* is not present, the lower size limit defaults to zero.
+    * if *maxv* is not present or zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
+    * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
+    * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
+    * an ArrayOf, Map, or MapOf instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
+
+* For Integer or Number types:
+    * if *minv* is present, an instance MUST be considered invalid if its value is less than *minv*.
+    * if *maxv* is present, an instance MUST be considered invalid if its value is greater than *maxv*.
 
 #### 3.2.1.8 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
