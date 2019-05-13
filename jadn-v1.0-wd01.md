@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 26 April 2019
+## 10 May 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -91,8 +91,6 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
-The keyword "iff" is interpreted to mean "if and only if".  A requirement "X MUST be considered valid iff Y" means that an implementation does not conform unless it evaluates every otherwise valid instance of X for which Y is true as valid, and every instance of X for which Y is false as invalid.
-
 ## 1.3 Normative References
 ###### [ES9]
 ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
@@ -142,6 +140,8 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+###### [RFC7493]
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
@@ -189,6 +189,8 @@ represent the same information:
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
+In an IM, an IPv4 address is always *defined* to be a 32 bit value regardless the DMs used to *represent* it for processing within applications, communication among applications, or storage.
+
 \* *Note: all references to information in this document assume uniform distribution over all possible values.*
 
 **Information Modeling**
@@ -220,14 +222,14 @@ JADN first-class types are defined in terms of their characteristics; applicatio
 
 | JADN Type | Definition |
 | :--- | :--- |
-| **Primitive** |   |
+| **Simple** |   |
 | Binary | A sequence of octets.  Length is the number of octets. |
 | Boolean | An element with one of two values: true or false. |
-| Integer | A whole number. |
+| Integer | A positive or negative whole number. |
 | Number | A real number. |
 | Null | An unspecified or non-existent value. |
 | String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
-| **Structure** |   |
+| **Compound** |   |
 | Enumerated | One value selected from a set of named or labeled integers. |
 | Choice | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
 | Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. Corresponds to CDDL *record*. |
@@ -254,7 +256,7 @@ JADN type definitions have a regular structure designed to be easily describable
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
-* If BaseType is a Primitive type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
+* If BaseType is a Simple type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
@@ -281,7 +283,7 @@ JADN type definitions have a regular structure designed to be easily describable
     ...
 ]]
 ```
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Defined type.
+* FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 * FieldID and FieldName values MUST be unique within a type definition.
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 
@@ -315,9 +317,21 @@ Specifications MAY define the same syntax for TypeName and FieldName; using dist
 
 ### 3.1.2 Examples
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5](#5-jadn-schema-formats) defines several styles that can be applied to type definitions in much the same manner as css styles are applied to html documents. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. Corresponding JADN styles include:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines two styles (table and IDL) that can be applied to type definitions in much the same manner as css styles are applied to html documents.
 
-**JADN definition of Person in [JSON](#rfc8259) format:**
+The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
+
+**Protobuf definition of Person:**
+```
+message Person {
+  required string name = 1;
+  required int32 id = 2;
+  optional string email = 3;
+}
+```
+The corresponding JADN definitions include:
+
+**JADN definition of Person:**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -325,7 +339,8 @@ JADN type definitions are themselves information objects that can be represented
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-**JADN definition of Person in [GFM](#gfm) table format:**
+
+**JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.1](#511-table-style)):**
 
   *Type: Person (Record)*
 
@@ -335,12 +350,12 @@ JADN type definitions are themselves information objects that can be represented
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-**JADN definition of Person in a [Thrift](#thrift)-like IDL format:**
+**JADN definition of Person in JADN IDL style ([Section 5.1.2](#512-idl-style)):**
 ```
-record Person {
-  1: string name,
-  2: int id,
-  3: optional string email
+Person = Record {
+  1 name   String,
+  2 id     Integer,
+  3 email  String optional
 }
 ```
 These examples represent the same IM definition, but conformance is based on JSON definitions, which can be read unambiguously by applications with no language-specific parser. JADN definitions in JSON format are authoritative; specifications that include JADN definitions in another format SHOULD also make them available in JSON format.
@@ -403,15 +418,15 @@ For example an Enumerated list of HTTP status codes could include the field [403
 #### 3.2.1.2 Value Type
 
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
-* An ArrayOf or MapOf instance MUST be considered valid iff each of its elements is an instance of *vtype*.
+* An ArrayOf or MapOf instance MUST be considered invalid if any of its elements is not an instance of *vtype*.
 
 #### 3.2.1.3 Key Type
 The *ktype* option specifies the type of each key in a MapOf type. 
-* *ktype* MUST be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
-* A MapOf instance MUST be considered valid iff each of its keys is an instance of *ktype*.
+* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+* A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
+The *enum* option is a schema optimization that creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -445,21 +460,32 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
 | ipv4-net     | Array  | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| i8           | Integer | Signed 8 bit integer, value must be between -128 and 127.
+| i16          | Integer | Signed 16 bit integer, value must be between -32768 and 32767.
+| i32          | Integer | Signed 32 bit integer, value must be between ... and ...
+| u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
 
 * *Note: There is currently no referenceable standard for JSON Schema. When one is available, it will*
 *be referenced as an authoritative source of semantic validation keywords.*
 
 #### 3.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
-* The *pattern* option SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
-* A String instance MUST be considered valid iff it matches the regular expression specified by *pattern*.
+* The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
+* A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
 
 #### 3.2.1.7 Size and Value Constraints
-The *minv* and *maxv* options specify size or value limits. If *minv* is not present, the lower limit is unspecified.  If *maxv* is not present, the upper limit is unspecified.
-* A Binary instance MUST be considered valid iff its number of bytes is at least *minv* and no more than *maxv*.
-* A String instance MUST be considered valid iff its number of characters is at least *minv* and no more than *maxv*.
-* An Integer or Number instance MUST be considered valid iff its value is at least *minv* and no more than *maxv*.
-* An ArrayOf, Map, or MapOf instance MUST be considered valid iff it contains at least *minv* and no more than *maxv* elements.
+The *minv* and *maxv* options specify size or value limits.
+
+* For Binary, String, ArrayOf, Map, or MapOf types:
+    * if *minv* is not present, the lower size limit defaults to zero.
+    * if *maxv* is not present or zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
+    * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
+    * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
+    * an ArrayOf, Map, or MapOf instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
+
+* For Integer or Number types:
+    * if *minv* is present, an instance MUST be considered invalid if its value is less than *minv*.
+    * if *maxv* is present, an instance MUST be considered invalid if its value is greater than *maxv*.
 
 #### 3.2.1.8 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
@@ -480,17 +506,22 @@ Field options apply to each field within a type definition. Each option in Table
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
-The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities:
+The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
+of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)),
+is a range of allowed cardinalities:
 
 | minc | maxc | Multiplicity | Description | Keywords |
 | ---: | ---: | ---: | :--- | :--- |
-| 1 | 1 | 1 | Exactly one instance | Required |
-| 0 | 1 | 0..1 | No instances or one instance | Optional |
-| 1 | 0 | 1..* | At least one instance | Required, Repeatable |
-| 0 | 0 | 0..* | Zero or more instances | Optional, Repeatable |
-| m | n | m..n | At least m but no more than n instances | Required, Repeatable if m > 1 |
+| 1 | 1 | 1 | Exactly one instance | required |
+| 0 | 1 | 0..1 | No instances or one instance | optional |
+| 1 | 0 | 1..* | At least one instance | required, repeated |
+| 0 | 0 | 0..* | Zero or more instances | optional, repeated |
+| m | n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
-The default value of both minc and maxc is 1; if neither are specified the field must have exactly one instance of FieldType. If minc is 0, the field is optional. If maxc is 0, the maximum number of elements is unspecified (*).
+The default value of minc is 1. If minc is 0, the field is optional, otherwise it is required.
+
+The default value of maxc is 1 or minc, whichever is greater. If maxc is 0, the maximum number of elements
+is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is an array.
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -516,11 +547,36 @@ definition, or it may be defined in a separate named type that can be used in on
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 #### Field Multiplicity
 Fields may be defined to have multiple values of the same type. Expansion converts each field that can
-have more than one value to an explicit ArrayOf type. The minimum and maximum cardinality (minc and maxc)
-field options ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
-length (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
+have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
+FieldOptions ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
+size (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
+
+Example:
+
+    Roster = Record {
+        1 org_name String,
+        2 members  Member[0..*]               # Optional and repeated: minc=0, maxc=0
+    }
+
+Expansion replaces this with:
+
+    Roster = Record {
+        1 org_name String,
+        2 members  Roster$members optional    # Optional: minc=0, maxc=1
+    }
+    Roster$members = ArrayOf(Member)[1..*]    # Tool-generated array: minv=1, maxv=0
+
+If Roster should have an empty array when there are no members, it must be defined explicitly without using the
+multiplicity optimization:
+
+    Roster = Record {
+        1 org_name String,
+        2 members  Members                    # Required: minc = 1, maxc = 1
+    }
+    Members = ArrayOf(Member)                 # Explicitly-defined array: minv = 0, maxv = 0
+
 #### Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
 instead of listed in the definition.
@@ -657,12 +713,12 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
-* When using XML serialization, instances of JADN types MUST be serialized as:
+* When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
-| **Binary** |  |
-| **Boolean** | |
+| **Binary** | XML \<Base64Binary\> element with a base64Binary canonical lexical value |
+| **Boolean** | XML attribute with the value "true" or "false" |
 | **Integer** | |
 | **Number** | |
 | **Null** | |
@@ -675,21 +731,30 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **MapOf** | |
 | **Record** | |
 
-# 5 JADN Schemas
-A JADN module consists of a set of type definitions, plus metadata related to the module.
-JADN modules can be developed independently without knowledge of or coordination with each other,
-and types defined in one module can be used in others.
+**Format options that affect XML serialization**
+* When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
-A JADN schema defines the full interface to an application or service, and consists of definitions
-contained in one or more modules. A schema is constructed by starting with the base module for an
-interface and recursively incorporating definitions from each module listed as an import.
+| Option | JADN Type | XML Serialization Requirement |
+| :--- | :--- | :--- |
+| **x** | Binary | XML \<HexBinary\> element with a hexBinary canonical lexical value. |
+
+# 5 JADN Schemas
+A JADN schema is organized into one or more modules, each of which has a set of type definitions plus
+metadata related to the module. Types defined in one module can be used in others, while namespacing
+ensures that type definitions and instance values remain independent.
+
+A JADN schema defines the full interface to an application or service. A schema is constructed by starting
+with the base module for the interface and recursively incorporating definitions from each imported module.
 
 ## 5.1 Type Definition Styles
 [Section 3.1](#31-type-definitions) specifies the authoritative format of JADN type definitions.
 Although JSON data is unambiguous and machine-readable, it is not an ideal presentation format.
-This section describes two presentation styles for JADN type definitions that ...
+This section defines two presentation styles for JADN type definitions that ...
 
 ### 5.1.1 Table Style
+
+[GFM](#gfm) tables do not support multi-column cells, so the type definition line precedes the
+table rather than being part of it as in html table style.
 ```
 +----------+------------+----------+
 | TypeName | TypeString | TypeDesc |
@@ -708,6 +773,14 @@ or
 
 ### 5.1.2 IDL Style
 
+**JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
+```
+record Person {
+  1: string name,
+  2: int id,
+  3: optional string email
+}
+```
 
 ## 5.2 Meta Information
 
@@ -737,6 +810,8 @@ This document presents a language for expressing the information needs of commun
 Additional security considerations applicable to JADN-based specifications: 
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
+
+Security and size efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) allows everything that is not understood, conflicting with information modeling's "Must-Understand" approach where new protocol elements are accomodated by adding them to the IM's enumerated lists of things that are understood.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
