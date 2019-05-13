@@ -317,7 +317,19 @@ Specifications MAY define the same syntax for TypeName and FieldName; using dist
 
 ### 3.1.2 Examples
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines several styles that can be applied to type definitions in much the same manner as css styles are applied to html documents. The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional. Corresponding JADN representations include:
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines two styles (table and IDL) that can be applied to type definitions in much the same manner as css styles are applied to html documents.
+
+The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
+
+**Protobuf definition of Person:**
+```
+message Person {
+  required string name = 1;
+  required int32 id = 2;
+  optional string email = 3;
+}
+```
+The corresponding JADN definitions include:
 
 **JADN definition of Person:**
 ```
@@ -329,6 +341,9 @@ JADN type definitions are themselves information objects that can be represented
 ```
 
 **JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.1](#511-table-style)):**
+
+GFM tables do not support multi-column cells, so the type definition line precedes the
+table rather than being part of it as in html table style.
 
   *Type: Person (Record)*
 
@@ -346,7 +361,6 @@ Person = Record {
   3 email  String optional
 }
 ```
-
 **JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
 ```
 record Person {
@@ -503,17 +517,22 @@ Field options apply to each field within a type definition. Each option in Table
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
-The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities:
+The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
+of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)),
+is a range of allowed cardinalities:
 
 | minc | maxc | Multiplicity | Description | Keywords |
 | ---: | ---: | ---: | :--- | :--- |
-| 1 | 1 | 1 | Exactly one instance | Required |
-| 0 | 1 | 0..1 | No instances or one instance | Optional |
-| 1 | 0 | 1..* | At least one instance | Required, Repeatable |
-| 0 | 0 | 0..* | Zero or more instances | Optional, Repeatable |
-| m | n | m..n | At least m but no more than n instances | Required, Repeatable if m > 1 |
+| 1 | 1 | 1 | Exactly one instance | required |
+| 0 | 1 | 0..1 | No instances or one instance | optional |
+| 1 | 0 | 1..* | At least one instance | required, repeated |
+| 0 | 0 | 0..* | Zero or more instances | optional, repeated |
+| m | n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
-The default value of both minc and maxc is 1; if neither are specified the field must have exactly one instance of FieldType. If minc is 0, the field is optional. If maxc is 0, the maximum number of elements is unspecified (*).
+The default value of minc is 1. If minc is 0, the field is optional, otherwise it is required.
+
+The default value of maxc is 1 or minc, whichever is greater. If maxc is 0, the maximum number of elements
+is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is an array.
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -539,11 +558,36 @@ definition, or it may be defined in a separate named type that can be used in on
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 #### Field Multiplicity
 Fields may be defined to have multiple values of the same type. Expansion converts each field that can
-have more than one value to an explicit ArrayOf type. The minimum and maximum cardinality (minc and maxc)
-field options ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
-length (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
+have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
+FieldOptions ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
+size (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 length of 1.
+
+Example:
+
+    Roster = Record {
+        1 org_name String,
+        2 members  Member[0..*]               # Optional and repeated: minc=0, maxc=0
+    }
+
+Expansion replaces this with:
+
+    Roster = Record {
+        1 org_name String,
+        2 members  Roster$members optional    # Optional: minc=0, maxc=1
+    }
+    Roster$members = ArrayOf(Member)          # Tool-generated array with size [1..*]: minv=1, maxv=0
+
+If Roster should have an empty array when there are no members, it must be defined explicitly without using the
+multiplicity optimization:
+
+    Roster = Record {
+        1 org_name String,
+        2 members  Members                    # Required: minc = 1, maxc = 1
+    }
+    Members = ArrayOf(Member)[0..*]           # Explicit array definition: minv = 0, maxv = 0
+
 #### Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
 instead of listed in the definition.
