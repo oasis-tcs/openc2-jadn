@@ -410,8 +410,8 @@ Type options apply to the type definition as a whole. Structural options are int
 #### 3.2.1.1 Field Identifiers
 
 Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types have an *id* option that determines which identifier is used in API instances of these types. If the *id* option is absent, API instances use FieldName and the type is referred to as "named". If the *id* option is present, API instances use FieldID and the type is referred to as "labeled". The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
-* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed without affecting interoperability.
-* In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
+* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data depending on serialization format.
+* In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, and never appears in serialized data regardless of serialization format.
 
 For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
@@ -529,7 +529,7 @@ is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is a
 #### 3.2.2.3 Flattened Serialization
 *flatten*
 
-### 3.3 Type Simplification
+## 3.3 Type Simplification
 JADN includes several optimizations that make type definitions more compact or that support the
 [DRY](#dry) software design principle. These can be removed without affecting
 the meaning of a type definition. Removing them simplifies the original definition but creates
@@ -540,12 +540,13 @@ specifications more difficult to maintain by introducing redundant data that mus
 An optimized specification can be translated into an expanded version that does not include
 the following options:
 
-#### Type Definition within fields
+### 3.3.1 Type Definition within fields
 A specific type (e.g., an email address) may be defined anonymously within a field of a structure
 definition, or it may be defined in a separate named type that can be used in one or more structures.
 * Expansion MUST convert all anonymous type definitions to explicit named types and exclude all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
-#### Field Multiplicity
+
+### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Expansion converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
 FieldOptions ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
@@ -577,7 +578,7 @@ multiplicity optimization:
     }
     Members = ArrayOf(Member)                 # Explicitly-defined array: minv = 0, maxv = 0
 
-#### Derived Enumerations
+### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
 instead of listed in the definition.
 * Expansion MUST remove *enum* from Type Options and add fields containing
@@ -607,7 +608,7 @@ Expansion replaces the references with:
     }
     ChannelMask = ArrayOf(Channel)
 
-#### MapOf with Enumerated key
+### 3.3.4 MapOf with Enumerated key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
 and creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
 enumeration. This expansion can simplify specifications that do not require the more general MapOf type,
