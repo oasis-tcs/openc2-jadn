@@ -342,9 +342,6 @@ The corresponding JADN definitions include:
 
 **JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.1](#511-table-style)):**
 
-GFM tables do not support multi-column cells, so the type definition line precedes the
-table rather than being part of it as in html table style.
-
   *Type: Person (Record)*
 
 |  ID  |    Name   |   Type  |   #  | Description |
@@ -359,14 +356,6 @@ Person = Record {
   1 name   String,
   2 id     Integer,
   3 email  String optional
-}
-```
-**JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
-```
-record Person {
-  1: string name,
-  2: int id,
-  3: optional string email
 }
 ```
 These examples represent the same IM definition, but conformance is based on JSON definitions, which can be read unambiguously by applications with no language-specific parser. JADN definitions in JSON format are authoritative; specifications that include JADN definitions in another format SHOULD also make them available in JSON format.
@@ -577,7 +566,7 @@ Expansion replaces this with:
         1 org_name String,
         2 members  Roster$members optional    # Optional: minc=0, maxc=1
     }
-    Roster$members = ArrayOf(Member)          # Tool-generated array with size [1..*]: minv=1, maxv=0
+    Roster$members = ArrayOf(Member)[1..*]    # Tool-generated array: minv=1, maxv=0
 
 If Roster should have an empty array when there are no members, it must be defined explicitly without using the
 multiplicity optimization:
@@ -586,7 +575,7 @@ multiplicity optimization:
         1 org_name String,
         2 members  Members                    # Required: minc = 1, maxc = 1
     }
-    Members = ArrayOf(Member)[0..*]           # Explicit array definition: minv = 0, maxv = 0
+    Members = ArrayOf(Member)                 # Explicitly-defined array: minv = 0, maxv = 0
 
 #### Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
@@ -750,20 +739,22 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **x** | Binary | XML \<HexBinary\> element with a hexBinary canonical lexical value. |
 
 # 5 JADN Schemas
-A JADN module consists of a set of type definitions, plus metadata related to the module.
-JADN modules can be developed independently without knowledge of or coordination with each other,
-and types defined in one module can be used in others.
+A JADN schema is organized into one or more modules, each of which has a set of type definitions plus
+metadata related to the module. Types defined in one module can be used in others, while namespacing
+ensures that type definitions and instance values remain independent.
 
-A JADN schema defines the full interface to an application or service, and consists of definitions
-contained in one or more modules. A schema is constructed by starting with the base module for an
-interface and recursively incorporating definitions from each module listed as an import.
+A JADN schema defines the full interface to an application or service. A schema is constructed by starting
+with the base module for the interface and recursively incorporating definitions from each imported module.
 
 ## 5.1 Type Definition Styles
 [Section 3.1](#31-type-definitions) specifies the authoritative format of JADN type definitions.
 Although JSON data is unambiguous and machine-readable, it is not an ideal presentation format.
-This section describes two presentation styles for JADN type definitions that ...
+This section defines two presentation styles for JADN type definitions that ...
 
 ### 5.1.1 Table Style
+
+[GFM](#gfm) tables do not support multi-column cells, so the type definition line precedes the
+table rather than being part of it as in html table style.
 ```
 +----------+------------+----------+
 | TypeName | TypeString | TypeDesc |
@@ -782,6 +773,14 @@ or
 
 ### 5.1.2 IDL Style
 
+**JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
+```
+record Person {
+  1: string name,
+  2: int id,
+  3: optional string email
+}
+```
 
 ## 5.2 Meta Information
 
@@ -812,7 +811,7 @@ Additional security considerations applicable to JADN-based specifications:
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-Security and size efficiency are the primary reasons for creating an information model. Enumerating strings and map keys means defining the information content of those values, which greatly reduces opportunities for exploitation.  A firewall with a security policy of "Allow these specific things I understand, plus everything I don't understand" is less secure than a firewall that allows only things that it understands. The "Must-Ignore" policy of [RFC 7493](#rfc7493) is in direct conflict with information modeling's "Must-Understand" policy, which accommodates new protocol elements by adding them to the IM's lists of things that are understood.
+Security and size efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) allows everything that is not understood, conflicting with information modeling's "Must-Understand" approach where new protocol elements are accomodated by adding them to the IM's enumerated lists of things that are understood.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
