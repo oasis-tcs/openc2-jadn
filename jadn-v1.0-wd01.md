@@ -519,11 +519,12 @@ of an Array, Map, or Record type:
 |    m |    n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
 The default value of minc is 1.  
-The default value of maxc is 1 or minc, whichever is greater.  
-If maxc is 0, the maximum number of elements is unspecified (\*).  
+The default value of maxc is the greater of 1 or minc.  
+If maxc is 0, the maximum number of elements is unspecified.  
+If maxc is not 0, it must be greater than or equal to minc.  
 
 If minc is 0, the field is optional, otherwise it is required.  
-If maxc is 1 the field is a single value, otherwise it is an array of values.  
+If maxc is 1 the field is a single element, otherwise it is an array of elements.  
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -541,10 +542,26 @@ be kept in sync, expanding the specification and increasing maintenance effort.
 The following optimizations can be removed:
 
 ### 3.3.1 Type Definition within fields
-A specific type (e.g., an email address) may be defined anonymously within a field of a structure
-definition, or it may be defined in a separate named type that can be used in one or more structures.
+A type may be defined anonymously within a field of a structure definition, or it may be
+defined as a named type that can be used in one or more structure definitions.
 Simplifying converts all anonymous type definitions to explicit named types and excludes all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
+
+Example:
+
+    Person = Record {
+        1 name  String,
+        2 email String /idn-email
+    }
+
+Simplifying replaces this with:
+
+    Person = Record {
+        1 name   String,
+        2 email  Person$email
+    }                                      // A specification author might name this type Email-Address.
+    Person$email = String /idn-email       // Tool-generated type definition.
+
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
@@ -558,25 +575,25 @@ Example:
 
     Roster = Record {
         1 org_name String,
-        2 members  Member[0..*]               # Optional and repeated: minc=0, maxc=0
+        2 members  Member[0..*]               // Optional and repeated: minc=0, maxc=0
     }
 
 Simplifying replaces this with:
 
     Roster = Record {
         1 org_name String,
-        2 members  Roster$members optional    # Optional: minc=0, maxc=1
+        2 members  Roster$members optional    // Optional: minc=0, maxc=1
     }
-    Roster$members = ArrayOf(Member)[1..*]    # Tool-generated array: minv=1, maxv=0
+    Roster$members = ArrayOf(Member)[1..*]    // Tool-generated array: minv=1, maxv=0
 
 If Roster should have an empty array when there are no members, it must be defined explicitly without using the
 multiplicity optimization:
 
     Roster = Record {
         1 org_name String,
-        2 members  Members                    # Required: minc = 1, maxc = 1
+        2 members  Members                    // Required: minc = 1, maxc = 1
     }
-    Members = ArrayOf(Member)                 # Explicitly-defined array: minv = 0, maxv = 0
+    Members = ArrayOf(Member)                 // Explicitly-defined array: minv = 0, maxv = 0
 
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
