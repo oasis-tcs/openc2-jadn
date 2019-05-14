@@ -478,7 +478,7 @@ The *minv* and *maxv* options specify size or value limits.
 
 * For Binary, String, ArrayOf, Map, or MapOf types:
     * if *minv* is not present, the lower size limit defaults to zero.
-    * if *maxv* is not present or zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
+    * if *maxv* is not present or is zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an ArrayOf, Map, or MapOf instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -506,22 +506,24 @@ Field options apply to each field within a type definition. Each option in Table
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
+Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities.
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
-of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)),
-is a range of allowed cardinalities:
+of an Array, Map, or Record type:
 
 | minc | maxc | Multiplicity | Description | Keywords |
-| ---: | ---: | ---: | :--- | :--- |
-| 1 | 1 | 1 | Exactly one instance | required |
-| 0 | 1 | 0..1 | No instances or one instance | optional |
-| 1 | 0 | 1..* | At least one instance | required, repeated |
-| 0 | 0 | 0..* | Zero or more instances | optional, repeated |
-| m | n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
+| ---: | ---: | -----------: | :---------- | :------- |
+|    0 |    1 | 0..1 | No instances or one instance | optional |
+|    1 |    1 |    1 | Exactly one instance | required |
+|    0 |    0 | 0..* | Zero or more instances | optional, repeated |
+|    1 |    0 | 1..* | At least one instance | required, repeated |
+|    m |    n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
-The default value of minc is 1. If minc is 0, the field is optional, otherwise it is required.
+The default value of minc is 1.  
+The default value of maxc is 1 or minc, whichever is greater.  
+If maxc is 0, the maximum number of elements is unspecified (\*).  
 
-The default value of maxc is 1 or minc, whichever is greater. If maxc is 0, the maximum number of elements
-is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is an array.
+If minc is 0, the field is optional, otherwise it is required.  
+If maxc is 1 the field is a single value, otherwise it is an array of values.  
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -531,28 +533,26 @@ is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is a
 
 ## 3.3 Type Simplification
 JADN includes several optimizations that make type definitions more compact or that support the
-[DRY](#dry) software design principle. These can be removed without affecting
-the meaning of a type definition. Removing them simplifies the original definition but creates
-additional definitions to support it. This simplifies the code needed to serialize and validate data
-instances, and examining the expanded definitions may aid understanding. But expansion can make
-specifications more difficult to maintain by introducing redundant data that must be kept in sync.
+[DRY](#dry) software design principle. These can be removed without affecting the meaning of a
+definition. Simplifying reduces the amount of code needed to serialize and validate data instances,
+and may make specifications easier to understand.  But it creates additional definitions that must
+be kept in sync, expanding the specification and increasing maintenance effort.
 
-An optimized specification can be translated into an expanded version that does not include
-the following options:
+The following optimizations can be removed:
 
 ### 3.3.1 Type Definition within fields
 A specific type (e.g., an email address) may be defined anonymously within a field of a structure
 definition, or it may be defined in a separate named type that can be used in one or more structures.
-* Expansion MUST convert all anonymous type definitions to explicit named types and exclude all type options
+Simplifying converts all anonymous type definitions to explicit named types and excludes all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 
 ### 3.3.2 Field Multiplicity
-Fields may be defined to have multiple values of the same type. Expansion converts each field that can
+Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
 FieldOptions ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
 size (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
-length of 1.
+size of 1.
 
 Example:
 
@@ -561,7 +561,7 @@ Example:
         2 members  Member[0..*]               # Optional and repeated: minc=0, maxc=0
     }
 
-Expansion replaces this with:
+Simplifying replaces this with:
 
     Roster = Record {
         1 org_name String,
@@ -581,13 +581,13 @@ multiplicity optimization:
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
 instead of listed in the definition.
-* Expansion MUST remove *enum* from Type Options and add fields containing
+Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
 type derived from the referenced type.
-* Expansion MUST reference an explicit Enumerated type if it exists, otherwise it MUST create an explicit
-Enumerated type. Expansion MUST then replace the type reference with the name of the explicit Enumerated type.
+Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
+Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
 Example:
 
@@ -599,7 +599,7 @@ Example:
     Channel = Enumerated(Enum(Pixel)) 
     ChannelMask = ArrayOf(Enum(Pixel))
 
-Expansion replaces the references with:
+Simplifying replaces the Channel and ChannelMask references with:
 
     Channel = Enumerated {
         1 red,
@@ -609,12 +609,12 @@ Expansion replaces the references with:
     ChannelMask = ArrayOf(Channel)
 
 ### 3.3.4 MapOf with Enumerated key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying removes the MapOf type definition
 and creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
-enumeration. This expansion can simplify specifications that do not require the more general MapOf type,
-and improve robustness by limiting Map keys to a known set.
+enumeration.
 
-Example: given an Enumerated type Channel, expansion replaces the following MapOf definition with the explicit Map shown above.
+Example: given an Enumerated type Channel, simplifying the following MapOf definition replaces it with the
+explicit Pixel Map shown above.
 
     Pixel = MapOf(Channel, Integer)
 
