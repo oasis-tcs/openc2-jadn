@@ -181,17 +181,17 @@ contained in a message.  When information is serialized for transmission in a ca
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
+A variable that can take on 2^N different values conveys at most N bits of information.
 
-For example, an IPv4 address contains 32 bits of information*. But different data may be used to
-represent the same information:
+For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
+a 32 bit information value*.  But different data may be used to represent that information:
 * IPv4 dotted-quad contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
-In an IM, an IPv4 address is always *defined* to be a 32 bit value regardless the DMs used to *represent* it for processing within applications, communication among applications, or storage.
-
-\* *Note: all references to information in this document assume uniform distribution over all possible values.*
+\* *Note: all references to information in this document assume independent uniformly-distributed values.*
+*Source coding is beyond the scope of this document.*
 
 **Information Modeling**
 
@@ -559,9 +559,10 @@ Simplifying replaces this with:
     Person = Record {
         1 name   String,
         2 email  Person$email
-    }                                      // A specification author might name this type Email-Address.
+    }
     Person$email = String /idn-email       // Tool-generated type definition.
-
+                                           // A specification author might name this type Email-Address, since
+                                           // it can be used by types other than Person.
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
