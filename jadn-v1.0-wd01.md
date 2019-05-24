@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 10 May 2019
+## 24 May 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -112,6 +112,8 @@ Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Octobe
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
 ###### [RFC7049]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
+###### [RFC7405]
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
 ###### [RFC8200]
@@ -892,4 +894,124 @@ Specifications including correct and incorrect definitions used to check impleme
 
 # Appendix E. Examples
 
+# Appendix F. ABNF Grammar for JADN IDL
+
+[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
+
+```
+; Type definitions
+start       = 1*def
+def         = TYPE-NAME "="
+                  (binary [DESC])
+                / (integer [DESC])
+                / (number [DESC])
+                / (null [DESC])
+                / (string [DESC])
+                / (enum-f [DESC])
+                / (enumid-f [DESC])
+                / (arrayof [DESC])
+                / (mapof [DESC])
+                / (enum [DESC] efields)
+                / (enumid [DESC] iefields)
+                / (choice [DESC] fields)
+                / (choiceid [DESC] ifields)
+                / (array [DESC] fields)
+                / (map [DESC] fields)
+                / (mapid [DESC] ifields)
+                / (record [DESC] fields)
+
+; Options (required and allowed)
+binary      = %s"Binary" [LRANGE] [FORMAT]
+boolean     = %s"Boolean"
+integer     = %s"Integer" [IRANGE] [FORMAT]
+number      = %s"Number" [FRANGE] [FORMAT]
+null        = %s"Null"
+string      = %s"String" [LRANGE] [FORMAT] [PATTERN]
+enum-f      = %s"Enumerated" EFUNCP
+enumid-f    = %s"Enumerated.ID" EFUNCP
+arrayof     = %s"ArrayOf" vtype [LRANGE]
+mapof       = %s"MapOf" kvtype [LRANGE]
+enum        = %s"Enumerated"
+enumid      = %s"Enumerated.ID"
+choice      = %s"Choice"
+choiceid    = %s"Choice.ID"
+array       = %s"Array" [FORMAT]
+map         = %s"Map" [LRANGE]
+mapid       = %s"Map.ID" [LRANGE]
+record      = %s"Record"
+
+; Types without field definitions
+vtype       = "(" typestr ")"
+kvtype      = "(" typestr "," typestr ")"
+typestr     = TYPE-NAME / EFUNC
+                / binary / boolean / integer / number / null / string
+                / enum-f / enumid-f / arrayof / mapof
+
+; All types
+typedefstr  = binary / boolean / integer / number / null / string
+                / enum-f / enumid-f / arrayof / mapof
+                / enum / enumid / choice / choiceid / array / map / mapid / record
+
+INT         = ["-"] 1*10DIGIT               ; Arbitrary limit: 2^32 = 10 digits (4,294,967,296)
+UINT        = 1*10DIGIT
+NUM         = ["-"] 1*DIGIT ["." 1*DIGIT]
+LRANGE      = "{" UINT ".." UINT "}"        ; Length range: {m..n} m GE 0, n GT 0 or *
+IRANGE      = "{" INT ".." INT "}"          ; Integer range: {m..n} m and n are integers
+FRANGE      = "{" NUM ".." NUM "}"          ; Float range: {m..n} m and n are real numbers
+MRANGE      = "[" UINT ".." UINT "]"        ; Multiplicity: [m..n] m GE 0, n GT 0 or *
+
+EFUNC       = %s"Enum(" TYPE-NAME ")"
+EFUNCP      = "(" EFUNC ")"
+
+PATTERN     = "<" 1*100VCHAR ">"            ; FIXME - need regex validator and escaping
+
+FORMAT      = "/" ( %s"date-time" / %s"date" / %s"time"  ; JSON-Schema format keywords
+                / %s"email" / %s"idn-email"
+                / %s"hostname" / %s"idn-hostname"
+                / %s"ipv4" / %s"ipv6"
+                / %s"uri" / %s"uri-reference"
+                / %s"iri" / %s"iri-reference" / "uri-template"
+                / %s"json-pointer" / %s"relative-json-pointer"
+                / %s"regex"
+                / %s"eui"                     ; JADN format keywords
+                / %s"ipv4-addr" / %s"ipv6-addr"
+                / %s"ipv4-net" / %s"ipv6-net"
+                / %s"i8" / %s"i16" / %s"i32"
+                / %s"f16" / %s"f32"
+                / %s"u" UINT )
+
+efields     = "{" efield  *("," [DESC] efield)  [DESC] "}"
+iefields    = "{" iefield *("," [DESC] iefield) [DESC] "}"
+fields      = "{" field   *("," [DESC] field)   [DESC] "}"
+ifields     = "{" ifield  *("," [DESC] ifield)  [DESC] "}"
+
+FIELD-ID    = UINT
+efield      = FIELD-ID FIELD-NAME
+iefield     = FIELD-ID
+field       = FIELD-ID FIELD-NAME typestr [multiplicity]
+ifield      = FIELD-ID typestr [multiplicity]
+
+multiplicity = MRANGE / %s"optional"
+
+DESC        = "//" [FIELD-NAME "::"] *(WSP / VCHAR) CRLF
+COMMENT     = "/*" *(WSP / VCHAR / CRLF) "*/"
+
+; JADN default naming conventions
+TYPE-NAME   = UC *31("-" / UC / LC / DIGIT / SYS)
+FIELD-NAME  = LC *31("_" / UC /LC / DIGIT)
+FIELD-SEP   = "/"
+SYS         = "$"
+UC          = %x41-5A
+LC          = %x61-7A
+
+; RFC 5234 Core rules
+CR          = %x0D
+CRLF        = CR LF
+DIGIT       = %x30-39
+HTAB        = %x09
+LF          = %x0A
+SP          = " "
+VCHAR       = %x21-7E
+WSP         = SP / HTAB
+```
 
