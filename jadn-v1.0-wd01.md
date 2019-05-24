@@ -601,8 +601,8 @@ multiplicity optimization:
     Members = ArrayOf(Member)                 // Explicitly-defined array: minv = 0, maxv = 0
 
 ### 3.3.3 Derived Enumerations
-An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
-instead of listed in the definition.
+An Enumerated type defined with the *enum* option has fields copied from the type referenced
+in the option rather than being listed individually in the definition.
 Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
