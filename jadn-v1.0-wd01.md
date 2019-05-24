@@ -193,7 +193,7 @@ a 32 bit information value*.  But different data may be used to represent that i
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
 \* *Note: all references to information in this document assume independent uniformly-distributed values.*
-*Source coding is beyond the scope of this document.*
+*Source coding is beyond the scope of this specification.*
 
 **Information Modeling**
 
@@ -218,7 +218,9 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to select either approach. 
 
 # 3 JADN Types
-JADN first-class types are defined in terms of their characteristics; applications may use any programming language variable types or mechanisms that support those characteristics.
+JADN first-class types are defined in terms of their characteristics.
+* An application that uses JADN types MUST act as specified in Table 3-1.
+Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
 
@@ -240,7 +242,7 @@ JADN first-class types are defined in terms of their characteristics; applicatio
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats -- Python and C++ and Java APIs define how applications represent instances of Binary data, and JSON and CBOR and XML serialization rules define how instances of Binary data are serialized:
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats -- Python and C++ and Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
 
 | Python IM API |  JADN Type  |   Serialization Rules |
 | ------------- | ----------- | ----------------|
@@ -794,14 +796,7 @@ or
 
 ### 5.1.2 IDL Style
 
-**JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
-```
-record Person {
-  1: string name,
-  2: int id,
-  3: optional string email
-}
-```
+JADN Interface Definition Language (IDL) is ...
 
 ## 5.2 Meta Information
 
@@ -893,7 +888,67 @@ Used to validate a JADN specification.  In JADN, JSON Schema, and CDDL formats
 Specifications including correct and incorrect definitions used to check implementation conformance.
 
 # Appendix E. Examples
+JADN definitions for examples shown in this document.  Note that in order to validate multiple type definitions at a time they can be wrapped in a JSON list `[ ]`.
 
+**[Section 3.1.2 Examples](#312-examples):**
+```
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "id", "Integer", [], ""],
+    [3, "email", "String", ["[0"], ""]
+]]
+```
+
+**[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
+```
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "email", "String", ["/idn-email"], ""]
+]],
+
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "email", "Person$email", [], ""]
+]],
+["Person$email", "String", ["/idn-email"], "Tool-generated type definition."]
+```
+
+**[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
+```
+["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Member", ["[0", "]0"], "Optional and repeated: minc=0, maxc=0"]
+]],
+
+["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Roster#member", ["[0"], "Optional: minc=0, maxc=1"]
+]],
+["Roster$members", "ArrayOf", ["*Member", "]0"], "Tool-generated array: minv=1, maxv=0"]
+```
+
+**[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
+```
+["Pixel", "Map", [], "", [
+    [1, "red", "Integer", [], ""],
+    [2, "green", "Integer", [], ""],
+    [3, "blue", "Integer", [], ""]
+]],
+["Channel", "Enumerated", ["$Pixel"], ""],
+["ChannelMask", "ArrayOf", ["$Pixel"], ""],
+
+["Channel", "Enumerated", [], "", [
+    [1, "red", ""],
+    [2, "green", ""],
+    [3, "blue", ""]
+]],
+["ChannelMask", "ArrayOf", ["*Channel"], ""]
+```
+**[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
+Note that the order of options within the JSON array is not significant.
+```
+["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
+```
 # Appendix F. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
