@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 10 May 2019
+## 24 May 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -112,6 +112,8 @@ Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Octobe
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
 ###### [RFC7049]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
+###### [RFC7405]
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
 ###### [RFC8200]
@@ -181,17 +183,17 @@ contained in a message.  When information is serialized for transmission in a ca
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
+A variable that can take on 2^N different values conveys at most N bits of information.
 
-For example, an IPv4 address contains 32 bits of information*. But different data may be used to
-represent the same information:
+For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
+a 32 bit information value*.  But different data may be used to represent that information:
 * IPv4 dotted-quad contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
-In an IM, an IPv4 address is always *defined* to be a 32 bit value regardless the DMs used to *represent* it for processing within applications, communication among applications, or storage.
-
-\* *Note: all references to information in this document assume uniform distribution over all possible values.*
+\* *Note: all references to information in this document assume independent uniformly-distributed values.*
+*Source coding is beyond the scope of this specification.*
 
 **Information Modeling**
 
@@ -216,7 +218,9 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to select either approach. 
 
 # 3 JADN Types
-JADN first-class types are defined in terms of their characteristics; applications may use any programming language variable types or mechanisms that support those characteristics.
+JADN first-class types are defined in terms of their characteristics.
+* An application that uses JADN types MUST act as specified in Table 3-1.
+Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
 
@@ -238,7 +242,7 @@ JADN first-class types are defined in terms of their characteristics; applicatio
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats -- Python and C++ and Java APIs define how applications represent instances of Binary data, and JSON and CBOR and XML serialization rules define how instances of Binary data are serialized:
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats -- Python and C++ and Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
 
 | Python IM API |  JADN Type  |   Serialization Rules |
 | ------------- | ----------- | ----------------|
@@ -410,8 +414,8 @@ Type options apply to the type definition as a whole. Structural options are int
 #### 3.2.1.1 Field Identifiers
 
 Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types have an *id* option that determines which identifier is used in API instances of these types. If the *id* option is absent, API instances use FieldName and the type is referred to as "named". If the *id* option is present, API instances use FieldID and the type is referred to as "labeled". The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
-* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, may appear in serialized data, and cannot be changed without affecting interoperability.
-* In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, never appears in serialized data, and may be freely customized without affecting interoperability.
+* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data depending on serialization format.
+* In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, and never appears in serialized data regardless of serialization format.
 
 For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
@@ -478,7 +482,7 @@ The *minv* and *maxv* options specify size or value limits.
 
 * For Binary, String, ArrayOf, Map, or MapOf types:
     * if *minv* is not present, the lower size limit defaults to zero.
-    * if *maxv* is not present or zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
+    * if *maxv* is not present or is zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an ArrayOf, Map, or MapOf instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -506,22 +510,25 @@ Field options apply to each field within a type definition. Each option in Table
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
+Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities.
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
-of an Array, Map, or Record type. Multiplicity, as used in the Unified Modeling Language ([UML](#uml)),
-is a range of allowed cardinalities:
+of an Array, Map, or Record type:
 
 | minc | maxc | Multiplicity | Description | Keywords |
-| ---: | ---: | ---: | :--- | :--- |
-| 1 | 1 | 1 | Exactly one instance | required |
-| 0 | 1 | 0..1 | No instances or one instance | optional |
-| 1 | 0 | 1..* | At least one instance | required, repeated |
-| 0 | 0 | 0..* | Zero or more instances | optional, repeated |
-| m | n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
+| ---: | ---: | -----------: | :---------- | :------- |
+|    0 |    1 | 0..1 | No instances or one instance | optional |
+|    1 |    1 |    1 | Exactly one instance | required |
+|    0 |    0 | 0..* | Zero or more instances | optional, repeated |
+|    1 |    0 | 1..* | At least one instance | required, repeated |
+|    m |    n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
-The default value of minc is 1. If minc is 0, the field is optional, otherwise it is required.
+The default value of minc is 1.  
+The default value of maxc is the greater of 1 or minc.  
+If maxc is 0, the maximum number of elements is unspecified.  
+If maxc is not 0, it must be greater than or equal to minc.  
 
-The default value of maxc is 1 or minc, whichever is greater. If maxc is 0, the maximum number of elements
-is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is an array.
+If minc is 0, the field is optional, otherwise it is required.  
+If maxc is 1 the field is a single element, otherwise it is an array of elements.  
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -529,64 +536,80 @@ is unspecified (\*). If maxc is 1 the field is a single value, otherwise it is a
 #### 3.2.2.3 Flattened Serialization
 *flatten*
 
-### 3.3 Type Simplification
+## 3.3 Type Simplification
 JADN includes several optimizations that make type definitions more compact or that support the
-[DRY](#dry) software design principle. These can be removed without affecting
-the meaning of a type definition. Removing them simplifies the original definition but creates
-additional definitions to support it. This simplifies the code needed to serialize and validate data
-instances, and examining the expanded definitions may aid understanding. But expansion can make
-specifications more difficult to maintain by introducing redundant data that must be kept in sync.
+[DRY](#dry) software design principle. These can be removed without affecting the meaning of a
+definition. Simplifying reduces the amount of code needed to serialize and validate data instances,
+and may make specifications easier to understand.  But it creates additional definitions that must
+be kept in sync, expanding the specification and increasing maintenance effort.
 
-An optimized specification can be translated into an expanded version that does not include
-the following options:
+The following optimizations can be removed:
 
-#### Type Definition within fields
-A specific type (e.g., an email address) may be defined anonymously within a field of a structure
-definition, or it may be defined in a separate named type that can be used in one or more structures.
-* Expansion MUST convert all anonymous type definitions to explicit named types and exclude all type options
+### 3.3.1 Type Definition within fields
+A type may be defined anonymously within a field of a structure definition, or it may be
+defined as a named type that can be used in one or more structure definitions.
+Simplifying converts all anonymous type definitions to explicit named types and excludes all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
-#### Field Multiplicity
-Fields may be defined to have multiple values of the same type. Expansion converts each field that can
+
+Example:
+
+    Person = Record {
+        1 name  String,
+        2 email String /idn-email
+    }
+
+Simplifying replaces this with:
+
+    Person = Record {
+        1 name   String,
+        2 email  Person$email
+    }
+    Person$email = String /idn-email       // Tool-generated type definition.
+                                           // A specification author might name this type Email-Address, since
+                                           // it can be used by types other than Person.
+
+### 3.3.2 Field Multiplicity
+Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
 FieldOptions ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
 size (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
-length of 1.
+size of 1.
 
 Example:
 
     Roster = Record {
         1 org_name String,
-        2 members  Member[0..*]               # Optional and repeated: minc=0, maxc=0
+        2 members  Member[0..*]               // Optional and repeated: minc=0, maxc=0
     }
 
-Expansion replaces this with:
+Simplifying replaces this with:
 
     Roster = Record {
         1 org_name String,
-        2 members  Roster$members optional    # Optional: minc=0, maxc=1
+        2 members  Roster$members optional    // Optional: minc=0, maxc=1
     }
-    Roster$members = ArrayOf(Member)[1..*]    # Tool-generated array: minv=1, maxv=0
+    Roster$members = ArrayOf(Member)[1..*]    // Tool-generated array: minv=1, maxv=0
 
 If Roster should have an empty array when there are no members, it must be defined explicitly without using the
 multiplicity optimization:
 
     Roster = Record {
         1 org_name String,
-        2 members  Members                    # Required: minc = 1, maxc = 1
+        2 members  Members                    // Required: minc = 1, maxc = 1
     }
-    Members = ArrayOf(Member)                 # Explicitly-defined array: minv = 0, maxv = 0
+    Members = ArrayOf(Member)                 // Explicitly-defined array: minv = 0, maxv = 0
 
-#### Derived Enumerations
-An Enumerated type defined with the *enum* option has fields copied from the type referenced by BaseType
-instead of listed in the definition.
-* Expansion MUST remove *enum* from Type Options and add fields containing
+### 3.3.3 Derived Enumerations
+An Enumerated type defined with the *enum* option has fields copied from the type referenced
+in the option rather than being listed individually in the definition.
+Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
 type derived from the referenced type.
-* Expansion MUST reference an explicit Enumerated type if it exists, otherwise it MUST create an explicit
-Enumerated type. Expansion MUST then replace the type reference with the name of the explicit Enumerated type.
+Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
+Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
 Example:
 
@@ -598,7 +621,7 @@ Example:
     Channel = Enumerated(Enum(Pixel)) 
     ChannelMask = ArrayOf(Enum(Pixel))
 
-Expansion replaces the references with:
+Simplifying replaces the Channel and ChannelMask references with:
 
     Channel = Enumerated {
         1 red,
@@ -607,13 +630,13 @@ Expansion replaces the references with:
     }
     ChannelMask = ArrayOf(Channel)
 
-#### MapOf with Enumerated key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expansion removes the MapOf type definition
+### 3.3.4 MapOf with Enumerated key
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying removes the MapOf type definition
 and creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
-enumeration. This expansion can simplify specifications that do not require the more general MapOf type,
-and improve robustness by limiting Map keys to a known set.
+enumeration.
 
-Example: given an Enumerated type Channel, expansion replaces the following MapOf definition with the explicit Map shown above.
+Example: given an Enumerated type Channel, simplifying the following MapOf definition replaces it with the
+explicit Pixel Map shown above.
 
     Pixel = MapOf(Channel, Integer)
 
@@ -773,14 +796,7 @@ or
 
 ### 5.1.2 IDL Style
 
-**JADN definition of Person in a hypothetical [Thrift](#thrift)-like IDL style:**
-```
-record Person {
-  1: string name,
-  2: int id,
-  3: optional string email
-}
-```
+JADN Interface Definition Language (IDL) is ...
 
 ## 5.2 Meta Information
 
@@ -872,5 +888,185 @@ Used to validate a JADN specification.  In JADN, JSON Schema, and CDDL formats
 Specifications including correct and incorrect definitions used to check implementation conformance.
 
 # Appendix E. Examples
+JADN definitions for examples shown in this document.  Note that in order to validate multiple type definitions at a time they can be wrapped in a JSON list `[ ]`.
 
+**[Section 3.1.2 Examples](#312-examples):**
+```
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "id", "Integer", [], ""],
+    [3, "email", "String", ["[0"], ""]
+]]
+```
+
+**[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
+```
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "email", "String", ["/idn-email"], ""]
+]],
+
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "email", "Person$email", [], ""]
+]],
+["Person$email", "String", ["/idn-email"], "Tool-generated type definition."]
+```
+
+**[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
+```
+["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Member", ["[0", "]0"], "Optional and repeated: minc=0, maxc=0"]
+]],
+
+["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Roster#member", ["[0"], "Optional: minc=0, maxc=1"]
+]],
+["Roster$members", "ArrayOf", ["*Member", "]0"], "Tool-generated array: minv=1, maxv=0"]
+```
+
+**[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
+```
+["Pixel", "Map", [], "", [
+    [1, "red", "Integer", [], ""],
+    [2, "green", "Integer", [], ""],
+    [3, "blue", "Integer", [], ""]
+]],
+["Channel", "Enumerated", ["$Pixel"], ""],
+["ChannelMask", "ArrayOf", ["$Pixel"], ""],
+
+["Channel", "Enumerated", [], "", [
+    [1, "red", ""],
+    [2, "green", ""],
+    [3, "blue", ""]
+]],
+["ChannelMask", "ArrayOf", ["*Channel"], ""]
+```
+**[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
+Note that the order of options within the JSON array is not significant.
+```
+["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
+```
+# Appendix F. ABNF Grammar for JADN IDL
+
+[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
+
+```
+; Type definitions
+start       = 1*def
+def         = TYPE-NAME "="
+                  (binary [DESC])
+                / (integer [DESC])
+                / (number [DESC])
+                / (null [DESC])
+                / (string [DESC])
+                / (enum-f [DESC])
+                / (enumid-f [DESC])
+                / (arrayof [DESC])
+                / (mapof [DESC])
+                / (enum [DESC] efields)
+                / (enumid [DESC] iefields)
+                / (choice [DESC] fields)
+                / (choiceid [DESC] ifields)
+                / (array [DESC] fields)
+                / (map [DESC] fields)
+                / (mapid [DESC] ifields)
+                / (record [DESC] fields)
+
+; Options (required and allowed)
+binary      = %s"Binary" [LRANGE] [FORMAT]
+boolean     = %s"Boolean"
+integer     = %s"Integer" [IRANGE] [FORMAT]
+number      = %s"Number" [FRANGE] [FORMAT]
+null        = %s"Null"
+string      = %s"String" [LRANGE] [FORMAT] [PATTERN]
+enum-f      = %s"Enumerated" EFUNCP
+enumid-f    = %s"Enumerated.ID" EFUNCP
+arrayof     = %s"ArrayOf" vtype [LRANGE]
+mapof       = %s"MapOf" kvtype [LRANGE]
+enum        = %s"Enumerated"
+enumid      = %s"Enumerated.ID"
+choice      = %s"Choice"
+choiceid    = %s"Choice.ID"
+array       = %s"Array" [FORMAT]
+map         = %s"Map" [LRANGE]
+mapid       = %s"Map.ID" [LRANGE]
+record      = %s"Record"
+
+; Types without field definitions
+vtype       = "(" typestr ")"
+kvtype      = "(" typestr "," typestr ")"
+typestr     = TYPE-NAME / EFUNC
+                / binary / boolean / integer / number / null / string
+                / enum-f / enumid-f / arrayof / mapof
+
+; All types
+typedefstr  = binary / boolean / integer / number / null / string
+                / enum-f / enumid-f / arrayof / mapof
+                / enum / enumid / choice / choiceid / array / map / mapid / record
+
+INT         = ["-"] 1*10DIGIT               ; Arbitrary limit: 2^32 = 10 digits (4,294,967,296)
+UINT        = 1*10DIGIT
+NUM         = ["-"] 1*DIGIT ["." 1*DIGIT]
+LRANGE      = "{" UINT ".." UINT "}"        ; Length range: {m..n} m GE 0, n GT 0 or *
+IRANGE      = "{" INT ".." INT "}"          ; Integer range: {m..n} m and n are integers
+FRANGE      = "{" NUM ".." NUM "}"          ; Float range: {m..n} m and n are real numbers
+MRANGE      = "[" UINT ".." UINT "]"        ; Multiplicity: [m..n] m GE 0, n GT 0 or *
+
+EFUNC       = %s"Enum(" TYPE-NAME ")"
+EFUNCP      = "(" EFUNC ")"
+
+PATTERN     = "<" 1*100VCHAR ">"            ; FIXME - need regex validator and escaping
+
+FORMAT      = "/" ( %s"date-time" / %s"date" / %s"time"  ; JSON-Schema format keywords
+                / %s"email" / %s"idn-email"
+                / %s"hostname" / %s"idn-hostname"
+                / %s"ipv4" / %s"ipv6"
+                / %s"uri" / %s"uri-reference"
+                / %s"iri" / %s"iri-reference" / "uri-template"
+                / %s"json-pointer" / %s"relative-json-pointer"
+                / %s"regex"
+                / %s"eui"                     ; JADN format keywords
+                / %s"ipv4-addr" / %s"ipv6-addr"
+                / %s"ipv4-net" / %s"ipv6-net"
+                / %s"i8" / %s"i16" / %s"i32"
+                / %s"f16" / %s"f32"
+                / %s"u" UINT )
+
+efields     = "{" efield  *("," [DESC] efield)  [DESC] "}"
+iefields    = "{" iefield *("," [DESC] iefield) [DESC] "}"
+fields      = "{" field   *("," [DESC] field)   [DESC] "}"
+ifields     = "{" ifield  *("," [DESC] ifield)  [DESC] "}"
+
+FIELD-ID    = UINT
+efield      = FIELD-ID FIELD-NAME
+iefield     = FIELD-ID
+field       = FIELD-ID FIELD-NAME typestr [multiplicity]
+ifield      = FIELD-ID typestr [multiplicity]
+
+multiplicity = MRANGE / %s"optional"
+
+DESC        = "//" [FIELD-NAME "::"] *(WSP / VCHAR) CRLF
+COMMENT     = "/*" *(WSP / VCHAR / CRLF) "*/"
+
+; JADN default naming conventions
+TYPE-NAME   = UC *31("-" / UC / LC / DIGIT / SYS)
+FIELD-NAME  = LC *31("_" / UC /LC / DIGIT)
+FIELD-SEP   = "/"
+SYS         = "$"
+UC          = %x41-5A
+LC          = %x61-7A
+
+; RFC 5234 Core rules
+CR          = %x0D
+CRLF        = CR LF
+DIGIT       = %x30-39
+HTAB        = %x09
+LF          = %x0A
+SP          = " "
+VCHAR       = %x21-7E
+WSP         = SP / HTAB
+```
 
