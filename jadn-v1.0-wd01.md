@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 24 May 2019
+## 4 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -183,8 +183,8 @@ contained in a message.  When information is serialized for transmission in a ca
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
-A variable that can take on 2^N different values conveys at most N bits of information.
 
+A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
 a 32 bit information value*.  But different data may be used to represent that information:
 * IPv4 dotted-quad contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
@@ -195,7 +195,7 @@ a 32 bit information value*.  But different data may be used to represent that i
 \* *Note: all references to information in this document assume independent uniformly-distributed values.*
 *Source coding is beyond the scope of this specification.*
 
-**Information Modeling**
+## 2.1 Information Modeling
 
 JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers, and byte strings), but has an
 information-centric focus:
@@ -209,7 +209,7 @@ information-centric focus:
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized identifiers within applications. |
 
-**Implementation**
+## 2.2 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
@@ -218,8 +218,8 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to select either approach. 
 
 # 3 JADN Types
-JADN first-class types are defined in terms of their characteristics.
-* An application that uses JADN types MUST act as specified in Table 3-1.
+JADN first-class types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Maps using an order-preserving variable type must interoperate with applications that do not preserve element order.
+* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
@@ -242,7 +242,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats -- Python and C++ and Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats. Python or C++ or Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
 
 | Python IM API |  JADN Type  |   Serialization Rules |
 | ------------- | ----------- | ----------------|
@@ -317,7 +317,7 @@ FieldName: ^([a-z][_A-Za-z0-9]{,31})$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
-Specifications MAY define the same syntax for TypeName and FieldName; using distinct formats is not needed to unambiguously parse type definitions but a visual difference can aid understanding.
+Specifications MAY define the same syntax for TypeName and FieldName. Using distinct formats is not needed to unambiguously parse type definitions but a visual difference can aid understanding.
 
 ### 3.1.2 Examples
 
@@ -362,7 +362,7 @@ Person = Record {
   3 email  String optional
 }
 ```
-These examples represent the same IM definition, but conformance is based on JSON definitions, which can be read unambiguously by applications with no language-specific parser. JADN definitions in JSON format are authoritative; specifications that include JADN definitions in another format SHOULD also make them available in JSON format.
+These examples represent the same IM definition, but conformance is based on definitions in JSON format, which can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions in table or IDL style SHOULD also make them available in JSON format (see [Appendix E](#appendix-e-examples)).
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -543,7 +543,7 @@ definition. Simplifying reduces the amount of code needed to serialize and valid
 and may make specifications easier to understand.  But it creates additional definitions that must
 be kept in sync, expanding the specification and increasing maintenance effort.
 
-The following optimizations can be removed:
+The following optimizations can be removed from a specification:
 
 ### 3.3.1 Type Definition within fields
 A type may be defined anonymously within a field of a structure definition, or it may be
@@ -591,14 +591,14 @@ Simplifying replaces this with:
     }
     Roster$members = ArrayOf(Member)[1..*]    // Tool-generated array: minv=1, maxv=0
 
-If Roster should have an empty array when there are no members, it must be defined explicitly without using the
-multiplicity optimization:
+If a list with no elements should be represented as an empty array rather than omitted,
+its type definition cannot use the field multiplicity optimization:
 
     Roster = Record {
         1 org_name String,
-        2 members  Members                    // Required: minc = 1, maxc = 1
+        2 members  Members                    // members element is required: default minc = 1, maxc = 1
     }
-    Members = ArrayOf(Member)                 // Explicitly-defined array: minv = 0, maxv = 0
+    Members = ArrayOf(Member)                 // Explicitly-defined array: default minv = 0, maxv = 0
 
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
@@ -732,7 +732,7 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
 | **Map** | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object**, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. |
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...].|
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
@@ -945,7 +945,7 @@ JADN definitions for examples shown in this document.  Note that in order to val
 ["ChannelMask", "ArrayOf", ["*Channel"], ""]
 ```
 **[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
-Note that the order of options within the JSON array is not significant.
+Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
 ```
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
