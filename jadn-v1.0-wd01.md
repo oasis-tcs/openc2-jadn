@@ -236,11 +236,13 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | **Compound** |   |
 | Enumerated | One value selected from a set of named or labeled integers. |
 | Choice | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
-| Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. Corresponds to CDDL *record*. |
-| ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. Corresponds to CDDL *vector*. |
-| Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. Corresponds to CDDL *struct*. |
-| MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. Corresponds to CDDL *table*. |
-| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. CDDL does not have a corresponding composition style. |
+| Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
+| ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
+| Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
+| MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. |
+| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
+
+**API Values**
 
 The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats. Python or C++ or Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
 
@@ -317,7 +319,7 @@ FieldName: ^([a-z][_A-Za-z0-9]{,31})$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
-Specifications MAY define the same syntax for TypeName and FieldName. Using distinct formats is not needed to unambiguously parse type definitions but a visual difference can aid understanding.
+Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but does not affect the meaning of a type definition.
 
 ### 3.1.2 Examples
 
@@ -333,7 +335,8 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definitions include:
+
+The equivalent JADN definition is:
 
 **JADN definition of Person:**
 ```
@@ -377,7 +380,7 @@ Type options apply to the type definition as a whole. Structural options are int
 | ID | Label | Type | Definition |
 | --- | --- | --- | --- |
 |  **Structural** | | | |
-| 0x3d `'='` | id | none | If present, FieldName is a suggested label rather than an immutable name |
+| 0x3d `'='` | id | none | If present, Enumerated values and fields of compound types are denoted by FieldID rather than FieldName |
 | 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
 | 0x2b `'+'` | ktype | string | Key type for MapOf |
 | 0x24 `'$'` | enum | string | Enumerated type derived from the specified Array, Choice, Map or Record type |
@@ -390,7 +393,7 @@ Type options apply to the type definition as a whole. Structural options are int
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
-* If BaseType is ArrayOf, TypeOptions MUST include a *vtype* option.
+* If BaseType is ArrayOf, TypeOptions MUST include the *vtype* option.
 * If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
 ###### Table 3-3. Allowed Options
@@ -417,7 +420,7 @@ Each field in a type definition includes both FieldID and FieldName. The Enumera
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data depending on serialization format.
 * In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, and never appears in serialized data regardless of serialization format.
 
-For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include the *id* option, serialization rules determine whether FieldID or FieldName is used in protocol data, and the name "Forbidden" cannot be changed. With the *id* option the FieldID 403 is always used in protocol data, but the label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
+For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 3.2.1.2 Value Type
 
@@ -469,7 +472,7 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | i32          | Integer | Signed 32 bit integer, value must be between ... and ...
 | u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
 
-* *Note: There is currently no referenceable standard for JSON Schema. When one is available, it will*
+* *Note: There is currently no formal standard for JSON Schema. When it is available as an Internet RFC, it will*
 *be referenced as an authoritative source of semantic validation keywords.*
 
 #### 3.2.1.6 Pattern
@@ -522,13 +525,15 @@ of an Array, Map, or Record type:
 |    1 |    0 | 1..* | At least one instance | required, repeated |
 |    m |    n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
+If minc is 0, the field is optional, otherwise it is required.  
 The default value of minc is 1.  
+
+If maxc is 1 the field is a single element, otherwise it is an array of elements.  
 The default value of maxc is the greater of 1 or minc.  
-If maxc is 0, the maximum number of elements is unspecified.  
+If maxc is 0, the maximum number of elements is an unspecified large number.  
 If maxc is not 0, it must be greater than or equal to minc.  
 
-If minc is 0, the field is optional, otherwise it is required.  
-If maxc is 1 the field is a single element, otherwise it is an array of elements.  
+Use of minc other than 0 or 1, or maxc other than 1, is a schema optimization described in [Section 3.3.2](#332-field-multiplicity).
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -543,7 +548,7 @@ definition. Simplifying reduces the amount of code needed to serialize and valid
 and may make specifications easier to understand.  But it creates additional definitions that must
 be kept in sync, expanding the specification and increasing maintenance effort.
 
-The following optimizations can be removed from a specification:
+The following optimizations can be eliminated from a specification:
 
 ### 3.3.1 Type Definition within fields
 A type may be defined anonymously within a field of a structure definition, or it may be
