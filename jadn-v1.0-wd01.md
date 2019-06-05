@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 4 June 2019
+## 5 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -300,7 +300,7 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming requirem
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character not permitted in FieldName, used to serialize qualified field names
+    * A Field Separator character not permitted in FieldName, used in qualified field names
     * A "System" character permitted in TypeName but reserved for use in tool-generated type names
 * Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
@@ -507,7 +507,7 @@ Field options apply to each field within a type definition. Each option in Table
 | 0x5b `'['` | minc | integer | Minimum cardinality |
 | 0x5d `']'` | maxc | integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
-| 0x3c `'<'` | flatten | integer | Use FieldName as a path qualifier for FieldType |
+| 0x3c `'<'` | flatten | boolean | Use FieldName as a qualifier for fields in FieldType |
 
 * FieldOptions MUST include zero or one instance of each of the options in [Table 3-5](#table-3-5-field-options).  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
@@ -538,8 +538,73 @@ Use of minc other than 0 or 1, or maxc other than 1, is a schema optimization de
 #### 3.2.2.2 Referenced Field Type
 *tfield*
 
-#### 3.2.2.3 Flattened Serialization
-*flatten*
+#### 3.2.2.3 Field Flattening
+Fields where FieldType is Enumerated, Choice, Array, Map, or Record may include the *flatten* option
+to pull a nested definition out a level. It indicates that FieldName is prepended to the FieldNames
+of FieldType using the path separator character FieldSep.
+
+Flattening may be used to extend a set of fields with fields defined elsewhere, or to
+apply constraints (such as mutual exclusitivity) that apply to a subset of fields.
+
+**Example:**
+
+With the type definitions:
+
+    Palette = Map {
+        1 burgundy Rgb,
+        2 grass    Rgb,
+        3 lapis    Rgb,
+        4 new      <New-Color
+    },
+    New-Color = Map {
+        1 maize    Rgb,
+        2 aqua     Rgb,
+        3 fuschia  Rgb
+    }
+    Rgb = Record {
+        1 red      Integer{0..255},
+        2 green    Integer{0..255},
+        3 blue     Integer{0..255}
+    }
+
+an API value of Palette: 
+
+    {'grass': {'red': 32, 'green': 240, 'blue': 24}, 'new/aqua': {'red': 64, 'green': 240, 'blue': 192}}
+
+is serialized in JSON format (using qualified pathnames) as:
+
+    {
+    	"grass": {
+    		"red": 32,
+    		"green": 240,
+    		"blue": 24
+    	},
+    	"new/aqua": {
+    		"red": 64,
+    		"green": 240,
+    		"blue": 192
+    	}
+    }
+
+and is serialized in CBOR format (using containers) as:
+
+    diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
+    
+    19 bytes:
+    A2             # map(2)
+       02          # unsigned(2)
+       83          # array(3)
+          18 20    # unsigned(32)
+          18 F0    # unsigned(240)
+          18 18    # unsigned(24)
+       04          # unsigned(4)
+       A1          # map(1)
+          02       # unsigned(2)
+          83       # array(3)
+             18 40 # unsigned(64)
+             18 F0 # unsigned(240)
+             18 C0 # unsigned(192)
+
 
 ## 3.3 Type Simplification
 JADN includes several optimizations that make type definitions more compact or that support the
