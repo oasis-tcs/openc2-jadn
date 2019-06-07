@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 5 June 2019
+## 7 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -186,13 +186,18 @@ If the serialization is non-canonical, any additional entropy introduced during 
 
 A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
-a 32 bit information value*.  But different data may be used to represent that information:
+a 32 bit value*.  But different data may be used to represent that information:
 * IPv4 dotted-quad contained in a JSON string: "192.168.141.240" (17 bytes / 136 bits).
+* IPv4 dotted-quad contained in a CBOR string: 0x6F3139322E3136382E3134312E323430 (16 bytes / 128 bits)
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
-\* *Note: all references to information in this document assume independent uniformly-distributed values.*
+The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
+but provide no information to the receiving application. Translating JSON data to CBOR
+does not yield a concise result; serializing based on an information model does.
+
+\* *Note: all references to information assume independent uniformly-distributed values.*
 *Source coding is beyond the scope of this specification.*
 
 ## 2.1 Information Modeling
@@ -213,9 +218,9 @@ information-centric focus:
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM instances regardless of serialization format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
 
-Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to select either approach. 
+Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
 JADN first-class types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Maps using an order-preserving variable type must interoperate with applications that do not preserve element order.
@@ -433,7 +438,8 @@ The *ktype* option specifies the type of each key in a MapOf type.
 * A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option is a schema optimization that creates an Enumerated type derived from a referenced Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
+The *enum* option is an extension that creates an Enumerated type derived from a referenced
+Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -533,18 +539,19 @@ The default value of maxc is the greater of 1 or minc.
 If maxc is 0, the maximum number of elements is an unspecified large number.  
 If maxc is not 0, it must be greater than or equal to minc.  
 
-Use of minc other than 0 or 1, or maxc other than 1, is a schema optimization described in [Section 3.3.2](#332-field-multiplicity).
+Use of minc other than 0 or 1, or maxc other than 1, is a schema extension described in [Section 3.3.2](#332-field-multiplicity).
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
 
 #### 3.2.2.3 Field Flattening
-Fields where FieldType is Enumerated, Choice, Array, Map, or Record may include the *flatten* option
-to pull a nested definition out a level. It indicates that FieldName is prepended to the FieldNames
-of FieldType using the path separator character FieldSep.
+Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option
+to pull a nested definition out a level.  The fieldnames of the nested definition are qualified by the
+enclosing field name to prevent collisions, constructing a relative path using the separator character
+FieldSep ([Section 3.1.1](#311-naming-requirements)).
 
 Flattening may be used to extend a set of fields with fields defined elsewhere, or to
-apply constraints (such as mutual exclusitivity) that apply to a subset of fields.
+apply constraints such as mutual exclusitivity to a subset of fields.
 
 **Example:**
 
@@ -554,7 +561,7 @@ With the type definitions:
         1 burgundy Rgb,
         2 grass    Rgb,
         3 lapis    Rgb,
-        4 new      <New-Color
+        4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
     },
     New-Color = Map {
         1 maize    Rgb,
@@ -571,7 +578,7 @@ an API value of Palette:
 
     {'grass': {'red': 32, 'green': 240, 'blue': 24}, 'new/aqua': {'red': 64, 'green': 240, 'blue': 192}}
 
-is serialized in JSON format (using qualified pathnames) as:
+is serialized in JSON format (using qualified field names) as:
 
     {
     	"grass": {
@@ -607,17 +614,22 @@ and is serialized in CBOR format (using containers) as:
 
 
 ## 3.3 Type Simplification
-JADN includes several optimizations that make type definitions more compact or that support the
-[DRY](#dry) software design principle. These can be removed without affecting the meaning of a
-definition. Simplifying reduces the amount of code needed to serialize and validate data instances,
+JADN consists of a set of core definition types, plus several extensions that make type definitions
+more compact or that support the [DRY](#dry) software design principle.
+Extensions can be "simplified" (replaced by core definitions) without affecting
+the meaning of the definition. Simplifying reduces the code needed to serialize and validate data
 and may make specifications easier to understand.  But it creates additional definitions that must
 be kept in sync, expanding the specification and increasing maintenance effort.
 
-The following optimizations can be eliminated from a specification:
+The following extensions can be converted to core definitions:
+* Type options within a FieldOptions list
+* Maximum cardinality option
+* Minimum cardinality option with a value other than 0 or 1
+* Enum option
+* MapOf type with Enumerated key type
 
 ### 3.3.1 Type Definition within fields
-A type may be defined anonymously within a field of a structure definition, or it may be
-defined as a named type that can be used in one or more structure definitions.
+A type without fields (Simple types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
 Simplifying converts all anonymous type definitions to explicit named types and excludes all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
 
@@ -635,14 +647,12 @@ Simplifying replaces this with:
         2 email  Person$email
     }
     Person$email = String /idn-email       // Tool-generated type definition.
-                                           // A specification author might name this type Email-Address, since
-                                           // it can be used by types other than Person.
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
 FieldOptions ([Table 3-5](#table-3-5-field-options)) are moved from FieldOptions to the minimum and maximum
-size (minv and maxv) TypeOptions of the new ArrayOf type. The only exception is that if minc is 0
+size (minv and maxv) TypeOptions of the new ArrayOf type, except that if minc is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 size of 1.
 
@@ -662,11 +672,12 @@ Simplifying replaces this with:
     Roster$members = ArrayOf(Member)[1..*]    // Tool-generated array: minv=1, maxv=0
 
 If a list with no elements should be represented as an empty array rather than omitted,
-its type definition cannot use the field multiplicity optimization:
+its type definition must include an explicit ArrayOf type rather than using the
+field multiplicity extension:
 
     Roster = Record {
         1 org_name String,
-        2 members  Members                    // members element is required: default minc = 1, maxc = 1
+        2 members  Members                    // members field is required: default minc = 1, maxc = 1
     }
     Members = ArrayOf(Member)                 // Explicitly-defined array: default minv = 0, maxv = 0
 
@@ -785,7 +796,7 @@ CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown 
 | **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
 ## 4.3 M-JSON Serialization:
-Minimized JSON serialization rules represent JADN data types in a compact format optimized for machine-to-machine communication.  They produce JSON instances identical to [CDDL](#cddl) serialization using the JSON preface defined in CDDL Appendix E.
+Minimized JSON serialization rules represent JADN data types in a compact format suitable for machine-to-machine communication.  They produce JSON instances equivalent to the diagnostic notation of CBOR instances.
 
 * When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
