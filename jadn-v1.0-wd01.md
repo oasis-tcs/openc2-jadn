@@ -131,7 +131,7 @@ Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, Int
 ###### [GFM]
 *"GitHub Flavored Markdown"*, https://github.github.com/gfm/.
 ###### [JSONSCHEMA]
-Wright, A., Andrews, H., Luff, G., *"JSON Schema Validation"*, Internet-Draft, March 2018, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01.
+Wright, A., Andrews, H., Luff, G., *"JSON Schema Validation"*, Internet-Draft, March 2018, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01, or for latest drafts: https://json-schema.org/work-in-progress.
 ###### [MDA]
 Cephas Consulting Group, *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf.
 ###### [PROTO]
@@ -328,7 +328,7 @@ Specifications MAY use the same syntax for TypeName and FieldName. Using distinc
 
 ### 3.1.2 Examples
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines two styles (table and IDL) that can be applied to type definitions in much the same manner as css styles are applied to html documents.
+JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions in a more readable format than JSON data.
 
 The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
 
@@ -352,7 +352,16 @@ The equivalent JADN definition is:
 ]]
 ```
 
-**JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.1](#511-table-style)):**
+**JADN definition of Person in JADN-IDL format ([Section 5.1.1](#511-jadn-idl-format)):**
+```
+Person = Record {
+  1 name   String,
+  2 id     Integer,
+  3 email  String optional
+}
+```
+
+**JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.2](#512-table-style)):**
 
   *Type: Person (Record)*
 
@@ -362,15 +371,7 @@ The equivalent JADN definition is:
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-**JADN definition of Person in JADN IDL style ([Section 5.1.2](#512-idl-style)):**
-```
-Person = Record {
-  1 name   String,
-  2 id     Integer,
-  3 email  String optional
-}
-```
-These examples represent the same IM definition, but conformance is based on definitions in JSON format, which can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions in table or IDL style SHOULD also make them available in JSON format (see [Appendix E](#appendix-e-examples)).
+These examples represent the same IM definition, but conformance is based on definitions in JSON format, which can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix E](#appendix-e-examples)).
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
@@ -521,7 +522,7 @@ Field options apply to each field within a type definition. Each option in Table
 #### 3.2.2.1 Multiplicity
 Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities.
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
-of an Array, Map, or Record type:
+of an Array, Choice, Map, or Record type:
 
 | minc | maxc | Multiplicity | Description | Keywords |
 | ---: | ---: | -----------: | :---------- | :------- |
@@ -540,6 +541,8 @@ If maxc is 0, the maximum number of elements is an unspecified large number.
 If maxc is not 0, it must be greater than or equal to minc.  
 
 Use of minc other than 0 or 1, or maxc other than 1, is a schema extension described in [Section 3.3.2](#332-field-multiplicity).
+
+Within a Choice type minc values of 0 and 1 are ignored because all fields are optional and exactly one must be present. Values greater than 1 have the usual meaning.
 
 #### 3.2.2.2 Referenced Field Type
 *tfield*
@@ -855,7 +858,11 @@ with the base module for the interface and recursively incorporating definitions
 Although JSON data is unambiguous and machine-readable, it is not an ideal presentation format.
 This section defines two presentation styles for JADN type definitions that ...
 
-### 5.1.1 Table Style
+### 5.1.1 JADN-IDL Format
+
+JADN Interface Definition Language (IDL) is ...
+
+### 5.1.2 Table Style
 
 [GFM](#gfm) tables do not support multi-column cells, so the type definition line precedes the
 table rather than being part of it as in html table style.
@@ -874,10 +881,6 @@ or
 | FieldID | FieldString | FieldName:: FieldDesc |
 +---------+-------------+-----------------------+
 ```
-
-### 5.1.2 IDL Style
-
-JADN Interface Definition Language (IDL) is ...
 
 ## 5.2 Meta Information
 
@@ -929,10 +932,10 @@ Conformance targets:
 * JADN Schema Translator
     * Validate type definitions per Sections 3.1 and 3.2.
     * Perform type simplification operations per Section 3.3.
-    * Translate JSON definitions to Table and IDL formats per Section 5.1.
+    * Translate JSON definitions to Table and JADN-IDL formats per Section 5.1.
     * Merge schema modules per Section 5.2.
 * JADN Reverse Schema Translator
-    * Translate Table and IDL definitions to JSON format per Section 5.1.
+    * Translate JADN-IDL definitions to JSON format per Section 5.1.
 * JADN Concrete Schema Generator
     * Generate a schema in a format-specific language per serialization rules in Section 4.x.
     Conformance testing requires JADN validator and format-specific validator to agree on all
@@ -963,13 +966,71 @@ The following individuals have participated in the creation of this specificatio
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
 # Appendix C. Schema for JADN specifications
-Used to validate a JADN specification.  In JADN, JSON Schema, and CDDL formats
+This schema defines the structure of a JADN module.  Option semantics are defined separately from this structure.
+The default FieldName format is overridden here to allow upper-case JADN-Type names. Specification developers SHOULD
+define suitable upper bounds for the values of FieldID, Option, and Description.
+
+## C.1 JADN-IDL format
+
+    Types = ArrayOf(Type)
+    Type = Array {
+         1 type_name  TypeName,
+         2 base_type  BaseType,
+         3 type_opts  Options,
+         4 type_desc  Description,
+         5 fields     Choice(JADN-Type, &base_type)
+    }
+    BaseType = Enumerated(Enum(JADN-Type))
+    JADN-Type = Choice {
+         1 Binary     Null,
+         2 Boolean    Null,
+         3 Integer    Null,
+         4 Number     Null,
+         5 Null       Null,
+         6 String     Null,
+         7 Enumerated EnumFields,
+         8 Choice     Fields,
+         9 Array      Fields,
+        10 ArrayOf    Null,
+        11 Map        Fields,
+        12 MapOf      Null,
+        13 Record     Fields
+    }
+    EnumFields = Array {
+        1 field_id    FieldId,
+        2 field_name  FieldName,
+        3 field_desc  Description
+    }
+    Fields = Array {
+        1 field_id    FieldID,
+        2 field_name  FieldName,
+        3 field_type  FieldType,
+        4 field_opts  Options,
+        5 field_desc  Description
+    }
+    FieldId = Integer{0..*}
+    Options = ArrayOf(Option){0..10}
+    Option = String{1..*}
+    Description = String{0..*}
+    
+    FieldName = String(%[A-Za-z]([_A-Za-z0-9]){0,31}%)
+
+    Schema = Map {
+        1 meta  Meta,
+        2 types Types
+    }
+    Meta = Map {
+        1 module String optional
+    }
+
+## C.2 JADN Format
+
 
 # Appendix D. Conformance Tests
 Specifications including correct and incorrect definitions used to check implementation conformance.
 
-# Appendix E. Examples
-JADN definitions for examples shown in this document.  Note that in order to validate multiple type definitions at a time they can be wrapped in a JSON list `[ ]`.
+# Appendix E. Examples in JADN format
+This appendix contains the JADN definitions for all JADN-IDL examples in this document.
 
 **[Section 3.1.2 Examples](#312-examples):**
 ```
@@ -977,6 +1038,26 @@ JADN definitions for examples shown in this document.  Note that in order to val
     [1, "name", "String", [], ""],
     [2, "id", "Integer", [], ""],
     [3, "email", "String", ["[0"], ""]
+]]
+```
+
+**[Section 3.2.2.3 Field Flattening](#3223-field-flattening):**
+```
+["Palette", "Map", [], "", [
+    [1, "burgundy", "Rgb", [], ""],
+    [2, "grass",    "Rgb", [], ""],
+    [3, "lapis",    "Rgb", [], ""],
+    [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
+]],
+["New-Color", "Map", [], "", [
+    [1, "maize",   "Rgb", [], ""],
+    [2, "aqua",    "Rgb", [], ""],
+    [3, "fuschia", "Rgb", [], ""]
+]],
+["Rgb", "Record", [], "", [
+    [1, "red",     "Integer", ["[0", "]255"], ""],
+    [2, "green",   "Integer", ["[0", "]255"], ""],
+    [3, "blue",    "Integer", ["[0", "]255"], ""]
 ]]
 ```
 
@@ -1026,6 +1107,7 @@ JADN definitions for examples shown in this document.  Note that in order to val
 ["ChannelMask", "ArrayOf", ["*Channel"], ""]
 ```
 **[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
+
 Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
 ```
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
