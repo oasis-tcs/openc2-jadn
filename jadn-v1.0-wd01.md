@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 7 June 2019
+## 14 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -440,7 +440,7 @@ The *ktype* option specifies the type of each key in a MapOf type.
 
 #### 3.2.1.4 Derived Enumeration
 The *enum* option is an extension that creates an Enumerated type derived from a referenced
-Array, Choice, Map or Record type. (See [Section 3.3](#33-type-simplification)).
+Array, Choice, Map or Record type. (See [Section 3.3](#33-jadn-extensions)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -545,7 +545,24 @@ Use of minc other than 0 or 1, or maxc other than 1, is a schema extension descr
 Within a Choice type minc values of 0 and 1 are ignored because all fields are optional and exactly one must be present. Values greater than 1 have the usual meaning.
 
 #### 3.2.2.2 Referenced Field Type
-*tfield*
+A field that is a Choice type may include the *tfield* option to specify another field within the same
+type that controls which Choice element is used.
+
+**Example:**
+
+    Department = Choice {
+        1 furniture   Furniture,
+        2 kitchen     Appliance,
+        3 electronics Device
+    }
+    Product = Array {
+        1 dept        String,             // Must be one of "furniture", "kitchen", "electronics"
+        2 quantity    Integer,
+        3 details     Department(&dept)   // Field that selects which Choice element must be present
+    }
+    
+Note that "dept" SHOULD be an Enumerated type whose values can be properly serialized and validated,
+not the String type shown for illustration purposes.
 
 #### 3.2.2.3 Field Flattening
 Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option
@@ -616,7 +633,7 @@ and is serialized in CBOR format (using containers) as:
              18 C0 # unsigned(192)
 
 
-## 3.3 Type Simplification
+## 3.3 JADN Extensions
 JADN consists of a set of core definition types, plus several extensions that make type definitions
 more compact or that support the [DRY](#dry) software design principle.
 Extensions can be "simplified" (replaced by core definitions) without affecting
@@ -715,15 +732,20 @@ Simplifying replaces the Channel and ChannelMask references with:
     ChannelMask = ArrayOf(Channel)
 
 ### 3.3.4 MapOf with Enumerated key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying removes the MapOf type definition
-and creates a Map type with keys from the Enumerated type. This is the complementary operation to derived
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
+with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
 enumeration.
 
-Example: given an Enumerated type Channel, simplifying the following MapOf definition replaces it with the
-explicit Pixel Map shown above.
+Example:
 
+    Channel = Enumerated {
+        1 red,
+        2 green,
+        3 blue
+    }
     Pixel = MapOf(Channel, Integer)
-
+    
+Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown above.
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
@@ -929,6 +951,8 @@ Remove this note before submitting for publication.)
 
 Conformance targets:
 
+* Core JADN
+* JADN Extensions ([Section 3.3](#33-jadn-extensions))
 * JADN Schema Translator
     * Validate type definitions per Sections 3.1 and 3.2.
     * Perform type simplification operations per Section 3.3.
