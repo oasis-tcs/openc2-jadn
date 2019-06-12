@@ -81,9 +81,9 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-Many standards are developed using data definition tables with the goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN is a schema language with definitions that can be both validated for correctness and documented in table format, ensuring that table content is valid. A JADN schema is executable byte code that can be transferred between applications, interpreted to validate application data, and embedded to produce self-describing data.
+Standards may be developed using data definition tables with the goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN is a schema language with definitions that can be both validated for correctness and documented in table format, ensuring that the table content is valid. A JADN schema is executable byte code that can be transferred between applications, interpreted to validate application data, and embedded to produce self-describing data.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.
+Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  In particular, a high-level JADN specification can be translated into lower-level languages such as JSON Schema. 
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -194,8 +194,9 @@ a 32 bit value*.  But different data may be used to represent that information:
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
-but provide no information to the receiving application. Translating JSON data to CBOR
-does not yield a concise result; serializing based on an information model does.
+but provide no information to the receiving application. Directly converting display-oriented JSON data to
+CBOR format does not achieve the conciseness for which CBOR was designed. Instead, information modeling
+is the key to effectively using CBOR and other concise data formats.
 
 \* *Note: all references to information assume independent uniformly-distributed values.*
 *Source coding is beyond the scope of this specification.*
@@ -219,7 +220,7 @@ information-centric focus:
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
 2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
-
+ 
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
@@ -249,7 +250,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 
 **API Values**
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the point of convergence between multiple programming language APIs and multiple serialization formats. Python or C++ or Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats. Python or C++ or Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
 
 | Python IM API |  JADN Type  |   Serialization Rules |
 | ------------- | ----------- | ----------------|
@@ -258,7 +259,7 @@ The mechanisms chosen by a developer or defined by an IM library to represent th
 | ... | |
 
 ## 3.1 Type Definitions
-JADN type definitions have a regular structure designed to be easily describable, easily processed, and extensible. Every definition creates a *Defined type* that has four elements, plus for some types, a list of fields:
+JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined, or the name of a Defined type
@@ -267,12 +268,13 @@ JADN type definitions have a regular structure designed to be easily describable
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
-* If BaseType is a Simple type, ArrayOf, MapOf, or a Defined type, the type definition MUST NOT include Fields:
+* If BaseType is a Simple type, ArrayOf, or MapOf, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
 
 * If BaseType is Enumerated, each field definition MUST have three elements:
+
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldDescription:** a non-normative comment
@@ -283,6 +285,7 @@ JADN type definitions have a regular structure designed to be easily describable
 ]]
 ```
 * If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
+
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
 3. **FieldType:** the type of the field
@@ -301,7 +304,9 @@ JADN type definitions have a regular structure designed to be easily describable
 If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 
 ### 3.1.1 Naming Requirements
-JADN does not restrict the syntax of TypeName and FieldName, but naming requirements can aid readability of specifications by highlighting inconsistencies. JADN-based specifications MAY define their own name format requirements.
+JADN does not restrict the syntax of TypeName and FieldName, but naming requirements can aid readability of specifications
+by highlighting inconsistencies. JADN-based specifications MAY define their own name format requirements.
+
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
@@ -324,11 +329,14 @@ FieldName: ^([a-z][_A-Za-z0-9]{,31})$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
-Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but does not affect the meaning of a type definition.
+Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
+does not affect the meaning of a type definition.
 
 ### 3.1.2 Examples
 
-JADN type definitions are themselves information objects that can be represented in many ways. [Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions in a more readable format than JSON data.
+JADN type definitions are themselves information objects that can be represented in many ways.
+[Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions
+in a more readable format than JSON data.
 
 The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
 
@@ -371,15 +379,23 @@ Person = Record {
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-These examples represent the same IM definition, but conformance is based on definitions in JSON format, which can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix E](#appendix-e-examples)).
+These examples represent the same IM definition, but conformance is based on definitions in JSON format, which
+can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions
+in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix E](#appendix-e-examples)).
 
 ## 3.2 Options
-This section defines the mechanism used to support a varied set of information needs within the strictly regular structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options without modifying that structure.
+This section defines the mechanism used to support a varied set of information needs within the strictly regular
+structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options
+without modifying that structure.
 
-Each option is a text string that may be included in TypeOptions or FieldOptions. The first character of the string is the option ID as defined in [Table 3-2](#table-3-2-type-options) and [Table 3-5](#table-3-5-field-options). The remaining characters are the value of that option, if any.
+Each option is a text string that may be included in TypeOptions or FieldOptions. The first character of the string
+is the option ID as defined in [Table 3-2](#table-3-2-type-options) and [Table 3-5](#table-3-5-field-options).
+The remaining characters are the value of that option, if any.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain which data values are instances of the defined type.
+Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types
+defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain
+which data values are instances of the defined type.
 
 ###### Table 3-2. Type Options
 
@@ -422,9 +438,15 @@ Type options apply to the type definition as a whole. Structural options are int
 
 #### 3.2.1.1 Field Identifiers
 
-Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types have an *id* option that determines which identifier is used in API instances of these types. If the *id* option is absent, API instances use FieldName and the type is referred to as "named". If the *id* option is present, API instances use FieldID and the type is referred to as "labeled". The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
-* In named types, FieldName is a defined name that is included in the semantics of the type, must be populated in the type definition, and may appear in serialized data depending on serialization format.
-* In labeled types, FieldName is a suggested label that is not included in the semantics of the type, may be empty in the type definition, and never appears in serialized data regardless of serialization format.
+Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types
+have an *id* option that determines which identifier is used in API instances of these types.
+If the *id* option is absent, API instances use FieldName and the type is referred to as "named".
+If the *id* option is present, API instances use FieldID and the type is referred to as "labeled".
+The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
+* In named types, FieldName is a defined name that is included in the semantics of the type, must be
+populated in the type definition, and may appear in serialized data depending on serialization format.
+* In labeled types, FieldName is a suggested label that is not included in the semantics of the type,
+may be empty in the type definition, and never appears in serialized data regardless of serialization format.
 
 For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
 
@@ -566,9 +588,9 @@ not the String type shown for illustration purposes.
 
 #### 3.2.2.3 Field Flattening
 Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option
-to pull a nested definition out a level.  The fieldnames of the nested definition are qualified by the
-enclosing field name to prevent collisions, constructing a relative path using the separator character
-FieldSep ([Section 3.1.1](#311-naming-requirements)).
+to pull a nested definition up a level.
+Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
+forming a relative path using the separator character FieldSep ([Section 3.1.1](#311-naming-requirements)).
 
 Flattening may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusitivity to a subset of fields.
@@ -598,7 +620,7 @@ an API value of Palette:
 
     {'grass': {'red': 32, 'green': 240, 'blue': 24}, 'new/aqua': {'red': 64, 'green': 240, 'blue': 192}}
 
-is serialized in JSON format (using qualified field names) as:
+is serialized in JSON format using qualified field names as:
 
     {
     	"grass": {
@@ -613,7 +635,7 @@ is serialized in JSON format (using qualified field names) as:
     	}
     }
 
-and is serialized in CBOR format (using containers) as:
+and is serialized in CBOR format without flattening as:
 
     diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
@@ -648,7 +670,7 @@ The following extensions can be converted to core definitions:
 * Enum option
 * MapOf type with Enumerated key type
 
-### 3.3.1 Type Definition within fields
+### 3.3.1 Type Definition Within Fields
 A type without fields (Simple types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
 Simplifying converts all anonymous type definitions to explicit named types and excludes all type options
 ([Table 3-2](#table-3-2-type-options)) from FieldOptions.
@@ -731,7 +753,7 @@ Simplifying replaces the Channel and ChannelMask references with:
     }
     ChannelMask = ArrayOf(Channel)
 
-### 3.3.4 MapOf with Enumerated key
+### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
 enumeration.
@@ -933,7 +955,7 @@ Additional security considerations applicable to JADN-based specifications:
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-Security and size efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) allows everything that is not understood, conflicting with information modeling's "Must-Understand" approach where new protocol elements are accomodated by adding them to the IM's enumerated lists of things that are understood.
+Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) directly impacts security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN supports that agility.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
@@ -989,10 +1011,15 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. Schema for JADN specifications
-This schema defines the structure of a JADN module.  Option semantics are defined separately from this structure.
-The default FieldName format is overridden here to allow upper-case JADN-Type names. Specification developers SHOULD
-define suitable upper bounds for the values of FieldID, Option, and Description.
+# Appendix C. Schema for JADN Type Definitions
+This schema defines the structure of JADN type definitions, which is intended to remain stable indefinitely.
+Options enable evolution without affecting this structure.
+
+Note that BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
+compactness and consistency. No other extensions are used.
+
+Note that the default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
+upper-case names in JADN-Type.
 
 ## C.1 JADN-IDL format
 
@@ -1002,7 +1029,7 @@ define suitable upper bounds for the values of FieldID, Option, and Description.
          2 base_type  BaseType,
          3 type_opts  Options,
          4 type_desc  Description,
-         5 fields     Choice(JADN-Type, &base_type)
+         5 fields     JADN-Type(&base_type)
     }
     BaseType = Enumerated(Enum(JADN-Type))
     JADN-Type = Choice {
@@ -1020,12 +1047,14 @@ define suitable upper bounds for the values of FieldID, Option, and Description.
         12 MapOf      Null,
         13 Record     Fields
     }
-    EnumFields = Array {
+    EnumFields = ArrayOf(EnumField)
+    EnumField = Array {
         1 field_id    FieldId,
         2 field_name  FieldName,
         3 field_desc  Description
     }
-    Fields = Array {
+    Fields = ArraryOf(Field)
+    Field = Array {
         1 field_id    FieldID,
         2 field_name  FieldName,
         3 field_type  FieldType,
@@ -1038,14 +1067,6 @@ define suitable upper bounds for the values of FieldID, Option, and Description.
     Description = String{0..*}
     
     FieldName = String(%[A-Za-z]([_A-Za-z0-9]){0,31}%)
-
-    Schema = Map {
-        1 meta  Meta,
-        2 types Types
-    }
-    Meta = Map {
-        1 module String optional
-    }
 
 ## C.2 JADN Format
 
