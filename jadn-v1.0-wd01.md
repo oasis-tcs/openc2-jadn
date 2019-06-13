@@ -402,16 +402,16 @@ which data values are instances of the defined type.
 | ID | Label | Type | Definition |
 | --- | --- | --- | --- |
 |  **Structural** | | | |
-| 0x3d `'='` | id | none | If present, Enumerated values and fields of compound types are denoted by FieldID rather than FieldName |
-| 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf |
-| 0x2b `'+'` | ktype | string | Key type for MapOf |
-| 0x24 `'$'` | enum | string | Enumerated type derived from the specified Array, Choice, Map or Record type |
+| 0x3d `'='` | id | none | If present, Enumerated values and fields of compound types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
+| 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
+| 0x2b `'+'` | ktype | string | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
+| 0x24 `'$'` | enum | string | Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
 | **Validation** | | | |
-| 0x2f `'/'` | format | string | Semantic validation keyword from [Section 3.2.1.3](#3213-semantic-validation-keywords) |
-| 0x25 `'%'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.4](#3214-patterns) |
-| 0x7b `'{'` | minv | integer | Minimum numeric value, octet or character count, or element count |
+| 0x2f `'/'` | format | string | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
+| 0x25 `'%'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
+| 0x7b `'{'` | minv | integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
 | 0x7d `'}'` | maxv | integer | Maximum numeric value, octet or character count, or element count |
-| 0x21 `'!'` | default | string | Default value for an instance of this type |
+| 0x21 `'!'` | default | string | Default value for an instance of this type (Reserved, [Section 3.2.1.8](#3218-default-value))|
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -462,7 +462,7 @@ The *ktype* option specifies the type of each key in a MapOf type.
 
 #### 3.2.1.4 Derived Enumeration
 The *enum* option is an extension that creates an Enumerated type derived from a referenced
-Array, Choice, Map or Record type. (See [Section 3.3](#33-jadn-extensions)).
+Array, Choice, Map or Record type. (See [Section 3.3.3](#333-derived-enumerations)).
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -501,7 +501,7 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | i32          | Integer | Signed 32 bit integer, value must be between ... and ...
 | u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
 
-* *Note: There is currently no formal standard for JSON Schema. When it is available as an Internet RFC, it will*
+* *Note: There is currently no approved standard for JSON Schema. When it is available as an Internet RFC, it will*
 *be referenced as an authoritative source of semantic validation keywords.*
 
 #### 3.2.1.6 Pattern
@@ -653,7 +653,6 @@ and is serialized in CBOR format without flattening as:
              18 40 # unsigned(64)
              18 F0 # unsigned(240)
              18 C0 # unsigned(192)
-
 
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition types, plus several extensions that make type definitions
@@ -955,7 +954,7 @@ Additional security considerations applicable to JADN-based specifications:
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) directly impacts security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN supports that agility.
+Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN supports the agility required to support evolving protocols.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
@@ -1071,10 +1070,7 @@ upper-case names in JADN-Type.
 ## C.2 JADN Format
 
 
-# Appendix D. Conformance Tests
-Specifications including correct and incorrect definitions used to check implementation conformance.
-
-# Appendix E. Examples in JADN format
+# Appendix D. Examples in JADN format
 This appendix contains the JADN definitions for all JADN-IDL examples in this document.
 
 **[Section 3.1.2 Examples](#312-examples):**
@@ -1083,6 +1079,20 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
     [1, "name", "String", [], ""],
     [2, "id", "Integer", [], ""],
     [3, "email", "String", ["[0"], ""]
+]]
+```
+
+**[3.2.2.2 Referenced Field Type](#3222-referenced-field-type)**
+```
+["Department", "Choice", [], "", [
+    [1, "furniture", "Furniture", [], ""],
+    [1, "kitchen", "Appliance", [], ""],
+    [1, "electronics", "Device", [], ""]
+]],
+["Product", "Array", [], "", [
+    [1, "dept", "String", [], "Must be one of \"furniture\", \"kitchen\", \"electronics\""],
+    [1, "quantity", "Integer", [], ""],
+    [1, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
 ]]
 ```
 
@@ -1157,7 +1167,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ```
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
-# Appendix F. ABNF Grammar for JADN IDL
+# Appendix E. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
 
