@@ -262,12 +262,13 @@ The mechanisms chosen by a developer or defined by an IM library to represent th
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
-2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined, or the name of a Defined type
+2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
 3. **TypeOptions:** an array of zero or more **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
 * TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
+* BaseType MUST be a JADN type
 * If BaseType is a Simple type, ArrayOf, or MapOf, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
@@ -297,11 +298,12 @@ JADN type definitions have a regular structure designed to be easily describable
     ...
 ]]
 ```
-* FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 * FieldID and FieldName values MUST be unique within a type definition.
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
+* If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
+* FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 
-If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
+Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#311-type-definition-within-fields)).
 
 ### 3.1.1 Naming Requirements
 JADN does not restrict the syntax of TypeName and FieldName, but naming requirements can aid readability of specifications
@@ -381,7 +383,7 @@ Person = Record {
 
 These examples represent the same IM definition, but conformance is based on definitions in JSON format, which
 can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions
-in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix E](#appendix-e-examples)).
+in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix D](#appendix-d-examples-in-jadn-format)).
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -399,19 +401,19 @@ which data values are instances of the defined type.
 
 ###### Table 3-2. Type Options
 
-| ID | Label | Type | Definition |
+| ID | Label | Value | Definition |
 | --- | --- | --- | --- |
 |  **Structural** | | | |
 | 0x3d `'='` | id | none | If present, Enumerated values and fields of compound types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
-| 0x2a `'*'` | vtype | string | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
-| 0x2b `'+'` | ktype | string | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
-| 0x24 `'$'` | enum | string | Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
+| 0x2a `'*'` | vtype | String | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
+| 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
+| 0x24 `'$'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
 | **Validation** | | | |
-| 0x2f `'/'` | format | string | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
-| 0x25 `'%'` | pattern | string | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
-| 0x7b `'{'` | minv | integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
-| 0x7d `'}'` | maxv | integer | Maximum numeric value, octet or character count, or element count |
-| 0x21 `'!'` | default | string | Default value for an instance of this type (Reserved, [Section 3.2.1.8](#3218-default-value))|
+| 0x2f `'/'` | format | String | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
+| 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
+| 0x7b `'{'` | minv | Integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
+| 0x7d `'}'` | maxv | Integer | Maximum numeric value, octet or character count, or element count |
+| 0x21 `'!'` | default | String | Default value for an instance of this type (Reserved, [Section 3.2.1.8](#3218-default-value))|
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -531,12 +533,12 @@ Field options apply to each field within a type definition. Each option in Table
 
 ###### Table 3-5. Field Options
 
-| ID | Label | Type | Definition |
+| ID | Label | Value | Definition |
 | --- | --- | --- | --- |
-| 0x5b `'['` | minc | integer | Minimum cardinality |
-| 0x5d `']'` | maxc | integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | enum | Field that specifies the type of this field |
-| 0x3c `'<'` | flatten | boolean | Use FieldName as a qualifier for fields in FieldType |
+| 0x5b `'['` | minc | Integer | Minimum cardinality |
+| 0x5d `']'` | maxc | Integer | Maximum cardinality |
+| 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
+| 0x3c `'<'` | flatten | none | Use FieldName as a qualifier for fields in FieldType |
 
 * FieldOptions MUST include zero or one instance of each of the options in [Table 3-5](#table-3-5-field-options).  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
@@ -577,14 +579,16 @@ type that controls which Choice element is used.
         2 kitchen     Appliance,
         3 electronics Device
     }
+    DeptID = Enumerated {
+        1 furniture,
+        2 kitchen,
+        3 electronics
+    }
     Product = Array {
-        1 dept        String,             // Must be one of "furniture", "kitchen", "electronics"
+        1 dept        DeptID,             // Must be a valid Choice field
         2 quantity    Integer,
         3 details     Department(&dept)   // Field that selects which Choice element must be present
     }
-    
-Note that "dept" SHOULD be an Enumerated type whose values can be properly serialized and validated,
-not the String type shown for illustration purposes.
 
 #### 3.2.2.3 Field Flattening
 Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option
@@ -710,7 +714,7 @@ Simplifying replaces this with:
         1 org_name String,
         2 members  Roster$members optional    // Optional: minc=0, maxc=1
     }
-    Roster$members = ArrayOf(Member)[1..*]    // Tool-generated array: minv=1, maxv=0
+    Roster$members = ArrayOf(Member){1..*}    // Tool-generated array: minv=1, maxv=0
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
@@ -954,7 +958,7 @@ Additional security considerations applicable to JADN-based specifications:
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN supports the agility required to support evolving protocols.
+Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
@@ -1010,7 +1014,7 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. Schema for JADN Type Definitions
+# Appendix C. JADN Schema
 This schema defines the structure of JADN type definitions, which is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
@@ -1019,8 +1023,6 @@ compactness and consistency. No other extensions are used.
 
 Note that the default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
 upper-case names in JADN-Type.
-
-## C.1 JADN-IDL format
 
     Types = ArrayOf(Type)
     Type = Array {
@@ -1067,9 +1069,6 @@ upper-case names in JADN-Type.
     
     FieldName = String(%[A-Za-z]([_A-Za-z0-9]){0,31}%)
 
-## C.2 JADN Format
-
-
 # Appendix D. Examples in JADN format
 This appendix contains the JADN definitions for all JADN-IDL examples in this document.
 
@@ -1089,8 +1088,13 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
     [1, "kitchen", "Appliance", [], ""],
     [1, "electronics", "Device", [], ""]
 ]],
+["DeptID", "Enumerated", [], "", [
+    [1, "furniture", ""],
+    [1, "kitchen", ""],
+    [1, "electronics", ""]
+]],
 ["Product", "Array", [], "", [
-    [1, "dept", "String", [], "Must be one of \"furniture\", \"kitchen\", \"electronics\""],
+    [1, "dept", "String", [], "Must be a valid Choice field"],
     [1, "quantity", "Integer", [], ""],
     [1, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
 ]]
@@ -1167,6 +1171,8 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ```
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
+**[Appendix C. JADN Schema](#appendix-c-jadn-schema):**
+
 # Appendix E. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
