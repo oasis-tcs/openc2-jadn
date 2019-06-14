@@ -436,7 +436,7 @@ which data values are instances of the defined type.
 | ArrayOf | vtype, minv, maxv |
 | Map | id, minv, maxv |
 | MapOf | ktype, vtype, minv, maxv |
-| Record | |
+| Record | minv, maxv |
 
 #### 3.2.1.1 Field Identifiers
 
@@ -793,13 +793,13 @@ The following serialization rules are used to represent JADN data types in a hum
 | **String** | JSON **string** |
 | **Enumerated** | JSON **string** |
 | **Enumerated** with "id" | JSON **integer** |
-| **Choice** | JSON **object** with one member.  Member key is FieldName.   |
+| **Choice** | JSON **object** with one member.  Member key is FieldName. |
 | **Choice** with "id" | JSON **object** with one member. Member key is FieldID converted to string. |
 | **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
 | **Map** | JSON **object**. Member keys are FieldNames. |
 | **Map** with "id" | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object**, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. |
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | Same as **Map**. |
 
 **Format options that affect JSON serialization**
@@ -863,7 +863,7 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
 | **Map** | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...].|
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
