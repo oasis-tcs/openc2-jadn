@@ -432,7 +432,7 @@ which data values are instances of the defined type.
 | String | minv, maxv, format, pattern |
 | Enumerated | id, enum |
 | Choice | id |
-| Array | format |
+| Array | minv, maxv, format |
 | ArrayOf | vtype, minv, maxv |
 | Map | id, minv, maxv |
 | MapOf | ktype, vtype, minv, maxv |
