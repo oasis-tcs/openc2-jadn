@@ -733,7 +733,10 @@ Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
-type derived from the referenced type.
+type derived from the referenced type. For Enumerated types, the Enum() function is specified by
+the *enum* option. For ArrayOf and MapOf types, the Enum() function is specified by
+populating the value of the *ktype* or *vtype* options with the *enum* option.
+
 Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
@@ -744,10 +747,10 @@ Example:
         2 green Integer,
         3 blue  Integer
     }
-    Channel = Enumerated(Enum(Pixel)) 
-    ChannelMask = ArrayOf(Enum(Pixel))
+    Channel = Enumerated(Enum(Pixel))       // Enumerated type's *enum* option
+    ChannelMask = ArrayOf(Enum(Pixel))      // derived enumeration in ArrayOf's *vtype* option
 
-Simplifying replaces the Channel and ChannelMask references with:
+Simplifying replaces the Channel and ChannelMask definitions with:
 
     Channel = Enumerated {
         1 red,
@@ -1156,7 +1159,7 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
     [3, "blue", "Integer", [], ""]
 ]],
 ["Channel", "Enumerated", ["$Pixel"], ""],
-["ChannelMask", "ArrayOf", ["$Pixel"], ""],
+["ChannelMask", "ArrayOf", ["*$Pixel"], ""],
 
 ["Channel", "Enumerated", [], "", [
     [1, "red", ""],
