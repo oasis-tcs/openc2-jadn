@@ -672,10 +672,9 @@ and may make specifications easier to understand.  But it creates additional def
 be kept in sync, expanding the specification and increasing maintenance effort.
 
 The following extensions can be converted to core definitions:
-* Type options within a FieldOptions list
-* Maximum cardinality option
-* Minimum cardinality option with a value other than 0 or 1
-* Enum option
+* Anonymous type definition within a field
+* Field multiplicity other than required/optional
+* Derived enumeration
 * MapOf type with Enumerated key type
 
 ### 3.3.1 Type Definition Within Fields
@@ -902,17 +901,20 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 
 # 5 Definition Formats
 
-[Section 3.1](#31-type-definitions) defines the authoritative format of JADN type definitions.
+[Section 3.1](#31-type-definitions) defines the native JSON format of JADN type definitions.
 Although JSON data is unambiguous and supported in many programming languages, it is cumbersome
-for use as a documentation format. This section defines alternative ways of presenting JADN types
-that may be easier to read than raw JSON data.
+to use as a documentation format. This section defines two alternative ways of documenting JADN information
+models - a formal text-based interface definition language and an example property table layout.
+In addition, tree diagrams can be used to provide a high-level overview of JADN information models.
 
 ### 5.1 JADN-IDL Format
 
-JADN Interface Definition Language (IDL) is a formally-defined way of representing JADN type definitions
-in text format. It replicates the type definition structure of [Section 3.1](#31-type-definitions),
-but for readability it combines each type and its options into a single "type-string".  JADN definitions
-can be translated bidirectionally between JSON and JADN-IDL formats.
+JADN Interface Definition Language (IDL) is a formally-defined text representation of JADN type definitions.
+It replicates the definition structure of [Section 3.1](#31-type-definitions),
+but for readability it combines each type and its options into a single "type-string".
+JADN definitions can be translated bidirectionally between JSON and JADN-IDL formats.
+
+The JADN-IDL definition formats are:
 
 Simple types:
 ```
@@ -922,7 +924,7 @@ Simple types:
 Enumerated type:
 ```
     TypeName = <type-string> {              // TypeDescription
-        FieldID FieldName,                      // FieldDescription
+        FieldID FieldName,                  // FieldDescription
         ...
     }
 ```
@@ -930,7 +932,7 @@ Enumerated type:
 Compound types without the *id* option:
 ```
     TypeName = <type-string> {              // TypeDescription
-        FieldID FieldName <type-string>,        // FieldDescription
+        FieldID FieldName <type-string>,    // FieldDescription
         ...
     }
 ```
@@ -940,13 +942,13 @@ Compound types with the *id* option treat FieldName as a non-normative label
 field description, followed by a terminator ("::"):
 ```
     TypeName = <type-string> {              // TypeDescription
-        FieldID <type-string>,                  // FieldName:: FieldDescription
+        FieldID <type-string>,              // FieldName:: FieldDescription
         ...
     }
 ```
 
-A type-string is constructed from BaseType/TypeOptions, or FieldType/FieldOptions,
-by starting with BaseType or FieldType and applying the following steps in order:
+Type-string is constructed from a BaseType/TypeOptions pair, or FieldType/FieldOptions,
+by starting with the BaseType or FieldType and applying the following steps in order:
 
 **Type Options:**
 
@@ -959,43 +961,47 @@ by starting with BaseType or FieldType and applying the following steps in order
 
 **Field Options:**
 
-7) if the *minc* or *maxc* options are present and either is not the default 1, append "[*minv*..*maxv*]"
-8) if the *tfield* option is present, append "(&*tfield*)"
-9) if the *flatten* option is present, prepend "<"
+7) if the *minc* or *maxc* options are present and either is not the default 1, append "[*minc*..*maxc*]".
+    If multiplicity is [0..1] the synonym "optional" may be used instead.
+8) else if the *tfield* option is present, append "(&*tfield*)"
+9) else if the *flatten* option is present, prepend "<"
+
+An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
 
 Example:
 ```
 ```
 
 ### 5.2 Table Style
-Some specifications present data structure definitions in table format. JADN does not define a normative
-table format because different authoring styles may be equally effective in conveying the required
-information to readers, and with JADN as the data exchange format there is no compelling need to restrict
-tables to a single style.
+Some specifications present data definitions in table format. This specification does not define a normative
+table format because different styles are in use, and with JSON as the native data exchange format there is no
+reason to restrict tables to a single style.  Authors may use any table style that conveys the necessary information.
 
-The following table style is an example. It is structurally similar to JADN-IDL and uses a similar
-TypeString translation, but it breaks out the *minc* and *maxc* field options into a separate
-"Multiplicity" column.
+The following style is an example. It is structurally similar to JADN-IDL and uses the same
+type-string translation, except that it breaks out the *minc* and *maxc* field options into a separate
+Multiplicity column.
 
 ```
-+----------+------------+----------+
-| TypeName | TypeString | TypeDesc |
-+----------+------------+----------+
++----------+---------------+-----------------+
+| TypeName | <type-string> | TypeDescription |
++----------+---------------+-----------------+
 ```
-followed by
+followed by (for compound types without the *id* option):
 ```
-+---------+-----------+-------------+-----------+
-| FieldID | FieldName | FieldString | FieldDesc |
-+---------+-----------+-------------+-----------+
-or
-+---------+-------------+-----------------------+
-| FieldID | FieldString | FieldName:: FieldDesc |
-+---------+-------------+-----------------------+
++---------+-----------+---------------+--------+------------------+
+| FieldID | FieldName | <type-string> | [m..n] | FieldDescription |
++---------+-----------+---------------+--------+------------------+
+```
+or (for compound types with the *id* option):
+```
++---------+---------------+--------+------------------------------+
+| FieldID | <type-string> | [m..n] | FieldName:: FieldDescription |
++---------+---------------+--------+------------------------------+
 ```
 
 ## 5.3 Tree Diagrams
 
-Tree diagrams provide a simplified graphical representation of an information model.  The structure of a JADN IM
+Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
 
 
@@ -1237,7 +1243,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 # Appendix E. ABNF Grammar for JADN IDL
 
-[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
+[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
 
 ```
 ; Type definitions
