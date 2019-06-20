@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 14 June 2019
+## 21 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -932,7 +932,7 @@ Enumerated type:
 Compound types without the *id* option:
 ```
     TypeName = <type-string> {              // TypeDescription
-        FieldID FieldName <type-string>,    // FieldDescription
+        FieldID FieldName <field-string>,   // FieldDescription
         ...
     }
 ```
@@ -942,29 +942,32 @@ Compound types with the *id* option treat FieldName as a non-normative label
 field description, followed by a terminator ("::"):
 ```
     TypeName = <type-string> {              // TypeDescription
-        FieldID <type-string>,              // FieldName:: FieldDescription
+        FieldID <field-string>,             // FieldName:: FieldDescription
         ...
     }
 ```
 
+**Type Options:**
+
 Type-string is constructed from a BaseType/TypeOptions pair, or FieldType/FieldOptions,
 by starting with the BaseType or FieldType and applying the following steps in order:
-
-**Type Options:**
 
 1) if the *id* option is present, append ".ID"
 2) if Type is ArrayOf, append "(*vtype*)" , or if Type is MapOf, append "(*ktype*, *vtype*)"
 3) if the *enum* option is present, append "(Enum(*enum*))"
-4) if the *format* option is present, append " /*format*" 
-5) if the *pattern* option is present, append "(%*pattern*%)"
-6) if the *minv* or *maxv* options are present and either is not the default 0, append "{*minv*..*maxv*}"
+4) if the *pattern* option is present, append "(%*pattern*%)"
+5) if the *minv* or *maxv* options are present and either is not the default 0, append "{*minv*..*maxv*}"
+6) if the *format* option is present, append " /*format*"
 
 **Field Options:**
 
-7) if the *minc* or *maxc* options are present and either is not the default 1, append "[*minc*..*maxc*]".
-    If multiplicity is [0..1] the synonym "optional" may be used instead.
-8) else if the *tfield* option is present, append "(&*tfield*)"
-9) else if the *flatten* option is present, prepend "<"
+Field-string is constructed by starting with the type-string of the field and applying
+one of the following mutually-exclusive steps:
+
+1) if the *minc* or *maxc* options are present and either is not the default 1, append "[*minc*..*maxc*]".
+    If multiplicity is [0..1] the synonym " optional" may be appended instead.
+2) else if the *tfield* option is present, append "(&*tfield*)"
+3) else if the *flatten* option is present, prepend "<"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
 
