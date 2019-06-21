@@ -144,7 +144,7 @@ Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and 
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
-###### [RFC 8340]
+###### [RFC8340]
 Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
@@ -909,65 +909,68 @@ In addition, tree diagrams can be used to provide a high-level overview of JADN 
 
 ### 5.1 JADN-IDL Format
 
-JADN Interface Definition Language (IDL) is a formally-defined text representation of JADN type definitions.
-It replicates the definition structure of [Section 3.1](#31-type-definitions),
-but for readability it combines each type and its options into a single "type-string".
-JADN definitions can be translated bidirectionally between JSON and JADN-IDL formats.
+JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
+It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
+and its options into a single string formatted for readability.
+The conversion between JSON and JADN-IDL formats is lossless.
 
 The JADN-IDL definition formats are:
 
 Simple types:
 ```
-    TypeName = <type-string>                // TypeDescription
+    TypeName = TYPESTRING               // TypeDescription
 ```
 
 Enumerated type:
 ```
-    TypeName = <type-string> {              // TypeDescription
-        FieldID FieldName,                  // FieldDescription
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID FieldName,              // FieldDescription
         ...
     }
 ```
 
 Compound types without the *id* option:
 ```
-    TypeName = <type-string> {              // TypeDescription
-        FieldID FieldName <field-string>,   // FieldDescription
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID FieldName FIELDSTRING,  // FieldDescription
         ...
     }
 ```
 
 Compound types with the *id* option treat FieldName as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it as part of the
-field description, followed by a terminator ("::"):
+field description followed by a terminator ("::"):
 ```
-    TypeName = <type-string> {              // TypeDescription
-        FieldID <field-string>,             // FieldName:: FieldDescription
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID FIELDSTRING,            // FieldName:: FieldDescription
         ...
     }
 ```
 
 **Type Options:**
 
-Type-string is constructed from a BaseType/TypeOptions pair, or FieldType/FieldOptions,
-by starting with the BaseType or FieldType and applying the following steps in order:
+TYPESTRING is the value of BaseType or FieldType, followed by string representations of the type options,
+if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
-1) if the *id* option is present, append ".ID"
-2) if Type is ArrayOf, append "(*vtype*)" , or if Type is MapOf, append "(*ktype*, *vtype*)"
-3) if the *enum* option is present, append "(Enum(*enum*))"
-4) if the *pattern* option is present, append "(%*pattern*%)"
-5) if the *minv* or *maxv* options are present and either is not the default 0, append "{*minv*..*maxv*}"
-6) if the *format* option is present, append " /*format*"
+    TYPESTRING    = TYPE [".ID"] [S1] [VRANGE] [FORMAT]   ; TYPE is the value of BaseType or FieldType
+    S1            = "(" *ktype* "," *vtype* ")"           ; if TYPE is MapOf
+                  | "(" *vtype* ")"                       ; if TYPE is ArrayOf
+                  | "(Enum(" *enum* "))"                  ; if TYPE is Enumerated
+                  | "(%" *pattern* "%)"                   ; if TYPE is String
+    VRANGE        = "{" *minv* ".." *maxv* "}"
+    FORMAT        = " /" *format*
 
 **Field Options:**
 
-Field-string is constructed by starting with the type-string of the field and applying
-one of the following mutually-exclusive steps:
+FIELDSTRING is the value of TYPESTRING and string representations of the field options, which
+are mutually exclusive:
 
-1) if the *minc* or *maxc* options are present and either is not the default 1, append "[*minc*..*maxc*]".
-    If multiplicity is [0..1] the synonym " optional" may be appended instead.
-2) else if the *tfield* option is present, append "(&*tfield*)"
-3) else if the *flatten* option is present, prepend "<"
+    FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
+                  | FLATTEN TYPESTRING
+    MULTIPLICITY  = "[" *minc* ".." *maxc* "}"
+                  | " optional"
+    TFIELD        = "(&" *tfield* ")"
+    FLATTEN       = "<"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
 
@@ -976,31 +979,31 @@ Example:
 ```
 
 ### 5.2 Table Style
-Some specifications present data definitions in table format. This specification does not define a normative
-table format because different styles are in use, and with JSON as the native data exchange format there is no
-reason to restrict tables to a single style.  Authors may use any table style that conveys the necessary information.
+Some specifications display data definitions in table format, with differing style conventions.
+This section does not define a JADN table format, but is an example of how JADN definitions
+might be displayed as property tables.
 
-The following style is an example. It is structurally similar to JADN-IDL and uses the same
-type-string translation, except that it breaks out the *minc* and *maxc* field options into a separate
-Multiplicity column.
+This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
+breaks out the MULTIPLICITY field option into a separate column.
 
 ```
-+----------+---------------+-----------------+
-| TypeName | <type-string> | TypeDescription |
-+----------+---------------+-----------------+
++----------+------------+-----------------+
+| TypeName | TYPESTRING | TypeDescription |
++----------+------------+-----------------+
 ```
 followed by (for compound types without the *id* option):
 ```
-+---------+-----------+---------------+--------+------------------+
-| FieldID | FieldName | <type-string> | [m..n] | FieldDescription |
-+---------+-----------+---------------+--------+------------------+
++---------+-----------+-------------+--------+------------------+
+| FieldID | FieldName | FIELDSTRING | [m..n] | FieldDescription |
++---------+-----------+-------------+--------+------------------+
 ```
 or (for compound types with the *id* option):
 ```
-+---------+---------------+--------+------------------------------+
-| FieldID | <type-string> | [m..n] | FieldName:: FieldDescription |
-+---------+---------------+--------+------------------------------+
++---------+-------------+--------+------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
++---------+-------------+--------+------------------------------+
 ```
+An example property table using this style is shown in [Section 3.1.2](#312-examples).
 
 ## 5.3 Tree Diagrams
 
