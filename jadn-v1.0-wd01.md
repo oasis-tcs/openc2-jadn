@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 14 June 2019
+## 21 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -144,6 +144,8 @@ Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and 
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
+###### [RFC8340]
+Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
@@ -362,7 +364,7 @@ The equivalent JADN definition is:
 ]]
 ```
 
-**JADN definition of Person in JADN-IDL format ([Section 5.1.1](#511-jadn-idl-format)):**
+**JADN definition of Person in JADN-IDL format ([Section 5.1](#51-jadn-idl-format)):**
 ```
 Person = Record {
   1 name   String,
@@ -371,7 +373,7 @@ Person = Record {
 }
 ```
 
-**JADN definition of Person in [GFM](#gfm) table style ([Section 5.1.2](#512-table-style)):**
+**JADN definition of Person in table style ([Section 5.2](#52-table-style)):**
 
   *Type: Person (Record)*
 
@@ -529,7 +531,7 @@ The *minv* and *maxv* options specify size or value limits.
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ### 3.2.2 Field Options
-Field options apply to each field within a type definition. Each option in Table 3-5 is a structural element of the type definition.
+Field options are specified for each field within a type definition. Each option in Table 3-5 is a structural element of the type definition.
 
 ###### Table 3-5. Field Options
 
@@ -540,7 +542,7 @@ Field options apply to each field within a type definition. Each option in Table
 | 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
 | 0x3c `'<'` | flatten | none | Use FieldName as a qualifier for fields in FieldType |
 
-* FieldOptions MUST include zero or one instance of each of the options in [Table 3-5](#table-3-5-field-options).  
+* FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or flatten.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
@@ -564,13 +566,16 @@ The default value of maxc is the greater of 1 or minc.
 If maxc is 0, the maximum number of elements is an unspecified large number.  
 If maxc is not 0, it must be greater than or equal to minc.  
 
-Use of minc other than 0 or 1, or maxc other than 1, is a schema extension described in [Section 3.3.2](#332-field-multiplicity).
+Use of minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
 
-Within a Choice type minc values of 0 and 1 are ignored because all fields are optional and exactly one must be present. Values greater than 1 have the usual meaning.
+Within a Choice type minc values of 0 and 1 are ignored because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
 
 #### 3.2.2.2 Referenced Field Type
-A field that is a Choice type may include the *tfield* option to specify another field within the same
+A field may include the *tfield* option to specify another field within the same container
 type that controls which Choice element is used.
+
+* The *tfield* option MUST NOT appear in a field where FieldType does not refer to a Choice type.
+* The *tfield* option MUST NOT appear in a type where BaseType is not Array, Map, or Record.
 
 **Example:**
 
@@ -667,10 +672,9 @@ and may make specifications easier to understand.  But it creates additional def
 be kept in sync, expanding the specification and increasing maintenance effort.
 
 The following extensions can be converted to core definitions:
-* Type options within a FieldOptions list
-* Maximum cardinality option
-* Minimum cardinality option with a value other than 0 or 1
-* Enum option
+* Anonymous type definition within a field
+* Field multiplicity other than required/optional
+* Derived enumeration
 * MapOf type with Enumerated key type
 
 ### 3.3.1 Type Definition Within Fields
@@ -733,7 +737,10 @@ Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
-type derived from the referenced type.
+type derived from the referenced type. For Enumerated types, the Enum() function is specified by
+the *enum* option. For ArrayOf and MapOf types, the Enum() function is specified by
+populating the value of the *ktype* or *vtype* options with the *enum* option.
+
 Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
@@ -744,10 +751,10 @@ Example:
         2 green Integer,
         3 blue  Integer
     }
-    Channel = Enumerated(Enum(Pixel)) 
-    ChannelMask = ArrayOf(Enum(Pixel))
+    Channel = Enumerated(Enum(Pixel))       // Enumerated type's *enum* option
+    ChannelMask = ArrayOf(Enum(Pixel))      // derived enumeration in ArrayOf's *vtype* option
 
-Simplifying replaces the Channel and ChannelMask references with:
+Simplifying replaces the Channel and ChannelMask definitions with:
 
     Channel = Enumerated {
         1 red,
@@ -892,56 +899,123 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | :--- | :--- | :--- |
 | **x** | Binary | XML \<HexBinary\> element with a hexBinary canonical lexical value. |
 
-# 5 JADN Schemas
-A JADN schema is organized into one or more modules, each of which has a set of type definitions plus
-metadata related to the module. Types defined in one module can be used in others, while namespacing
-ensures that type definitions and instance values remain independent.
+# 5 Definition Formats
 
-A JADN schema defines the full interface to an application or service. A schema is constructed by starting
-with the base module for the interface and recursively incorporating definitions from each imported module.
+[Section 3.1](#31-type-definitions) defines the native JSON format of JADN type definitions.
+Although JSON data is unambiguous and supported in many programming languages, it is cumbersome
+to use as a documentation format. This section defines two alternative ways of documenting JADN information
+models - a formal text-based interface definition language and an example property table layout.
+In addition, tree diagrams can be used to provide a high-level overview of JADN information models.
 
-## 5.1 Type Definition Styles
-[Section 3.1](#31-type-definitions) specifies the authoritative format of JADN type definitions.
-Although JSON data is unambiguous and machine-readable, it is not an ideal presentation format.
-This section defines two presentation styles for JADN type definitions that ...
+### 5.1 JADN-IDL Format
 
-### 5.1.1 JADN-IDL Format
+JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
+It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
+and its options into a single string formatted for readability.
+The conversion between JSON and JADN-IDL formats is lossless.
 
-JADN Interface Definition Language (IDL) is ...
+The JADN-IDL definition formats are:
 
-### 5.1.2 Table Style
-
-[GFM](#gfm) tables do not support multi-column cells, so the type definition line precedes the
-table rather than being part of it as in html table style.
+Simple types:
 ```
-+----------+------------+----------+
-| TypeName | TypeString | TypeDesc |
-+----------+------------+----------+
-```
-followed by
-```
-+---------+-----------+-------------+-----------+
-| FieldID | FieldName | FieldString | FieldDesc |
-+---------+-----------+-------------+-----------+
-or
-+---------+-------------+-----------------------+
-| FieldID | FieldString | FieldName:: FieldDesc |
-+---------+-------------+-----------------------+
+    TypeName = TYPESTRING               // TypeDescription
 ```
 
-## 5.2 Meta Information
+Enumerated type:
+```
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID FieldName,              // FieldDescription
+        ...
+    }
+```
 
-A JADN schema is a structured data instance that can be validated, consisting of:
-* meta-information about the schema
-* type definitions
+Compound types without the *id* option:
+```
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID FieldName FIELDSTRING,  // FieldDescription
+        ...
+    }
+```
 
-JSON, Structure Tables, Data Definition Languages (ASN.1-ish, Thrift-ish, YANG-ish)
-* option format (id/value string for JSON, Multiplicity ... for tables)
+Compound types with the *id* option treat FieldName as a non-normative label
+(see [Section 3.2.1.1](#3211-field-identifiers)) and display it as part of the
+field description followed by a terminator ("::"):
+```
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID FIELDSTRING,            // FieldName:: FieldDescription
+        ...
+    }
+```
+
+**Type Options:**
+
+TYPESTRING is the value of BaseType or FieldType, followed by string representations of the type options,
+if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
+
+    TYPESTRING    = TYPE [".ID"] [S1] [VRANGE] [FORMAT]   ; TYPE is the value of BaseType or FieldType
+    S1            = "(" *ktype* "," *vtype* ")"           ; if TYPE is MapOf
+                  | "(" *vtype* ")"                       ; if TYPE is ArrayOf
+                  | "(Enum(" *enum* "))"                  ; if TYPE is Enumerated
+                  | "(%" *pattern* "%)"                   ; if TYPE is String
+    VRANGE        = "{" *minv* ".." *maxv* "}"
+    FORMAT        = " /" *format*
+
+**Field Options:**
+
+FIELDSTRING is the value of TYPESTRING and string representations of the field options, which
+are mutually exclusive:
+
+    FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
+                  | FLATTEN TYPESTRING
+    MULTIPLICITY  = "[" *minc* ".." *maxc* "}"
+                  | " optional"
+    TFIELD        = "(&" *tfield* ")"
+    FLATTEN       = "<"
+
+An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
+
+Example:
+```
+```
+
+### 5.2 Table Style
+Some specifications display data definitions in table format, with differing style conventions.
+This section does not define a JADN table format, but is an example of how JADN definitions
+might be displayed as property tables.
+
+This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
+breaks out the MULTIPLICITY field option into a separate column.
+
+```
++----------+------------+-----------------+
+| TypeName | TYPESTRING | TypeDescription |
++----------+------------+-----------------+
+```
+followed by (for compound types without the *id* option):
+```
++---------+-----------+-------------+--------+------------------+
+| FieldID | FieldName | FIELDSTRING | [m..n] | FieldDescription |
++---------+-----------+-------------+--------+------------------+
+```
+or (for compound types with the *id* option):
+```
++---------+-------------+--------+------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
++---------+-------------+--------+------------------------------+
+```
+An example property table using this style is shown in [Section 3.1.2](#312-examples).
+
+## 5.3 Tree Diagrams
+
+Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
+can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
+
 
 # 6 Data Model Generation
 A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
 
 # 7 Operational Considerations
+* Schema modules
 * Serialization (bulk vs pull)
 * Validation (integrated with serialization, separate)
 * Schema expansion (unsweetening) - optional
@@ -1018,10 +1092,10 @@ The following individuals have participated in the creation of this specificatio
 This schema defines the structure of JADN type definitions, which is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
-Note that BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
+BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
 compactness and consistency. No other extensions are used.
 
-Note that the default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
+The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
 upper-case names in JADN-Type.
 
     Types = ArrayOf(Type)
@@ -1156,7 +1230,7 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
     [3, "blue", "Integer", [], ""]
 ]],
 ["Channel", "Enumerated", ["$Pixel"], ""],
-["ChannelMask", "ArrayOf", ["$Pixel"], ""],
+["ChannelMask", "ArrayOf", ["*$Pixel"], ""],
 
 ["Channel", "Enumerated", [], "", [
     [1, "red", ""],
@@ -1175,7 +1249,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 # Appendix E. ABNF Grammar for JADN IDL
 
-[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1.2](#512-idl-style)).
+[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
 
 ```
 ; Type definitions
