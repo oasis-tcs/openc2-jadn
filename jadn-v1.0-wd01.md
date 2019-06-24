@@ -736,10 +736,10 @@ in the option rather than being listed individually in the definition.
 Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
-A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
-type derived from the referenced type. For Enumerated types, the Enum() function is specified by
-the *enum* option. For ArrayOf and MapOf types, the Enum() function is specified by
-populating the value of the *ktype* or *vtype* options with the *enum* option.
+In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) format the *enum* option is represented
+as a function string: "Enum(\<referenced-type\>)".
+Within ArrayOf and MapOf types, the *ktype* and *vtype* option values are "Enum()" function
+strings.
 
 Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
@@ -751,8 +751,8 @@ Example:
         2 green Integer,
         3 blue  Integer
     }
-    Channel = Enumerated(Enum(Pixel))       // Enumerated type's *enum* option
-    ChannelMask = ArrayOf(Enum(Pixel))      // derived enumeration in ArrayOf's *vtype* option
+    Channel = Enumerated(Enum(Pixel))       // Derived Enumerated type
+    ChannelMask = ArrayOf(Enum(Pixel))      // ArrayOf(derived enumeration)
 
 Simplifying replaces the Channel and ChannelMask definitions with:
 
@@ -912,7 +912,7 @@ In addition, tree diagrams can be used to provide a high-level overview of JADN 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
 It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
 and its options into a single string formatted for readability.
-The conversion between JSON and JADN-IDL formats is lossless.
+The conversion between JSON and JADN-IDL formats is lossless in both directions.
 
 The JADN-IDL definition formats are:
 
@@ -941,6 +941,12 @@ Compound types with the *id* option treat FieldName as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it as part of the
 field description followed by a terminator ("::"):
 ```
+    /* Enumerated.ID */
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID                         // FieldName:: FieldDescription
+    }
+    
+    /* Choice.ID, Map.ID */
     TypeName = TYPESTRING {             // TypeDescription
         FieldID FIELDSTRING,            // FieldName:: FieldDescription
         ...
@@ -962,8 +968,7 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
 **Field Options:**
 
-FIELDSTRING is the value of TYPESTRING and string representations of the field options, which
-are mutually exclusive:
+FIELDSTRING is the value of TYPESTRING combined with string representations of three mutually-exclusive field options:
 
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
                   | FLATTEN TYPESTRING
@@ -979,12 +984,12 @@ Example:
 ```
 
 ### 5.2 Table Style
-Some specifications display data definitions in table format, with differing style conventions.
-This section does not define a JADN table format, but is an example of how JADN definitions
-might be displayed as property tables.
+Some specifications present type definitions in property table form, using differing style conventions.
+This specification does not define a normative property table format, but this section provides an example
+of how JADN definitions may be displayed as property tables.
 
 This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
-breaks out the MULTIPLICITY field option into a separate column.
+breaks out the MULTIPLICITY field option into a separate column:
 
 ```
 +----------+------------+-----------------+
@@ -1032,7 +1037,7 @@ Additional security considerations applicable to JADN-based specifications:
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
+Security and bandwidth efficiency are the primary reasons for using an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
