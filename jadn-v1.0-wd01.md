@@ -212,10 +212,10 @@ information-centric focus:
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
-| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
-| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
-| Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized identifiers within applications. |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number first-class types exist regardless of data representation. |
+| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
+| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as both arrays and maps in multiple data formats. |
+| Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
 ## 2.2 Implementation
 
@@ -328,8 +328,8 @@ LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
-TypeName:  ^([A-Z]([-A-Za-z0-9]|\$){,31})$
-FieldName: ^([a-z][_A-Za-z0-9]{,31})$
+TypeName:  ([A-Z]([-A-Za-z0-9]|\$){,31})
+FieldName: ([a-z][_A-Za-z0-9]{,31})
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -1258,101 +1258,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 ```
 ; Type definitions
-start       = 1*def
-def         = TYPE-NAME "="
-                  (binary [DESC])
-                / (integer [DESC])
-                / (number [DESC])
-                / (null [DESC])
-                / (string [DESC])
-                / (enum-f [DESC])
-                / (enumid-f [DESC])
-                / (arrayof [DESC])
-                / (mapof [DESC])
-                / (enum [DESC] efields)
-                / (enumid [DESC] iefields)
-                / (choice [DESC] fields)
-                / (choiceid [DESC] ifields)
-                / (array [DESC] fields)
-                / (map [DESC] fields)
-                / (mapid [DESC] ifields)
-                / (record [DESC] fields)
 
-; Options (required and allowed)
-binary      = %s"Binary" [LRANGE] [FORMAT]
-boolean     = %s"Boolean"
-integer     = %s"Integer" [IRANGE] [FORMAT]
-number      = %s"Number" [FRANGE] [FORMAT]
-null        = %s"Null"
-string      = %s"String" [LRANGE] [FORMAT] [PATTERN]
-enum-f      = %s"Enumerated" EFUNCP
-enumid-f    = %s"Enumerated.ID" EFUNCP
-arrayof     = %s"ArrayOf" vtype [LRANGE]
-mapof       = %s"MapOf" kvtype [LRANGE]
-enum        = %s"Enumerated"
-enumid      = %s"Enumerated.ID"
-choice      = %s"Choice"
-choiceid    = %s"Choice.ID"
-array       = %s"Array" [FORMAT]
-map         = %s"Map" [LRANGE]
-mapid       = %s"Map.ID" [LRANGE]
-record      = %s"Record"
-
-; Types without field definitions
-vtype       = "(" typestr ")"
-kvtype      = "(" typestr "," typestr ")"
-typestr     = TYPE-NAME / EFUNC
-                / binary / boolean / integer / number / null / string
-                / enum-f / enumid-f / arrayof / mapof
-
-; All types
-typedefstr  = binary / boolean / integer / number / null / string
-                / enum-f / enumid-f / arrayof / mapof
-                / enum / enumid / choice / choiceid / array / map / mapid / record
-
-INT         = ["-"] 1*10DIGIT               ; Arbitrary limit: 2^32 = 10 digits (4,294,967,296)
-UINT        = 1*10DIGIT
-NUM         = ["-"] 1*DIGIT ["." 1*DIGIT]
-LRANGE      = "{" UINT ".." UINT "}"        ; Length range: {m..n} m GE 0, n GT 0 or *
-IRANGE      = "{" INT ".." INT "}"          ; Integer range: {m..n} m and n are integers
-FRANGE      = "{" NUM ".." NUM "}"          ; Float range: {m..n} m and n are real numbers
-MRANGE      = "[" UINT ".." UINT "]"        ; Multiplicity: [m..n] m GE 0, n GT 0 or *
-
-EFUNC       = %s"Enum(" TYPE-NAME ")"
-EFUNCP      = "(" EFUNC ")"
-
-PATTERN     = "<" 1*100VCHAR ">"            ; FIXME - need regex validator and escaping
-
-FORMAT      = "/" ( %s"date-time" / %s"date" / %s"time"  ; JSON-Schema format keywords
-                / %s"email" / %s"idn-email"
-                / %s"hostname" / %s"idn-hostname"
-                / %s"ipv4" / %s"ipv6"
-                / %s"uri" / %s"uri-reference"
-                / %s"iri" / %s"iri-reference" / "uri-template"
-                / %s"json-pointer" / %s"relative-json-pointer"
-                / %s"regex"
-                / %s"eui"                     ; JADN format keywords
-                / %s"ipv4-addr" / %s"ipv6-addr"
-                / %s"ipv4-net" / %s"ipv6-net"
-                / %s"i8" / %s"i16" / %s"i32"
-                / %s"f16" / %s"f32"
-                / %s"u" UINT )
-
-efields     = "{" efield  *("," [DESC] efield)  [DESC] "}"
-iefields    = "{" iefield *("," [DESC] iefield) [DESC] "}"
-fields      = "{" field   *("," [DESC] field)   [DESC] "}"
-ifields     = "{" ifield  *("," [DESC] ifield)  [DESC] "}"
-
-FIELD-ID    = UINT
-efield      = FIELD-ID FIELD-NAME
-iefield     = FIELD-ID
-field       = FIELD-ID FIELD-NAME typestr [multiplicity]
-ifield      = FIELD-ID typestr [multiplicity]
-
-multiplicity = MRANGE / %s"optional"
-
-DESC        = "//" [FIELD-NAME "::"] *(WSP / VCHAR) CRLF
-COMMENT     = "/*" *(WSP / VCHAR / CRLF) "*/"
 
 ; JADN default naming conventions
 TYPE-NAME   = UC *31("-" / UC / LC / DIGIT / SYS)
