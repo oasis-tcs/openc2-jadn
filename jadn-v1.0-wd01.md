@@ -613,7 +613,7 @@ With the type definitions:
         2 grass    Rgb,
         3 lapis    Rgb,
         4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
-    },
+    }
     New-Color = Map {
         1 maize    Rgb,
         2 aqua     Rgb,
@@ -1105,47 +1105,46 @@ upper-case names in JADN-Type.
 
     Types = ArrayOf(Type)
     Type = Array {
-         1 type_name  TypeName,
-         2 base_type  BaseType,
-         3 type_opts  Options,
-         4 type_desc  Description,
-         5 fields     JADN-Type(&base_type)
+         1 TypeName,                                 // TypeName::
+         2 BaseType,                                 // BaseType::
+         3 Options,                                  // TypeOptions::
+         4 Desc,                                     // TypeDescription::
+         5 JADN-Type(&base_type)                     // Fields::
     }
     BaseType = Enumerated(Enum(JADN-Type))
     JADN-Type = Choice {
-         1 Binary     Null,
-         2 Boolean    Null,
-         3 Integer    Null,
-         4 Number     Null,
-         5 Null       Null,
-         6 String     Null,
-         7 Enumerated EnumFields,
-         8 Choice     Fields,
-         9 Array      Fields,
-        10 ArrayOf    Null,
-        11 Map        Fields,
-        12 MapOf      Null,
-        13 Record     Fields
+         1 Binary          Null,
+         2 Boolean         Null,
+         3 Integer         Null,
+         4 Number          Null,
+         5 Null            Null,
+         6 String          Null,
+         7 Enumerated      EnumFields,
+         8 Choice          Fields,
+         9 Array           Fields,
+        10 ArrayOf         Null,
+        11 Map             Fields,
+        12 MapOf           Null,
+        13 Record          Fields
     }
     EnumFields = ArrayOf(EnumField)
     EnumField = Array {
-        1 field_id    FieldId,
-        2 field_name  FieldName,
-        3 field_desc  Description
+         1 FieldId,                                  // FieldID::
+         2 FieldName,                                // FieldName::
+         3 Desc                                      // FieldDescription::
     }
-    Fields = ArraryOf(Field)
+    Fields = ArrayOf(Field)
     Field = Array {
-        1 field_id    FieldID,
-        2 field_name  FieldName,
-        3 field_type  FieldType,
-        4 field_opts  Options,
-        5 field_desc  Description
+         1 FieldID,                                  // FieldID::
+         2 FieldName,                                // FieldName::
+         3 FieldType,                                // FieldType::
+         4 Options,                                  // FieldOptions::
+         5 Desc                                      // FieldDescription::
     }
-    FieldId = Integer{0..*}
+    FieldId = Integer
     Options = ArrayOf(Option){0..10}
     Option = String{1..*}
-    Description = String{0..*}
-    
+    Desc = String
     FieldName = String(%[A-Za-z]([_A-Za-z0-9]){0,31}%)
 
 # Appendix D. Examples in JADN format
@@ -1164,18 +1163,18 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 ```
 ["Department", "Choice", [], "", [
     [1, "furniture", "Furniture", [], ""],
-    [1, "kitchen", "Appliance", [], ""],
-    [1, "electronics", "Device", [], ""]
+    [2, "kitchen", "Appliance", [], ""],
+    [3, "electronics", "Device", [], ""]
 ]],
 ["DeptID", "Enumerated", [], "", [
     [1, "furniture", ""],
-    [1, "kitchen", ""],
-    [1, "electronics", ""]
+    [2, "kitchen", ""],
+    [3, "electronics", ""]
 ]],
 ["Product", "Array", [], "", [
     [1, "dept", "String", [], "Must be a valid Choice field"],
-    [1, "quantity", "Integer", [], ""],
-    [1, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
+    [2, "quantity", "Integer", [], ""],
+    [3, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
 ]]
 ```
 
@@ -1201,16 +1200,15 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 
 **[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
 ```
-["Person", "Record", [], "", [
+["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "email", "String", ["/idn-email"], ""]
 ]],
-
-["Person", "Record", [], "", [
+["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
-    [2, "email", "Person$email", [], ""]
+    [2, "email", "Member$email", [], ""]
 ]],
-["Person$email", "String", ["/idn-email"], "Tool-generated type definition."]
+["Member$email", "String", ["/idn-email"], "Tool-generated type definition."]
 ```
 
 **[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
@@ -1222,9 +1220,15 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 
 ["Roster", "Record", [], "", [
     [1, "org_name", "String", [], ""],
-    [2, "members", "Roster#member", ["[0"], "Optional: minc=0, maxc=1"]
+    [2, "members", "Roster$members", ["[0"], "Optional: minc=0, maxc=1"]
 ]],
-["Roster$members", "ArrayOf", ["*Member", "]0"], "Tool-generated array: minv=1, maxv=0"]
+["Roster$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0"],
+
+["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Members", [], "members field is required: default minc = 1, maxc = 1"]
+]],
+["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0"]
 ```
 
 **[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
@@ -1234,8 +1238,8 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
     [2, "green", "Integer", [], ""],
     [3, "blue", "Integer", [], ""]
 ]],
-["Channel", "Enumerated", ["$Pixel"], ""],
-["ChannelMask", "ArrayOf", ["*$Pixel"], ""],
+["Channel", "Enumerated", ["$Pixel"], "Derived Enumerated type"],
+["ChannelMask", "ArrayOf", ["*Enum(Pixel)"], "ArrayOf(derived enumeration)"],
 
 ["Channel", "Enumerated", [], "", [
     [1, "red", ""],
@@ -1248,10 +1252,61 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 
 Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
 ```
+["Channel", "Enumerated", [], "", [
+    [1, "red", ""],
+    [2, "green", ""],
+    [3, "blue", ""]
+]],
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
 **[Appendix C. JADN Schema](#appendix-c-jadn-schema):**
-
+```
+[
+  ["Types", "ArrayOf", ["*Type"], ""],
+  ["Type", "Array", [], "", [
+    [1, "TypeName", "TypeName", [], ""],
+    [2, "BaseType", "BaseType", [], ""],
+    [3, "TypeOptions", "Options", [], ""],
+    [4, "TypeDescription", "Desc", [], ""],
+    [5, "Fields", "JADN-Type", ["&base_type"], ""]
+  ]],
+  ["BaseType", "Enumerated", ["$JADN-Type"], ""],
+  ["JADN-Type", "Choice", [], "", [
+    [1, "Binary", "Null", [], ""],
+    [2, "Boolean", "Null", [], ""],
+    [3, "Integer", "Null", [], ""],
+    [4, "Number", "Null", [], ""],
+    [5, "Null", "Null", [], ""],
+    [6, "String", "Null", [], ""],
+    [7, "Enumerated", "EnumFields", [], ""],
+    [8, "Choice", "Fields", [], ""],
+    [9, "Array", "Fields", [], ""],
+    [10, "ArrayOf", "Null", [], ""],
+    [11, "Map", "Fields", [], ""],
+    [12, "MapOf", "Null", [], ""],
+    [13, "Record", "Fields", [], ""]
+  ]],
+  ["EnumFields", "ArrayOf", ["*EnumField"], ""],
+  ["EnumField", "Array", [], "", [
+    [1, "FieldID", "FieldId", [], ""],
+    [2, "FieldName", "FieldName", [], ""],
+    [3, "FieldDescription", "Desc", [], ""]
+  ]],
+  ["Fields", "ArrayOf", ["*Field"], ""],
+  ["Field", "Array", [], "", [
+    [1, "FieldID", "FieldID", [], ""],
+    [2, "FieldName", "FieldName", [], ""],
+    [3, "FieldType", "FieldType", [], ""],
+    [4, "FieldOptions", "Options", [], ""],
+    [5, "FieldDescription", "Desc", [], ""]
+  ]],
+  ["FieldId", "Integer", [], ""],
+  ["Options", "ArrayOf", ["*Option", "}10"], ""],
+  ["Option", "String", ["{1"], ""],
+  ["Desc", "String", [], ""],
+  ["FieldName", "String", ["%[A-Za-z]([_A-Za-z0-9]){0,31}"], ""]
+]
+```
 # Appendix E. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
