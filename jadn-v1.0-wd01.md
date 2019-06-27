@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 21 June 2019
+## 28 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -124,8 +124,6 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 ## 1.4 Non-Normative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
-###### [CDDL]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, Internet-Draft, July 2017, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [GFM]
@@ -146,6 +144,8 @@ Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Conside
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [RFC8340]
 Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+###### [RFC8610]
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
@@ -213,14 +213,14 @@ information-centric focus:
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
-| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as both arrays and maps in multiple data formats. |
+| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
+| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
 ## 2.2 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
-1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
+1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
 2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
  
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
@@ -684,18 +684,18 @@ Simplifying converts all anonymous type definitions to explicit named types and 
 
 Example:
 
-    Person = Record {
+    Member = Record {
         1 name  String,
         2 email String /idn-email
     }
 
 Simplifying replaces this with:
 
-    Person = Record {
+    Member = Record {
         1 name   String,
-        2 email  Person$email
+        2 email  Member$email             // Name and field options only, no type options
     }
-    Person$email = String /idn-email       // Tool-generated type definition.
+    Member$email = String /idn-email      // Tool-generated type definition.
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
@@ -824,7 +824,7 @@ The following serialization rules are used to represent JADN data types in a hum
 The following serialization rules are used to represent JADN data types in Concise Binary
 Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major type x, Additional information y.
 
-CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown for reference.
+CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are shown for reference.
 
 * When using CBOR serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
@@ -972,7 +972,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
 
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
                   | FLATTEN TYPESTRING
-    MULTIPLICITY  = "[" *minc* ".." *maxc* "}"
+    MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
                   | " optional"
     TFIELD        = "(&" *tfield* ")"
     FLATTEN       = "<"
@@ -985,7 +985,7 @@ Example:
 
 ### 5.2 Table Style
 Some specifications present type definitions in property table form, using differing style conventions.
-This specification does not define a normative property table format, but this section provides an example
+This specification does not define a normative property table format, but this section is one example
 of how JADN definitions may be displayed as property tables.
 
 This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
@@ -1206,7 +1206,7 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 ]],
 ["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
-    [2, "email", "Member$email", [], ""]
+    [2, "email", "Member$email", [], "Name and field options only, no type options"]
 ]],
 ["Member$email", "String", ["/idn-email"], "Tool-generated type definition."]
 ```
