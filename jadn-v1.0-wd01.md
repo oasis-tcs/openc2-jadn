@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 21 June 2019
+## 28 June 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -124,8 +124,6 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 ## 1.4 Non-Normative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
-###### [CDDL]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, Internet-Draft, July 2017, https://tools.ietf.org/html/draft-ietf-cbor-cddl-07.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [GFM]
@@ -146,6 +144,8 @@ Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Conside
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [RFC8340]
 Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+###### [RFC8610]
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [UML]
@@ -212,15 +212,15 @@ information-centric focus:
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
-| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While CBOR map and array are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
-| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type holds tabular information that can be represented as both arrays and maps in multiple data formats. |
-| Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized identifiers within applications. |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number first-class types exist regardless of data representation. |
+| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
+| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
+| Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
 ## 2.2 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
-1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#cddl), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
+1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
 2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
  
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
@@ -276,14 +276,14 @@ JADN type definitions have a regular structure designed to be easily describable
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
 
-* If BaseType is Enumerated, each field definition MUST have three elements:
+* If BaseType is Enumerated, each item definition MUST have three elements:
 
-1. **FieldID:** the integer identifier of the field
-2. **FieldName:** the name or label of the field
-3. **FieldDescription:** a non-normative comment
+1. **ItemID:** the integer identifier of the item
+2. **ItemValue:** the string value of the item
+3. **ItemDescription:** a non-normative comment
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-    [FieldID, FieldName, FieldDescription],
+    [ItemID, ItemValue, ItemDescription],
     ...
 ]]
 ```
@@ -328,8 +328,8 @@ LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
-TypeName:  ^([A-Z]([-A-Za-z0-9]|\$){,31})$
-FieldName: ^([a-z][_A-Za-z0-9]{,31})$
+TypeName:  ([A-Z]([-A-Za-z0-9]|\$){,31})
+FieldName: ([a-z][_A-Za-z0-9]{,31})
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -613,7 +613,7 @@ With the type definitions:
         2 grass    Rgb,
         3 lapis    Rgb,
         4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
-    },
+    }
     New-Color = Map {
         1 maize    Rgb,
         2 aqua     Rgb,
@@ -684,18 +684,18 @@ Simplifying converts all anonymous type definitions to explicit named types and 
 
 Example:
 
-    Person = Record {
+    Member = Record {
         1 name  String,
         2 email String /idn-email
     }
 
 Simplifying replaces this with:
 
-    Person = Record {
+    Member = Record {
         1 name   String,
-        2 email  Person$email
+        2 email  Member$email             // Name and field options only, no type options
     }
-    Person$email = String /idn-email       // Tool-generated type definition.
+    Member$email = String /idn-email      // Tool-generated type definition.
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
@@ -736,10 +736,10 @@ in the option rather than being listed individually in the definition.
 Simplifying removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
-A type reference in the form of an Enum() function is converted to the name of an explicit Enumerated
-type derived from the referenced type. For Enumerated types, the Enum() function is specified by
-the *enum* option. For ArrayOf and MapOf types, the Enum() function is specified by
-populating the value of the *ktype* or *vtype* options with the *enum* option.
+In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) format the *enum* option is represented
+as a function string: "Enum(\<referenced-type\>)".
+Within ArrayOf and MapOf types, the *ktype* and *vtype* option values are "Enum()" function
+strings.
 
 Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
@@ -751,8 +751,8 @@ Example:
         2 green Integer,
         3 blue  Integer
     }
-    Channel = Enumerated(Enum(Pixel))       // Enumerated type's *enum* option
-    ChannelMask = ArrayOf(Enum(Pixel))      // derived enumeration in ArrayOf's *vtype* option
+    Channel = Enumerated(Enum(Pixel))       // Derived Enumerated type
+    ChannelMask = ArrayOf(Enum(Pixel))      // ArrayOf(derived enumeration)
 
 Simplifying replaces the Channel and ChannelMask definitions with:
 
@@ -766,7 +766,7 @@ Simplifying replaces the Channel and ChannelMask definitions with:
 ### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
-enumeration.
+enumeration. Each ItemValue of the Enumerated type must be a valid FieldName.
 
 Example:
 
@@ -824,7 +824,7 @@ The following serialization rules are used to represent JADN data types in a hum
 The following serialization rules are used to represent JADN data types in Concise Binary
 Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major type x, Additional information y.
 
-CBOR type names from Concise Data Definition Language ([CDDL](#cddl)) are shown for reference.
+CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are shown for reference.
 
 * When using CBOR serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
@@ -912,7 +912,7 @@ In addition, tree diagrams can be used to provide a high-level overview of JADN 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
 It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
 and its options into a single string formatted for readability.
-The conversion between JSON and JADN-IDL formats is lossless.
+The conversion between JSON and JADN-IDL formats is lossless in both directions.
 
 The JADN-IDL definition formats are:
 
@@ -941,6 +941,12 @@ Compound types with the *id* option treat FieldName as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it as part of the
 field description followed by a terminator ("::"):
 ```
+    /* Enumerated.ID */
+    TypeName = TYPESTRING {             // TypeDescription
+        FieldID                         // FieldName:: FieldDescription
+    }
+    
+    /* Choice.ID, Map.ID */
     TypeName = TYPESTRING {             // TypeDescription
         FieldID FIELDSTRING,            // FieldName:: FieldDescription
         ...
@@ -962,12 +968,11 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
 **Field Options:**
 
-FIELDSTRING is the value of TYPESTRING and string representations of the field options, which
-are mutually exclusive:
+FIELDSTRING is the value of TYPESTRING combined with string representations of three mutually-exclusive field options:
 
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
                   | FLATTEN TYPESTRING
-    MULTIPLICITY  = "[" *minc* ".." *maxc* "}"
+    MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
                   | " optional"
     TFIELD        = "(&" *tfield* ")"
     FLATTEN       = "<"
@@ -979,12 +984,12 @@ Example:
 ```
 
 ### 5.2 Table Style
-Some specifications display data definitions in table format, with differing style conventions.
-This section does not define a JADN table format, but is an example of how JADN definitions
-might be displayed as property tables.
+Some specifications present type definitions in property table form, using differing style conventions.
+This specification does not define a normative property table format, but this section is one example
+of how JADN definitions may be displayed as property tables.
 
 This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
-breaks out the MULTIPLICITY field option into a separate column.
+breaks out the MULTIPLICITY field option into a separate column:
 
 ```
 +----------+------------+-----------------+
@@ -1010,35 +1015,34 @@ An example property table using this style is shown in [Section 3.1.2](#312-exam
 Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
 
+# 6 Schemas
 
-# 6 Data Model Generation
+# 7 Data Model Generation
 A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
 
-# 7 Operational Considerations
-* Schema modules
+# 8 Operational Considerations
 * Serialization (bulk vs pull)
 * Validation (integrated with serialization, separate)
-* Schema expansion (unsweetening) - optional
 * Localization
 * Schema embedding - self-describing data
 * Bridging
 * Tabular data (not too many optional columns, sort fields by required/optional.  Tuples.)
 -------
 
-# 8 Security Considerations
+# 9 Security Considerations
 This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
 
 Additional security considerations applicable to JADN-based specifications: 
 * The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
 * Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
 
-Security and bandwidth efficiency are the primary reasons for creating an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
+Security and bandwidth efficiency are the primary reasons for using an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
 
 Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
 
 -------
 
-# 9 Conformance
+# 10 Conformance
 
 (Note: The [OASIS TC Process](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsConfClause) requires that a specification approved by the TC at the Committee Specification Public Review Draft, Committee Specification or OASIS Standard level must include a separate section, listing a set of numbered conformance clauses, to which any implementation of the specification must adhere in order to claim conformance to the specification (or any optional portion thereof). This is done by listing the conformance clauses here.
 For the definition of "conformance clause," see [OASIS Defined Terms](https://www.oasis-open.org/policies-guidelines/oasis-defined-terms-2017-05-26#dConformanceClause).
@@ -1088,8 +1092,11 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Schema
-This schema defines the structure of JADN type definitions, which is intended to remain stable indefinitely.
+# Appendix C. JADN Definitions
+
+**Type**
+
+The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
 BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
@@ -1097,51 +1104,75 @@ compactness and consistency. No other extensions are used.
 
 The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
 upper-case names in JADN-Type.
+```
+Types = ArrayOf(Type)
+Type = Array {
+     1 TypeName,                                 // TypeName::
+     2 BaseType,                                 // BaseType::
+     3 Options,                                  // TypeOptions::
+     4 Desc,                                     // TypeDescription::
+     5 JADN-Type(&base_type)                     // Fields::
+}
+BaseType = Enumerated(Enum(JADN-Type))
+JADN-Type = Choice {
+     1 Binary          Null,
+     2 Boolean         Null,
+     3 Integer         Null,
+     4 Number          Null,
+     5 Null            Null,
+     6 String          Null,
+     7 Enumerated      Items,
+     8 Choice          Fields,
+     9 Array           Fields,
+    10 ArrayOf         Null,
+    11 Map             Fields,
+    12 MapOf           Null,
+    13 Record          Fields
+}
+Items = ArrayOf(Item)
+Item = Array {
+     1 FieldID,                                  // ItemID::
+     2 String,                                   // ItemValue::
+     3 Desc                                      // ItemDescription::
+}
+Fields = ArrayOf(Field)
+Field = Array {
+     1 FieldID,                                  // FieldID::
+     2 FieldName,                                // FieldName::
+     3 TypeName,                                 // FieldType::
+     4 Options,                                  // FieldOptions::
+     5 Desc                                      // FieldDescription::
+}
+FieldID = Integer
+Options = ArrayOf(Option){0..10}
+Option = String{1..*}
+Desc = String
+TypeName = String(%([A-Z]([-A-Za-z0-9]|\$){0,31})%)
+FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
+```
+**Schema**
 
-    Types = ArrayOf(Type)
-    Type = Array {
-         1 type_name  TypeName,
-         2 base_type  BaseType,
-         3 type_opts  Options,
-         4 type_desc  Description,
-         5 fields     JADN-Type(&base_type)
-    }
-    BaseType = Enumerated(Enum(JADN-Type))
-    JADN-Type = Choice {
-         1 Binary     Null,
-         2 Boolean    Null,
-         3 Integer    Null,
-         4 Number     Null,
-         5 Null       Null,
-         6 String     Null,
-         7 Enumerated EnumFields,
-         8 Choice     Fields,
-         9 Array      Fields,
-        10 ArrayOf    Null,
-        11 Map        Fields,
-        12 MapOf      Null,
-        13 Record     Fields
-    }
-    EnumFields = ArrayOf(EnumField)
-    EnumField = Array {
-        1 field_id    FieldId,
-        2 field_name  FieldName,
-        3 field_desc  Description
-    }
-    Fields = ArraryOf(Field)
-    Field = Array {
-        1 field_id    FieldID,
-        2 field_name  FieldName,
-        3 field_type  FieldType,
-        4 field_opts  Options,
-        5 field_desc  Description
-    }
-    FieldId = Integer{0..*}
-    Options = ArrayOf(Option){0..10}
-    Option = String{1..*}
-    Description = String{0..*}
-    
-    FieldName = String(%[A-Za-z]([_A-Za-z0-9]){0,31}%)
+A schema module is a collection of type definitions along with information about the module as described in [Section 6](#8-schemas).
+```
+Schema = Record {                            // Definition of a JADN file
+     1 meta            Meta,                     // Information about this schema module
+     2 types           Types                     // Types defined in this schema module
+}
+Meta = Map {                                 // Meta-information about this schema
+     1 module          Uname,                    // Schema unique name/version
+     2 patch           String optional,          // Patch version
+     3 title           String optional,          // Title
+     4 description     String optional,          // Description
+     5 imports         Import[0..*],             // Imported schema modules
+     6 exports         TypeName[0..*]            // Data types exported by this module
+}
+Import = Array {                             // Imported module id and unique name
+     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
+     2 Uname                                     // uname:: Unique name of imported module
+}
+Nsid = String(%^[a-z][a-z0-9]{,7}$%)
+Uname = String /uri
+```
 
 # Appendix D. Examples in JADN format
 This appendix contains the JADN definitions for all JADN-IDL examples in this document.
@@ -1159,18 +1190,18 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 ```
 ["Department", "Choice", [], "", [
     [1, "furniture", "Furniture", [], ""],
-    [1, "kitchen", "Appliance", [], ""],
-    [1, "electronics", "Device", [], ""]
+    [2, "kitchen", "Appliance", [], ""],
+    [3, "electronics", "Device", [], ""]
 ]],
 ["DeptID", "Enumerated", [], "", [
     [1, "furniture", ""],
-    [1, "kitchen", ""],
-    [1, "electronics", ""]
+    [2, "kitchen", ""],
+    [3, "electronics", ""]
 ]],
 ["Product", "Array", [], "", [
     [1, "dept", "String", [], "Must be a valid Choice field"],
-    [1, "quantity", "Integer", [], ""],
-    [1, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
+    [2, "quantity", "Integer", [], ""],
+    [3, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
 ]]
 ```
 
@@ -1196,16 +1227,15 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 
 **[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
 ```
-["Person", "Record", [], "", [
+["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "email", "String", ["/idn-email"], ""]
 ]],
-
-["Person", "Record", [], "", [
+["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
-    [2, "email", "Person$email", [], ""]
+    [2, "email", "Member$email", [], "Name and field options only, no type options"]
 ]],
-["Person$email", "String", ["/idn-email"], "Tool-generated type definition."]
+["Member$email", "String", ["/idn-email"], "Tool-generated type definition."]
 ```
 
 **[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
@@ -1217,9 +1247,15 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 
 ["Roster", "Record", [], "", [
     [1, "org_name", "String", [], ""],
-    [2, "members", "Roster#member", ["[0"], "Optional: minc=0, maxc=1"]
+    [2, "members", "Roster$members", ["[0"], "Optional: minc=0, maxc=1"]
 ]],
-["Roster$members", "ArrayOf", ["*Member", "]0"], "Tool-generated array: minv=1, maxv=0"]
+["Roster$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0"],
+
+["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Members", [], "members field is required: default minc = 1, maxc = 1"]
+]],
+["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0"]
 ```
 
 **[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
@@ -1229,8 +1265,8 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
     [2, "green", "Integer", [], ""],
     [3, "blue", "Integer", [], ""]
 ]],
-["Channel", "Enumerated", ["$Pixel"], ""],
-["ChannelMask", "ArrayOf", ["*$Pixel"], ""],
+["Channel", "Enumerated", ["$Pixel"], "Derived Enumerated type"],
+["ChannelMask", "ArrayOf", ["*Enum(Pixel)"], "ArrayOf(derived enumeration)"],
 
 ["Channel", "Enumerated", [], "", [
     [1, "red", ""],
@@ -1243,111 +1279,88 @@ This appendix contains the JADN definitions for all JADN-IDL examples in this do
 
 Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
 ```
+["Channel", "Enumerated", [], "", [
+    [1, "red", ""],
+    [2, "green", ""],
+    [3, "blue", ""]
+]],
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
 **[Appendix C. JADN Schema](#appendix-c-jadn-schema):**
+```
+[
+  ["Types", "ArrayOf", ["*Type"], ""],
+  ["Type", "Array", [], "", [
+    [1, "TypeName", "TypeName", [], ""],
+    [2, "BaseType", "BaseType", [], ""],
+    [3, "TypeOptions", "Options", [], ""],
+    [4, "TypeDescription", "Desc", [], ""],
+    [5, "Fields", "JADN-Type", ["&base_type"], ""]
+  ]],
+  ["BaseType", "Enumerated", ["$JADN-Type"], ""],
+  ["JADN-Type", "Choice", [], "", [
+    [1, "Binary", "Null", [], ""],
+    [2, "Boolean", "Null", [], ""],
+    [3, "Integer", "Null", [], ""],
+    [4, "Number", "Null", [], ""],
+    [5, "Null", "Null", [], ""],
+    [6, "String", "Null", [], ""],
+    [7, "Enumerated", "Items", [], ""],
+    [8, "Choice", "Fields", [], ""],
+    [9, "Array", "Fields", [], ""],
+    [10, "ArrayOf", "Null", [], ""],
+    [11, "Map", "Fields", [], ""],
+    [12, "MapOf", "Null", [], ""],
+    [13, "Record", "Fields", [], ""]
+  ]],
+  ["Items", "ArrayOf", ["*Item"], ""],
+  ["Item", "Array", [], "", [
+    [1, "ItemID", "FieldID", [], ""],
+    [2, "ItemValue", "String", [], ""],
+    [3, "ItemDescription", "Desc", [], ""]
+  ]],
+  ["Fields", "ArrayOf", ["*Field"], ""],
+  ["Field", "Array", [], "", [
+    [1, "FieldID", "FieldID", [], ""],
+    [2, "FieldName", "FieldName", [], ""],
+    [3, "FieldType", "TypeName", [], ""],
+    [4, "FieldOptions", "Options", [], ""],
+    [5, "FieldDescription", "Desc", [], ""]
+  ]],
+  ["FieldID", "Integer", [], ""],
+  ["Options", "ArrayOf", ["*Option", "}10"], ""],
+  ["Option", "String", ["{1"], ""],
+  ["Desc", "String", [], ""],
+  ["TypeName", "String", ["%([A-Z]([-A-Za-z0-9]|\\$){0,31})"], ""],
+  ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
 
+  ["Schema", "Record", [], "Definition of a JADN file", [
+    [1, "meta", "Meta", [], "Information about this schema module"],
+    [2, "types", "Types", [], "Types defined in this schema module"]
+  ]],
+  ["Meta", "Map", [], "Meta-information about this schema", [
+    [1, "module", "Uname", [], "Schema unique name/version"],
+    [2, "patch", "String", ["[0"], "Patch version"],
+    [3, "title", "String", ["[0"], "Title"],
+    [4, "description", "String", ["[0"], "Description"],
+    [5, "imports", "Import", ["[0", "]0"], "Imported schema modules"],
+    [6, "exports", "TypeName", ["[0", "]0"], "Data types exported by this module"]
+  ]],
+  ["Import", "Array", [], "Imported module id and unique name", [
+    [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
+    [2, "uname", "Uname", [], "Unique name of imported module"]
+  ]],
+  ["Nsid", "String", ["%^[a-z][a-z0-9]{0,7}$"], ""],
+  ["Uname", "String", ["/uri"], ""]
+]
+```
 # Appendix E. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
 
 ```
 ; Type definitions
-start       = 1*def
-def         = TYPE-NAME "="
-                  (binary [DESC])
-                / (integer [DESC])
-                / (number [DESC])
-                / (null [DESC])
-                / (string [DESC])
-                / (enum-f [DESC])
-                / (enumid-f [DESC])
-                / (arrayof [DESC])
-                / (mapof [DESC])
-                / (enum [DESC] efields)
-                / (enumid [DESC] iefields)
-                / (choice [DESC] fields)
-                / (choiceid [DESC] ifields)
-                / (array [DESC] fields)
-                / (map [DESC] fields)
-                / (mapid [DESC] ifields)
-                / (record [DESC] fields)
 
-; Options (required and allowed)
-binary      = %s"Binary" [LRANGE] [FORMAT]
-boolean     = %s"Boolean"
-integer     = %s"Integer" [IRANGE] [FORMAT]
-number      = %s"Number" [FRANGE] [FORMAT]
-null        = %s"Null"
-string      = %s"String" [LRANGE] [FORMAT] [PATTERN]
-enum-f      = %s"Enumerated" EFUNCP
-enumid-f    = %s"Enumerated.ID" EFUNCP
-arrayof     = %s"ArrayOf" vtype [LRANGE]
-mapof       = %s"MapOf" kvtype [LRANGE]
-enum        = %s"Enumerated"
-enumid      = %s"Enumerated.ID"
-choice      = %s"Choice"
-choiceid    = %s"Choice.ID"
-array       = %s"Array" [FORMAT]
-map         = %s"Map" [LRANGE]
-mapid       = %s"Map.ID" [LRANGE]
-record      = %s"Record"
-
-; Types without field definitions
-vtype       = "(" typestr ")"
-kvtype      = "(" typestr "," typestr ")"
-typestr     = TYPE-NAME / EFUNC
-                / binary / boolean / integer / number / null / string
-                / enum-f / enumid-f / arrayof / mapof
-
-; All types
-typedefstr  = binary / boolean / integer / number / null / string
-                / enum-f / enumid-f / arrayof / mapof
-                / enum / enumid / choice / choiceid / array / map / mapid / record
-
-INT         = ["-"] 1*10DIGIT               ; Arbitrary limit: 2^32 = 10 digits (4,294,967,296)
-UINT        = 1*10DIGIT
-NUM         = ["-"] 1*DIGIT ["." 1*DIGIT]
-LRANGE      = "{" UINT ".." UINT "}"        ; Length range: {m..n} m GE 0, n GT 0 or *
-IRANGE      = "{" INT ".." INT "}"          ; Integer range: {m..n} m and n are integers
-FRANGE      = "{" NUM ".." NUM "}"          ; Float range: {m..n} m and n are real numbers
-MRANGE      = "[" UINT ".." UINT "]"        ; Multiplicity: [m..n] m GE 0, n GT 0 or *
-
-EFUNC       = %s"Enum(" TYPE-NAME ")"
-EFUNCP      = "(" EFUNC ")"
-
-PATTERN     = "<" 1*100VCHAR ">"            ; FIXME - need regex validator and escaping
-
-FORMAT      = "/" ( %s"date-time" / %s"date" / %s"time"  ; JSON-Schema format keywords
-                / %s"email" / %s"idn-email"
-                / %s"hostname" / %s"idn-hostname"
-                / %s"ipv4" / %s"ipv6"
-                / %s"uri" / %s"uri-reference"
-                / %s"iri" / %s"iri-reference" / "uri-template"
-                / %s"json-pointer" / %s"relative-json-pointer"
-                / %s"regex"
-                / %s"eui"                     ; JADN format keywords
-                / %s"ipv4-addr" / %s"ipv6-addr"
-                / %s"ipv4-net" / %s"ipv6-net"
-                / %s"i8" / %s"i16" / %s"i32"
-                / %s"f16" / %s"f32"
-                / %s"u" UINT )
-
-efields     = "{" efield  *("," [DESC] efield)  [DESC] "}"
-iefields    = "{" iefield *("," [DESC] iefield) [DESC] "}"
-fields      = "{" field   *("," [DESC] field)   [DESC] "}"
-ifields     = "{" ifield  *("," [DESC] ifield)  [DESC] "}"
-
-FIELD-ID    = UINT
-efield      = FIELD-ID FIELD-NAME
-iefield     = FIELD-ID
-field       = FIELD-ID FIELD-NAME typestr [multiplicity]
-ifield      = FIELD-ID typestr [multiplicity]
-
-multiplicity = MRANGE / %s"optional"
-
-DESC        = "//" [FIELD-NAME "::"] *(WSP / VCHAR) CRLF
-COMMENT     = "/*" *(WSP / VCHAR / CRLF) "*/"
 
 ; JADN default naming conventions
 TYPE-NAME   = UC *31("-" / UC / LC / DIGIT / SYS)
