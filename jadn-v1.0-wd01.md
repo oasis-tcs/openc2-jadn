@@ -276,14 +276,14 @@ JADN type definitions have a regular structure designed to be easily describable
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
 
-* If BaseType is Enumerated, each field definition MUST have three elements:
+* If BaseType is Enumerated, each item definition MUST have three elements:
 
-1. **FieldID:** the integer identifier of the field
-2. **FieldName:** the name or label of the field
-3. **FieldDescription:** a non-normative comment
+1. **ItemID:** the integer identifier of the item
+2. **ItemValue:** the string value of the item
+3. **ItemDescription:** a non-normative comment
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-    [FieldID, FieldName, FieldDescription],
+    [ItemID, ItemValue, ItemDescription],
     ...
 ]]
 ```
@@ -766,7 +766,7 @@ Simplifying replaces the Channel and ChannelMask definitions with:
 ### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
-enumeration.
+enumeration. Each ItemValue of the Enumerated type must be a valid FieldName.
 
 Example:
 
@@ -1015,22 +1015,21 @@ An example property table using this style is shown in [Section 3.1.2](#312-exam
 Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
 
+# 6 Schemas
 
-# 6 Data Model Generation
+# 7 Data Model Generation
 A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
 
-# 7 Operational Considerations
-* Schema modules
+# 8 Operational Considerations
 * Serialization (bulk vs pull)
 * Validation (integrated with serialization, separate)
-* Schema expansion (unsweetening) - optional
 * Localization
 * Schema embedding - self-describing data
 * Bridging
 * Tabular data (not too many optional columns, sort fields by required/optional.  Tuples.)
 -------
 
-# 8 Security Considerations
+# 9 Security Considerations
 This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
 
 Additional security considerations applicable to JADN-based specifications: 
@@ -1043,7 +1042,7 @@ Writers of JADN specifications are strongly encouraged to value simplicity and t
 
 -------
 
-# 9 Conformance
+# 10 Conformance
 
 (Note: The [OASIS TC Process](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsConfClause) requires that a specification approved by the TC at the Committee Specification Public Review Draft, Committee Specification or OASIS Standard level must include a separate section, listing a set of numbered conformance clauses, to which any implementation of the specification must adhere in order to claim conformance to the specification (or any optional portion thereof). This is done by listing the conformance clauses here.
 For the definition of "conformance clause," see [OASIS Defined Terms](https://www.oasis-open.org/policies-guidelines/oasis-defined-terms-2017-05-26#dConformanceClause).
@@ -1093,8 +1092,11 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Schema
-This schema defines the structure of JADN type definitions, which is intended to remain stable indefinitely.
+# Appendix C. JADN Definitions
+
+**Type**
+
+The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
 BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
@@ -1102,50 +1104,75 @@ compactness and consistency. No other extensions are used.
 
 The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
 upper-case names in JADN-Type.
+```
+Types = ArrayOf(Type)
+Type = Array {
+     1 TypeName,                                 // TypeName::
+     2 BaseType,                                 // BaseType::
+     3 Options,                                  // TypeOptions::
+     4 Desc,                                     // TypeDescription::
+     5 JADN-Type(&base_type)                     // Fields::
+}
+BaseType = Enumerated(Enum(JADN-Type))
+JADN-Type = Choice {
+     1 Binary          Null,
+     2 Boolean         Null,
+     3 Integer         Null,
+     4 Number          Null,
+     5 Null            Null,
+     6 String          Null,
+     7 Enumerated      Items,
+     8 Choice          Fields,
+     9 Array           Fields,
+    10 ArrayOf         Null,
+    11 Map             Fields,
+    12 MapOf           Null,
+    13 Record          Fields
+}
+Items = ArrayOf(Item)
+Item = Array {
+     1 FieldID,                                  // ItemID::
+     2 String,                                   // ItemValue::
+     3 Desc                                      // ItemDescription::
+}
+Fields = ArrayOf(Field)
+Field = Array {
+     1 FieldID,                                  // FieldID::
+     2 FieldName,                                // FieldName::
+     3 TypeName,                                 // FieldType::
+     4 Options,                                  // FieldOptions::
+     5 Desc                                      // FieldDescription::
+}
+FieldID = Integer
+Options = ArrayOf(Option){0..10}
+Option = String{1..*}
+Desc = String
+TypeName = String(%([A-Z]([-A-Za-z0-9]|\$){0,31})%)
+FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
+```
+**Schema**
 
-    Types = ArrayOf(Type)
-    Type = Array {
-         1 TypeName,                                 // TypeName::
-         2 BaseType,                                 // BaseType::
-         3 Options,                                  // TypeOptions::
-         4 Desc,                                     // TypeDescription::
-         5 JADN-Type(&base_type)                     // Fields::
-    }
-    BaseType = Enumerated(Enum(JADN-Type))
-    JADN-Type = Choice {
-         1 Binary          Null,
-         2 Boolean         Null,
-         3 Integer         Null,
-         4 Number          Null,
-         5 Null            Null,
-         6 String          Null,
-         7 Enumerated      EnumFields,
-         8 Choice          Fields,
-         9 Array           Fields,
-        10 ArrayOf         Null,
-        11 Map             Fields,
-        12 MapOf           Null,
-        13 Record          Fields
-    }
-    EnumFields = ArrayOf(EnumField)
-    EnumField = Array {
-         1 FieldId,                                  // FieldID::
-         2 FieldName,                                // FieldName::
-         3 Desc                                      // FieldDescription::
-    }
-    Fields = ArrayOf(Field)
-    Field = Array {
-         1 FieldID,                                  // FieldID::
-         2 FieldName,                                // FieldName::
-         3 FieldType,                                // FieldType::
-         4 Options,                                  // FieldOptions::
-         5 Desc                                      // FieldDescription::
-    }
-    FieldId = Integer
-    Options = ArrayOf(Option){0..10}
-    Option = String{1..*}
-    Desc = String
-    FieldName = String(%[A-Za-z]([_A-Za-z0-9]){0,31}%)
+A schema module is a collection of type definitions along with information about the module as described in [Section 6](#8-schemas).
+```
+Schema = Record {                            // Definition of a JADN file
+     1 meta            Meta,                     // Information about this schema module
+     2 types           Types                     // Types defined in this schema module
+}
+Meta = Map {                                 // Meta-information about this schema
+     1 module          Uname,                    // Schema unique name/version
+     2 patch           String optional,          // Patch version
+     3 title           String optional,          // Title
+     4 description     String optional,          // Description
+     5 imports         Import[0..*],             // Imported schema modules
+     6 exports         TypeName[0..*]            // Data types exported by this module
+}
+Import = Array {                             // Imported module id and unique name
+     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
+     2 Uname                                     // uname:: Unique name of imported module
+}
+Nsid = String(%^[a-z][a-z0-9]{,7}$%)
+Uname = String /uri
+```
 
 # Appendix D. Examples in JADN format
 This appendix contains the JADN definitions for all JADN-IDL examples in this document.
@@ -1278,7 +1305,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "Number", "Null", [], ""],
     [5, "Null", "Null", [], ""],
     [6, "String", "Null", [], ""],
-    [7, "Enumerated", "EnumFields", [], ""],
+    [7, "Enumerated", "Items", [], ""],
     [8, "Choice", "Fields", [], ""],
     [9, "Array", "Fields", [], ""],
     [10, "ArrayOf", "Null", [], ""],
@@ -1286,25 +1313,45 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [12, "MapOf", "Null", [], ""],
     [13, "Record", "Fields", [], ""]
   ]],
-  ["EnumFields", "ArrayOf", ["*EnumField"], ""],
-  ["EnumField", "Array", [], "", [
-    [1, "FieldID", "FieldId", [], ""],
-    [2, "FieldName", "FieldName", [], ""],
-    [3, "FieldDescription", "Desc", [], ""]
+  ["Items", "ArrayOf", ["*Item"], ""],
+  ["Item", "Array", [], "", [
+    [1, "ItemID", "FieldID", [], ""],
+    [2, "ItemValue", "String", [], ""],
+    [3, "ItemDescription", "Desc", [], ""]
   ]],
   ["Fields", "ArrayOf", ["*Field"], ""],
   ["Field", "Array", [], "", [
     [1, "FieldID", "FieldID", [], ""],
     [2, "FieldName", "FieldName", [], ""],
-    [3, "FieldType", "FieldType", [], ""],
+    [3, "FieldType", "TypeName", [], ""],
     [4, "FieldOptions", "Options", [], ""],
     [5, "FieldDescription", "Desc", [], ""]
   ]],
-  ["FieldId", "Integer", [], ""],
+  ["FieldID", "Integer", [], ""],
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
   ["Desc", "String", [], ""],
-  ["FieldName", "String", ["%[A-Za-z]([_A-Za-z0-9]){0,31}"], ""]
+  ["TypeName", "String", ["%([A-Z]([-A-Za-z0-9]|\\$){0,31})"], ""],
+  ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
+
+  ["Schema", "Record", [], "Definition of a JADN file", [
+    [1, "meta", "Meta", [], "Information about this schema module"],
+    [2, "types", "Types", [], "Types defined in this schema module"]
+  ]],
+  ["Meta", "Map", [], "Meta-information about this schema", [
+    [1, "module", "Uname", [], "Schema unique name/version"],
+    [2, "patch", "String", ["[0"], "Patch version"],
+    [3, "title", "String", ["[0"], "Title"],
+    [4, "description", "String", ["[0"], "Description"],
+    [5, "imports", "Import", ["[0", "]0"], "Imported schema modules"],
+    [6, "exports", "TypeName", ["[0", "]0"], "Data types exported by this module"]
+  ]],
+  ["Import", "Array", [], "Imported module id and unique name", [
+    [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
+    [2, "uname", "Uname", [], "Unique name of imported module"]
+  ]],
+  ["Nsid", "String", ["%^[a-z][a-z0-9]{0,7}$"], ""],
+  ["Uname", "String", ["/uri"], ""]
 ]
 ```
 # Appendix E. ABNF Grammar for JADN IDL
