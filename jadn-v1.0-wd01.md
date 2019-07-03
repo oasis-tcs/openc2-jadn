@@ -1093,9 +1093,6 @@ The following individuals have participated in the creation of this specificatio
 The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
-BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
-compactness and consistency. No other extensions are used.
-
 The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
 upper-case names in JADN-Type.
 ```
@@ -1107,7 +1104,21 @@ Type = Array {
      4 Desc,                                     // TypeDescription::
      5 JADN-Type(&BaseType)                      // Fields::
 }
-BaseType = Enumerated(Enum(JADN-Type))
+BaseType = Enumerated {
+     1 Binary,
+     2 Boolean,
+     3 Integer,
+     4 Number,
+     5 Null,
+     6 String,
+     7 Enumerated,
+     8 Choice,
+     9 Array,
+    10 ArrayOf,
+    11 Map,
+    12 MapOf,
+    13 Record
+}
 JADN-Type = Choice {
      1 Binary          Null,
      2 Boolean         Null,
@@ -1302,7 +1313,21 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "TypeDescription", "Desc", [], ""],
     [5, "Fields", "JADN-Type", ["&BaseType"], ""]
   ]],
-  ["BaseType", "Enumerated", ["$JADN-Type"], ""],
+  ["BaseType", "Enumerated", [], "", [
+    [1, "Binary", ""],
+    [2, "Boolean", ""],
+    [3, "Integer", ""],
+    [4, "Number", ""],
+    [5, "Null", ""],
+    [6, "String", ""],
+    [7, "Enumerated", [], ""],
+    [8, "Choice", ""],
+    [9, "Array", ""],
+    [10, "ArrayOf", ""],
+    [11, "Map", ""],
+    [12, "MapOf", ""],
+    [13, "Record", ""]
+  ]],
   ["JADN-Type", "Choice", [], "", [
     [1, "Binary", "Null", [], ""],
     [2, "Boolean", "Null", [], ""],
