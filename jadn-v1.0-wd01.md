@@ -184,7 +184,7 @@ is represented when communicating.  More formally, information is the unexpected
 contained in a message.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., whitespace, leading zeroes, reordering, case-insensitive capitalization) is discarded on deserialization.
+(e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
@@ -226,7 +226,7 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
-JADN first-class types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Maps using an order-preserving variable type must interoperate with applications that do not preserve element order.
+JADN first-class types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
 * An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
@@ -247,7 +247,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
 | Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
-| MapOf(*ktype*, *vtype*) | An unordered map from a set of keys to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. Represents a map with keys that are either enumerated or are members of a well-defined category. |
+| MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
 | Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
 
 **API Values**
@@ -269,8 +269,8 @@ JADN type definitions have a regular structure designed to be easily describable
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of one or more field definitions, if applicable to BaseType
 
-* TypeName MUST NOT be a JADN type ([Table 3-1](#table-3-1-jadn-types)).
-* BaseType MUST be a JADN type
+* TypeName MUST NOT be a JADN type.
+* BaseType MUST be a JADN type.
 * If BaseType is a Simple type, ArrayOf, or MapOf, the type definition MUST NOT include Fields:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription]
@@ -279,7 +279,7 @@ JADN type definitions have a regular structure designed to be easily describable
 * If BaseType is Enumerated, each item definition MUST have three elements:
 
 1. **ItemID:** the integer identifier of the item
-2. **ItemValue:** the string value of the item
+2. **ItemValue:** the value of the item
 3. **ItemDescription:** a non-normative comment
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
@@ -319,7 +319,7 @@ by highlighting inconsistencies. JADN-based specifications MAY define their own 
 * Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
 ABNF:
-TypeName   = UC *31("-" / UC / LC / DIGIT / Sys)   ; e.g., Color-Values, length = 1-32 characters
+TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)   ; e.g., Color-Values, length = 1-32 characters
 FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
 FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, not allowed in FieldName
 Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
@@ -328,8 +328,8 @@ LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
-TypeName:  ([A-Z]([-A-Za-z0-9]|\$){,31})
-FieldName: ([a-z][_A-Za-z0-9]{,31})
+TypeName:  [A-Z][-$A-Za-z0-9]{0,31}
+FieldName: [a-z][_A-Za-z0-9]{0,31}
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -383,9 +383,7 @@ Person = Record {
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-These examples represent the same IM definition, but conformance is based on definitions in JSON format, which
-can be read unambiguously by applications with no language-specific parser. Specifications that include JADN definitions
-in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix D](#appendix-d-examples-in-jadn-format)).
+These represent the same IM definition, but conformance to specifications that use JADN is based on definitions in JSON format. Specifications that include definitions in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -602,7 +600,7 @@ Field names of the nested definition are qualified by the enclosing field name t
 forming a relative path using the separator character FieldSep ([Section 3.1.1](#311-naming-requirements)).
 
 Flattening may be used to extend a set of fields with fields defined elsewhere, or to
-apply constraints such as mutual exclusitivity to a subset of fields.
+apply constraints such as mutual exclusion to a subset of fields.
 
 **Example:**
 
@@ -632,16 +630,16 @@ an API value of Palette:
 is serialized in JSON format using qualified field names as:
 
     {
-    	"grass": {
-    		"red": 32,
-    		"green": 240,
-    		"blue": 24
-    	},
-    	"new/aqua": {
-    		"red": 64,
-    		"green": 240,
-    		"blue": 192
-    	}
+      "grass": {
+        "red": 32,
+        "green": 240,
+        "blue": 24
+      },
+      "new/aqua": {
+        "red": 64,
+        "green": 240,
+        "blue": 192
+      }
     }
 
 and is serialized in CBOR format without flattening as:
@@ -766,7 +764,7 @@ Simplifying replaces the Channel and ChannelMask definitions with:
 ### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
-enumeration. Each ItemValue of the Enumerated type must be a valid FieldName.
+enumeration. In order to use this extension, each ItemValue of the Enumerated type must be a valid FieldName.
 
 Example:
 
@@ -937,13 +935,13 @@ Compound types without the *id* option:
     }
 ```
 
-Compound types with the *id* option treat FieldName as a non-normative label
-(see [Section 3.2.1.1](#3211-field-identifiers)) and display it as part of the
-field description followed by a terminator ("::"):
+Compound types with the *id* option treat the item/field name as a non-normative label
+(see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
+followed by a label terminator ("::"):
 ```
     /* Enumerated.ID */
     TypeName = TYPESTRING {             // TypeDescription
-        FieldID                         // FieldName:: FieldDescription
+        ItemID                          // ItemName:: ItemDescription
     }
     
     /* Choice.ID, Map.ID */
@@ -968,7 +966,7 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
 **Field Options:**
 
-FIELDSTRING is the value of TYPESTRING combined with string representations of three mutually-exclusive field options:
+FIELDSTRING is the value of TYPESTRING combined with string representations of the three mutually-exclusive field options:
 
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
                   | FLATTEN TYPESTRING
@@ -978,10 +976,6 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
     FLATTEN       = "<"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
-
-Example:
-```
-```
 
 ### 5.2 Table Style
 Some specifications present type definitions in property table form, using differing style conventions.
@@ -1092,15 +1086,12 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Definitions
+# Appendix C. JADN Schema
 
-**Type**
+**Type Definitions**
 
 The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
-
-BaseType uses the derived enumeration extension ([Section 3.3.3](#333-derived-enumerations)) for
-compactness and consistency. No other extensions are used.
 
 The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
 upper-case names in JADN-Type.
@@ -1111,9 +1102,23 @@ Type = Array {
      2 BaseType,                                 // BaseType::
      3 Options,                                  // TypeOptions::
      4 Desc,                                     // TypeDescription::
-     5 JADN-Type(&base_type)                     // Fields::
+     5 JADN-Type(&BaseType)                      // Fields::
 }
-BaseType = Enumerated(Enum(JADN-Type))
+BaseType = Enumerated {
+     1 Binary,
+     2 Boolean,
+     3 Integer,
+     4 Number,
+     5 Null,
+     6 String,
+     7 Enumerated,
+     8 Choice,
+     9 Array,
+    10 ArrayOf,
+    11 Map,
+    12 MapOf,
+    13 Record
+}
 JADN-Type = Choice {
      1 Binary          Null,
      2 Boolean         Null,
@@ -1143,39 +1148,41 @@ Field = Array {
      4 Options,                                  // FieldOptions::
      5 Desc                                      // FieldDescription::
 }
-FieldID = Integer
+FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Desc = String
-TypeName = String(%([A-Z]([-A-Za-z0-9]|\$){0,31})%)
+TypeName = String(%[A-Z][-$A-Za-z0-9]{0,31}%)
 FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
 ```
-**Schema**
+**Schema Module**
 
 A schema module is a collection of type definitions along with information about the module as described in [Section 6](#8-schemas).
 ```
-Schema = Record {                            // Definition of a JADN file
-     1 meta            Meta,                     // Information about this schema module
-     2 types           Types                     // Types defined in this schema module
+Schema = Record {                            // Definition of a JADN schema module
+     1 meta            Meta,                     // Information about this module
+     2 types           Types                     // Types defined in this module
 }
-Meta = Map {                                 // Meta-information about this schema
-     1 module          Uname,                    // Schema unique name/version
+Meta = Map {                                 // Information about this module
+     1 module          Uname,                    // Unique name/version
      2 patch           String optional,          // Patch version
      3 title           String optional,          // Title
      4 description     String optional,          // Description
-     5 imports         Import[0..*],             // Imported schema modules
-     6 exports         TypeName[0..*]            // Data types exported by this module
+     5 imports         Imports optional,         // Imported schema modules
+     6 exports         Exports optional          // Data types exported by this module
 }
+Imports = ArrayOf(Import)
 Import = Array {                             // Imported module id and unique name
      1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
-     2 Uname                                     // uname:: Unique name of imported module
+     2 Uname                                     // namespace:: Unique name of imported module
 }
-Nsid = String(%^[a-z][a-z0-9]{,7}$%)
+Nsid = String(%[a-z][a-z0-9]{,7}%)
 Uname = String /uri
+Exports = ArrayOf(TypeName)
 ```
 
-# Appendix D. Examples in JADN format
-This appendix contains the JADN definitions for all JADN-IDL examples in this document.
+# Appendix D. Definitions in JADN format
+This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
 **[Section 3.1.2 Examples](#312-examples):**
 ```
@@ -1288,16 +1295,39 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ```
 **[Appendix C. JADN Schema](#appendix-c-jadn-schema):**
 ```
-[
+{
+ "meta": {
+  "module": "oasis-open.org/openc2/jadn/v1.0",
+  "patch": "0-wd01",
+  "title": "JADN Syntax",
+  "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
+  "exports": ["Schema", "Uname"]
+ },
+
+ "types": [
   ["Types", "ArrayOf", ["*Type"], ""],
   ["Type", "Array", [], "", [
     [1, "TypeName", "TypeName", [], ""],
     [2, "BaseType", "BaseType", [], ""],
     [3, "TypeOptions", "Options", [], ""],
     [4, "TypeDescription", "Desc", [], ""],
-    [5, "Fields", "JADN-Type", ["&base_type"], ""]
+    [5, "Fields", "JADN-Type", ["&BaseType"], ""]
   ]],
-  ["BaseType", "Enumerated", ["$JADN-Type"], ""],
+  ["BaseType", "Enumerated", [], "", [
+    [1, "Binary", ""],
+    [2, "Boolean", ""],
+    [3, "Integer", ""],
+    [4, "Number", ""],
+    [5, "Null", ""],
+    [6, "String", ""],
+    [7, "Enumerated", [], ""],
+    [8, "Choice", ""],
+    [9, "Array", ""],
+    [10, "ArrayOf", ""],
+    [11, "Map", ""],
+    [12, "MapOf", ""],
+    [13, "Record", ""]
+  ]],
   ["JADN-Type", "Choice", [], "", [
     [1, "Binary", "Null", [], ""],
     [2, "Boolean", "Null", [], ""],
@@ -1327,32 +1357,35 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "FieldOptions", "Options", [], ""],
     [5, "FieldDescription", "Desc", [], ""]
   ]],
-  ["FieldID", "Integer", [], ""],
+  ["FieldID", "Integer", ["{0"], ""],
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
   ["Desc", "String", [], ""],
-  ["TypeName", "String", ["%([A-Z]([-A-Za-z0-9]|\\$){0,31})"], ""],
+  ["TypeName", "String", ["%[A-Z][-$A-Za-z0-9]{0,31}"], ""],
   ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
 
-  ["Schema", "Record", [], "Definition of a JADN file", [
-    [1, "meta", "Meta", [], "Information about this schema module"],
-    [2, "types", "Types", [], "Types defined in this schema module"]
+  ["Schema", "Record", [], "Definition of a JADN schema module", [
+    [1, "meta", "Meta", [], "Information about this module"],
+    [2, "types", "Types", [], "Types defined in this module"]
   ]],
-  ["Meta", "Map", [], "Meta-information about this schema", [
-    [1, "module", "Uname", [], "Schema unique name/version"],
+  ["Meta", "Map", [], "Information about this module", [
+    [1, "module", "Uname", [], "Unique name/version"],
     [2, "patch", "String", ["[0"], "Patch version"],
     [3, "title", "String", ["[0"], "Title"],
     [4, "description", "String", ["[0"], "Description"],
-    [5, "imports", "Import", ["[0", "]0"], "Imported schema modules"],
-    [6, "exports", "TypeName", ["[0", "]0"], "Data types exported by this module"]
+    [5, "imports", "Imports", ["[0"], "Imported schema modules"],
+    [6, "exports", "Exports", ["[0"], "Data types exported by this module"]
   ]],
+  ["Imports", "ArrayOf", ["*Import"], ""],
   ["Import", "Array", [], "Imported module id and unique name", [
     [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
-    [2, "uname", "Uname", [], "Unique name of imported module"]
+    [2, "namespace", "Uname", [], "Unique name of imported module"]
   ]],
-  ["Nsid", "String", ["%^[a-z][a-z0-9]{0,7}$"], ""],
-  ["Uname", "String", ["/uri"], ""]
-]
+  ["Nsid", "String", ["%^[a-z][a-z0-9]{,7}$"], ""],
+  ["Uname", "String", ["/uri"], ""],
+  ["Exports", "ArrayOf", ["*TypeName"], ""]
+ ]
+}
 ```
 # Appendix E. ABNF Grammar for JADN IDL
 
