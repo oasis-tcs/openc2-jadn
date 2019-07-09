@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 28 June 2019
+## 5 July 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -221,7 +221,7 @@ information-centric focus:
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without separate schema generation or code generation steps. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without a separate schema generation step. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
  
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
@@ -383,7 +383,7 @@ Person = Record {
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-These represent the same IM definition, but conformance to specifications that use JADN is based on definitions in JSON format. Specifications that include definitions in JADN-IDL or table format SHOULD also make them available in JSON format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
+These represent the same IM definition, but conformance is based on native JSON definitions. Specifications that use JADN-IDL or table format SHOULD also make those definitions available in JADN format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -413,7 +413,6 @@ which data values are instances of the defined type.
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
 | 0x7b `'{'` | minv | Integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
 | 0x7d `'}'` | maxv | Integer | Maximum numeric value, octet or character count, or element count |
-| 0x21 `'!'` | default | String | Default value for an instance of this type (Reserved, [Section 3.2.1.8](#3218-default-value))|
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -500,7 +499,7 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
 | i8           | Integer | Signed 8 bit integer, value must be between -128 and 127.
 | i16          | Integer | Signed 16 bit integer, value must be between -32768 and 32767.
-| i32          | Integer | Signed 32 bit integer, value must be between ... and ...
+| i32          | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.
 | u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
 
 * *Note: There is currently no approved standard for JSON Schema. When it is available as an Internet RFC, it will*
@@ -514,19 +513,16 @@ The *pattern* option specifies a regular expression used to validate a String in
 #### 3.2.1.7 Size and Value Constraints
 The *minv* and *maxv* options specify size or value limits.
 
-* For Binary, String, ArrayOf, Map, or MapOf types:
+* For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
     * if *minv* is not present, the lower size limit defaults to zero.
     * if *maxv* is not present or is zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
-    * an ArrayOf, Map, or MapOf instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
+    * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
 
-* For Integer or Number types:
+* For Integer and Number types:
     * if *minv* is present, an instance MUST be considered invalid if its value is less than *minv*.
     * if *maxv* is present, an instance MUST be considered invalid if its value is greater than *maxv*.
-
-#### 3.2.1.8 Default Value
-The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ### 3.2.2 Field Options
 Field options are specified for each field within a type definition. Each option in Table 3-5 is a structural element of the type definition.
@@ -539,6 +535,7 @@ Field options are specified for each field within a type definition. Each option
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
 | 0x3c `'<'` | flatten | none | Use FieldName as a qualifier for fields in FieldType |
+| 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
 
 * FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or flatten.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
@@ -660,6 +657,9 @@ and is serialized in CBOR format without flattening as:
              18 40 # unsigned(64)
              18 F0 # unsigned(240)
              18 C0 # unsigned(192)
+
+#### 3.2.2.4 Default Value
+The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition types, plus several extensions that make type definitions
@@ -978,7 +978,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
 An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
 
 ### 5.2 Table Style
-Some specifications present type definitions in property table form, using differing style conventions.
+Some specifications present type definitions in property table form, using varied style conventions.
 This specification does not define a normative property table format, but this section is one example
 of how JADN definitions may be displayed as property tables.
 
