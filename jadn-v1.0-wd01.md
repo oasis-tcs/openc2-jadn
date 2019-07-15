@@ -803,15 +803,15 @@ The following serialization rules are used to represent JADN data types in a hum
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Enumerated** | JSON **string** |
-| **Enumerated** with "id" | JSON **integer** |
-| **Choice** | JSON **object** with one member.  Member key is FieldName. |
-| **Choice** with "id" | JSON **object** with one member. Member key is FieldID converted to string. |
+| **Enumerated** | JSON **string** ItemValue |
+| **Enumerated** with "id" | JSON **integer** ItemID |
+| **Choice** | JSON **object** with one property.  Property key is FieldName. |
+| **Choice** with "id" | JSON **object** with one property. Property key is FieldID converted to string. |
 | **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
-| **Map** | JSON **object**. Member keys are FieldNames. |
-| **Map** with "id" | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Map** | JSON **object**. Property keys are FieldNames. |
+| **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | Same as **Map**. |
 
 **Format options that affect JSON serialization**
@@ -841,7 +841,7 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
 | **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
-| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) FieldID. |
+| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID. |
 | **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
 | **Array** | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
 | **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is Null. |
@@ -870,39 +870,41 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Enumerated** | JSON **integer** |
-| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
+| **Enumerated** | JSON **integer** ItemID |
+| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
 | **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
-| **Map** | JSON **object**. Member keys are FieldIDs converted to strings. |
+| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
 | **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
+*Editor's note: needs correction and XML expertise.  The following assumes, perhaps wrongly, that simple types never appear as standalone instances, only as fields within container types.*
+
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
-| **Binary** | XML \<Base64Binary\> element with a base64Binary canonical lexical value |
-| **Boolean** | XML attribute with the value "true" or "false" |
-| **Integer** | |
-| **Number** | |
-| **Null** | |
-| **String** | |
-| **Enumerated** | |
-| **Choice** | |
-| **Array** | |
-| **ArrayOf** | |
-| **Map** | |
-| **MapOf** | |
-| **Record** | |
+| **Binary** | XML \<Base64Binary\> element with name TypeName amd base64Binary canonical lexical value |
+| **Boolean** | XML attribute with name TypeName and value "true" or "false" |
+| **Integer** | XML attribute with name TypeName and integer value |
+| **Number** | XML attribute with name TypeName and real value |
+| **Null** | XML element with name TypeName and value xsi:nil="true" |
+| **String** | XML attribute with name TypeName and string value |
+| **Enumerated** | XML attribute with name TypeName and string ItemValue |
+| **Choice** | XML element with name TypeName containing one element with name FieldName |
+| **Array** | XML element with name TypeName containing ... |
+| **ArrayOf** | XML element with name TypeName containing ... |
+| **Map** | XML element with name TypeName containing ... |
+| **MapOf** | XML element with name TypeName containing ... |
+| **Record** | XML element with name TypeName containing ... |
 
 **Format options that affect XML serialization**
 * When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
 | Option | JADN Type | XML Serialization Requirement |
 | :--- | :--- | :--- |
-| **x** | Binary | XML \<HexBinary\> element with a hexBinary canonical lexical value. |
+| **x** | Binary | XML \<HexBinary\> element with name TypeName amd hexBinary canonical lexical value. |
 
 # 5 Definition Formats
 
