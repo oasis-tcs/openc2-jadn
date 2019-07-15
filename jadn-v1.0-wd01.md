@@ -215,9 +215,16 @@ information-centric focus:
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number first-class types exist regardless of data representation. |
 | CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
+| Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.2 Implementation
+## 2.2 Instance Equality
+
+JSON Schema defines instance equality at the data level: "Two JSON instances are said to be equal if and only if they are of the same type and have the same value according to the data model" and "mere formatting differences (indentation, placement of commas, trailing zeros) are insignificant."
+
+An information model applies that definition at the information level: Two JADN instances are said to be equal if and only if they are of the same JADN type ([Section 3](#3-jadn-types)) and have the same value according to the information model.  Mere formatting differences, including data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array can be compared for equality with an instance serialized as a map.
+
+## 2.3 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
