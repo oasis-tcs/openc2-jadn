@@ -511,6 +511,8 @@ The *pattern* option specifies a regular expression used to validate a String in
 * The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
 * A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
 
+The pattern does not need anchors, it matches the entire instance rather than searching it for substrings.
+
 #### 3.2.1.7 Size and Value Constraints
 The *minv* and *maxv* options specify size or value limits.
 
@@ -875,13 +877,13 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 ## 4.4 XML Serialization:
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-*Editor's note: prototype serialization rules must be fixed based on XML expertise.*
+*Editor's note: prototype serialization rules - need XML expertise to fix.*
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
 | **Binary**  | <xs:element name="FieldName" type="xs:base64Binary"/> |
 | **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
-| **Integer** | <xs:element name="FieldName" type="xs:integer"/> where type may be byte, int, long, ... excluding decimal |
+| **Integer** | <xs:element name="FieldName" type="xs:integer"/> |
 | **Number**  | <xs:element name="FieldName" type="xs:decimal"/> |
 | **Null**    | <xs:attribute name="FieldName" xsi:nil="true"/> |
 | **String**  | <xs:element name="FieldName" type="xs:string"/> |
@@ -898,7 +900,14 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 
 | Option | JADN Type | XML Serialization Requirement |
 | :--- | :--- | :--- |
-| **x** | Binary | <xs:element name="FieldName" type="xs:hexBinary"/> |
+| **x**   | Binary  | <xs:element name="FieldName" type="xs:hexBinary"/> |
+| **i8**  | Integer | <xs:element name="FieldName" type="xs:byte"/> |
+| **i16** | Integer | <xs:element name="FieldName" type="xs:short"/> |
+| **i32** | Integer | <xs:element name="FieldName" type="xs:int"/> |
+| **u1..u8**  | Integer | <xs:element name="FieldName" type="xs:unsignedByte"/> |
+| **u9..u16** | Integer | <xs:element name="FieldName" type="xs:unsignedShort"/> |
+| **u17..u32** | Integer | <xs:element name="FieldName" type="xs:unsignedInt"/> |
+| **u33..u*** | Integer | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
 
 # 5 Definition Formats
 
@@ -1384,7 +1393,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
     [2, "namespace", "Uname", [], "Unique name of imported module"]
   ]],
-  ["Nsid", "String", ["%^[a-z][a-z0-9]{,7}$"], ""],
+  ["Nsid", "String", ["%[a-z][a-z0-9]{,7}"], ""],
   ["Uname", "String", ["/uri"], ""],
   ["Exports", "ArrayOf", ["*TypeName"], ""]
  ]
