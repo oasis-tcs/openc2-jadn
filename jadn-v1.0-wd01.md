@@ -259,13 +259,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 
 **API Values**
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats. Python or C++ or Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
-
-| Python IM API |  JADN Type  |   Serialization Rules |
-| ------------- | ----------- | ----------------|
-| bytes<br>bytearray | Binary | JSON string (base64, hex, or other)<br>CBOR #2 byte string |
-| True          | Boolean     | JSON true<br>CBOR #7.21 |
-| ... | |
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any serialized data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
@@ -881,30 +875,30 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 ## 4.4 XML Serialization:
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-*Editor's note: needs correction and XML expertise.  The following assumes, perhaps wrongly, that simple types never appear as standalone instances, only as fields within container types.*
+*Editor's note: prototype serialization rules must be fixed based on XML expertise.*
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
-| **Binary** | XML \<Base64Binary\> element with name TypeName amd base64Binary canonical lexical value |
-| **Boolean** | XML attribute with name TypeName and value "true" or "false" |
-| **Integer** | XML attribute with name TypeName and integer value |
-| **Number** | XML attribute with name TypeName and real value |
-| **Null** | XML element with name TypeName and value xsi:nil="true" |
-| **String** | XML attribute with name TypeName and string value |
-| **Enumerated** | XML attribute with name TypeName and string ItemValue |
-| **Choice** | XML element with name TypeName containing one element with name FieldName |
-| **Array** | XML element with name TypeName containing ... |
-| **ArrayOf** | XML element with name TypeName containing ... |
-| **Map** | XML element with name TypeName containing ... |
-| **MapOf** | XML element with name TypeName containing ... |
-| **Record** | XML element with name TypeName containing ... |
+| **Binary**  | <xs:element name="FieldName" type="xs:base64Binary"/> |
+| **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
+| **Integer** | <xs:element name="FieldName" type="xs:integer"/> where type may be byte, int, long, ... excluding decimal |
+| **Number**  | <xs:element name="FieldName" type="xs:decimal"/> |
+| **Null**    | <xs:attribute name="FieldName" xsi:nil="true"/> |
+| **String**  | <xs:element name="FieldName" type="xs:string"/> |
+| **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item |
+| **Choice**  | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
+| **Array**   | <xs:element name="FieldName"/> containing elements with name FieldName of each field |
+| **ArrayOf** | <xs:element name="FieldName"/> containing elements with the same FieldName for all fields |
+| **Map**     | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
+| **MapOf**   | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
+| **Record**  | same as **Map** |
 
 **Format options that affect XML serialization**
 * When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
 | Option | JADN Type | XML Serialization Requirement |
 | :--- | :--- | :--- |
-| **x** | Binary | XML \<HexBinary\> element with name TypeName amd hexBinary canonical lexical value. |
+| **x** | Binary | <xs:element name="FieldName" type="xs:hexBinary"/> |
 
 # 5 Definition Formats
 
