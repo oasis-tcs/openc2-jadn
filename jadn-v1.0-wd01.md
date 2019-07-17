@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 5 July 2019
+## 19 July 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -91,7 +91,40 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
-## 1.3 Normative References
+## 1.3 Definitions
+
+### 1.3.1 Schema
+An abstract schema, or information model, describes the structure of information used by or communicated among applications.  Applications can use a schema to validate instances by checking that constraints are met.  
+
+A concrete schema, or data model, describes the structure of a document used to store or communicate information.
+
+### 1.3.2 Document
+A document is a series of octets described by an information model and a data format, or equivalently, by a data model.
+
+### 1.3.3 Data Format
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats can be defined for these media types and others that can be parsed into or processed according to the JADN information model.
+
+### 1.3.4 Instance
+An instance is an item of information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type.  The core JADN types are:
+
+* simple: Null, Boolean, Binary, Integer, Number, String
+* selector: Enumerated, Choice
+* compound: Array, ArrayOf(value-type), Map, MapOf(key-type, value-type), Record.
+
+Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define two fields with the same key in an instance is undefined.
+
+Note that JADN schemas are free to define their own extended type system. This should not be confused with the core information model types defined here. As an example, "IPv4-Address" is a reasonable type for a schema to define, but the definition must be based on one of the core types.
+
+#### 1.3.4.1 Instance Equality
+Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array can be compared for equality with an instance serialized as a map.
+
+#### 1.3.4.2 Serialization
+Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
+
+### 1.3.5 Description
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema. The value MUST be a string, which MAY be empty. Implementations MUST NOT present this string to end users. Tools for editing schemas SHOULD support displaying and editing descriptions. The value MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. Implementations MUST NOT take any other action based on the presence, absence, or contents of description values.
+
+## 1.4 Normative References
 ###### [ES9]
 ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
 ###### [EUI]
@@ -121,17 +154,13 @@ Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RF
 ###### [RFC8259]
 Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
 
-## 1.4 Non-Normative References
+## 1.5 Non-Normative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
-###### [GFM]
-*"GitHub Flavored Markdown"*, https://github.github.com/gfm/.
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Luff, G., *"JSON Schema Validation"*, Internet-Draft, March 2018, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01, or for latest drafts: https://json-schema.org/work-in-progress.
-###### [MDA]
-Cephas Consulting Group, *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf.
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
@@ -173,12 +202,6 @@ constructs.
 Since conceptual models can be implemented in different ways, multiple DMs
 can be derived from a single IM.
 
-Within a Model Driven Architecture ([MDA](#mda)):
-* An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
-mapping to one or more platforms.
-* A DM is part of a Platform Specific Model (PSM) that combines the specifications in the PIM with the details
-required to stipulate how a system uses a particular type of platform. 
-
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a message.  When information is serialized for transmission in a canonical format, the additional
@@ -212,19 +235,13 @@ information-centric focus:
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
-| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
-| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number core types exist regardless of data representation. |
+| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Core container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
+| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
 | Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.2 Instance Equality
-
-JSON Schema defines instance equality at the data level: "Two JSON instances are said to be equal if and only if they are of the same type and have the same value according to the data model" and "mere formatting differences (indentation, placement of commas, trailing zeros) are insignificant."
-
-An information model applies that definition at the information level: Two JADN instances are said to be equal if and only if they are of the same JADN type ([Section 3](#3-jadn-types)) and have the same value according to the information model.  Mere formatting differences, including data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array can be compared for equality with an instance serialized as a map.
-
-## 2.3 Implementation
+## 2.2 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
@@ -233,29 +250,30 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
-JADN first-class types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
+JADN core types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
 * An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
 
-| JADN Type | Definition |
-| :--- | :--- |
-| **Simple** |   |
-| Binary | A sequence of octets.  Length is the number of octets. |
-| Boolean | An element with one of two values: true or false. |
-| Integer | A positive or negative whole number. |
-| Number | A real number. |
-| Null | An unspecified or non-existent value. |
-| String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
-| **Compound** |   |
-| Enumerated | One value selected from a set of named or labeled integers. |
-| Choice | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
-| Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
+|    JADN Type     |       Definition                                                |
+| :--------------  | :-------------------------------------------------------------- |
+|  **Simple**      |                                                                 |
+| Binary           | A sequence of octets.  Length is the number of octets.          |
+| Boolean          | An element with one of two values: true or false.               |
+| Integer          | A positive or negative whole number.                            |
+| Number           | A real number.                                                  |
+| Null             | An unspecified or non-existent value.                           |
+| String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
+|  **Selector**    |                                                                 |
+| Enumerated       | One value selected from a set of named or labeled integers.     |
+| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
+| **Compound**     |                                                                 |
+| Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
-| Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
+| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
-| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
+| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
 
 **API Values**
 
@@ -1023,8 +1041,10 @@ can be displayed as a [YANG tree diagram](#rfc8340) using the following conventi
 
 # 6 Schemas
 
+Type definitions are collected into schema *modules*, and modules may be combined to form the *schema* supported by a device, application or service.
+
 # 7 Data Model Generation
-A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
+A JADN schema combined with serialization rules defines a data model, a concrete schema that validates instances in the specified data format.
 
 # 8 Operational Considerations
 * Serialization (bulk vs pull)
@@ -1098,7 +1118,9 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Schema
+# Appendix C. JADN Meta-schema
+
+A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates itself and other JADN schemas.
 
 **Type Definitions**
 
@@ -1113,7 +1135,7 @@ Type = Array {
      1 TypeName,                                 // TypeName::
      2 BaseType,                                 // BaseType::
      3 Options,                                  // TypeOptions::
-     4 Desc,                                     // TypeDescription::
+     4 Description,                              // TypeDescription::
      5 JADN-Type(&BaseType)                      // Fields::
 }
 BaseType = Enumerated {
@@ -1150,7 +1172,7 @@ Items = ArrayOf(Item)
 Item = Array {
      1 FieldID,                                  // ItemID::
      2 String,                                   // ItemValue::
-     3 Desc                                      // ItemDescription::
+     3 Description                               // ItemDescription::
 }
 Fields = ArrayOf(Field)
 Field = Array {
@@ -1158,12 +1180,12 @@ Field = Array {
      2 FieldName,                                // FieldName::
      3 TypeName,                                 // FieldType::
      4 Options,                                  // FieldOptions::
-     5 Desc                                      // FieldDescription::
+     5 Description                               // FieldDescription::
 }
 FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
-Desc = String
+Description = String
 TypeName = String(%[A-Z][-$A-Za-z0-9]{0,31}%)
 FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
 ```
@@ -1181,16 +1203,16 @@ Meta = Map {                                 // Information about this module
      3 title           String optional,          // Title
      4 description     String optional,          // Description
      5 imports         Imports optional,         // Imported schema modules
-     6 exports         Exports optional          // Data types exported by this module
+     6 exports         Exports optional          // Types exported by this module
 }
-Imports = ArrayOf(Import)
-Import = Array {                             // Imported module id and unique name
-     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
-     2 Uname                                     // namespace:: Unique name of imported module
+Imports = ArrayOf(Import)                    // List of imported modules
+Import = Array {
+     1 Nsid,                                     // nsid::
+     2 Uname                                     // namespace::
 }
-Nsid = String(%[a-z][a-z0-9]{,7}%)
-Uname = String /uri
-Exports = ArrayOf(TypeName)
+Nsid = String(%[a-z][a-z0-9]{,7}%)           // Namespace id - a short tag defined here and used to refer to an imported module
+Uname = String /uri                          // Unique name of the imported module
+Exports = ArrayOf(TypeName)                  // List of top-level types defined in this module expected to be used by other modules
 ```
 
 # Appendix D. Definitions in JADN format
@@ -1322,7 +1344,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "TypeName", "TypeName", [], ""],
     [2, "BaseType", "BaseType", [], ""],
     [3, "TypeOptions", "Options", [], ""],
-    [4, "TypeDescription", "Desc", [], ""],
+    [4, "TypeDescription", "Description", [], ""],
     [5, "Fields", "JADN-Type", ["&BaseType"], ""]
   ]],
   ["BaseType", "Enumerated", [], "", [
@@ -1359,7 +1381,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Item", "Array", [], "", [
     [1, "ItemID", "FieldID", [], ""],
     [2, "ItemValue", "String", [], ""],
-    [3, "ItemDescription", "Desc", [], ""]
+    [3, "ItemDescription", "Description", [], ""]
   ]],
   ["Fields", "ArrayOf", ["*Field"], ""],
   ["Field", "Array", [], "", [
@@ -1367,12 +1389,12 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "FieldName", "FieldName", [], ""],
     [3, "FieldType", "TypeName", [], ""],
     [4, "FieldOptions", "Options", [], ""],
-    [5, "FieldDescription", "Desc", [], ""]
+    [5, "FieldDescription", "Description", [], ""]
   ]],
   ["FieldID", "Integer", ["{0"], ""],
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
-  ["Desc", "String", [], ""],
+  ["Description", "String", [], ""],
   ["TypeName", "String", ["%[A-Z][-$A-Za-z0-9]{0,31}"], ""],
   ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
 
