@@ -105,7 +105,7 @@ A document is a series of octets described by an information model and a data fo
 A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents of that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats can be defined for these media types and for others that can be parsed into or processed according to the JADN information model.
 
 ### 1.3.4 Instance
-An instance is an item of information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type.  The core JADN types are:
+An instance, or API value, is an item of information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type.  The core JADN types are:
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
@@ -118,10 +118,10 @@ Note that JADN schemas are free to define their own extended type system. This s
 #### 1.3.4.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
 
-#### 1.3.4.2 Serialization
+#### 1.3.5 Serialization
 Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
 
-### 1.3.5 Description
+### 1.3.6 Description
 Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and must be ignored by applications using the schema.
 
 ## 1.4 Normative References
@@ -277,7 +277,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 
 **API Values**
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any serialized data formats that exhibit the behavior required of a type are interchangeable and interoperable.
+The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
