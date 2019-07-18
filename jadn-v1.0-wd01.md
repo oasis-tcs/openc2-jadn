@@ -94,18 +94,19 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## 1.3 Definitions
 
 ### 1.3.1 Schema
-An abstract schema, or information model, describes the structure of information used by or communicated among applications.  Applications can use a schema to validate instances by checking that constraints are met.  
+An abstract schema, or information model, describes the structure of information used by applications.
+Applications can use a schema to validate instances by checking that constraints are met.  
 
 A concrete schema, or data model, describes the structure of a document used to store or communicate information.
 
 ### 1.3.2 Document
-A document is a series of octets described by an information model and a data format, or equivalently, by a data model.
+A document is a series of octets described by an information model combined with a data format, or equivalently, by a data model.
 
 ### 1.3.3 Data Format
-A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents of that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats can be defined for these media types and for others that can be parsed into or processed according to the JADN information model.
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for media types that can represent instances of the JADN information model.
 
 ### 1.3.4 Instance
-An instance, or API value, is an item of information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type.  The core JADN types are:
+An instance, or API value, is an item of information to which a schema applies. An instance is one of the core types defined in [Section 3](#3-jadn-types), and has a set of possible values depending on the type. The core types are:
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
@@ -113,16 +114,16 @@ An instance, or API value, is an item of information to which a schema applies. 
 
 Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define two fields with the same key in an instance is undefined.
 
-Note that JADN schemas are free to define their own extended type system. This should not be confused with the core information model types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the core Binary type.
+Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
 
 #### 1.3.4.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
 
-#### 1.3.5 Serialization
+### 1.3.5 Serialization
 Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
 
 ### 1.3.6 Description
-Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and must be ignored by applications using the schema.
+Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and are ignored by applications using the schema.
 
 ## 1.4 Normative References
 ###### [ES9]
@@ -277,7 +278,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 
 **API Values**
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
+The mechanisms chosen by a developer or defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
@@ -327,8 +328,7 @@ JADN type definitions have a regular structure designed to be easily describable
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#311-type-definition-within-fields)).
 
 ### 3.1.1 Naming Requirements
-JADN does not restrict the syntax of TypeName and FieldName, but naming requirements can aid readability of specifications
-by highlighting inconsistencies. JADN-based specifications MAY define their own name format requirements.
+JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications. JADN-based specifications MAY define their own name format requirements.
 
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
@@ -353,7 +353,7 @@ FieldName: [a-z][_A-Za-z0-9]{0,31}
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
 Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
-does not affect the meaning of a type definition.
+does not affect the meaning of type definitions.
 
 ### 3.1.2 Descriptions
 Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
@@ -467,17 +467,20 @@ which data values are instances of the defined type.
 
 #### 3.2.1.1 Field Identifiers
 
-Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types
-have an *id* option that determines which identifier is used in API instances of these types.
+The *id* option used with Enumerated, Choice, and Map types determines how fields are specified in API instances of these types.
 If the *id* option is absent, API instances use FieldName and the type is referred to as "named".
 If the *id* option is present, API instances use FieldID and the type is referred to as "labeled".
 The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be
 populated in the type definition, and may appear in serialized data depending on serialization format.
 * In labeled types, FieldName is a suggested label that is not included in the semantics of the type,
-may be empty in the type definition, and never appears in serialized data regardless of serialization format.
+may be empty in the type definition, and never appears in serialized data regardless of data format.
 
-For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
+For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
+If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
+whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
+the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
+such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 3.2.1.2 Value Type
 
