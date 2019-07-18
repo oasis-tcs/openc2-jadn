@@ -102,27 +102,27 @@ A concrete schema, or data model, describes the structure of a document used to 
 A document is a series of octets described by an information model and a data format, or equivalently, by a data model.
 
 ### 1.3.3 Data Format
-A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats can be defined for these media types and others that can be parsed into or processed according to the JADN information model.
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents of that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats can be defined for these media types and for others that can be parsed into or processed according to the JADN information model.
 
 ### 1.3.4 Instance
 An instance is an item of information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type.  The core JADN types are:
 
-* simple: Null, Boolean, Binary, Integer, Number, String
-* selector: Enumerated, Choice
-* compound: Array, ArrayOf(value-type), Map, MapOf(key-type, value-type), Record.
+* **Simple:** Null, Boolean, Binary, Integer, Number, String
+* **Selector:** Enumerated, Choice
+* **Compound:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
 Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define two fields with the same key in an instance is undefined.
 
-Note that JADN schemas are free to define their own extended type system. This should not be confused with the core information model types defined here. As an example, "IPv4-Address" is a reasonable type for a schema to define, but the definition must be based on one of the core types.
+Note that JADN schemas are free to define their own extended type system. This should not be confused with the core information model types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the core Binary type.
 
 #### 1.3.4.1 Instance Equality
-Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array can be compared for equality with an instance serialized as a map.
+Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
 
 #### 1.3.4.2 Serialization
 Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
 
 ### 1.3.5 Description
-Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema. The value MUST be a string, which MAY be empty. Implementations MUST NOT present this string to end users. Tools for editing schemas SHOULD support displaying and editing descriptions. The value MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. Implementations MUST NOT take any other action based on the presence, absence, or contents of description values.
+Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and must be ignored by applications using the schema.
 
 ## 1.4 Normative References
 ###### [ES9]
@@ -355,7 +355,16 @@ FieldName: [a-z][_A-Za-z0-9]{0,31}
 Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
 does not affect the meaning of a type definition.
 
-### 3.1.2 Examples
+### 3.1.2 Descriptions
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
+* The description value MUST be a string, which MAY be empty.
+* Implementations MUST NOT present this string to end users.
+* Tools for editing schemas SHOULD support displaying and editing descriptions.
+* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
+
+Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
+
+### 3.1.3 Examples
 
 JADN type definitions are themselves information objects that can be represented in many ways.
 [Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions
@@ -626,14 +635,14 @@ With the type definitions:
 
     Palette = Map {
         1 burgundy Rgb,
-        2 grass    Rgb,
+        2 green    Rgb,
         3 lapis    Rgb,
         4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
     }
     New-Color = Map {
-        1 maize    Rgb,
-        2 aqua     Rgb,
-        3 fuschia  Rgb
+       17 maize    Rgb,
+        9 fuschia  Rgb,
+        2 aqua     Rgb
     }
     Rgb = Record {
         1 red      Integer{0..255},
@@ -647,6 +656,7 @@ an API value of Palette:
 
 is serialized in JSON format using qualified field names as:
 
+    87 non-whitespace bytes:
     {
       "grass": {
         "red": 32,
@@ -660,7 +670,7 @@ is serialized in JSON format using qualified field names as:
       }
     }
 
-and is serialized in CBOR format without flattening as:
+and is serialized in CBOR format, without flattening because it doesn't contain field names, as:
 
     diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
@@ -1032,7 +1042,7 @@ or (for compound types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
 +---------+-------------+--------+------------------------------+
 ```
-An example property table using this style is shown in [Section 3.1.2](#312-examples).
+An example property table using this style is shown in [Section 3.1.2](#313-examples).
 
 ## 5.3 Tree Diagrams
 
@@ -1218,7 +1228,7 @@ Exports = ArrayOf(TypeName)                  // List of top-level types defined 
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 3.1.2 Examples](#312-examples):**
+**[Section 3.1.3 Examples](#313-examples):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -1250,14 +1260,14 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ```
 ["Palette", "Map", [], "", [
     [1, "burgundy", "Rgb", [], ""],
-    [2, "grass",    "Rgb", [], ""],
+    [2, "green",    "Rgb", [], ""],
     [3, "lapis",    "Rgb", [], ""],
     [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
 ]],
 ["New-Color", "Map", [], "", [
-    [1, "maize",   "Rgb", [], ""],
-    [2, "aqua",    "Rgb", [], ""],
-    [3, "fuschia", "Rgb", [], ""]
+    [17, "maize",   "Rgb", [], ""],
+    [9, "fuschia", "Rgb", [], ""],
+    [2, "aqua",    "Rgb", [], ""]
 ]],
 ["Rgb", "Record", [], "", [
     [1, "red",     "Integer", ["[0", "]255"], ""],
