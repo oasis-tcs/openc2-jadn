@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 5 July 2019
+## 19 July 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -91,7 +91,41 @@ This specification is provided under the [Non-Assertion](https://www.oasis-open.
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
-## 1.3 Normative References
+## 1.3 Definitions
+
+### 1.3.1 Schema
+An abstract schema, or information model, describes the structure of information used by applications.
+Applications can use a schema to validate instances by checking that constraints are met.  
+
+A concrete schema, or data model, describes the structure of a document used to store or communicate information.
+
+### 1.3.2 Document
+A document is a series of octets described by an information model combined with a data format, or equivalently, by a data model.
+
+### 1.3.3 Data Format
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for media types that can represent instances of the JADN information model.
+
+### 1.3.4 Instance
+An instance, or API value, is an item of information to which a schema applies. An instance is one of the core types defined in [Section 3](#3-jadn-types), and has a set of possible values depending on the type. The core types are:
+
+* **Simple:** Null, Boolean, Binary, Integer, Number, String
+* **Selector:** Enumerated, Choice
+* **Compound:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
+
+Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define two fields with the same key in an instance is undefined.
+
+Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
+
+#### 1.3.4.1 Instance Equality
+Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
+
+### 1.3.5 Serialization
+Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
+
+### 1.3.6 Description
+Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and are ignored by applications using the schema.
+
+## 1.4 Normative References
 ###### [ES9]
 ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
 ###### [EUI]
@@ -121,17 +155,13 @@ Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RF
 ###### [RFC8259]
 Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
 
-## 1.4 Non-Normative References
+## 1.5 Non-Normative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
-###### [GFM]
-*"GitHub Flavored Markdown"*, https://github.github.com/gfm/.
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Luff, G., *"JSON Schema Validation"*, Internet-Draft, March 2018, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01, or for latest drafts: https://json-schema.org/work-in-progress.
-###### [MDA]
-Cephas Consulting Group, *"The Fast Guide to Model Driven Architecture"*, https://www.omg.org/mda/mda_files/Cephas_MDA_Fast_Guide.pdf.
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
@@ -173,12 +203,6 @@ constructs.
 Since conceptual models can be implemented in different ways, multiple DMs
 can be derived from a single IM.
 
-Within a Model Driven Architecture ([MDA](#mda)):
-* An IM is part of a Platform Independent Model (PIM) that exhibits a sufficient degree of independence so as to enable its
-mapping to one or more platforms.
-* A DM is part of a Platform Specific Model (PSM) that combines the specifications in the PIM with the details
-required to stipulate how a system uses a particular type of platform. 
-
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a message.  When information is serialized for transmission in a canonical format, the additional
@@ -212,9 +236,10 @@ information-centric focus:
 | --- | --- |
 | A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
-| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number first-class types exist regardless of data representation. |
-| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | First-class container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
-| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record first class type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
+| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number core types exist regardless of data representation. |
+| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Core container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
+| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
+| Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
 ## 2.2 Implementation
@@ -226,39 +251,34 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
-JADN first-class types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
+JADN core types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
 * An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
 
-| JADN Type | Definition |
-| :--- | :--- |
-| **Simple** |   |
-| Binary | A sequence of octets.  Length is the number of octets. |
-| Boolean | An element with one of two values: true or false. |
-| Integer | A positive or negative whole number. |
-| Number | A real number. |
-| Null | An unspecified or non-existent value. |
-| String | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
-| **Compound** |   |
-| Enumerated | One value selected from a set of named or labeled integers. |
-| Choice | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
-| Array | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
+|    JADN Type     |       Definition                                                |
+| :--------------  | :-------------------------------------------------------------- |
+|  **Simple**      |                                                                 |
+| Binary           | A sequence of octets.  Length is the number of octets.          |
+| Boolean          | An element with one of two values: true or false.               |
+| Integer          | A positive or negative whole number.                            |
+| Number           | A real number.                                                  |
+| Null             | An unspecified or non-existent value.                           |
+| String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
+|  **Selector**    |                                                                 |
+| Enumerated       | One value selected from a set of named or labeled integers.     |
+| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
+| **Compound**     |                                                                 |
+| Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
-| Map | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
+| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
-| Record | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
+| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
 
 **API Values**
 
-The mechanisms chosen by a developer or defined by an IM library to represent these types within an application constitute an IM application programming interface (API). Serialization is the process that translates between an API value and a serialized value. JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats. Python or C++ or Java APIs define how applications represent instances of a type, and JSON and CBOR and XML serialization rules define how instances of each type are serialized:
-
-| Python IM API |  JADN Type  |   Serialization Rules |
-| ------------- | ----------- | ----------------|
-| bytes<br>bytearray | Binary | JSON string (base64, hex, or other)<br>CBOR #2 byte string |
-| True          | Boolean     | JSON true<br>CBOR #7.21 |
-| ... | |
+The mechanisms chosen by a developer or defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
@@ -308,8 +328,7 @@ JADN type definitions have a regular structure designed to be easily describable
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#311-type-definition-within-fields)).
 
 ### 3.1.1 Naming Requirements
-JADN does not restrict the syntax of TypeName and FieldName, but naming requirements can aid readability of specifications
-by highlighting inconsistencies. JADN-based specifications MAY define their own name format requirements.
+JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications. JADN-based specifications MAY define their own name format requirements.
 
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
@@ -334,9 +353,18 @@ FieldName: [a-z][_A-Za-z0-9]{0,31}
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
 Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
-does not affect the meaning of a type definition.
+does not affect the meaning of type definitions.
 
-### 3.1.2 Examples
+### 3.1.2 Descriptions
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
+* The description value MUST be a string, which MAY be empty.
+* Implementations MUST NOT present this string to end users.
+* Tools for editing schemas SHOULD support displaying and editing descriptions.
+* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
+
+Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
+
+### 3.1.3 Examples
 
 JADN type definitions are themselves information objects that can be represented in many ways.
 [Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions
@@ -439,17 +467,20 @@ which data values are instances of the defined type.
 
 #### 3.2.1.1 Field Identifiers
 
-Each field in a type definition includes both FieldID and FieldName. The Enumerated, Choice, and Map types
-have an *id* option that determines which identifier is used in API instances of these types.
+The *id* option used with Enumerated, Choice, and Map types determines how fields are specified in API instances of these types.
 If the *id* option is absent, API instances use FieldName and the type is referred to as "named".
 If the *id* option is present, API instances use FieldID and the type is referred to as "labeled".
 The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be
 populated in the type definition, and may appear in serialized data depending on serialization format.
 * In labeled types, FieldName is a suggested label that is not included in the semantics of the type,
-may be empty in the type definition, and never appears in serialized data regardless of serialization format.
+may be empty in the type definition, and never appears in serialized data regardless of data format.
 
-For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].  If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels such as "NotAllowed", "Verboten", or "Interdit".
+For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
+If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
+whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
+the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
+such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 3.2.1.2 Value Type
 
@@ -509,6 +540,8 @@ affect how values are serialized, see [Section 4](#4-serialization).
 The *pattern* option specifies a regular expression used to validate a String instance.
 * The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
 * A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
+
+The pattern does not need anchors, it matches the entire instance rather than searching it for substrings.
 
 #### 3.2.1.7 Size and Value Constraints
 The *minv* and *maxv* options specify size or value limits.
@@ -605,14 +638,14 @@ With the type definitions:
 
     Palette = Map {
         1 burgundy Rgb,
-        2 grass    Rgb,
+        2 green    Rgb,
         3 lapis    Rgb,
         4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
     }
     New-Color = Map {
-        1 maize    Rgb,
-        2 aqua     Rgb,
-        3 fuschia  Rgb
+       17 maize    Rgb,
+        9 fuschia  Rgb,
+        2 aqua     Rgb
     }
     Rgb = Record {
         1 red      Integer{0..255},
@@ -626,6 +659,7 @@ an API value of Palette:
 
 is serialized in JSON format using qualified field names as:
 
+    87 non-whitespace bytes:
     {
       "grass": {
         "red": 32,
@@ -639,7 +673,7 @@ is serialized in JSON format using qualified field names as:
       }
     }
 
-and is serialized in CBOR format without flattening as:
+and is serialized in CBOR format, without flattening because it doesn't contain field names, as:
 
     diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
@@ -796,15 +830,15 @@ The following serialization rules are used to represent JADN data types in a hum
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Enumerated** | JSON **string** |
-| **Enumerated** with "id" | JSON **integer** |
-| **Choice** | JSON **object** with one member.  Member key is FieldName. |
-| **Choice** with "id" | JSON **object** with one member. Member key is FieldID converted to string. |
+| **Enumerated** | JSON **string** ItemValue |
+| **Enumerated** with "id" | JSON **integer** ItemID |
+| **Choice** | JSON **object** with one property.  Property key is FieldName. |
+| **Choice** with "id" | JSON **object** with one property. Property key is FieldID converted to string. |
 | **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
-| **Map** | JSON **object**. Member keys are FieldNames. |
-| **Map** with "id" | JSON **object**. Member keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Map** | JSON **object**. Property keys are FieldNames. |
+| **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | Same as **Map**. |
 
 **Format options that affect JSON serialization**
@@ -834,7 +868,7 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
 | **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
-| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) FieldID. |
+| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID. |
 | **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
 | **Array** | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
 | **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is Null. |
@@ -863,39 +897,48 @@ Minimized JSON serialization rules represent JADN data types in a compact format
 | **Number** | JSON **number** |
 | **Null** | JSON **null** |
 | **String** | JSON **string** |
-| **Enumerated** | JSON **integer** |
-| **Choice** | JSON **object** with one member. Member key is the FieldID converted to string. |
+| **Enumerated** | JSON **integer** ItemID |
+| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
 | **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
 | **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
-| **Map** | JSON **object**. Member keys are FieldIDs converted to strings. |
+| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
 | **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
+*Editor's note: prototype serialization rules - need XML expertise to fix.*
+
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
-| **Binary** | XML \<Base64Binary\> element with a base64Binary canonical lexical value |
-| **Boolean** | XML attribute with the value "true" or "false" |
-| **Integer** | |
-| **Number** | |
-| **Null** | |
-| **String** | |
-| **Enumerated** | |
-| **Choice** | |
-| **Array** | |
-| **ArrayOf** | |
-| **Map** | |
-| **MapOf** | |
-| **Record** | |
+| **Binary**  | <xs:element name="FieldName" type="xs:base64Binary"/> |
+| **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
+| **Integer** | <xs:element name="FieldName" type="xs:integer"/> |
+| **Number**  | <xs:element name="FieldName" type="xs:decimal"/> |
+| **Null**    | <xs:attribute name="FieldName" xsi:nil="true"/> |
+| **String**  | <xs:element name="FieldName" type="xs:string"/> |
+| **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item |
+| **Choice**  | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
+| **Array**   | <xs:element name="FieldName"/> containing elements with name FieldName of each field |
+| **ArrayOf** | <xs:element name="FieldName"/> containing elements with the same FieldName for all fields |
+| **Map**     | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
+| **MapOf**   | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
+| **Record**  | same as **Map** |
 
 **Format options that affect XML serialization**
 * When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
 | Option | JADN Type | XML Serialization Requirement |
 | :--- | :--- | :--- |
-| **x** | Binary | XML \<HexBinary\> element with a hexBinary canonical lexical value. |
+| **x**   | Binary  | <xs:element name="FieldName" type="xs:hexBinary"/> |
+| **i8**  | Integer | <xs:element name="FieldName" type="xs:byte"/> |
+| **i16** | Integer | <xs:element name="FieldName" type="xs:short"/> |
+| **i32** | Integer | <xs:element name="FieldName" type="xs:int"/> |
+| **u1..u8**  | Integer | <xs:element name="FieldName" type="xs:unsignedByte"/> |
+| **u9..u16** | Integer | <xs:element name="FieldName" type="xs:unsignedShort"/> |
+| **u17..u32** | Integer | <xs:element name="FieldName" type="xs:unsignedInt"/> |
+| **u33..u*** | Integer | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
 
 # 5 Definition Formats
 
@@ -1002,7 +1045,7 @@ or (for compound types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
 +---------+-------------+--------+------------------------------+
 ```
-An example property table using this style is shown in [Section 3.1.2](#312-examples).
+An example property table using this style is shown in [Section 3.1.2](#313-examples).
 
 ## 5.3 Tree Diagrams
 
@@ -1011,8 +1054,10 @@ can be displayed as a [YANG tree diagram](#rfc8340) using the following conventi
 
 # 6 Schemas
 
+Type definitions are collected into schema *modules*, and modules may be combined to form the *schema* supported by a device, application or service.
+
 # 7 Data Model Generation
-A JADN schema can be combined with a set of serialization rules to produce a DM, a schema applicable to the serialized data format.
+A JADN schema combined with serialization rules defines a data model, a concrete schema that validates instances in the specified data format.
 
 # 8 Operational Considerations
 * Serialization (bulk vs pull)
@@ -1086,7 +1131,9 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
 
-# Appendix C. JADN Schema
+# Appendix C. JADN Meta-schema
+
+A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates itself and other JADN schemas.
 
 **Type Definitions**
 
@@ -1101,7 +1148,7 @@ Type = Array {
      1 TypeName,                                 // TypeName::
      2 BaseType,                                 // BaseType::
      3 Options,                                  // TypeOptions::
-     4 Desc,                                     // TypeDescription::
+     4 Description,                              // TypeDescription::
      5 JADN-Type(&BaseType)                      // Fields::
 }
 BaseType = Enumerated {
@@ -1138,7 +1185,7 @@ Items = ArrayOf(Item)
 Item = Array {
      1 FieldID,                                  // ItemID::
      2 String,                                   // ItemValue::
-     3 Desc                                      // ItemDescription::
+     3 Description                               // ItemDescription::
 }
 Fields = ArrayOf(Field)
 Field = Array {
@@ -1146,12 +1193,12 @@ Field = Array {
      2 FieldName,                                // FieldName::
      3 TypeName,                                 // FieldType::
      4 Options,                                  // FieldOptions::
-     5 Desc                                      // FieldDescription::
+     5 Description                               // FieldDescription::
 }
 FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
-Desc = String
+Description = String
 TypeName = String(%[A-Z][-$A-Za-z0-9]{0,31}%)
 FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
 ```
@@ -1169,22 +1216,22 @@ Meta = Map {                                 // Information about this module
      3 title           String optional,          // Title
      4 description     String optional,          // Description
      5 imports         Imports optional,         // Imported schema modules
-     6 exports         Exports optional          // Data types exported by this module
+     6 exports         Exports optional          // Types exported by this module
 }
-Imports = ArrayOf(Import)
-Import = Array {                             // Imported module id and unique name
-     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
-     2 Uname                                     // namespace:: Unique name of imported module
+Imports = ArrayOf(Import)                    // List of imported modules
+Import = Array {
+     1 Nsid,                                     // nsid::
+     2 Uname                                     // namespace::
 }
-Nsid = String(%[a-z][a-z0-9]{,7}%)
-Uname = String /uri
-Exports = ArrayOf(TypeName)
+Nsid = String(%[a-z][a-z0-9]{,7}%)           // Namespace id - a short tag defined here and used to refer to an imported module
+Uname = String /uri                          // Unique name of the imported module
+Exports = ArrayOf(TypeName)                  // List of top-level types defined in this module expected to be used by other modules
 ```
 
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 3.1.2 Examples](#312-examples):**
+**[Section 3.1.3 Examples](#313-examples):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -1216,14 +1263,14 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ```
 ["Palette", "Map", [], "", [
     [1, "burgundy", "Rgb", [], ""],
-    [2, "grass",    "Rgb", [], ""],
+    [2, "green",    "Rgb", [], ""],
     [3, "lapis",    "Rgb", [], ""],
     [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
 ]],
 ["New-Color", "Map", [], "", [
-    [1, "maize",   "Rgb", [], ""],
-    [2, "aqua",    "Rgb", [], ""],
-    [3, "fuschia", "Rgb", [], ""]
+    [17, "maize",   "Rgb", [], ""],
+    [9, "fuschia", "Rgb", [], ""],
+    [2, "aqua",    "Rgb", [], ""]
 ]],
 ["Rgb", "Record", [], "", [
     [1, "red",     "Integer", ["[0", "]255"], ""],
@@ -1310,7 +1357,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "TypeName", "TypeName", [], ""],
     [2, "BaseType", "BaseType", [], ""],
     [3, "TypeOptions", "Options", [], ""],
-    [4, "TypeDescription", "Desc", [], ""],
+    [4, "TypeDescription", "Description", [], ""],
     [5, "Fields", "JADN-Type", ["&BaseType"], ""]
   ]],
   ["BaseType", "Enumerated", [], "", [
@@ -1347,7 +1394,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Item", "Array", [], "", [
     [1, "ItemID", "FieldID", [], ""],
     [2, "ItemValue", "String", [], ""],
-    [3, "ItemDescription", "Desc", [], ""]
+    [3, "ItemDescription", "Description", [], ""]
   ]],
   ["Fields", "ArrayOf", ["*Field"], ""],
   ["Field", "Array", [], "", [
@@ -1355,12 +1402,12 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "FieldName", "FieldName", [], ""],
     [3, "FieldType", "TypeName", [], ""],
     [4, "FieldOptions", "Options", [], ""],
-    [5, "FieldDescription", "Desc", [], ""]
+    [5, "FieldDescription", "Description", [], ""]
   ]],
   ["FieldID", "Integer", ["{0"], ""],
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
-  ["Desc", "String", [], ""],
+  ["Description", "String", [], ""],
   ["TypeName", "String", ["%[A-Z][-$A-Za-z0-9]{0,31}"], ""],
   ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
 
@@ -1381,7 +1428,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
     [2, "namespace", "Uname", [], "Unique name of imported module"]
   ]],
-  ["Nsid", "String", ["%^[a-z][a-z0-9]{,7}$"], ""],
+  ["Nsid", "String", ["%[a-z][a-z0-9]{,7}"], ""],
   ["Uname", "String", ["/uri"], ""],
   ["Exports", "ArrayOf", ["*TypeName"], ""]
  ]
