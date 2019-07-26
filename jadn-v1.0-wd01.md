@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 19 July 2019
+## 26 July 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -83,7 +83,7 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 Standards may be developed using data definition tables with the goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN is a schema language with definitions that can be both validated for correctness and documented in table format, ensuring that the table content is valid. A JADN schema is executable byte code that can be transferred between applications, interpreted to validate application data, and embedded to produce self-describing data.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  In particular, a high-level JADN specification can be translated into lower-level languages such as JSON Schema. 
+Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  In particular, a high-level JADN specification can be translated into languages such as XML Schema Definition and JSON Schema. 
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -103,7 +103,7 @@ A concrete schema, or data model, describes the structure of a document used to 
 A document is a series of octets described by an information model combined with a data format, or equivalently, by a data model.
 
 ### 1.3.3 Data Format
-A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for media types that can represent instances of the JADN information model.
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
 
 ### 1.3.4 Instance
 An instance, or API value, is an item of information to which a schema applies. An instance is one of the core types defined in [Section 3](#3-jadn-types), and has a set of possible values depending on the type. The core types are:
@@ -112,7 +112,7 @@ An instance, or API value, is an item of information to which a schema applies. 
 * **Selector:** Enumerated, Choice
 * **Compound:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
-Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define two fields with the same key in an instance is undefined.
+Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
 
 Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
 
@@ -324,6 +324,7 @@ JADN type definitions have a regular structure designed to be easily describable
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
 * If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 * FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
+* If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#311-type-definition-within-fields)).
 
@@ -364,11 +365,11 @@ Description elements (TypeDescription, ItemDescription and FieldDescription) are
 
 Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
 
-### 3.1.3 Examples
+### 3.1.3 Definition Formats
 
 JADN type definitions are themselves information objects that can be represented in many ways.
-[Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions
-in a more readable format than JSON data.
+[Section 5](#5-definition-formats) defines two styles (JADN-IDL and table) that can represent JADN definitions
+in a format that is more readable than JSON data.
 
 The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
 
@@ -441,6 +442,7 @@ which data values are instances of the defined type.
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
 | 0x7b `'{'` | minv | Integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
 | 0x7d `'}'` | maxv | Integer | Maximum numeric value, octet or character count, or element count |
+| 0x55 `'U'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -460,7 +462,7 @@ which data values are instances of the defined type.
 | Enumerated | id, enum |
 | Choice | id |
 | Array | minv, maxv, format |
-| ArrayOf | vtype, minv, maxv |
+| ArrayOf | vtype, minv, maxv, unique |
 | Map | id, minv, maxv |
 | MapOf | ktype, vtype, minv, maxv |
 | Record | minv, maxv |
@@ -489,7 +491,7 @@ The *vtype* option specifies the type of each field in an ArrayOf or MapOf type.
 
 #### 3.2.1.3 Key Type
 The *ktype* option specifies the type of each key in a MapOf type. 
-* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints such as a pattern or semantic valuation keyword that specify a fixed subset of values that belong to a category.
 * A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
@@ -556,6 +558,11 @@ The *minv* and *maxv* options specify size or value limits.
 * For Integer and Number types:
     * if *minv* is present, an instance MUST be considered invalid if its value is less than *minv*.
     * if *maxv* is present, an instance MUST be considered invalid if its value is greater than *maxv*.
+
+#### 3.2.1.8 Unique Values
+The *unique* option specifies that values in an array must not be repeated.
+
+* For the ArrayOf type, if *unique* is present, an instance MUST be considered invalid if it contains duplicate values.
 
 ### 3.2.2 Field Options
 Field options are specified for each field within a type definition. Each option in Table 3-5 is a structural element of the type definition.
@@ -1045,7 +1052,7 @@ or (for compound types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
 +---------+-------------+--------+------------------------------+
 ```
-An example property table using this style is shown in [Section 3.1.2](#313-examples).
+An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
 
 ## 5.3 Tree Diagrams
 
@@ -1231,7 +1238,7 @@ Exports = ArrayOf(TypeName)                  // List of top-level types defined 
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 3.1.3 Examples](#313-examples):**
+**[Section 3.1.3 Definition Formats](#313-definition-formats):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -1340,7 +1347,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ]],
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
-**[Appendix C. JADN Schema](#appendix-c-jadn-schema):**
+**[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
 ```
 {
  "meta": {
