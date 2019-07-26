@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 19 July 2019
+## 26 July 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -112,7 +112,7 @@ An instance, or API value, is an item of information to which a schema applies. 
 * **Selector:** Enumerated, Choice
 * **Compound:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
-Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define two fields with the same key in an instance is undefined.
+Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
 
 Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
 
@@ -365,11 +365,11 @@ Description elements (TypeDescription, ItemDescription and FieldDescription) are
 
 Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
 
-### 3.1.3 Examples
+### 3.1.3 Definition Formats
 
 JADN type definitions are themselves information objects that can be represented in many ways.
-[Section 5.1](#5-1-type-definition-styles) defines two styles (JADN-IDL and table) that can represent JADN definitions
-in a more readable format than JSON data.
+[Section 5](#5-definition-formats) defines two styles (JADN-IDL and table) that can represent JADN definitions
+in a format that is more readable than JSON data.
 
 The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
 
@@ -491,7 +491,7 @@ The *vtype* option specifies the type of each field in an ArrayOf or MapOf type.
 
 #### 3.2.1.3 Key Type
 The *ktype* option specifies the type of each key in a MapOf type. 
-* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints that specify a fixed subset of values that belong to a category.
+* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints such as a pattern or semantic valuation keyword that specify a fixed subset of values that belong to a category.
 * A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
@@ -1052,7 +1052,7 @@ or (for compound types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
 +---------+-------------+--------+------------------------------+
 ```
-An example property table using this style is shown in [Section 3.1.2](#313-examples).
+An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
 
 ## 5.3 Tree Diagrams
 
@@ -1238,7 +1238,7 @@ Exports = ArrayOf(TypeName)                  // List of top-level types defined 
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 3.1.3 Examples](#313-examples):**
+**[Section 3.1.3 Definition Formats](#313-definition-formats):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -1347,7 +1347,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ]],
 ["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
 ```
-**[Appendix C. JADN Schema](#appendix-c-jadn-schema):**
+**[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
 ```
 {
  "meta": {
