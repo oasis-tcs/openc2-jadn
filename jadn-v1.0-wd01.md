@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 26 July 2019
+## 9 August 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -334,22 +334,24 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character not permitted in FieldName, used in qualified field names
-    * A "System" character permitted in TypeName but reserved for use in tool-generated type names
+    * A Field Separator character intended for use in qualified field names
+    * A "System" character intended for use in tool-generated type names
+* Schema authors SHOULD NOT create FieldNames containing the Field Separator character
+* Schema authors SHOULD NOT create TypeNames containing the System character
 * Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
 ABNF:
-TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)   ; e.g., Color-Values, length = 1-32 characters
-FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
-FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, not allowed in FieldName
-Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
+TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)     ; e.g., Color-Values, length = 1-32 characters
+FieldName  = LC *31("_" / FS / UC / LC / DIGIT)      ; e.g., color_values, length = 1-32 characters
+FS         = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, e.g., color/values
+Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
-TypeName:  [A-Z][-$A-Za-z0-9]{0,31}
-FieldName: [a-z][_A-Za-z0-9]{0,31}
+TypeName:  ^[A-Z][-$A-Za-z0-9]{0,31}$
+FieldName: ^[a-z][_/A-Za-z0-9]{0,31}$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -645,9 +647,9 @@ With the type definitions:
 
     Palette = Map {
         1 burgundy Rgb,
-        2 green    Rgb,
+        2 grass    Rgb,
         3 lapis    Rgb,
-        4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
+        4 new/     New-Color    // Incorporate fields of New-Color into Palette using qualified names
     }
     New-Color = Map {
        17 maize    Rgb,
@@ -680,24 +682,24 @@ is serialized in JSON format using qualified field names as:
       }
     }
 
-and is serialized in CBOR format, without flattening because it doesn't contain field names, as:
+and is serialized in CBOR format, nested because CBOR uses FieldIDs, as:
 
     diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
     19 bytes:
     A2             # map(2)
-       02          # unsigned(2)
+       02          # unsigned(2) -- grass
        83          # array(3)
-          18 20    # unsigned(32)
-          18 F0    # unsigned(240)
-          18 18    # unsigned(24)
-       04          # unsigned(4)
+          18 20    # unsigned(32)  -- red
+          18 F0    # unsigned(240) -- green
+          18 18    # unsigned(24)  -- blue
+       04          # unsigned(4) -- new
        A1          # map(1)
-          02       # unsigned(2)
+          02       # unsigned(2) -- aqua
           83       # array(3)
-             18 40 # unsigned(64)
-             18 F0 # unsigned(240)
-             18 C0 # unsigned(192)
+             18 40 # unsigned(64)  -- red
+             18 F0 # unsigned(240) -- green
+             18 C0 # unsigned(192) -- blue
 
 #### 3.2.2.4 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
@@ -966,37 +968,39 @@ The JADN-IDL definition formats are:
 
 Simple types:
 ```
-    TypeName = TYPESTRING               // TypeDescription
+    TypeName = TYPESTRING                     // TypeDescription
 ```
 
 Enumerated type:
 ```
-    TypeName = TYPESTRING {             // TypeDescription
-        FieldID FieldName,              // FieldDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        FieldID FieldName,                    // FieldDescription
         ...
     }
 ```
 
 Compound types without the *id* option:
 ```
-    TypeName = TYPESTRING {             // TypeDescription
-        FieldID FieldName FIELDSTRING,  // FieldDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        FieldID FieldName[FS] FIELDSTRING,    // FieldDescription
         ...
     }
 ```
+If a field includes the *flatten* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-naming-requirements))
+is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
     /* Enumerated.ID */
-    TypeName = TYPESTRING {             // TypeDescription
-        ItemID                          // ItemName:: ItemDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        ItemID                                // ItemName:: ItemDescription
     }
     
     /* Choice.ID, Map.ID */
-    TypeName = TYPESTRING {             // TypeDescription
-        FieldID FIELDSTRING,            // FieldName:: FieldDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        FieldID FIELDSTRING,                  // FieldName[FS]:: FieldDescription
         ...
     }
 ```
@@ -1016,14 +1020,12 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
 **Field Options:**
 
-FIELDSTRING is the value of TYPESTRING combined with string representations of the three mutually-exclusive field options:
+FIELDSTRING is the value of TYPESTRING combined with string representations of two mutually-exclusive field options:
 
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
-                  | FLATTEN TYPESTRING
     MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
                   | " optional"
     TFIELD        = "(&" *tfield* ")"
-    FLATTEN       = "<"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
 
@@ -1042,15 +1044,15 @@ breaks out the MULTIPLICITY field option into a separate column:
 ```
 followed by (for compound types without the *id* option):
 ```
-+---------+-----------+-------------+--------+------------------+
-| FieldID | FieldName | FIELDSTRING | [m..n] | FieldDescription |
-+---------+-----------+-------------+--------+------------------+
++---------+---------------+-------------+--------+------------------+
+| FieldID | FieldName[FS] | FIELDSTRING | [m..n] | FieldDescription |
++---------+---------------+-------------+--------+------------------+
 ```
 or (for compound types with the *id* option):
 ```
-+---------+-------------+--------+------------------------------+
-| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
-+---------+-------------+--------+------------------------------+
++---------+-------------+--------+----------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName[FS]:: FieldDescription |
++---------+-------------+--------+----------------------------------+
 ```
 An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
 
