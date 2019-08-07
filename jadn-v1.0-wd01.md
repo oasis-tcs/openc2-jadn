@@ -205,7 +205,7 @@ can be derived from a single IM.
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
-contained in a message.  When information is serialized for transmission in a canonical format, the additional
+contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
@@ -264,7 +264,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | Boolean          | An element with one of two values: true or false.               |
 | Integer          | A positive or negative whole number.                            |
 | Number           | A real number.                                                  |
-| Null             | An unspecified or non-existent value.                           |
+| Null             | An unspecified or non-existent value, distinguishable from other values such as empty String or Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
@@ -633,10 +633,9 @@ type that controls which Choice element is used.
     }
 
 #### 3.2.2.3 Field Flattening
-Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option
-to pull a nested definition up a level.
+Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option.
 Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
-forming a relative path using the separator character FieldSep ([Section 3.1.1](#311-naming-requirements)).
+forming a relative path using the FieldSep ([Section 3.1.1](#311-naming-requirements)) character.
 
 Flattening may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusion to a subset of fields.
@@ -1272,7 +1271,7 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ```
 ["Palette", "Map", [], "", [
     [1, "burgundy", "Rgb", [], ""],
-    [2, "green",    "Rgb", [], ""],
+    [2, "grass",    "Rgb", [], ""],
     [3, "lapis",    "Rgb", [], ""],
     [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
 ]],
