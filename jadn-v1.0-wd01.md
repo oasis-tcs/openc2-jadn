@@ -94,19 +94,26 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## 1.3 Definitions
 
 ### 1.3.1 Schema
-An abstract schema, or information model, describes the structure of information used by applications.
-Applications can use a schema to validate instances by checking that constraints are met.  
+An abstract schema, or information model, describes the structure and value constraints of information used by applications.
 
-A concrete schema, or data model, describes the structure of a document used to store or communicate information.
+A concrete schema, or data model, describes the structure and value constraints of a document used to store or communicate information.
 
 ### 1.3.2 Document
-A document is a series of octets described by an information model combined with a data format, or equivalently, by a data model.
+A document is a series of octets described by an information model and a data format, or equivalently, by a data model.
 
-### 1.3.3 Data Format
+### 1.3.3 Well-formed
+A well-formed document follows the syntactic structure of the document's media type.
+
+### 1.3.4 Valid
+A valid instance satisfies the constraints defined in a schema.
+
+A valid document is well-formed and also decodes into a valid instance.
+
+### 1.3.5 Data Format
 A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
 
-### 1.3.4 Instance
-An instance, or API value, is an item of information to which a schema applies. An instance is one of the core types defined in [Section 3](#3-jadn-types), and has a set of possible values depending on the type. The core types are:
+### 1.3.6 Instance
+An instance, or API value, is an item of application information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
@@ -116,13 +123,13 @@ Since mapping types cannot have two fields with the same key, behavior for a JAD
 
 Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
 
-#### 1.3.4.1 Instance Equality
+#### 1.3.6.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
 
-### 1.3.5 Serialization
-Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
+### 1.3.7 Serialization
+Serialization, or encoding, is the process of converting application information into a document.  De-serialization, or decoding, converts a document into an instance usable by an application.
 
-### 1.3.6 Description
+### 1.3.8 Description
 Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and are ignored by applications using the schema.
 
 ## 1.4 Normative References
@@ -681,7 +688,7 @@ is serialized in JSON format using qualified field names as:
       }
     }
 
-and is serialized in CBOR format, nested because CBOR uses FieldIDs, as:
+and is serialized in CBOR format, nested because CBOR uses FieldIDs rather than FieldNames, as:
 
     diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
