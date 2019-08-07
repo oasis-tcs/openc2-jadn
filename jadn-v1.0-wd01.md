@@ -105,12 +105,14 @@ A document is a series of octets described by an information model and a data fo
 A well-formed document follows the syntactic structure of the document's media type.
 
 ### 1.3.4 Valid
-A valid instance satisfies the constraints defined in a schema.
+An instance is valid if it satisfies the constraints defined in a schema.
 
-A valid document is well-formed and also decodes into a valid instance.
+A document is valid if it is well-formed and also decodes into a valid instance.
 
 ### 1.3.5 Data Format
 A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
+
+Serialization rules for a data format define how instances of each type are represented in documents of that format.
 
 ### 1.3.6 Instance
 An instance, or API value, is an item of application information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
