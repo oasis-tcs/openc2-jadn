@@ -999,7 +999,7 @@ Simple types:
 Enumerated type:
 ```
     TypeName = TYPESTRING {                   // TypeDescription
-        FieldID FieldName,                    // FieldDescription
+        ItemID ItemName,                      // ItemDescription
         ...
     }
 ```
