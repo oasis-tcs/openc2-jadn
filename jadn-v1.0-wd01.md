@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 26 July 2019
+## 9 August 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -94,19 +94,28 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## 1.3 Definitions
 
 ### 1.3.1 Schema
-An abstract schema, or information model, describes the structure of information used by applications.
-Applications can use a schema to validate instances by checking that constraints are met.  
+An abstract schema, or information model, describes the structure and value constraints of information used by applications.
 
-A concrete schema, or data model, describes the structure of a document used to store or communicate information.
+A concrete schema, or data model, describes the structure and value constraints of a document used to store or communicate information.
 
 ### 1.3.2 Document
-A document is a series of octets described by an information model combined with a data format, or equivalently, by a data model.
+A document is a series of octets described by an information model and a data format, or equivalently, by a data model.
 
-### 1.3.3 Data Format
+### 1.3.3 Well-formed
+A well-formed document follows the syntactic structure of the document's media type.
+
+### 1.3.4 Valid
+An instance is valid if it satisfies the constraints defined in a schema.
+
+A document is valid if it is well-formed and also decodes into a valid instance.
+
+### 1.3.5 Data Format
 A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
 
-### 1.3.4 Instance
-An instance, or API value, is an item of information to which a schema applies. An instance is one of the core types defined in [Section 3](#3-jadn-types), and has a set of possible values depending on the type. The core types are:
+Serialization rules for a data format define how instances of each type are represented in documents of that format.
+
+### 1.3.6 Instance
+An instance, or API value, is an item of application information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
@@ -116,13 +125,13 @@ Since mapping types cannot have two fields with the same key, behavior for a JAD
 
 Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
 
-#### 1.3.4.1 Instance Equality
+#### 1.3.6.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
 
-### 1.3.5 Serialization
-Serialization is the process of converting an instance into a document.  De-serialization converts a document into an instance.
+### 1.3.7 Serialization
+Serialization, or encoding, is the process of converting application information into a document.  De-serialization, or decoding, converts a document into an instance usable by an application.
 
-### 1.3.6 Description
+### 1.3.8 Description
 Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and are ignored by applications using the schema.
 
 ## 1.4 Normative References
@@ -205,7 +214,7 @@ can be derived from a single IM.
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
-contained in a message.  When information is serialized for transmission in a canonical format, the additional
+contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
@@ -264,7 +273,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | Boolean          | An element with one of two values: true or false.               |
 | Integer          | A positive or negative whole number.                            |
 | Number           | A real number.                                                  |
-| Null             | An unspecified or non-existent value.                           |
+| Null             | An unspecified or non-existent value, distinguishable from other values such as empty String or Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
@@ -326,44 +335,54 @@ JADN type definitions have a regular structure designed to be easily describable
 * FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 * If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
 
-Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#311-type-definition-within-fields)).
+Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
-### 3.1.1 Naming Requirements
+### 3.1.1 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications. JADN-based specifications MAY define their own name format requirements.
 
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character not permitted in FieldName, used in qualified field names
-    * A "System" character permitted in TypeName but reserved for use in tool-generated type names
+    * A Field Separator character intended for use in qualified field names
+    * A "System" character intended for use in tool-generated type names
+* Schema authors SHOULD NOT create FieldNames containing the Field Separator character
+* Schema authors SHOULD NOT create TypeNames containing the System character
 * Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
 ABNF:
-TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)   ; e.g., Color-Values, length = 1-32 characters
-FieldName  = LC *31("_" / UC / LC / DIGIT)         ; e.g., color_values, length = 1-32 characters
-FieldSep   = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, not allowed in FieldName
-Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., $Colors.
+TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)     ; e.g., Color-Values, length = 1-32 characters
+FieldName  = LC *31("_" / FS / UC / LC / DIGIT)      ; e.g., color_values, length = 1-32 characters
+FS         = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, e.g., color/values
+Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
-TypeName:  [A-Z][-$A-Za-z0-9]{0,31}
-FieldName: [a-z][_A-Za-z0-9]{0,31}
+TypeName:  ^[A-Z][-$A-Za-z0-9]{0,31}$
+FieldName: ^[a-z][_/A-Za-z0-9]{0,31}$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
 Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
 does not affect the meaning of type definitions.
 
-### 3.1.2 Descriptions
-Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
-* The description value MUST be a string, which MAY be empty.
-* Implementations MUST NOT present this string to end users.
-* Tools for editing schemas SHOULD support displaying and editing descriptions.
-* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
+### 3.1.2 Upper Bounds
+Type definitions based on variable-length types may include maximum size limits. If an individual type does not define an explicit limit, it uses the default limit defined by the specification.  If the specification does not define a default, the definition uses the limits shown here, which are deliberately conservative to encourage specification authors to define limits based on application requirements.
+* JADN specifications SHOULD define size limits on the variable-length values shown in Figure 3-2.
+* Specifications that do not define alternate size limits MUST use the values shown in Figure 3-2.
+* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition, or the default limit defined in the specification containing its type definition, or if the specification does not define a default, the limit shown in Figure 3-2.
 
-Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
+```
+Type              Name         Limit   Description
+-----             -----        -----   -----------
+Binary            MaxBinary    255     Maximum number of octets
+String            MaxString    255     Maximum number of characters
+Array, ArrayOf,   MaxElements  100     Maximum number of items/properties
+Map, MapOf,
+Record
+```
+###### Figure 3-2: JADN Default Size Limits
 
 ### 3.1.3 Definition Formats
 
@@ -413,6 +432,15 @@ Person = Record {
 |   3  | **email** | String  | 0..1 |             |
 
 These represent the same IM definition, but conformance is based on native JSON definitions. Specifications that use JADN-IDL or table format SHOULD also make those definitions available in JADN format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
+
+### 3.1.4 Descriptions
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
+* The description value MUST be a string, which MAY be empty.
+* Implementations MUST NOT present this string to end users.
+* Tools for editing schemas SHOULD support displaying and editing descriptions.
+* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
+
+Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -631,10 +659,9 @@ type that controls which Choice element is used.
     }
 
 #### 3.2.2.3 Field Flattening
-Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option
-to pull a nested definition up a level.
+Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option.
 Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
-forming a relative path using the separator character FieldSep ([Section 3.1.1](#311-naming-requirements)).
+forming a relative path using the field separator (FS - [Section 3.1.1](#311-name-formats)) character.
 
 Flattening may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusion to a subset of fields.
@@ -645,9 +672,9 @@ With the type definitions:
 
     Palette = Map {
         1 burgundy Rgb,
-        2 green    Rgb,
+        2 grass    Rgb,
         3 lapis    Rgb,
-        4 new      <New-Color   // Flatten (use qualified names for the fields of New-Color)
+        4 new/     New-Color    // Incorporate fields of New-Color into Palette using qualified names
     }
     New-Color = Map {
        17 maize    Rgb,
@@ -680,24 +707,24 @@ is serialized in JSON format using qualified field names as:
       }
     }
 
-and is serialized in CBOR format, without flattening because it doesn't contain field names, as:
+and is serialized in CBOR format, nested because CBOR uses FieldIDs rather than FieldNames, as:
 
     diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
     19 bytes:
     A2             # map(2)
-       02          # unsigned(2)
+       02          # unsigned(2) -- grass
        83          # array(3)
-          18 20    # unsigned(32)
-          18 F0    # unsigned(240)
-          18 18    # unsigned(24)
-       04          # unsigned(4)
+          18 20    # unsigned(32)  -- red
+          18 F0    # unsigned(240) -- green
+          18 18    # unsigned(24)  -- blue
+       04          # unsigned(4) -- new
        A1          # map(1)
-          02       # unsigned(2)
+          02       # unsigned(2) -- aqua
           83       # array(3)
-             18 40 # unsigned(64)
-             18 F0 # unsigned(240)
-             18 C0 # unsigned(192)
+             18 40 # unsigned(64)  -- red
+             18 F0 # unsigned(240) -- green
+             18 C0 # unsigned(192) -- blue
 
 #### 3.2.2.4 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
@@ -966,37 +993,39 @@ The JADN-IDL definition formats are:
 
 Simple types:
 ```
-    TypeName = TYPESTRING               // TypeDescription
+    TypeName = TYPESTRING                     // TypeDescription
 ```
 
 Enumerated type:
 ```
-    TypeName = TYPESTRING {             // TypeDescription
-        FieldID FieldName,              // FieldDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        ItemID ItemValue,                     // ItemDescription
         ...
     }
 ```
 
 Compound types without the *id* option:
 ```
-    TypeName = TYPESTRING {             // TypeDescription
-        FieldID FieldName FIELDSTRING,  // FieldDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        FieldID FieldName[FS] FIELDSTRING,    // FieldDescription
         ...
     }
 ```
+If a field includes the *flatten* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
+is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
     /* Enumerated.ID */
-    TypeName = TYPESTRING {             // TypeDescription
-        ItemID                          // ItemName:: ItemDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        ItemID                                // ItemValue:: ItemDescription
     }
     
     /* Choice.ID, Map.ID */
-    TypeName = TYPESTRING {             // TypeDescription
-        FieldID FIELDSTRING,            // FieldName:: FieldDescription
+    TypeName = TYPESTRING {                   // TypeDescription
+        FieldID FIELDSTRING,                  // FieldName[FS]:: FieldDescription
         ...
     }
 ```
@@ -1016,14 +1045,12 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
 **Field Options:**
 
-FIELDSTRING is the value of TYPESTRING combined with string representations of the three mutually-exclusive field options:
+FIELDSTRING is the value of TYPESTRING combined with string representations of two mutually-exclusive field options:
 
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
-                  | FLATTEN TYPESTRING
     MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
                   | " optional"
     TFIELD        = "(&" *tfield* ")"
-    FLATTEN       = "<"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
 
@@ -1042,15 +1069,15 @@ breaks out the MULTIPLICITY field option into a separate column:
 ```
 followed by (for compound types without the *id* option):
 ```
-+---------+-----------+-------------+--------+------------------+
-| FieldID | FieldName | FIELDSTRING | [m..n] | FieldDescription |
-+---------+-----------+-------------+--------+------------------+
++---------+---------------+-------------+--------+------------------+
+| FieldID | FieldName[FS] | FIELDSTRING | [m..n] | FieldDescription |
++---------+---------------+-------------+--------+------------------+
 ```
 or (for compound types with the *id* option):
 ```
-+---------+-------------+--------+------------------------------+
-| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription |
-+---------+-------------+--------+------------------------------+
++---------+-------------+--------+----------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName[FS]:: FieldDescription |
++---------+-------------+--------+----------------------------------+
 ```
 An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
 
@@ -1147,8 +1174,8 @@ A meta-schema is a schema against which other schemas can be validated. The JADN
 The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
-The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
-upper-case names in JADN-Type.
+To validate the JADN meta-schema itself, the default FieldName format ([Section 3.1.1](#311-name-formats)) should be overridden to permit
+upper-case field names.
 ```
 Types = ArrayOf(Type)
 Type = Array {
@@ -1156,7 +1183,7 @@ Type = Array {
      2 BaseType,                                 // BaseType::
      3 Options,                                  // TypeOptions::
      4 Description,                              // TypeDescription::
-     5 JADN-Type(&BaseType)                      // Fields::
+     5 JADN-Type(&2)                             // Fields::
 }
 BaseType = Enumerated {
      1 Binary,
@@ -1206,8 +1233,8 @@ FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Description = String
-TypeName = String(%[A-Z][-$A-Za-z0-9]{0,31}%)
-FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
+TypeName = String(%^[A-Z][-$A-Za-z0-9]{0,31}$%)
+FieldName = String(%^[a-z][_/A-Za-z0-9]{0,31}$%)
 ```
 **Schema Module**
 
@@ -1223,16 +1250,26 @@ Meta = Map {                                 // Information about this module
      3 title           String optional,          // Title
      4 description     String optional,          // Description
      5 imports         Imports optional,         // Imported schema modules
-     6 exports         Exports optional          // Types exported by this module
+     6 exports         Exports optional,         // Type definitions exported by this module
+     7 config          Config optional           // Configuration values for this module
 }
 Imports = ArrayOf(Import)                    // List of imported modules
 Import = Array {
-     1 Nsid,                                     // nsid::
-     2 Uname                                     // namespace::
+     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
+     2 Uname                                     // namespace:: Unique name of imported module
 }
-Nsid = String(%[a-z][a-z0-9]{,7}%)           // Namespace id - a short tag defined here and used to refer to an imported module
-Uname = String /uri                          // Unique name of the imported module
-Exports = ArrayOf(TypeName)                  // List of top-level types defined in this module expected to be used by other modules
+Nsid = String(%[a-z][a-z0-9]{,7}%)
+Uname = String /uri
+Exports = ArrayOf(TypeName)                  // List of type definitions intended to be public
+Config = Record{1..*} {                      // Configuration variables
+     1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
+     2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
+     3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
+     4 Sys             String{1..1} optional,    // System character for TypeName
+     5 FS              String{1..1} optional,    // Field Separator character for FieldName
+     6 TypeName        String{1..127} optional,  // TypeName regex
+     7 FieldName       String{1..127} optional   // FieldName regex
+}
 ```
 
 # Appendix D. Definitions in JADN format
@@ -1270,7 +1307,7 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ```
 ["Palette", "Map", [], "", [
     [1, "burgundy", "Rgb", [], ""],
-    [2, "green",    "Rgb", [], ""],
+    [2, "grass",    "Rgb", [], ""],
     [3, "lapis",    "Rgb", [], ""],
     [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
 ]],
@@ -1351,11 +1388,14 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ```
 {
  "meta": {
-  "module": "oasis-open.org/openc2/jadn/v1.0",
+  "module": "http://oasis-open.org/openc2/jadn/v1.0",
   "patch": "0-wd01",
   "title": "JADN Syntax",
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
-  "exports": ["Schema", "Uname"]
+  "exports": ["Schema", "Uname"],
+  "config": {
+    "FieldName": "^[A-Za-z][_/A-Za-z0-9]{0,31}$"
+  }
  },
 
  "types": [
@@ -1365,7 +1405,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "BaseType", "BaseType", [], ""],
     [3, "TypeOptions", "Options", [], ""],
     [4, "TypeDescription", "Description", [], ""],
-    [5, "Fields", "JADN-Type", ["&BaseType"], ""]
+    [5, "Fields", "JADN-Type", ["&2"], ""]
   ]],
   ["BaseType", "Enumerated", [], "", [
     [1, "Binary", ""],
@@ -1374,7 +1414,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "Number", ""],
     [5, "Null", ""],
     [6, "String", ""],
-    [7, "Enumerated", [], ""],
+    [7, "Enumerated", ""],
     [8, "Choice", ""],
     [9, "Array", ""],
     [10, "ArrayOf", ""],
@@ -1415,8 +1455,8 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
   ["Description", "String", [], ""],
-  ["TypeName", "String", ["%[A-Z][-$A-Za-z0-9]{0,31}"], ""],
-  ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
+  ["TypeName", "String", ["%^[A-Z][-$A-Za-z0-9]{0,31}$"], ""],
+  ["FieldName", "String", ["%^[a-z][_/A-Za-z0-9]{0,31}$"], ""],
 
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", [], "Information about this module"],
@@ -1428,16 +1468,26 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [3, "title", "String", ["[0"], "Title"],
     [4, "description", "String", ["[0"], "Description"],
     [5, "imports", "Imports", ["[0"], "Imported schema modules"],
-    [6, "exports", "Exports", ["[0"], "Data types exported by this module"]
+    [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
+    [7, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-  ["Imports", "ArrayOf", ["*Import"], ""],
-  ["Import", "Array", [], "Imported module id and unique name", [
+  ["Imports", "ArrayOf", ["*Import"], "List of imported modules"],
+  ["Import", "Array", [], "", [
     [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
     [2, "namespace", "Uname", [], "Unique name of imported module"]
   ]],
   ["Nsid", "String", ["%[a-z][a-z0-9]{,7}"], ""],
   ["Uname", "String", ["/uri"], ""],
-  ["Exports", "ArrayOf", ["*TypeName"], ""]
+  ["Exports", "ArrayOf", ["*TypeName"], "List of type definitions intended to be public"],
+  ["Config", "Record", ["{1"], "Configuration variables", [
+    [1, "MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
+    [2, "MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
+    [3, "MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
+    [4, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
+    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character for FieldName"],
+    [6, "TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
+    [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"]
+  ]]
  ]
 }
 ```
