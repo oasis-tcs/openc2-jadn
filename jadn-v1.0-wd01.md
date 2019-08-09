@@ -376,9 +376,9 @@ Type definitions based on variable-length types may include maximum size limits.
 ```
 Type              Name         Limit   Description
 -----             -----        -----   -----------
-Binary            maxBinary    255     Maximum number of octets
-String            maxString    255     Maximum number of characters
-Array, ArrayOf,   maxElements  100     Maximum number of items/properties
+Binary            MaxBinary    255     Maximum number of octets
+String            MaxString    255     Maximum number of characters
+Array, ArrayOf,   MaxElements  100     Maximum number of items/properties
 Map, MapOf,
 Record
 ```
@@ -999,7 +999,7 @@ Simple types:
 Enumerated type:
 ```
     TypeName = TYPESTRING {                   // TypeDescription
-        ItemID ItemName,                      // ItemDescription
+        ItemID ItemValue,                     // ItemDescription
         ...
     }
 ```
@@ -1020,7 +1020,7 @@ followed by a label terminator ("::"):
 ```
     /* Enumerated.ID */
     TypeName = TYPESTRING {                   // TypeDescription
-        ItemID                                // ItemName:: ItemDescription
+        ItemID                                // ItemValue:: ItemDescription
     }
     
     /* Choice.ID, Map.ID */
@@ -1174,8 +1174,8 @@ A meta-schema is a schema against which other schemas can be validated. The JADN
 The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
-The default FieldName format ([Section 3.1.1](#311-name-formats)) is overridden to permit
-upper-case names in JADN-Type.
+To validate the JADN meta-schema itself, the default FieldName format ([Section 3.1.1](#311-name-formats)) should be overridden to permit
+upper-case field names.
 ```
 Types = ArrayOf(Type)
 Type = Array {
@@ -1183,7 +1183,7 @@ Type = Array {
      2 BaseType,                                 // BaseType::
      3 Options,                                  // TypeOptions::
      4 Description,                              // TypeDescription::
-     5 JADN-Type(&BaseType)                      // Fields::
+     5 JADN-Type(&2)                             // Fields::
 }
 BaseType = Enumerated {
      1 Binary,
@@ -1233,8 +1233,8 @@ FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Description = String
-TypeName = String(%[A-Z][-$A-Za-z0-9]{0,31}%)
-FieldName = String(%[A-Za-z][_A-Za-z0-9]{0,31}%)
+TypeName = String(%^[A-Z][-$A-Za-z0-9]{0,31}$%)
+FieldName = String(%^[a-z][_/A-Za-z0-9]{0,31}$%)
 ```
 **Schema Module**
 
@@ -1250,16 +1250,26 @@ Meta = Map {                                 // Information about this module
      3 title           String optional,          // Title
      4 description     String optional,          // Description
      5 imports         Imports optional,         // Imported schema modules
-     6 exports         Exports optional          // Types exported by this module
+     6 exports         Exports optional,         // Type definitions exported by this module
+     7 config          Config optional           // Configuration values for this module
 }
 Imports = ArrayOf(Import)                    // List of imported modules
 Import = Array {
-     1 Nsid,                                     // nsid::
-     2 Uname                                     // namespace::
+     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
+     2 Uname                                     // namespace:: Unique name of imported module
 }
-Nsid = String(%[a-z][a-z0-9]{,7}%)           // Namespace id - a short tag defined here and used to refer to an imported module
-Uname = String /uri                          // Unique name of the imported module
-Exports = ArrayOf(TypeName)                  // List of top-level types defined in this module expected to be used by other modules
+Nsid = String(%[a-z][a-z0-9]{,7}%)
+Uname = String /uri
+Exports = ArrayOf(TypeName)                  // List of type definitions intended to be public
+Config = Record{1..*} {                      // Configuration variables
+     1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
+     2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
+     3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
+     4 Sys             String{1..1} optional,    // System character for TypeName
+     5 FS              String{1..1} optional,    // Field Separator character for FieldName
+     6 TypeName        String{1..127} optional,  // TypeName regex
+     7 FieldName       String{1..127} optional   // FieldName regex
+}
 ```
 
 # Appendix D. Definitions in JADN format
@@ -1378,11 +1388,14 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ```
 {
  "meta": {
-  "module": "oasis-open.org/openc2/jadn/v1.0",
+  "module": "http://oasis-open.org/openc2/jadn/v1.0",
   "patch": "0-wd01",
   "title": "JADN Syntax",
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
-  "exports": ["Schema", "Uname"]
+  "exports": ["Schema", "Uname"],
+  "config": {
+    "FieldName": "^[A-Za-z][_/A-Za-z0-9]{0,31}$"
+  }
  },
 
  "types": [
@@ -1392,7 +1405,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "BaseType", "BaseType", [], ""],
     [3, "TypeOptions", "Options", [], ""],
     [4, "TypeDescription", "Description", [], ""],
-    [5, "Fields", "JADN-Type", ["&BaseType"], ""]
+    [5, "Fields", "JADN-Type", ["&2"], ""]
   ]],
   ["BaseType", "Enumerated", [], "", [
     [1, "Binary", ""],
@@ -1401,7 +1414,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "Number", ""],
     [5, "Null", ""],
     [6, "String", ""],
-    [7, "Enumerated", [], ""],
+    [7, "Enumerated", ""],
     [8, "Choice", ""],
     [9, "Array", ""],
     [10, "ArrayOf", ""],
@@ -1442,8 +1455,8 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
   ["Description", "String", [], ""],
-  ["TypeName", "String", ["%[A-Z][-$A-Za-z0-9]{0,31}"], ""],
-  ["FieldName", "String", ["%[A-Za-z][_A-Za-z0-9]{0,31}"], ""],
+  ["TypeName", "String", ["%^[A-Z][-$A-Za-z0-9]{0,31}$"], ""],
+  ["FieldName", "String", ["%^[a-z][_/A-Za-z0-9]{0,31}$"], ""],
 
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", [], "Information about this module"],
@@ -1455,16 +1468,26 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [3, "title", "String", ["[0"], "Title"],
     [4, "description", "String", ["[0"], "Description"],
     [5, "imports", "Imports", ["[0"], "Imported schema modules"],
-    [6, "exports", "Exports", ["[0"], "Data types exported by this module"]
+    [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
+    [7, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-  ["Imports", "ArrayOf", ["*Import"], ""],
-  ["Import", "Array", [], "Imported module id and unique name", [
+  ["Imports", "ArrayOf", ["*Import"], "List of imported modules"],
+  ["Import", "Array", [], "", [
     [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
     [2, "namespace", "Uname", [], "Unique name of imported module"]
   ]],
   ["Nsid", "String", ["%[a-z][a-z0-9]{,7}"], ""],
   ["Uname", "String", ["/uri"], ""],
-  ["Exports", "ArrayOf", ["*TypeName"], ""]
+  ["Exports", "ArrayOf", ["*TypeName"], "List of type definitions intended to be public"],
+  ["Config", "Record", ["{1"], "Configuration variables", [
+    [1, "MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
+    [2, "MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
+    [3, "MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
+    [4, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
+    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character for FieldName"],
+    [6, "TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
+    [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"]
+  ]]
  ]
 }
 ```
