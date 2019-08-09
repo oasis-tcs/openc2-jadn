@@ -335,9 +335,9 @@ JADN type definitions have a regular structure designed to be easily describable
 * FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 * If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
 
-Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#311-type-definition-within-fields)).
+Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
-### 3.1.1 Naming Requirements
+### 3.1.1 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications. JADN-based specifications MAY define their own name format requirements.
 
 * Specifications that define name formats MUST define:
@@ -367,14 +367,22 @@ FieldName: ^[a-z][_/A-Za-z0-9]{0,31}$
 Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
 does not affect the meaning of type definitions.
 
-### 3.1.2 Descriptions
-Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
-* The description value MUST be a string, which MAY be empty.
-* Implementations MUST NOT present this string to end users.
-* Tools for editing schemas SHOULD support displaying and editing descriptions.
-* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
+### 3.1.2 Upper Bounds
+Type definitions based on variable-length types may include maximum size limits. If an individual type does not define an explicit limit, it uses the default limit defined by the specification.  If the specification does not define a default, the definition uses the limits shown here, which are deliberately conservative to encourage specification authors to define limits based on application requirements.
+* JADN specifications SHOULD define size limits on the variable-length values shown in Figure 3-2.
+* Specifications that do not define alternate size limits MUST use the values shown in Figure 3-2.
+* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition, or the default limit defined in the specification containing its type definition, or if the specification does not define a default, the limit shown in Figure 3-2.
 
-Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
+```
+Type              Name         Limit   Description
+-----             -----        -----   -----------
+Binary            maxBinary    255     Maximum number of octets
+String            maxString    255     Maximum number of characters
+Array, ArrayOf,   maxElements  100     Maximum number of items/properties
+Map, MapOf,
+Record
+```
+###### Figure 3-2: JADN Default Size Limits
 
 ### 3.1.3 Definition Formats
 
@@ -424,6 +432,15 @@ Person = Record {
 |   3  | **email** | String  | 0..1 |             |
 
 These represent the same IM definition, but conformance is based on native JSON definitions. Specifications that use JADN-IDL or table format SHOULD also make those definitions available in JADN format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
+
+### 3.1.4 Descriptions
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
+* The description value MUST be a string, which MAY be empty.
+* Implementations MUST NOT present this string to end users.
+* Tools for editing schemas SHOULD support displaying and editing descriptions.
+* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
+
+Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -644,7 +661,7 @@ type that controls which Choice element is used.
 #### 3.2.2.3 Field Flattening
 Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option.
 Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
-forming a relative path using the FieldSep ([Section 3.1.1](#311-naming-requirements)) character.
+forming a relative path using the field separator (FS - [Section 3.1.1](#311-name-formats)) character.
 
 Flattening may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusion to a subset of fields.
@@ -994,7 +1011,7 @@ Compound types without the *id* option:
         ...
     }
 ```
-If a field includes the *flatten* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-naming-requirements))
+If a field includes the *flatten* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
 is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as a non-normative label
@@ -1157,7 +1174,7 @@ A meta-schema is a schema against which other schemas can be validated. The JADN
 The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
-The default FieldName format ([Section 3.1.1](#311-naming-requirements)) is overridden to permit
+The default FieldName format ([Section 3.1.1](#311-name-formats)) is overridden to permit
 upper-case names in JADN-Type.
 ```
 Types = ArrayOf(Type)
