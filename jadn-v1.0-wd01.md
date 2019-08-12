@@ -602,10 +602,10 @@ Field options are specified for each field within a type definition. Each option
 | 0x5b `'['` | minc | Integer | Minimum cardinality |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
-| 0x3c `'<'` | flatten | none | Use FieldName as a qualifier for fields in FieldType |
+| 0x3c `'<'` | path | none | Use FieldName as a qualifier for fields in FieldType |
 | 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
 
-* FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or flatten.  
+* FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
@@ -658,12 +658,12 @@ type that controls which Choice element is used.
         3 details     Department(&dept)   // Field that selects which Choice element must be present
     }
 
-#### 3.2.2.3 Field Flattening
-Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option.
+#### 3.2.2.3 Field Pathnames
+Fields where FieldType is Enumerated, Choice, Map, or Record may include the *path* option.
 Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
 forming a relative path using the field separator (FS - [Section 3.1.1](#311-name-formats)) character.
 
-Flattening may be used to extend a set of fields with fields defined elsewhere, or to
+Pathnames may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusion to a subset of fields.
 
 **Example:**
@@ -1011,7 +1011,7 @@ Compound types without the *id* option:
         ...
     }
 ```
-If a field includes the *flatten* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
+If a field includes the *path* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
 is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as a non-normative label
@@ -1303,13 +1303,13 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ]]
 ```
 
-**[Section 3.2.2.3 Field Flattening](#3223-field-flattening):**
+**[Section 3.2.2.3 Field Pathnames](#3223-field-pathnames):**
 ```
 ["Palette", "Map", [], "", [
     [1, "burgundy", "Rgb", [], ""],
     [2, "grass",    "Rgb", [], ""],
     [3, "lapis",    "Rgb", [], ""],
-    [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
+    [4, "new",      "New-Color", ["<"], "Incorporate fields of New-Color into Palette using qualified names"]
 ]],
 ["New-Color", "Map", [], "", [
     [17, "maize",   "Rgb", [], ""],
