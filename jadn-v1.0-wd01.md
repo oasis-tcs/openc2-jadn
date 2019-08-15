@@ -343,10 +343,10 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character intended for use in qualified field names
+    * A Field Separator character used in qualified field names (pathnames)
     * A "System" character intended for use in tool-generated type names
 * Schema authors SHOULD NOT create FieldNames containing the Field Separator character
-* Schema authors SHOULD NOT create TypeNames containing the System character
+* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
 ABNF:
@@ -360,7 +360,7 @@ DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
 TypeName:  ^[A-Z][-$A-Za-z0-9]{0,31}$
-FieldName: ^[a-z][_/A-Za-z0-9]{0,31}$
+FieldName: ^[a-z][_A-Za-z0-9]{0,31}$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -1234,7 +1234,7 @@ Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Description = String
 TypeName = String(%^[A-Z][-$A-Za-z0-9]{0,31}$%)
-FieldName = String(%^[a-z][_/A-Za-z0-9]{0,31}$%)
+FieldName = String(%^[a-z][_A-Za-z0-9]{0,31}$%)
 ```
 **Schema Module**
 
@@ -1262,7 +1262,7 @@ Config = Record{1..*} {                      // Configuration variables
      2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
      3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
      4 Sys             String{1..1} optional,    // System character for TypeName
-     5 FS              String{1..1} optional,    // Field Separator character for FieldName
+     5 FS              String{1..1} optional,    // Field Separator character used in pathnames
      6 TypeName        String{1..127} optional,  // TypeName regex
      7 FieldName       String{1..127} optional   // FieldName regex
 }
@@ -1452,7 +1452,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Option", "String", ["{1"], ""],
   ["Description", "String", [], ""],
   ["TypeName", "String", ["%^[A-Z][-$A-Za-z0-9]{0,31}$"], ""],
-  ["FieldName", "String", ["%^[a-z][_/A-Za-z0-9]{0,31}$"], ""],
+  ["FieldName", "String", ["%^[a-z][_A-Za-z0-9]{0,31}$"], ""],
 
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", [], "Information about this module"],
@@ -1476,7 +1476,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
     [3, "MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
     [4, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
-    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character for FieldName"],
+    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
     [6, "TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
     [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"]
   ]]
