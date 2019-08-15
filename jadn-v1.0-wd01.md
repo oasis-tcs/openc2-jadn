@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 9 August 2019
+## 16 August 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -1253,13 +1253,9 @@ Meta = Map {                                 // Information about this module
      6 exports         Exports optional,         // Type definitions exported by this module
      7 config          Config optional           // Configuration values for this module
 }
-Imports = ArrayOf(Import)                    // List of imported modules
-Import = Array {
-     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
-     2 Uname                                     // namespace:: Unique name of imported module
-}
-Nsid = String(%[a-z][a-z0-9]{,7}%)
-Uname = String /uri
+Imports = MapOf(Nsid, Uname)                 // List of imported modules
+Nsid = String(%^[a-zA-Z][a-zA-Z0-9]{0,7}$%)  // A short local namespace identifier
+Uname = String /uri                          // Unique name of a module
 Exports = ArrayOf(TypeName)                  // List of type definitions intended to be public
 Config = Record{1..*} {                      // Configuration variables
      1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
@@ -1471,13 +1467,9 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
     [7, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-  ["Imports", "ArrayOf", ["*Import"], "List of imported modules"],
-  ["Import", "Array", [], "", [
-    [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
-    [2, "namespace", "Uname", [], "Unique name of imported module"]
-  ]],
-  ["Nsid", "String", ["%[a-z][a-z0-9]{,7}"], ""],
-  ["Uname", "String", ["/uri"], ""],
+  ["Imports", "MapOf", ["+Nsid", "*Uname"], "List of imported modules"],
+  ["Nsid", "String", ["%^[a-zA-Z][a-zA-Z0-9]{0,7}$"], "A short local namespace identifier"],
+  ["Uname", "String", ["/uri"], "Unique name of a module"],
   ["Exports", "ArrayOf", ["*TypeName"], "List of type definitions intended to be public"],
   ["Config", "Record", ["{1"], "Configuration variables", [
     [1, "MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
