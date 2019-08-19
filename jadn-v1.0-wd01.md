@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 9 August 2019
+## 16 August 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -343,10 +343,10 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * Specifications that define name formats MUST define:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character intended for use in qualified field names
+    * A Field Separator character used in qualified field names (pathnames)
     * A "System" character intended for use in tool-generated type names
 * Schema authors SHOULD NOT create FieldNames containing the Field Separator character
-* Schema authors SHOULD NOT create TypeNames containing the System character
+* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
 ```
 ABNF:
@@ -360,7 +360,7 @@ DIGIT      = %x30-39  ; 0-9
 
 Regular Expression:
 TypeName:  ^[A-Z][-$A-Za-z0-9]{0,31}$
-FieldName: ^[a-z][_/A-Za-z0-9]{0,31}$
+FieldName: ^[a-z][_A-Za-z0-9]{0,31}$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -602,10 +602,10 @@ Field options are specified for each field within a type definition. Each option
 | 0x5b `'['` | minc | Integer | Minimum cardinality |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
-| 0x3c `'<'` | flatten | none | Use FieldName as a qualifier for fields in FieldType |
+| 0x3c `'<'` | path | none | Use FieldName as a qualifier for fields in FieldType |
 | 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
 
-* FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or flatten.  
+* FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
@@ -658,12 +658,12 @@ type that controls which Choice element is used.
         3 details     Department(&dept)   // Field that selects which Choice element must be present
     }
 
-#### 3.2.2.3 Field Flattening
-Fields where FieldType is Enumerated, Choice, Map, or Record may include the *flatten* option.
+#### 3.2.2.3 Field Pathnames
+Fields where FieldType is Enumerated, Choice, Map, or Record may include the *path* option.
 Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
 forming a relative path using the field separator (FS - [Section 3.1.1](#311-name-formats)) character.
 
-Flattening may be used to extend a set of fields with fields defined elsewhere, or to
+Pathnames may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusion to a subset of fields.
 
 **Example:**
@@ -1011,7 +1011,7 @@ Compound types without the *id* option:
         ...
     }
 ```
-If a field includes the *flatten* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
+If a field includes the *path* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
 is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as a non-normative label
@@ -1234,7 +1234,7 @@ Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Description = String
 TypeName = String(%^[A-Z][-$A-Za-z0-9]{0,31}$%)
-FieldName = String(%^[a-z][_/A-Za-z0-9]{0,31}$%)
+FieldName = String(%^[a-z][_A-Za-z0-9]{0,31}$%)
 ```
 **Schema Module**
 
@@ -1253,20 +1253,16 @@ Meta = Map {                                 // Information about this module
      6 exports         Exports optional,         // Type definitions exported by this module
      7 config          Config optional           // Configuration values for this module
 }
-Imports = ArrayOf(Import)                    // List of imported modules
-Import = Array {
-     1 Nsid,                                     // nsid:: A short local identifier (namespace id) used within this module to refer to the imported module
-     2 Uname                                     // namespace:: Unique name of imported module
-}
-Nsid = String(%[a-z][a-z0-9]{,7}%)
-Uname = String /uri
+Imports = MapOf(Nsid, Uname)                 // List of imported modules
+Nsid = String(%^[a-zA-Z][a-zA-Z0-9]{0,7}$%)  // A short local namespace identifier
+Uname = String /uri                          // Unique name of a module
 Exports = ArrayOf(TypeName)                  // List of type definitions intended to be public
 Config = Record{1..*} {                      // Configuration variables
      1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
      2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
      3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
      4 Sys             String{1..1} optional,    // System character for TypeName
-     5 FS              String{1..1} optional,    // Field Separator character for FieldName
+     5 FS              String{1..1} optional,    // Field Separator character used in pathnames
      6 TypeName        String{1..127} optional,  // TypeName regex
      7 FieldName       String{1..127} optional   // FieldName regex
 }
@@ -1303,13 +1299,13 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ]]
 ```
 
-**[Section 3.2.2.3 Field Flattening](#3223-field-flattening):**
+**[Section 3.2.2.3 Field Pathnames](#3223-field-pathnames):**
 ```
 ["Palette", "Map", [], "", [
     [1, "burgundy", "Rgb", [], ""],
     [2, "grass",    "Rgb", [], ""],
     [3, "lapis",    "Rgb", [], ""],
-    [4, "new",      "New-Color", ["<"], "Flatten (use qualified names for the fields of New-Color)"]
+    [4, "new",      "New-Color", ["<"], "Incorporate fields of New-Color into Palette using qualified names"]
 ]],
 ["New-Color", "Map", [], "", [
     [17, "maize",   "Rgb", [], ""],
@@ -1456,7 +1452,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Option", "String", ["{1"], ""],
   ["Description", "String", [], ""],
   ["TypeName", "String", ["%^[A-Z][-$A-Za-z0-9]{0,31}$"], ""],
-  ["FieldName", "String", ["%^[a-z][_/A-Za-z0-9]{0,31}$"], ""],
+  ["FieldName", "String", ["%^[a-z][_A-Za-z0-9]{0,31}$"], ""],
 
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", [], "Information about this module"],
@@ -1471,20 +1467,16 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
     [7, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-  ["Imports", "ArrayOf", ["*Import"], "List of imported modules"],
-  ["Import", "Array", [], "", [
-    [1, "nsid", "Nsid", [], "A short local identifier (namespace id) used within this module to refer to the imported module"],
-    [2, "namespace", "Uname", [], "Unique name of imported module"]
-  ]],
-  ["Nsid", "String", ["%[a-z][a-z0-9]{,7}"], ""],
-  ["Uname", "String", ["/uri"], ""],
+  ["Imports", "MapOf", ["+Nsid", "*Uname"], "List of imported modules"],
+  ["Nsid", "String", ["%^[a-zA-Z][a-zA-Z0-9]{0,7}$"], "A short local namespace identifier"],
+  ["Uname", "String", ["/uri"], "Unique name of a module"],
   ["Exports", "ArrayOf", ["*TypeName"], "List of type definitions intended to be public"],
   ["Config", "Record", ["{1"], "Configuration variables", [
     [1, "MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
     [2, "MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
     [3, "MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
     [4, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
-    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character for FieldName"],
+    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
     [6, "TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
     [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"]
   ]]
