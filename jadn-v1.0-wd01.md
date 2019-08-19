@@ -1179,8 +1179,10 @@ Options enable evolution without affecting this structure.
 
 To validate the JADN meta-schema itself, the default FieldName format ([Section 3.1.1](#311-name-formats)) should be overridden to permit upper-case field names:
 
-    'TypeName': '^[$A-Z][-$A-Za-z0-9]{0,31}$',
-    'FieldName': '^[A-Za-z][_A-Za-z0-9]{0,31}$'
+    "config": {
+        "TypeName": "^[$A-Z][-$A-Za-z0-9]{0,31}$",
+        "FieldName": "^[A-Za-z][_A-Za-z0-9]{0,31}$"
+    }
 ```
 Types = ArrayOf(Type)
 Type = Array {
