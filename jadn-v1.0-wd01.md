@@ -320,7 +320,7 @@ JADN type definitions have a regular structure designed to be easily describable
 
 1. **FieldID:** the integer identifier of the field
 2. **FieldName:** the name or label of the field
-3. **FieldType:** the type of the field
+3. **FieldType:** the type of the field, TypeName with optional Namespace ID prefix **NSID:TypeName**
 4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-5](#table-3-5-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
 5. **FieldDescription:** a non-normative comment
 ```
@@ -338,22 +338,25 @@ JADN type definitions have a regular structure designed to be easily describable
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
 ### 3.1.1 Name Formats
-JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications. JADN-based specifications MAY define their own name format requirements.
+JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
 
-* Specifications that define name formats MUST define:
+* JADN specifications MAY override the default name formats by defining one or more of:
     * The permitted format for TypeName
     * The permitted format for FieldName
     * A Field Separator character used in qualified field names (pathnames)
-    * A "System" character intended for use in tool-generated type names
-* Schema authors SHOULD NOT create FieldNames containing the Field Separator character
+    * A "System" character used in tool-generated type names
+    * The permitted format for the Namespace Identifier (NSID) used in type references
+* Schema authors MUST NOT create FieldNames containing the Field Separator character
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
-* Specifications that do not define an alternate name format MUST use the definitions in Figure 3-1 expressed in [ABNF](#rfc5234) and [Regular Expression](#es9) formats:
+* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
 ```
 ABNF:
-TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)     ; e.g., Color-Values, length = 1-32 characters
-FieldName  = LC *31("_" / FS / UC / LC / DIGIT)      ; e.g., color_values, length = 1-32 characters
-FS         = "/"      ; 'SOLIDUS' (U+002F), Path separator for qualified field names, e.g., color/values
-Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), Reserved for tool-generated type names, e.g., Color$values.
+TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; e.g., Color-Values, length = 1-32 characters
+FieldName  = LC *31("_" / UC / LC / DIGIT)          ; e.g., color_values, length = 1-32 characters
+NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID e.g., td, length = 1-8 characters
+
+FS         = "/"      ; 'SOLIDUS' (U+002F), Path separator for field pathnames, e.g., color/values
+Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), System chacacter for tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
@@ -361,6 +364,7 @@ DIGIT      = %x30-39  ; 0-9
 Regular Expression:
 TypeName:  ^[A-Z][-$A-Za-z0-9]{0,31}$
 FieldName: ^[a-z][_A-Za-z0-9]{0,31}$
+NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
 ```
 ###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
 
@@ -374,13 +378,12 @@ Type definitions based on variable-length types may include maximum size limits.
 * An instance MUST be considered invalid if its size exceeds the limit specified in its type definition, or the default limit defined in the specification containing its type definition, or if the specification does not define a default, the limit shown in Figure 3-2.
 
 ```
-Type              Name         Limit   Description
------             -----        -----   -----------
-Binary            MaxBinary    255     Maximum number of octets
-String            MaxString    255     Maximum number of characters
-Array, ArrayOf,   MaxElements  100     Maximum number of items/properties
-Map, MapOf,
-Record
+Type                Name         Limit   Description
+-----               -----        -----   -----------
+Binary              MaxBinary    255     Maximum number of octets
+String              MaxString    255     Maximum number of characters
+Array, ArrayOf,     MaxElements  100     Maximum number of items/properties
+Map, MapOf, Record
 ```
 ###### Figure 3-2: JADN Default Size Limits
 
@@ -1174,8 +1177,10 @@ A meta-schema is a schema against which other schemas can be validated. The JADN
 The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
 Options enable evolution without affecting this structure.
 
-To validate the JADN meta-schema itself, the default FieldName format ([Section 3.1.1](#311-name-formats)) should be overridden to permit
-upper-case field names.
+To validate the JADN meta-schema itself, the default FieldName format ([Section 3.1.1](#311-name-formats)) should be overridden to permit upper-case field names:
+
+    'TypeName': '^[$A-Z][-$A-Za-z0-9]{0,31}$',
+    'FieldName': '^[A-Za-z][_A-Za-z0-9]{0,31}$'
 ```
 Types = ArrayOf(Type)
 Type = Array {
@@ -1225,7 +1230,7 @@ Fields = ArrayOf(Field)
 Field = Array {
      1 FieldID,                                  // FieldID::
      2 FieldName,                                // FieldName::
-     3 TypeName,                                 // FieldType::
+     3 TypeRef,                                  // FieldType::
      4 Options,                                  // FieldOptions::
      5 Description                               // FieldDescription::
 }
@@ -1233,8 +1238,10 @@ FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Description = String
-TypeName = String(%^[A-Z][-$A-Za-z0-9]{0,31}$%)
-FieldName = String(%^[a-z][_A-Za-z0-9]{0,31}$%)
+TypeName = String                            // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
+FieldName = String                           // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
+NSID = String                                // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
+TypeRef = String                             // Type Reference pattern = (NSID ':')? TypeName
 ```
 **Schema Module**
 
@@ -1253,18 +1260,18 @@ Meta = Map {                                 // Information about this module
      6 exports         Exports optional,         // Type definitions exported by this module
      7 config          Config optional           // Configuration values for this module
 }
-Imports = MapOf(Nsid, Uname)                 // List of imported modules
-Nsid = String(%^[a-zA-Z][a-zA-Z0-9]{0,7}$%)  // A short local namespace identifier
+Imports = MapOf(NSID, Uname)                 // List of imported modules
 Uname = String /uri                          // Unique name of a module
 Exports = ArrayOf(TypeName)                  // List of type definitions intended to be public
-Config = Record{1..*} {                      // Configuration variables
+Config = Record{1..*} {                      // Configuration variables used to override JADN defaults
      1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
      2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
      3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
-     4 Sys             String{1..1} optional,    // System character for TypeName
-     5 FS              String{1..1} optional,    // Field Separator character used in pathnames
+     4 FS              String{1..1} optional,    // Field Separator character used in pathnames
+     5 Sys             String{1..1} optional,    // System character for TypeName
      6 TypeName        String{1..127} optional,  // TypeName regex
-     7 FieldName       String{1..127} optional   // FieldName regex
+     7 FieldName       String{1..127} optional,  // FieldName regex
+     8 NSID            String{1..127} optional   // Namespace Identifier regex
 }
 ```
 
@@ -1390,7 +1397,8 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
   "exports": ["Schema", "Uname"],
   "config": {
-    "FieldName": "^[A-Za-z][_/A-Za-z0-9]{0,31}$"
+    "TypeName": "^[$A-Z][-$A-Za-z0-9]{0,31}$",
+    "FieldName": "^[A-Za-z][_A-Za-z0-9]{0,31}$"
   }
  },
 
@@ -1443,7 +1451,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Field", "Array", [], "", [
     [1, "FieldID", "FieldID", [], ""],
     [2, "FieldName", "FieldName", [], ""],
-    [3, "FieldType", "TypeName", [], ""],
+    [3, "FieldType", "TypeRef", [], ""],
     [4, "FieldOptions", "Options", [], ""],
     [5, "FieldDescription", "Description", [], ""]
   ]],
@@ -1451,8 +1459,10 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
   ["Description", "String", [], ""],
-  ["TypeName", "String", ["%^[A-Z][-$A-Za-z0-9]{0,31}$"], ""],
-  ["FieldName", "String", ["%^[a-z][_A-Za-z0-9]{0,31}$"], ""],
+  ["TypeName", "String", [], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$"],
+  ["FieldName", "String", [], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$"],
+  ["NSID", "String", [], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$"],
+  ["TypeRef", "String", [], "Type Reference pattern = (NSID ':')? TypeName"],
 
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", [], "Information about this module"],
@@ -1467,18 +1477,18 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
     [7, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-  ["Imports", "MapOf", ["+Nsid", "*Uname"], "List of imported modules"],
-  ["Nsid", "String", ["%^[a-zA-Z][a-zA-Z0-9]{0,7}$"], "A short local namespace identifier"],
+  ["Imports", "MapOf", ["+NSID", "*Uname"], "List of imported modules"],
   ["Uname", "String", ["/uri"], "Unique name of a module"],
   ["Exports", "ArrayOf", ["*TypeName"], "List of type definitions intended to be public"],
-  ["Config", "Record", ["{1"], "Configuration variables", [
+  ["Config", "Record", ["{1"], "Configuration variables used to override JADN defaults", [
     [1, "MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
     [2, "MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
     [3, "MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
-    [4, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
-    [5, "FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
+    [4, "FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
+    [5, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
     [6, "TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
-    [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"]
+    [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"],
+    [8, "NSID", "String", ["[0", "{1", "}127"], "Namespace Identifier regex"]
   ]]
  ]
 }
