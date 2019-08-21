@@ -16,7 +16,7 @@
 * Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
 
 ### Editor:
-* David Kemp (dkemp@mobility-challenge.com), [National Security Agency](https://www.nsa.gov/)
+* David Kemp (dkemp@radium.ncsc.mil), [National Security Agency](https://www.nsa.gov/)
 
 ### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
@@ -343,8 +343,8 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * JADN specifications MAY override the default name formats by defining one or more of:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character used in qualified field names (pathnames)
-    * A "System" character used in tool-generated type names
+    * A Field Separator character used in field pathnames
+    * A "System" character used in tool-generated or specially-processed type names
     * The permitted format for the Namespace Identifier (NSID) used in type references
 * Schema authors MUST NOT create FieldNames containing the Field Separator character
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
@@ -355,8 +355,8 @@ TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; e.g., Color-Values, length
 FieldName  = LC *31("_" / UC / LC / DIGIT)          ; e.g., color_values, length = 1-32 characters
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID e.g., td, length = 1-8 characters
 
-FS         = "/"      ; 'SOLIDUS' (U+002F), Path separator for field pathnames, e.g., color/values
-Sys        = "$"      ; 'DOLLAR SIGN' (U+0024), System chacacter for tool-generated type names, e.g., Color$values.
+FS         = "/"      ; 'SOLIDUS', Separator between components of field pathnames, e.g., color/values
+Sys        = "$"      ; 'DOLLAR SIGN', Character used in tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
 DIGIT      = %x30-39  ; 0-9
