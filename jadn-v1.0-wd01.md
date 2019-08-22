@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 16 August 2019
+## 23 August 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -573,8 +573,6 @@ affect how values are serialized, see [Section 4](#4-serialization).
 The *pattern* option specifies a regular expression used to validate a String instance.
 * The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#es9) Section 21.2.
 * A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
-
-The pattern does not need anchors, it matches the entire instance rather than searching it for substrings.
 
 #### 3.2.1.7 Size and Value Constraints
 The *minv* and *maxv* options specify size or value limits.
