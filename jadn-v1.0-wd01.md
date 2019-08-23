@@ -179,6 +179,8 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+###### [RFC6901]
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [RFC8340]
@@ -664,6 +666,10 @@ Fields where FieldType is Enumerated, Choice, Map, or Record may include the *pa
 Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
 forming a relative path using the field separator (FS - [Section 3.1.1](#311-name-formats)) character.
 
+A pathname is equivalent to a JSON pointer ([RFC 6901](#rfc6901)), which begins with a reference
+to the root value of a JSON document and completes with a reference to some value within the document.
+A pathname instance is a reference to a type followed by a field within the referenced type.
+
 Pathnames may be used to extend a set of fields with fields defined elsewhere, or to
 apply constraints such as mutual exclusion to a subset of fields.
 
@@ -675,7 +681,7 @@ With the type definitions:
         1 burgundy Rgb,
         2 grass    Rgb,
         3 lapis    Rgb,
-        4 new/     New-Color    // Incorporate fields of New-Color into Palette using qualified names
+        4 new/     New-Color    // "new/" is a reference to the root of New-Color
     }
     New-Color = Map {
        17 maize    Rgb,
