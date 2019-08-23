@@ -668,10 +668,10 @@ forming a relative path using the field separator (FS - [Section 3.1.1](#311-nam
 
 A pathname is equivalent to a JSON pointer ([RFC 6901](#rfc6901)), which begins with a reference
 to the root value of a JSON document and completes with a reference to some value within the document.
-A pathname instance is a reference to a type followed by a field within the referenced type.
+A pathname instance is a reference to a type followed by the name of a field within the referenced type.
 
-Pathnames may be used to extend a set of fields with fields defined elsewhere, or to
-apply constraints such as mutual exclusion to a subset of fields.
+Pathnames may be used to aggregate separately-defined sets of fields, or to
+apply constraints such as a choice of subfields within a larger set of fields.
 
 **Example:**
 
@@ -714,9 +714,10 @@ is serialized in JSON format using qualified field names as:
       }
     }
 
-and is serialized in CBOR format, nested because CBOR uses FieldIDs rather than FieldNames, as:
+and is serialized in M-JSON and CBOR formats, nested because pathname strings are not used, as:
 
-    diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
+                M-JSON value:  [2, [32, 240, 24], 4, [2, [64, 240, 192]]]
+    CBOR diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
     
     19 bytes:
     A2             # map(2)
@@ -1095,7 +1096,11 @@ can be displayed as a [YANG tree diagram](#rfc8340) using the following conventi
 
 # 6 Schemas
 
-Type definitions are collected into schema *modules*, and modules may be combined to form the *schema* supported by a device, application or service.
+JADN schemas are organized into modules.  A schema module includes a set of meta-information (or header) items
+and a list of type definitions. Definitions in one module can reference definitions from other modules; this
+requires each module to have a unique identifier.
+
+*Editor's note: Describe each Meta field*
 
 # 7 Data Model Generation
 A JADN schema combined with serialization rules defines a data model, a concrete schema that validates instances in the specified data format.
@@ -1174,9 +1179,10 @@ The following individuals have participated in the creation of this specificatio
 
 # Appendix C. JADN Meta-schema
 
-A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates itself and other JADN schemas.
-In order to validate itself, the meta-schema has two changes from the JADN default name formats ([Section 3.1.1](#311-name-formats)):
-* TypeName allows configurable values whose names begin with the System character ($)
+A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates
+itself and other JADN schemas. In order to validate itself, the meta-schema includes two changes from
+the JADN default name formats ([Section 3.1.1](#311-name-formats)):
+* TypeName allows configurable values, whose names begin with the System character ($)
 * FieldName allows capitalized JADN types  
 ```
     "config": {
@@ -1184,11 +1190,41 @@ In order to validate itself, the meta-schema has two changes from the JADN defau
         "FieldName": "^[A-Za-z][_A-Za-z]{0,16}$"
     }
 ```
+## C.1 Schema Module
 
-**Type Definitions**
+A schema module is a collection of type definitions along with information about the module.
+```
+Schema = Record {                            // Definition of a JADN schema module
+     1 meta            Meta,                     // Information about this module
+     2 types           Types                     // Types defined in this module
+}
+Meta = Map {                                 // Information about this module
+     1 module          Uname,                    // Unique name/version
+     2 patch           String optional,          // Patch version
+     3 title           String optional,          // Title
+     4 description     String optional,          // Description
+     5 imports         Imports optional,         // Imported schema modules
+     6 exports         Exports optional,         // Type definitions exported by this module
+     7 config          Config optional           // Configuration values for this module
+}
+Imports = MapOf($NSID, Uname)                // List of imported modules
+Uname = String /uri                          // Unique name of a module
+Exports = ArrayOf($TypeName)                 // List of type definitions intended to be public
+Config = Map{1..*} {                         // Configuration variables used to override JADN defaults
+     1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
+     2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
+     3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
+     4 FS              String{1..1} optional,    // Field Separator character used in pathnames
+     5 Sys             String{1..1} optional,    // System character for TypeName
+     6 TypeName        String{1..127} optional,  // TypeName regex
+     7 FieldName       String{1..127} optional,  // FieldName regex
+     8 NSID            String{1..127} optional   // Namespace Identifier regex
+}
+```
+## C.2 Type Definitions
 
-The structure of JADN type definitions defined in [Section 3.1](#31-type-definitions) is intended to remain stable indefinitely.
-Options enable evolution without affecting this structure.
+The structure of JADN type definitions ([Section 3.1](#31-type-definitions)) is intended to remain stable,
+with options providing extensibility.
 ```
 Types = ArrayOf(Type)
 Type = Array {
@@ -1250,37 +1286,6 @@ $TypeName = String                           // Configurable pattern, default = 
 $FieldName = String                          // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
 $NSID = String                               // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
 $TypeRef = String                            // Type Reference pattern = (NSID ':')? TypeName
-```
-**Schema Module**
-
-A schema module is a collection of type definitions along with information about the module as described in [Section 6](#8-schemas).
-```
-Schema = Record {                            // Definition of a JADN schema module
-     1 meta            Meta,                     // Information about this module
-     2 types           Types                     // Types defined in this module
-}
-Meta = Map {                                 // Information about this module
-     1 module          Uname,                    // Unique name/version
-     2 patch           String optional,          // Patch version
-     3 title           String optional,          // Title
-     4 description     String optional,          // Description
-     5 imports         Imports optional,         // Imported schema modules
-     6 exports         Exports optional,         // Type definitions exported by this module
-     7 config          Config optional           // Configuration values for this module
-}
-Imports = MapOf($NSID, Uname)                // List of imported modules
-Uname = String /uri                          // Unique name of a module
-Exports = ArrayOf($TypeName)                 // List of type definitions intended to be public
-Config = Map{1..*} {                         // Configuration variables used to override JADN defaults
-     1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
-     2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
-     3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
-     4 FS              String{1..1} optional,    // Field Separator character used in pathnames
-     5 Sys             String{1..1} optional,    // System character for TypeName
-     6 TypeName        String{1..127} optional,  // TypeName regex
-     7 FieldName       String{1..127} optional,  // FieldName regex
-     8 NSID            String{1..127} optional   // Namespace Identifier regex
-}
 ```
 
 # Appendix D. Definitions in JADN format
