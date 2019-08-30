@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 23 August 2019
+## 30 August 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -580,8 +580,8 @@ The *pattern* option specifies a regular expression used to validate a String in
 The *minv* and *maxv* options specify size or value limits.
 
 * For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
-    * if *minv* is not present, the lower size limit defaults to zero.
-    * if *maxv* is not present or is zero, the upper size limit is unspecified and defaults to an implementation-specific large number.
+    * if *minv* is not present, it defaults to zero.
+    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.2](3-1-2-upper-bounds).
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -624,17 +624,17 @@ of an Array, Choice, Map, or Record type:
 |    1 |    0 | 1..* | At least one instance | required, repeated |
 |    m |    n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
 
+* if *minc* is not present, it defaults to 1.
+* if *maxc* is not present, it defaults to the greater of 1 or *minc*.
+* if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 3.1.2](#312-upper-bounds).
+* if *maxc* is less than *minc*, the field definition MUST be considered invalid.
+
 If minc is 0, the field is optional, otherwise it is required.  
-The default value of minc is 1.  
-
 If maxc is 1 the field is a single element, otherwise it is an array of elements.  
-The default value of maxc is the greater of 1 or minc.  
-If maxc is 0, the maximum number of elements is an unspecified large number.  
-If maxc is not 0, it must be greater than or equal to minc.  
 
-Use of minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
+A field definition with minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
 
-Within a Choice type minc values of 0 and 1 are ignored because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
+Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
 
 #### 3.2.2.2 Referenced Field Type
 A field may include the *tfield* option to specify another field within the same container
