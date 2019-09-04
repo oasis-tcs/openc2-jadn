@@ -475,7 +475,7 @@ which data values are instances of the defined type.
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
 | 0x7b `'{'` | minv | Integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
 | 0x7d `'}'` | maxv | Integer | Maximum numeric value, octet or character count, or element count |
-| 0x55 `'U'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
+| 0x55 `'q'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
