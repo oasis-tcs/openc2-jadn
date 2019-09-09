@@ -1198,19 +1198,19 @@ Schema = Record {                            // Definition of a JADN schema modu
 }
 Meta = Map {                                 // Information about this module
      1 module          Namespace,                // Unique name/version
-     2 patch           String optional,          // Patch version
-     3 title           String optional,          // Title
-     4 description     String optional,          // Description
+     2 patch           String{1..*} optional,    // Patch version
+     3 title           String{1..*} optional,    // Title
+     4 description     String{1..*} optional,    // Description
      5 imports         Imports optional,         // Imported schema modules
      6 exports         Exports optional,         // Type definitions exported by this module
      7 config          Config optional           // Configuration values for this module
 }
-Imports = MapOf(NSID, Namespace)             // List of imported modules
-Exports = ArrayOf(TypeName)                  // List of type definitions intended to be public
+Imports = MapOf(NSID, Namespace){1..*}       // List of imported modules
+Exports = ArrayOf(TypeName){1..*}            // List of type definitions intended to be public
 Config = Map{1..*} {                         // Configuration variables used to override JADN defaults
-     1 $MaxBinary      Integer{1..*} optional,   // Default maximum number of octets
-     2 $MaxString      Integer{1..*} optional,   // Default maximum number of characters
-     3 $MaxElements    Integer{1..*} optional,   // Default maximum number of items/properties
+     1 $MaxBinary      Integer{1..*} optional,   // Schema default maximum number of octets
+     2 $MaxString      Integer{1..*} optional,   // Schema default maximum number of characters
+     3 $MaxElements    Integer{1..*} optional,   // Schema default maximum number of items/properties
      4 $FS             String{1..1} optional,    // Field Separator character used in pathnames
      5 $Sys            String{1..1} optional,    // System character for TypeName
      6 $TypeName       String{1..127} optional,  // TypeName regex
@@ -1419,19 +1419,19 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 ["Meta", "Map", [], "Information about this module", [
     [1, "module", "Namespace", [], "Unique name/version"],
-    [2, "patch", "String", ["[0"], "Patch version"],
-    [3, "title", "String", ["[0"], "Title"],
-    [4, "description", "String", ["[0"], "Description"],
+    [2, "patch", "String", ["[0", "{1"], "Patch version"],
+    [3, "title", "String", ["[0", "{1"], "Title"],
+    [4, "description", "String", ["[0", "{1"], "Description"],
     [5, "imports", "Imports", ["[0"], "Imported schema modules"],
     [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
     [7, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-  ["Imports", "MapOf", ["+NSID", "*Namespace"], "List of imported modules"],
-  ["Exports", "ArrayOf", ["*TypeName"], "List of type definitions intended to be public"],
+  ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules"],
+  ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public"],
   ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
-    [1, "$MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
-    [2, "$MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
-    [3, "$MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
+    [1, "$MaxBinary", "Integer", ["[0", "{1"], "Schema default maximum number of octets"],
+    [2, "$MaxString", "Integer", ["[0", "{1"], "Schema default maximum number of characters"],
+    [3, "$MaxElements", "Integer", ["[0", "{1"], "Schema default maximum number of items/properties"],
     [4, "$FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
     [5, "$Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
     [6, "$TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
