@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 30 August 2019
+## 6 September 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -475,7 +475,7 @@ which data values are instances of the defined type.
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
 | 0x7b `'{'` | minv | Integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
 | 0x7d `'}'` | maxv | Integer | Maximum numeric value, octet or character count, or element count |
-| 0x55 `'U'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
+| 0x71 `'q'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -1180,15 +1180,13 @@ The following individuals have participated in the creation of this specificatio
 # Appendix C. JADN Meta-schema
 
 A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates
-itself and other JADN schemas. In order to validate itself, the meta-schema includes two changes from
-the JADN default name formats ([Section 3.1.1](#311-name-formats)):
-* TypeName allows configurable values, whose names begin with the System character ($)
-* FieldName allows capitalized JADN types  
+itself and other JADN schemas. In order to validate itself, the meta-schema requires a name format change
+from the JADN default ([Section 3.1.1](#311-name-formats)):
+* FieldName needs to allow configuration variables beginning with '$' and capitalized JADN types  
 ```
-    "config": {
-        "TypeName": "^[$A-Z][-$A-Za-z]{0,16}$",
-        "FieldName": "^[A-Za-z][_A-Za-z]{0,16}$"
-    }
+  "config": {
+    "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
+  }
 ```
 ## C.1 Schema Module
 
@@ -1199,26 +1197,25 @@ Schema = Record {                            // Definition of a JADN schema modu
      2 types           Types                     // Types defined in this module
 }
 Meta = Map {                                 // Information about this module
-     1 module          Uname,                    // Unique name/version
-     2 patch           String optional,          // Patch version
-     3 title           String optional,          // Title
-     4 description     String optional,          // Description
+     1 module          Namespace,                // Unique name/version
+     2 patch           String{1..*} optional,    // Patch version
+     3 title           String{1..*} optional,    // Title
+     4 description     String{1..*} optional,    // Description
      5 imports         Imports optional,         // Imported schema modules
      6 exports         Exports optional,         // Type definitions exported by this module
      7 config          Config optional           // Configuration values for this module
 }
-Imports = MapOf($NSID, Uname)                // List of imported modules
-Uname = String /uri                          // Unique name of a module
-Exports = ArrayOf($TypeName)                 // List of type definitions intended to be public
+Imports = MapOf(NSID, Namespace){1..*}       // List of imported modules
+Exports = ArrayOf(TypeName){1..*}            // List of type definitions intended to be public
 Config = Map{1..*} {                         // Configuration variables used to override JADN defaults
-     1 MaxBinary       Integer{1..*} optional,   // Default maximum number of octets
-     2 MaxString       Integer{1..*} optional,   // Default maximum number of characters
-     3 MaxElements     Integer{1..*} optional,   // Default maximum number of items/properties
-     4 FS              String{1..1} optional,    // Field Separator character used in pathnames
-     5 Sys             String{1..1} optional,    // System character for TypeName
-     6 TypeName        String{1..127} optional,  // TypeName regex
-     7 FieldName       String{1..127} optional,  // FieldName regex
-     8 NSID            String{1..127} optional   // Namespace Identifier regex
+     1 $MaxBinary      Integer{1..*} optional,   // Schema default maximum number of octets
+     2 $MaxString      Integer{1..*} optional,   // Schema default maximum number of characters
+     3 $MaxElements    Integer{1..*} optional,   // Schema default maximum number of items/properties
+     4 $FS             String{1..1} optional,    // Field Separator character used in pathnames
+     5 $Sys            String{1..1} optional,    // System character for TypeName
+     6 $TypeName       String{1..127} optional,  // TypeName regex
+     7 $FieldName      String{1..127} optional,  // FieldName regex
+     8 $NSID           String{1..127} optional   // Namespace Identifier regex
 }
 ```
 ## C.2 Type Definitions
@@ -1228,11 +1225,11 @@ with options providing extensibility.
 ```
 Types = ArrayOf(Type)
 Type = Array {
-     1 $TypeName,                                // TypeName::
-     2 BaseType,                                 // BaseType::
-     3 Options,                                  // TypeOptions::
-     4 Description,                              // TypeDescription::
-     5 JADN-Type(&2)                             // Fields::
+     1 TypeName,                                 // type_name::
+     2 BaseType,                                 // base_type::
+     3 Options,                                  // type_options::
+     4 Description,                              // type_description::
+     5 JADN-Type(&2)                             // fields::
 }
 BaseType = Enumerated {
      1 Binary,
@@ -1266,26 +1263,27 @@ JADN-Type = Choice {
 }
 Items = ArrayOf(Item)
 Item = Array {
-     1 FieldID,                                  // ItemID::
-     2 String,                                   // ItemValue::
-     3 Description                               // ItemDescription::
+     1 FieldID,                                  // item_id::
+     2 String,                                   // item_value::
+     3 Description                               // item_description::
 }
 Fields = ArrayOf(Field)
 Field = Array {
-     1 FieldID,                                  // FieldID::
-     2 $FieldName,                               // FieldName::
-     3 $TypeRef,                                 // FieldType::
-     4 Options,                                  // FieldOptions::
-     5 Description                               // FieldDescription::
+     1 FieldID,                                  // field_id::
+     2 FieldName,                                // field_name::
+     3 TypeRef,                                  // field_type::
+     4 Options,                                  // field_options::
+     5 Description                               // field_description::
 }
 FieldID = Integer{0..*}
 Options = ArrayOf(Option){0..10}
 Option = String{1..*}
 Description = String
-$TypeName = String                           // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
-$FieldName = String                          // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
-$NSID = String                               // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
-$TypeRef = String                            // Type Reference pattern = (NSID ':')? TypeName
+Namespace = String /uri                      // Unique name of a module
+NSID = String(%$NSID%)                       // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
+TypeName = String(%$TypeName%)               // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
+FieldName = String(%$FieldName%)             // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
+TypeRef = String                             // Autogenerated Type Reference pattern = ($NSID ':')? $TypeName
 ```
 
 # Appendix D. Definitions in JADN format
@@ -1408,21 +1406,46 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   "patch": "0-wd01",
   "title": "JADN Syntax",
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
-  "exports": ["Schema", "Uname"],
+  "exports": ["Schema", "Namespace"],
   "config": {
-    "TypeName": "^[$A-Z][-$A-Za-z]{0,16}$",
-    "FieldName": "^[A-Za-z][_A-Za-z]{0,16}$"
+    "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
  },
-
  "types": [
+  ["Schema", "Record", [], "Definition of a JADN schema module", [
+    [1, "meta", "Meta", [], "Information about this module"],
+    [2, "types", "Types", [], "Types defined in this module"]
+  ]],
+
+["Meta", "Map", [], "Information about this module", [
+    [1, "module", "Namespace", [], "Unique name/version"],
+    [2, "patch", "String", ["[0", "{1"], "Patch version"],
+    [3, "title", "String", ["[0", "{1"], "Title"],
+    [4, "description", "String", ["[0", "{1"], "Description"],
+    [5, "imports", "Imports", ["[0"], "Imported schema modules"],
+    [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
+    [7, "config", "Config", ["[0"], "Configuration values for this module"]
+  ]],
+  ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules"],
+  ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public"],
+  ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
+    [1, "$MaxBinary", "Integer", ["[0", "{1"], "Schema default maximum number of octets"],
+    [2, "$MaxString", "Integer", ["[0", "{1"], "Schema default maximum number of characters"],
+    [3, "$MaxElements", "Integer", ["[0", "{1"], "Schema default maximum number of items/properties"],
+    [4, "$FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
+    [5, "$Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
+    [6, "$TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
+    [7, "$FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"],
+    [8, "$NSID", "String", ["[0", "{1", "}127"], "Namespace Identifier regex"]
+  ]],
+
   ["Types", "ArrayOf", ["*Type"], ""],
   ["Type", "Array", [], "", [
-    [1, "TypeName", "$TypeName", [], ""],
-    [2, "BaseType", "BaseType", [], ""],
-    [3, "TypeOptions", "Options", [], ""],
-    [4, "TypeDescription", "Description", [], ""],
-    [5, "Fields", "JADN-Type", ["&2"], ""]
+    [1, "type_name", "TypeName", [], ""],
+    [2, "base_type", "BaseType", [], ""],
+    [3, "type_options", "Options", [], ""],
+    [4, "type_description", "Description", [], ""],
+    [5, "fields", "JADN-Type", ["&2"], ""]
   ]],
   ["BaseType", "Enumerated", [], "", [
     [1, "Binary", ""],
@@ -1456,53 +1479,27 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ]],
   ["Items", "ArrayOf", ["*Item"], ""],
   ["Item", "Array", [], "", [
-    [1, "ItemID", "FieldID", [], ""],
-    [2, "ItemValue", "String", [], ""],
-    [3, "ItemDescription", "Description", [], ""]
+    [1, "item_id", "FieldID", [], ""],
+    [2, "item_value", "String", [], ""],
+    [3, "item_description", "Description", [], ""]
   ]],
   ["Fields", "ArrayOf", ["*Field"], ""],
   ["Field", "Array", [], "", [
-    [1, "FieldID", "FieldID", [], ""],
-    [2, "FieldName", "$FieldName", [], ""],
-    [3, "FieldType", "$TypeRef", [], ""],
-    [4, "FieldOptions", "Options", [], ""],
-    [5, "FieldDescription", "Description", [], ""]
+    [1, "field_id", "FieldID", [], ""],
+    [2, "field_name", "FieldName", [], ""],
+    [3, "field_type", "TypeRef", [], ""],
+    [4, "field_options", "Options", [], ""],
+    [5, "field_description", "Description", [], ""]
   ]],
   ["FieldID", "Integer", ["{0"], ""],
   ["Options", "ArrayOf", ["*Option", "}10"], ""],
   ["Option", "String", ["{1"], ""],
   ["Description", "String", [], ""],
-  ["$TypeName", "String", [], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$"],
-  ["$FieldName", "String", [], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$"],
-  ["$NSID", "String", [], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$"],
-  ["$TypeRef", "String", [], "Type Reference pattern = (NSID ':')? TypeName"],
-
-  ["Schema", "Record", [], "Definition of a JADN schema module", [
-    [1, "meta", "Meta", [], "Information about this module"],
-    [2, "types", "Types", [], "Types defined in this module"]
-  ]],
-  ["Meta", "Map", [], "Information about this module", [
-    [1, "module", "Uname", [], "Unique name/version"],
-    [2, "patch", "String", ["[0"], "Patch version"],
-    [3, "title", "String", ["[0"], "Title"],
-    [4, "description", "String", ["[0"], "Description"],
-    [5, "imports", "Imports", ["[0"], "Imported schema modules"],
-    [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
-    [7, "config", "Config", ["[0"], "Configuration values for this module"]
-  ]],
-  ["Imports", "MapOf", ["+$NSID", "*Uname"], "List of imported modules"],
-  ["Uname", "String", ["/uri"], "Unique name of a module"],
-  ["Exports", "ArrayOf", ["*$TypeName"], "List of type definitions intended to be public"],
-  ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
-    [1, "MaxBinary", "Integer", ["[0", "{1"], "Default maximum number of octets"],
-    [2, "MaxString", "Integer", ["[0", "{1"], "Default maximum number of characters"],
-    [3, "MaxElements", "Integer", ["[0", "{1"], "Default maximum number of items/properties"],
-    [4, "FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
-    [5, "Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
-    [6, "TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
-    [7, "FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"],
-    [8, "NSID", "String", ["[0", "{1", "}127"], "Namespace Identifier regex"]
-  ]]
+  ["Namespace", "String", ["/uri"], "Unique name of a module"],
+  ["NSID", "String", ["%$NSID"], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$"],
+  ["TypeName", "String", ["%$TypeName"], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$"],
+  ["FieldName", "String", ["%$FieldName"], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$"],
+  ["TypeRef", "String", [], "Autogenerated Type Reference pattern = ($NSID ':')? $TypeName"]
  ]
 }
 ```
