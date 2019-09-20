@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 6 September 2019
+## 20 September 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -139,6 +139,8 @@ Description elements are reserved for comments from schema authors to readers or
 ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
 ###### [EUI]
 "IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+###### [JSONSCHEMA]
+Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 September 2019, https://tools.ietf.org/html/draft-handrews-json-schema-validation-02, or for latest drafts: https://json-schema.org/work-in-progress.
 ###### [RFC791]
 Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
 ###### [RFC2119]
@@ -169,8 +171,6 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
-###### [JSONSCHEMA]
-Wright, A., Andrews, H., Luff, G., *"JSON Schema Validation"*, Internet-Draft, March 2018, https://tools.ietf.org/html/draft-handrews-json-schema-validation-01, or for latest drafts: https://json-schema.org/work-in-progress.
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
@@ -445,7 +445,7 @@ Description elements (TypeDescription, ItemDescription and FieldDescription) are
 * Tools for editing schemas SHOULD support displaying and editing descriptions.
 * Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
 
-Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing. In particular, this allows for shortening schemas when the size of deployed schemas is a concern. 
+Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -539,25 +539,7 @@ affect how values are serialized, see [Section 4](#4-serialization).
 ###### Table 3-4. Semantic Validation Keywords
 | Keyword      | Type   | Requirement |
 | ------------ | ------ | ------------|
-| **[JSON Schema](#jsonschema)*** **format**   | | |
-| date-time    | String | [RFC 3339](#rfc3339) Section 5.6 |
-| date         | String | [RFC 3339](#rfc3339) Section 5.6 |
-| time         | String | [RFC 3339](#rfc3339) Section 5.6 |
-| email        | String | [RFC 5322](#rfc5322) Section 3.4.1 |
-| idn-email    | String | [RFC 6531](#rfc6531), or email |
-| hostname     | String | [RFC 1034](#rfc1034) Section 3.1 |
-| idn-hostname | String | [RFC 5890](#rfc5890) Section 2.3.2.3, or hostname |
-| ipv4         | String | [RFC 2673](#rfc2673) Section 3.2 "dotted-quad" |
-| ipv6         | String | [RFC 4291](#rfc4291) Section 2.2 "IPv6 address" |
-| uri          | String | [RFC 3986](#rfc3986) |
-| uri-reference| String | [RFC 3986](#rfc3986), or uri |
-| iri          | String | [RFC 3987](#rfc3987) |
-| iri-reference| String | [RFC 3987](#rfc3987) |
-| uri-template | String | [RFC 6570](#rfc6570) |
-| json-pointer | String | [RFC 6901](#rfc6901) Section 5 |
-| relative-json-pointer | String | [JSONP](#jsonp) |
-| regex        | String | [ECMA 262](#es9) |
-| **JADN format** | | |
+| JSON Schema formats | String | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema). |
 | eui          | Binary | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui) |
 | ipv4-addr    | Binary | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1 |
 | ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
@@ -567,9 +549,6 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | i16          | Integer | Signed 16 bit integer, value must be between -32768 and 32767.
 | i32          | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.
 | u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
-
-* *Note: There is currently no approved standard for JSON Schema. When it is available as an Internet RFC, it will*
-*be referenced as an authoritative source of semantic validation keywords.*
 
 #### 3.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
