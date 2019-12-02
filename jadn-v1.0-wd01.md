@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 11 October 2019
+## 29 November 2019
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -1039,7 +1039,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
                   | " optional"
     TFIELD        = "(&" *tfield* ")"
 
-An ABNF grammar for JADN-IDL is shown in [Appendix E](#appendix-e-abnf-grammar-for-jadn-idl).
+An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
 
 ### 5.2 Table Style
 Some specifications present type definitions in property table form, using varied style conventions.
@@ -1385,7 +1385,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   "patch": "0-wd01",
   "title": "JADN Syntax",
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
-  "exports": ["Schema", "Namespace"],
+  "exports": ["Schema"],
   "config": {
     "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
@@ -1482,7 +1482,138 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
  ]
 }
 ```
-# Appendix E. ABNF Grammar for JADN IDL
+# Appendix E. JSON Schema for JADN
+
+A JADN module has the following structure:
+```
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://oasis-open.org/openc2/jadn/v1.0",
+  "type": "object",
+  "required": ["meta", "types"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["module"],
+      "additionalProperties": false,
+      "properties": {
+        "module": {"type": "string"},
+        "patch": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "imports": {"$ref": "#/definitions/Imports"},
+        "exports": {"$ref": "#/definitions/Exports"},
+        "config": {"$ref": "#/definitions/Config"}
+      }
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 5,
+        "items": [
+          {"$ref": "#/definitions/TypeName"},
+          {"$ref": "#/definitions/BaseType"},
+          {"type": "array", "items": {"type": "string"}},
+          {"type": "string"},
+          {"type": "array",
+           "items": {
+             "oneOf": [
+               {"$ref": "#/definitions/Item"},
+               {"$ref": "#/definitions/Field"}
+             ]
+           }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Imports": {
+      "type": "object",
+      "propertyNames": {"$ref": "#/definitions/NSID"},
+      "patternProperties": {
+        "": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "Exports": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "$MaxBinary": {"type": "integer", "minValue": 1},
+        "$MaxString": {"type": "integer", "minValue": 1},
+        "$MaxElements": {"type": "integer", "minValue": 1},
+        "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
+        "$FS": {"type": "string", "minLength": 1, "maxLength": 1},
+        "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
+        "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
+        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
+      }
+    },
+    "Item": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": [
+        {"type": "integer"},
+        {"type": "string"},
+        {"type": "string"}
+      ]
+    },
+    "Field": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": [
+        {"type": "integer"},
+        {"$ref": "#/definitions/FieldName"},
+        {"$ref": "#/definitions/TypeRef"},
+        {"type": "array", "items": {"type": "string"}},
+        {"type": "string"}
+      ]
+    },
+    "NSID": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]{0,7}$",
+      "description": "Namespace Identifier, defined in Imports, used in type references"
+    },
+    "TypeName": {
+      "type": "string",
+      "pattern": "^[A-Z][-$A-Za-z0-9]{0,31}$",
+      "description": "Default Type Name per section 3.1.1 Name Formats"
+    },
+    "TypeRef": {
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9]{0,7}:)?[A-Z][-$A-Za-z0-9]{0,31}$",
+      "description": "TypeName with optional namespace ID prefix, MUST agree with NSID and TypeName"
+    },
+    "FieldName": {
+      "type": "string",
+      "pattern": "^[a-z][_A-Za-z0-9]{0,31}$",
+      "description": "Default Field Name per section 3.1.1 Name Formats"
+    },
+    "BaseType": {
+      "type": "string",
+      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
+               "Enumerated", "Choice",
+               "Array", "ArrayOf", "Map", "MapOf", "Record"]
+    }
+  }
+}
+
+In order to validate the JADN meta-schema, FieldName should be the pattern configured in Appendix D. 
+```
+
+# Appendix F. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
 
