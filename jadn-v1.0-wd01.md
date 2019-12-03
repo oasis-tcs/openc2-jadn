@@ -1516,16 +1516,12 @@ A JADN module has the following structure:
         "items": [
           {"$ref": "#/definitions/TypeName"},
           {"$ref": "#/definitions/BaseType"},
-          {"type": "array", "items": {"type": "string"}},
-          {"type": "string"},
-          {"type": "array",
-           "items": {
-             "oneOf": [
-               {"$ref": "#/definitions/Item"},
-               {"$ref": "#/definitions/Field"}
-             ]
-           }
-          }
+          {"$ref": "#/definitions/Options"},
+          {"$ref": "#/definitions/Description"},
+          {"anyOf": [
+            {"$ref": "#/definitions/Items"},
+            {"$ref": "#/definitions/Fields"}
+          ]}
         ]
       }
     }
@@ -1559,27 +1555,33 @@ A JADN module has the following structure:
         "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
-    "Item": {
+    "Items": {
       "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
-      "items": [
-        {"type": "integer"},
-        {"type": "string"},
-        {"type": "string"}
-      ]
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": [
+          {"type": "integer"},
+          {"type": "string"},
+          {"$ref": "#/definitions/Description"}
+        ]
+      }
     },
-    "Field": {
+    "Fields": {
       "type": "array",
-      "minItems": 5,
-      "maxItems": 5,
-      "items": [
-        {"type": "integer"},
-        {"$ref": "#/definitions/FieldName"},
-        {"$ref": "#/definitions/TypeRef"},
-        {"type": "array", "items": {"type": "string"}},
-        {"type": "string"}
-      ]
+      "items": {
+        "type": "array",
+        "minItems": 5,
+        "maxItems": 5,
+        "items": [
+          {"type": "integer"},
+          {"$ref": "#/definitions/FieldName"},
+          {"$ref": "#/definitions/TypeRef"},
+          {"$ref": "#/definitions/Options"},
+          {"$ref": "#/definitions/Description"}
+        ]
+      }
     },
     "NSID": {
       "type": "string",
@@ -1606,12 +1608,19 @@ A JADN module has the following structure:
       "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
                "Enumerated", "Choice",
                "Array", "ArrayOf", "Map", "MapOf", "Record"]
+    },
+    "Options": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "Description": {
+      "type": "string"
     }
   }
 }
+```
 
 In order to validate the JADN meta-schema, FieldName should be the pattern configured in Appendix D. 
-```
 
 # Appendix F. ABNF Grammar for JADN IDL
 
@@ -1639,4 +1648,3 @@ SP          = " "
 VCHAR       = %x21-7E
 WSP         = SP / HTAB
 ```
-
