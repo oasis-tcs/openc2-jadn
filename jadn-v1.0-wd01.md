@@ -26,7 +26,7 @@ This prose specification is one component of a Work Product that also includes:
 * Examples
 
 ### Abstract:
-JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 ### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date. The level of approval is also listed above. Check the "Latest version" location noted above for possible later revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
@@ -81,9 +81,65 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-Standards may be developed using data definition tables with the goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN is a schema language with definitions that can be both validated for correctness and documented in table format, ensuring that the table content is valid. A JADN schema is executable byte code that can be transferred between applications, interpreted to validate application data, and embedded to produce self-describing data.
+The Internet of Things (IoT) Semantic Interoperability (IOTSI) Report ([RFC 8477](#rfc8477)) draws a contrast
+between "tremendous" progress in standardizing protocols and the lack of standardized data:
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  In particular, a high-level JADN specification can be translated into languages such as XML Schema Definition and JSON Schema. 
+> *At the application layer and at the level of solution frameworks,
+> interoperability is not yet mature.  Particularly, the work on data
+> formats (in the form of data models and information models) has not
+> seen the same level of consistency throughout SDOs.
+> One common problem is the lack of an encoding-independent
+> standardization of the information, the so-called information model.*
+
+JADN is an information modeling language created to formally define the Open Command and Control (OpenC2) protocol.
+Although not targeted at the IoT environment, it was designed to address the same problems identified in the IOTSI report:
+
+* Formal Languages for Documentation Purposes
+
+> *To simplify review and publication, SDOs need formal descriptions of
+> their data and interaction models.  Several of them use a tabular
+> representation found in the specification itself but use a formal
+> language as an alternative way of describing objects and resources
+> for formal purposes.*
+
+JADN does both. It is a formal information modeling language (expressable as JSON data) that can be
+validated for correctness, and its definitions can be converted to both tabular and text (interface
+definition language) representations.
+Using a single source of truth ensures that the specification and its formal models are consistent.
+
+* Formal Languages for Code Generation
+
+> *Code-generation tools that use formal data and information modeling
+> languages are needed by developers.*
+
+A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
+validate and ingest application data on the fly, or used to generate static code.
+
+* Debugging Support
+
+> *Debugging tools are needed that implement generic object browsers,
+> which use standard data models and/or retrieve formal language
+> descriptions from the devices themselves.*
+
+A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
+and queried from a device, retrieved from a repository, or transferred along with application data.
+
+* Translation
+
+> *The working assumption is that devices need to have a common data
+> model with a priori knowledge of data types and actions. ...*
+>
+> *Another potential approach is to have a minimal amount of information
+> on the device to allow for a runtime binding to a specific model, ...*
+>
+> *Moreover, gateways, bridges and other similar devices need to
+> dynamically translate (or map) one data model to another one.*
+
+Devices and gateways can support JADN information models that are either known a-priori or bound at runtime.
+Once the IM is known, it is used by devices to produce and/or consume data, and by gateways to translate
+data from one format to another.
+
+Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple data models from it should achieve more complete translation functionality than designating a particular data model as a common translation point.
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -185,6 +241,9 @@ Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer",
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [RFC8340]
 Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+###### [RFC8477]
+Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
 ###### [RFC8610]
 Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
 ###### [THRIFT]
@@ -195,24 +254,6 @@ Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.
 -------
 
 # 2 Information vs. Data
-JSON Abstract Data Notation (JADN) is an information modeling language. 
-[RFC 3444](#rfc3444) describes the difference between an information model (IM) and a data model (DM):
-* The main purpose of an IM is to model managed objects at a conceptual level,
-independent of any specific implementations or protocols used to transport
-the data.
-* DMs, conversely, are defined at a lower level of abstraction and include
-many details. They are intended for implementors and include protocol-specific
-constructs.
-```
-             IM                --> conceptual/abstract model
-              |                    for designers and operators
-   +----------+---------+
-   |          |         |
-   DM        DM         DM     --> concrete/detailed model
-                                   for implementors
-```
-Since conceptual models can be implemented in different ways, multiple DMs
-can be derived from a single IM.
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
