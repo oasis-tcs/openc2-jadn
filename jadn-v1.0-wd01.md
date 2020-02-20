@@ -312,8 +312,6 @@ Implementations based on serialization-specific code interoperate with those usi
 
 # 3 JADN Types
 JADN core types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
-* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
-Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
 
@@ -336,7 +334,12 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
 | Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
 
+* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
+Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 * An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
+* An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
+* An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an otherwise identical instance without that key.
+* The length of an Array or ArrayOf instance does not include Null values after the last non-Null value; two instances that differ only in the number of trailing Nulls are equal.
 
 **API Values**
 
