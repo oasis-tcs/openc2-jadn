@@ -94,7 +94,7 @@ across Standards Developing Organizations in defining application layer data:
 
 JADN addresses the requirements described in RFC 8477:
 
-> * *Formal Languages for Documentation Purposes*
+> ***Formal Languages for Documentation Purposes***
 >
 > *To simplify review and publication, SDOs need formal descriptions of
 > their data and interaction models.  Several of them use a tabular
@@ -106,7 +106,7 @@ JADN does both. It is a formal information modeling language (expressable as JSO
 validated for correctness, and its definitions can be converted to both tabular and text representations,
 ensuring that all descriptions are consistent with the formal model.
 
-> * *Formal Languages for Code Generation*
+> ***Formal Languages for Code Generation***
 >
 > *Code-generation tools that use formal data and information modeling
 > languages are needed by developers.*
@@ -114,17 +114,17 @@ ensuring that all descriptions are consistent with the formal model.
 A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
 validate and ingest application data on the fly, or used to generate static code that performs these tasks.
 
-> * *Debugging Support*
+> ***Debugging Support***
 >
 > *Debugging tools are needed that implement generic object browsers,
 > which use standard data models and/or retrieve formal language
 > descriptions from the devices themselves.*
 
 A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
-and queried from a device, retrieved from a repository, or transferred along with application data.  This allows tools
-to display application data in human-friendly form.
+and retrieved from a device, retrieved from a repository, or transferred along with application data.  This allows tools
+to display application data in a uniform manner independent of data format.
 
-> * *Translation*
+> ***Translation***
 >
 > * *The working assumption is that devices need to have a common data
 > model with a priori knowledge of data types and actions.*
@@ -143,7 +143,8 @@ a Rosetta stone to facilitate translation among them.  Starting with an informat
 data models from it, as shown in RFC 3444, can provide more accurate results* than translating directly between
 separately-developed data models, in either a mesh or hub topology.
 
-*Note: See [[Transformations](#transform)] for a discussion of data model pitfalls and lossless round-trip translation.*
+*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossless round-trip translation
+across data models.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -772,9 +773,9 @@ and is serialized in M-JSON and CBOR formats, nested because pathname strings ar
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ## 3.3 JADN Extensions
-JADN consists of a set of core definition types, plus several extensions that make type definitions
+JADN consists of a set of core definition elements, plus several extensions that make type definitions
 more compact or that support the [DRY](#dry) software design principle.
-Extensions can be "simplified" (replaced by core definitions) without affecting
+Extensions can be "simplified" (replaced by core definitions) without changing
 the meaning of the definition. Simplifying reduces the code needed to serialize and validate data
 and may make specifications easier to understand.  But it creates additional definitions that must
 be kept in sync, expanding the specification and increasing maintenance effort.
@@ -801,7 +802,7 @@ Simplifying replaces this with:
 
     Member = Record {
         1 name   String,
-        2 email  Member$email             // Name and field options only, no type options
+        2 email  Member$email             // Field options only, "format" type option not allowed.
     }
     Member$email = String /idn-email      // Tool-generated type definition.
 
@@ -817,16 +818,16 @@ Example:
 
     Roster = Record {
         1 org_name String,
-        2 members  Member[0..*]               // Optional and repeated: minc=0, maxc=0
+        2 members  Member[0..*]               // Optional and repeated: cardinality = [0..*]
     }
 
 Simplifying replaces this with:
 
     Roster = Record {
         1 org_name String,
-        2 members  Roster$members optional    // Optional: minc=0, maxc=1
+        2 members  Roster$members optional    // Optional: cardinality = [0..1]
     }
-    Roster$members = ArrayOf(Member){1..*}    // Tool-generated array: minv=1, maxv=0
+    Roster$members = ArrayOf(Member){1..*}    // Tool-generated array: length = {1..*}
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
@@ -834,9 +835,9 @@ field multiplicity extension:
 
     Roster = Record {
         1 org_name String,
-        2 members  Members                    // members field is required: default minc = 1, maxc = 1
+        2 members  Members                    // members field is required: default cardinality = 1
     }
-    Members = ArrayOf(Member)                 // Explicitly-defined array: default minv = 0, maxv = 0
+    Members = ArrayOf(Member)                 // Explicitly-defined array: default length = {0..*}
 
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
@@ -864,12 +865,12 @@ Example:
 
 Simplifying replaces the Channel and ChannelMask definitions with:
 
-    Channel = Enumerated {
+    Channel = Enumerated {                  // Tool-generated Enumerated type with explicit fields
         1 red,
         2 green,
         3 blue
     }
-    ChannelMask = ArrayOf(Channel)
+    ChannelMask = ArrayOf(Channel)          // Refer to explicit Enumerated type
 
 ### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
@@ -885,7 +886,7 @@ Example:
     }
     Pixel = MapOf(Channel, Integer)
     
-Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown above.
+Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown in the previous [section](#333-derived-enumerations).
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
