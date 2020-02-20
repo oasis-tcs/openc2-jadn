@@ -86,13 +86,13 @@ a schema bridge "translates data expressed in a given data model to another one 
 in a different way."  An information model defines the structure and content of application information and enables bridging
 by formally defining the conditions for two data objects to represent the same information.
 
-[RFC 8477](#rfc8477) (the Internet of Things (IoT) Semantic Interoperability (IOTSI) Report) describes a lack of consistency
-across Standards Developing Organizations (SDOs) in defining application layer data to enable interoperability:
+[RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
+across Standards Developing Organizations in defining application layer data:
 
 > *One common problem is the lack of an encoding-independent standardization of the information,
 > the so-called information model.*
 
-JADN addresses all of the needs listed in RFC 8477:
+JADN addresses the requirements described in RFC 8477:
 
 * Formal Languages for Documentation Purposes
 
@@ -103,8 +103,8 @@ JADN addresses all of the needs listed in RFC 8477:
 > for formal purposes.*
 
 JADN does both. It is a formal information modeling language (expressable as JSON data) that can be
-validated for correctness, and its definitions can be converted to both tabular and text (interface
-definition language) representations, ensuring that all descriptions are consistent with the formal model.
+validated for correctness, and its definitions can be converted to both tabular and text representations,
+ensuring that all descriptions are consistent with the formal model.
 
 * Formal Languages for Code Generation
 
@@ -126,13 +126,11 @@ to display application data in human-readable form.
 
 * Translation
 
-> *The working assumption is that devices need to have a common data
-> model with a priori knowledge of data types and actions. ...*
->
-> *Another potential approach is to have a minimal amount of information
-> on the device to allow for a runtime binding to a specific model, ...*
->
-> *Moreover, gateways, bridges and other similar devices need to
+> * *The working assumption is that devices need to have a common data
+> model with a priori knowledge of data types and actions.*
+> * *Another potential approach is to have a minimal amount of information
+> on the device to allow for a runtime binding to a specific model,*
+> * *Moreover, gateways, bridges and other similar devices need to
 > dynamically translate (or map) one data model to another one.*
 
 Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
@@ -140,9 +138,11 @@ Once the IM is known, it is used by devices to serialize, deserialize and valida
 translate data from one format to another. Security gateways can use the IM to detect and reject invalid data, whether
 generated maliciously or by accident.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple data models from it, as shown in
-RFC 3444, provides more accurate and complete results than translating directly between separately-developed data models,
-whether in a mesh or hub topology.
+Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists to serve as a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple data models from it, as shown in
+RFC 3444, can provide more accurate results* than translating directly between separately-developed data models,
+whether the translation is done in a mesh or a hub topology.
+
+*Note: See [[Transformations](#transform)] for a discussion of data model pitfalls and lossless round-trip translation.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -253,6 +253,8 @@ Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (I
 Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
+###### [TRANSFORM]
+Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
 ###### [UML]
 "UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html.
 
@@ -322,17 +324,19 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | Boolean          | An element with one of two values: true or false.               |
 | Integer          | A positive or negative whole number.                            |
 | Number           | A real number.                                                  |
-| Null             | An unspecified or non-existent value, distinguishable from other values such as empty String or Array. |
+| Null             | An unspecified or non-existent value, distinguishable from other values such as zero-length String or empty Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
-| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
+| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a value type. |
 | **Compound**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
-| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
+| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
-| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
+| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
+
+* An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
 
 **API Values**
 
