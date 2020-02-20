@@ -84,7 +84,7 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
 a schema bridge "translates data expressed in a given data model to another one that expresses the same information
 in a different way."  An information model defines the structure and content of application information and enables bridging
-by formally defining the conditions for two data objects to represent the same information.
+by formally defining if two data objects represent the same information.
 
 [RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
 across Standards Developing Organizations in defining application layer data:
@@ -94,8 +94,8 @@ across Standards Developing Organizations in defining application layer data:
 
 JADN addresses the requirements described in RFC 8477:
 
-* Formal Languages for Documentation Purposes
-
+> * *Formal Languages for Documentation Purposes*
+>
 > *To simplify review and publication, SDOs need formal descriptions of
 > their data and interaction models.  Several of them use a tabular
 > representation found in the specification itself but use a formal
@@ -106,26 +106,26 @@ JADN does both. It is a formal information modeling language (expressable as JSO
 validated for correctness, and its definitions can be converted to both tabular and text representations,
 ensuring that all descriptions are consistent with the formal model.
 
-* Formal Languages for Code Generation
-
+> * *Formal Languages for Code Generation*
+>
 > *Code-generation tools that use formal data and information modeling
 > languages are needed by developers.*
 
 A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
 validate and ingest application data on the fly, or used to generate static code that performs these tasks.
 
-* Debugging Support
-
+> * *Debugging Support*
+>
 > *Debugging tools are needed that implement generic object browsers,
 > which use standard data models and/or retrieve formal language
 > descriptions from the devices themselves.*
 
 A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
 and queried from a device, retrieved from a repository, or transferred along with application data.  This allows tools
-to display application data in human-readable form.
+to display application data in human-friendly form.
 
-* Translation
-
+> * *Translation*
+>
 > * *The working assumption is that devices need to have a common data
 > model with a priori knowledge of data types and actions.*
 > * *Another potential approach is to have a minimal amount of information
@@ -134,13 +134,14 @@ to display application data in human-readable form.
 > dynamically translate (or map) one data model to another one.*
 
 Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
-Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate and
-translate data from one format to another. Security gateways can use the IM to detect and reject invalid data, whether
-generated maliciously or by accident.
+Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate
+and translate data from one format to another. Security gateways can use the IM to filter out non-significant data
+and reject invalid data, whether generated maliciously or by accident.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists to serve as a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple data models from it, as shown in
-RFC 3444, can provide more accurate results* than translating directly between separately-developed data models,
-whether the translation is done in a mesh or a hub topology.
+Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists to serve as
+a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple
+data models from it, as shown in RFC 3444, can provide more accurate results* than translating directly between
+separately-developed data models, in either a mesh or hub topology.
 
 *Note: See [[Transformations](#transform)] for a discussion of data model pitfalls and lossless round-trip translation.*
 
