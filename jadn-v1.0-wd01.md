@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 29 November 2019
+## 21 February 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -81,18 +81,18 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-The Internet of Things (IoT) Semantic Interoperability (IOTSI) Report ([RFC 8477](#rfc8477)) draws a contrast
-between "tremendous" progress in standardizing protocols and the lack of standardized data:
+JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
+a schema bridge "translates data expressed in a given data model to another one that expresses the same information
+in a different way."  An information model defines the structure and content of application information and enables bridging
+by formally defining the conditions for two data objects to represent the same information.
 
-> *At the application layer and at the level of solution frameworks,
-> interoperability is not yet mature.  Particularly, the work on data
-> formats (in the form of data models and information models) has not
-> seen the same level of consistency throughout SDOs.
-> One common problem is the lack of an encoding-independent
-> standardization of the information, the so-called information model.*
+[RFC 8477](#rfc8477) (the Internet of Things (IoT) Semantic Interoperability (IOTSI) Report) describes a lack of consistency
+across Standards Developing Organizations (SDOs) in defining application layer data to enable interoperability:
 
-JADN is an information modeling language created to formally define the Open Command and Control (OpenC2) protocol.
-Although not targeted at the IoT environment, it was designed to address the same problems identified in the IOTSI report:
+> *One common problem is the lack of an encoding-independent standardization of the information,
+> the so-called information model.*
+
+JADN addresses all of the needs listed in RFC 8477:
 
 * Formal Languages for Documentation Purposes
 
@@ -104,8 +104,7 @@ Although not targeted at the IoT environment, it was designed to address the sam
 
 JADN does both. It is a formal information modeling language (expressable as JSON data) that can be
 validated for correctness, and its definitions can be converted to both tabular and text (interface
-definition language) representations.
-Using a single source of truth ensures that the specification and its formal models are consistent.
+definition language) representations, ensuring that all descriptions are consistent with the formal model.
 
 * Formal Languages for Code Generation
 
@@ -113,7 +112,7 @@ Using a single source of truth ensures that the specification and its formal mod
 > languages are needed by developers.*
 
 A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
-validate and ingest application data on the fly, or used to generate static code.
+validate and ingest application data on the fly, or used to generate static code that performs these tasks.
 
 * Debugging Support
 
@@ -122,7 +121,8 @@ validate and ingest application data on the fly, or used to generate static code
 > descriptions from the devices themselves.*
 
 A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
-and queried from a device, retrieved from a repository, or transferred along with application data.
+and queried from a device, retrieved from a repository, or transferred along with application data.  This allows tools
+to display application data in human-readable form.
 
 * Translation
 
@@ -135,11 +135,14 @@ and queried from a device, retrieved from a repository, or transferred along wit
 > *Moreover, gateways, bridges and other similar devices need to
 > dynamically translate (or map) one data model to another one.*
 
-Devices and gateways can support JADN information models that are either known a-priori or bound at runtime.
-Once the IM is known, it is used by devices to produce and/or consume data, and by gateways to translate
-data from one format to another.
+Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
+Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate and
+translate data from one format to another. Security gateways can use the IM to detect and reject invalid data, whether
+generated maliciously or by accident.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple data models from it should achieve more complete translation functionality than designating a particular data model as a common translation point.
+Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple data models from it, as shown in
+RFC 3444, provides more accurate and complete results than translating directly between separately-developed data models,
+whether in a mesh or hub topology.
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -225,6 +228,8 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 ## 1.5 Non-Normative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
+###### [BRIDGE]
+Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [PROTO]
@@ -260,7 +265,7 @@ is represented when communicating.  More formally, information is the unexpected
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
+(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
@@ -274,7 +279,8 @@ a 32 bit value*.  But different data may be used to represent that information:
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application. Directly converting display-oriented JSON data to
 CBOR format does not achieve the conciseness for which CBOR was designed. Instead, information modeling
-is the key to effectively using CBOR and other concise data formats.
+is key to effectively deriving CBOR and other concise data formats from typical XML- or JSON-based
+specifications.
 
 \* *Note: all references to information assume independent uniformly-distributed values.*
 *Source coding is beyond the scope of this specification.*
@@ -920,7 +926,8 @@ Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major ty
 
 CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are shown for reference.
 
-* When using CBOR serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+* When using CBOR serialization, instances of JADN types without a format option listed in this section MUST
+be serialized as:
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -939,7 +946,8 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 | **Record** | Same as **Array**. |
 
 **Format options that affect CBOR Serialization**
-* When using CBOR serialization, instances of JADN types with one of the following format options MUST be serialized as:
+* When using CBOR serialization, instances of JADN types with one of the following format options MUST be
+serialized as:
 
 | Option | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- | :--- |
@@ -947,7 +955,8 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 | **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
 ## 4.3 M-JSON Serialization:
-Minimized JSON serialization rules represent JADN data types in a compact format suitable for machine-to-machine communication.  They produce JSON instances equivalent to the diagnostic notation of CBOR instances.
+Minimized JSON serialization rules represent JADN data types in a compact format suitable for machine-to-machine
+communication.  They produce JSON instances equivalent to the diagnostic notation of CBOR instances.
 
 * When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
@@ -1123,7 +1132,8 @@ requires each module to have a unique identifier.
 *Editor's note: Describe each Meta field*
 
 # 7 Data Model Generation
-A JADN schema combined with serialization rules defines a data model, a concrete schema that validates instances in the specified data format.
+A JADN schema combined with serialization rules defines a data model, a concrete schema that validates
+instances in the specified data format.
 
 # 8 Operational Considerations
 * Serialization (bulk vs pull)
@@ -1135,15 +1145,31 @@ A JADN schema combined with serialization rules defines a data model, a concrete
 -------
 
 # 9 Security Considerations
-This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
+This document presents a language for expressing the information needs of communicating applications, and rules
+for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues,
+although protocol specifications based on JADN naturally need security analysis when defined. Such specifications
+need to follow the guidelines in [RFC 3552](#rfc3552).
 
 Additional security considerations applicable to JADN-based specifications: 
-* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
-* Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
+* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of
+this specification could always be improved through operational experience and developer feedback.
+* Where a JADN data validator is part of a system, the security of the system benefits from automatic data
+validation but depends on both the specificity of the JADN specification and the correctness of the validation
+implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and
+testing the validator against unreasonable data instances can address both concerns.
 
-Security and bandwidth efficiency are the primary reasons for using an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
+Security and bandwidth efficiency are benefits of using an information model. Enumerating strings and map keys
+defines the information content of those values, which greatly reduces opportunities for exploitation.
+A firewall with a security policy of "Allow specific things I understand plus everything I don't understand"
+is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of
+[RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's
+"Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's
+enumerated lists of things that are understood. An executable IM format such as JADN provides the agility
+required to support evolving protocols.
 
-Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
+Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification.
+Although JADN makes it easier to both define and understand complex specifications, complexity that is not
+essential to satisfying operational requirements is itself a security concern.
 
 -------
 
