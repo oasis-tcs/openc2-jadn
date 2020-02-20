@@ -180,7 +180,7 @@ An instance, or API value, is an item of application information to which a sche
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
-* **Compound:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
+* **Container:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
 Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
 
@@ -329,7 +329,7 @@ JADN core types are defined in terms of the characteristics they provide to appl
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
 | Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a value type. |
-| **Compound**     |                                                                 |
+| **Container**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
 | Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
@@ -348,7 +348,7 @@ Applications MAY use any programming language data types or mechanisms that exhi
 The mechanisms chosen by a developer or defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
-JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
+JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most container types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
@@ -522,7 +522,7 @@ which data values are instances of the defined type.
 | ID | Label | Value | Definition |
 | --- | --- | --- | --- |
 |  **Structural** | | | |
-| 0x3d `'='` | id | none | If present, Enumerated values and fields of compound types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
+| 0x3d `'='` | id | none | If present, Enumerated values and fields of container types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
 | 0x2a `'*'` | vtype | String | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
 | 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
 | 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
@@ -1050,7 +1050,7 @@ Enumerated type:
     }
 ```
 
-Compound types without the *id* option:
+Container types without the *id* option:
 ```
     TypeName = TYPESTRING {                   // TypeDescription
         FieldID FieldName[FS] FIELDSTRING,    // FieldDescription
@@ -1060,7 +1060,7 @@ Compound types without the *id* option:
 If a field includes the *path* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
 is appended to FieldName.
 
-Compound types with the *id* option treat the item/field name as a non-normative label
+Container types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
@@ -1113,13 +1113,13 @@ breaks out the MULTIPLICITY field option into a separate column:
 | TypeName | TYPESTRING | TypeDescription |
 +----------+------------+-----------------+
 ```
-followed by (for compound types without the *id* option):
+followed by (for container types without the *id* option):
 ```
 +---------+---------------+-------------+--------+------------------+
 | FieldID | FieldName[FS] | FIELDSTRING | [m..n] | FieldDescription |
 +---------+---------------+-------------+--------+------------------+
 ```
-or (for compound types with the *id* option):
+or (for container types with the *id* option):
 ```
 +---------+-------------+--------+----------------------------------+
 | FieldID | FIELDSTRING | [m..n] | FieldName[FS]:: FieldDescription |
