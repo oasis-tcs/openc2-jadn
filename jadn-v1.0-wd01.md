@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 29 November 2019
+## 21 February 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -26,7 +26,7 @@ This prose specification is one component of a Work Product that also includes:
 * Examples
 
 ### Abstract:
-JSON Abstract Data Notation (JADN) is an information modeling language based on the CBOR data model. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
 
 ### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date. The level of approval is also listed above. Check the "Latest version" location noted above for possible later revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
@@ -81,9 +81,70 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-Standards may be developed using data definition tables with the goal of being agnostic of transfer format, but no well-defined mechanism exists for achieving that goal. JADN is a schema language with definitions that can be both validated for correctness and documented in table format, ensuring that the table content is valid. A JADN schema is executable byte code that can be transferred between applications, interpreted to validate application data, and embedded to produce self-describing data.
+JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
+a schema bridge "translates data expressed in a given data model to another one that expresses the same information
+in a different way."  An information model defines the structure and content of application information and enables bridging
+by formally defining if two data objects represent the same information.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them, but serves as a Rosetta stone to facilitate translation among them.  In particular, a high-level JADN specification can be translated into languages such as XML Schema Definition and JSON Schema. 
+[RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
+across Standards Developing Organizations in defining application layer data:
+
+> *One common problem is the lack of an encoding-independent standardization of the information,
+> the so-called information model.*
+
+JADN addresses the requirements described in RFC 8477:
+
+> ***Formal Languages for Documentation Purposes***
+>
+> *To simplify review and publication, SDOs need formal descriptions of
+> their data and interaction models.  Several of them use a tabular
+> representation found in the specification itself but use a formal
+> language as an alternative way of describing objects and resources
+> for formal purposes.*
+
+JADN does both. It is a formal information modeling language (expressable as JSON data) that can be
+validated for correctness, and its definitions can be converted to both tabular and text representations,
+ensuring that all descriptions are consistent with the formal model.
+
+> ***Formal Languages for Code Generation***
+>
+> *Code-generation tools that use formal data and information modeling
+> languages are needed by developers.*
+
+A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
+validate and ingest application data on the fly, or used to generate static code that performs these tasks.
+
+> ***Debugging Support***
+>
+> *Debugging tools are needed that implement generic object browsers,
+> which use standard data models and/or retrieve formal language
+> descriptions from the devices themselves.*
+
+A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
+and retrieved from a device, retrieved from a repository, or transferred along with application data.  This allows tools
+to display application data in a uniform manner independent of data format.
+
+> ***Translation***
+>
+> * *The working assumption is that devices need to have a common data
+> model with a priori knowledge of data types and actions.*
+> * *Another potential approach is to have a minimal amount of information
+> on the device to allow for a runtime binding to a specific model,*
+> * *Moreover, gateways, bridges and other similar devices need to
+> dynamically translate (or map) one data model to another one.*
+
+Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
+Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate
+and translate data from one format to another. Security gateways can use the IM to filter out non-significant data
+and reject invalid data, whether generated maliciously or by accident.
+
+Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists to serve as
+a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple
+data models from it, as shown in RFC 3444, can provide more accurate results* than translating directly between
+separately-developed data models, in either a mesh or hub topology.
+
+*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossless round-trip translation
+across data models.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -119,7 +180,7 @@ An instance, or API value, is an item of application information to which a sche
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
-* **Compound:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
+* **Container:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
 Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
 
@@ -169,6 +230,8 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 ## 1.5 Non-Normative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
+###### [BRIDGE]
+Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [PROTO]
@@ -185,41 +248,28 @@ Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer",
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [RFC8340]
 Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+###### [RFC8477]
+Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
 ###### [RFC8610]
 Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
+###### [TRANSFORM]
+Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
 ###### [UML]
 "UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html.
 
 -------
 
 # 2 Information vs. Data
-JSON Abstract Data Notation (JADN) is an information modeling language. 
-[RFC 3444](#rfc3444) describes the difference between an information model (IM) and a data model (DM):
-* The main purpose of an IM is to model managed objects at a conceptual level,
-independent of any specific implementations or protocols used to transport
-the data.
-* DMs, conversely, are defined at a lower level of abstraction and include
-many details. They are intended for implementors and include protocol-specific
-constructs.
-```
-             IM                --> conceptual/abstract model
-              |                    for designers and operators
-   +----------+---------+
-   |          |         |
-   DM        DM         DM     --> concrete/detailed model
-                                   for implementors
-```
-Since conceptual models can be implemented in different ways, multiple DMs
-can be derived from a single IM.
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
 If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
+(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
@@ -233,7 +283,8 @@ a 32 bit value*.  But different data may be used to represent that information:
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application. Directly converting display-oriented JSON data to
 CBOR format does not achieve the conciseness for which CBOR was designed. Instead, information modeling
-is the key to effectively using CBOR and other concise data formats.
+is key to effectively deriving CBOR and other concise data formats from typical XML- or JSON-based
+specifications.
 
 \* *Note: all references to information assume independent uniformly-distributed values.*
 *Source coding is beyond the scope of this specification.*
@@ -263,8 +314,6 @@ Implementations based on serialization-specific code interoperate with those usi
 
 # 3 JADN Types
 JADN core types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
-* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
-Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 
 ###### Table 3-1. JADN Types
 
@@ -275,24 +324,31 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | Boolean          | An element with one of two values: true or false.               |
 | Integer          | A positive or negative whole number.                            |
 | Number           | A real number.                                                  |
-| Null             | An unspecified or non-existent value, distinguishable from other values such as empty String or Array. |
+| Null             | An unspecified or non-existent value, distinguishable from other values such as zero-length String or empty Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
-| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a type. |
-| **Compound**     |                                                                 |
+| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a value type. |
+| **Container**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
-| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a type. |
+| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
-| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a type. Represents a row in a spreadsheet or database table. |
+| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
+
+* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
+Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
+* An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
+* An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
+* An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an otherwise identical instance without that key.
+* The length of an Array or ArrayOf instance does not include Null values after the last non-Null value; two instances that differ only in the number of trailing Nulls are equal.
 
 **API Values**
 
 The mechanisms chosen by a developer or defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
-JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most compound types, a list of fields:
+JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most container types, a list of fields:
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
@@ -466,7 +522,7 @@ which data values are instances of the defined type.
 | ID | Label | Value | Definition |
 | --- | --- | --- | --- |
 |  **Structural** | | | |
-| 0x3d `'='` | id | none | If present, Enumerated values and fields of compound types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
+| 0x3d `'='` | id | none | If present, Enumerated values and fields of container types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
 | 0x2a `'*'` | vtype | String | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
 | 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
 | 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
@@ -717,9 +773,9 @@ and is serialized in M-JSON and CBOR formats, nested because pathname strings ar
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ## 3.3 JADN Extensions
-JADN consists of a set of core definition types, plus several extensions that make type definitions
+JADN consists of a set of core definition elements, plus several extensions that make type definitions
 more compact or that support the [DRY](#dry) software design principle.
-Extensions can be "simplified" (replaced by core definitions) without affecting
+Extensions can be "simplified" (replaced by core definitions) without changing
 the meaning of the definition. Simplifying reduces the code needed to serialize and validate data
 and may make specifications easier to understand.  But it creates additional definitions that must
 be kept in sync, expanding the specification and increasing maintenance effort.
@@ -746,7 +802,7 @@ Simplifying replaces this with:
 
     Member = Record {
         1 name   String,
-        2 email  Member$email             // Name and field options only, no type options
+        2 email  Member$email             // Field options only, "format" type option not allowed.
     }
     Member$email = String /idn-email      // Tool-generated type definition.
 
@@ -762,16 +818,16 @@ Example:
 
     Roster = Record {
         1 org_name String,
-        2 members  Member[0..*]               // Optional and repeated: minc=0, maxc=0
+        2 members  Member[0..*]               // Optional and repeated: cardinality = [0..*]
     }
 
 Simplifying replaces this with:
 
     Roster = Record {
         1 org_name String,
-        2 members  Roster$members optional    // Optional: minc=0, maxc=1
+        2 members  Roster$members optional    // Optional: cardinality = [0..1]
     }
-    Roster$members = ArrayOf(Member){1..*}    // Tool-generated array: minv=1, maxv=0
+    Roster$members = ArrayOf(Member){1..*}    // Tool-generated array: length = {1..*}
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
@@ -779,9 +835,9 @@ field multiplicity extension:
 
     Roster = Record {
         1 org_name String,
-        2 members  Members                    // members field is required: default minc = 1, maxc = 1
+        2 members  Members                    // members field is required: default cardinality = 1
     }
-    Members = ArrayOf(Member)                 // Explicitly-defined array: default minv = 0, maxv = 0
+    Members = ArrayOf(Member)                 // Explicitly-defined array: default length = {0..*}
 
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
@@ -809,12 +865,12 @@ Example:
 
 Simplifying replaces the Channel and ChannelMask definitions with:
 
-    Channel = Enumerated {
+    Channel = Enumerated {                  // Tool-generated Enumerated type with explicit fields
         1 red,
         2 green,
         3 blue
     }
-    ChannelMask = ArrayOf(Channel)
+    ChannelMask = ArrayOf(Channel)          // Refer to explicit Enumerated type
 
 ### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
@@ -830,7 +886,7 @@ Example:
     }
     Pixel = MapOf(Channel, Integer)
     
-Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown above.
+Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown in the previous [section](#333-derived-enumerations).
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
@@ -879,7 +935,8 @@ Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major ty
 
 CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are shown for reference.
 
-* When using CBOR serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+* When using CBOR serialization, instances of JADN types without a format option listed in this section MUST
+be serialized as:
 
 | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- |
@@ -898,7 +955,8 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 | **Record** | Same as **Array**. |
 
 **Format options that affect CBOR Serialization**
-* When using CBOR serialization, instances of JADN types with one of the following format options MUST be serialized as:
+* When using CBOR serialization, instances of JADN types with one of the following format options MUST be
+serialized as:
 
 | Option | JADN Type | CBOR Serialization Requirement |
 | :--- | :--- | :--- |
@@ -906,7 +964,8 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 | **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
 ## 4.3 M-JSON Serialization:
-Minimized JSON serialization rules represent JADN data types in a compact format suitable for machine-to-machine communication.  They produce JSON instances equivalent to the diagnostic notation of CBOR instances.
+Minimized JSON serialization rules represent JADN data types in a compact format suitable for machine-to-machine
+communication.  They produce JSON instances equivalent to the diagnostic notation of CBOR instances.
 
 * When using M-JSON serialization, instances of JADN types MUST be serialized as:
 
@@ -991,7 +1050,7 @@ Enumerated type:
     }
 ```
 
-Compound types without the *id* option:
+Container types without the *id* option:
 ```
     TypeName = TYPESTRING {                   // TypeDescription
         FieldID FieldName[FS] FIELDSTRING,    // FieldDescription
@@ -1001,7 +1060,7 @@ Compound types without the *id* option:
 If a field includes the *path* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
 is appended to FieldName.
 
-Compound types with the *id* option treat the item/field name as a non-normative label
+Container types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
@@ -1054,13 +1113,13 @@ breaks out the MULTIPLICITY field option into a separate column:
 | TypeName | TYPESTRING | TypeDescription |
 +----------+------------+-----------------+
 ```
-followed by (for compound types without the *id* option):
+followed by (for container types without the *id* option):
 ```
 +---------+---------------+-------------+--------+------------------+
 | FieldID | FieldName[FS] | FIELDSTRING | [m..n] | FieldDescription |
 +---------+---------------+-------------+--------+------------------+
 ```
-or (for compound types with the *id* option):
+or (for container types with the *id* option):
 ```
 +---------+-------------+--------+----------------------------------+
 | FieldID | FIELDSTRING | [m..n] | FieldName[FS]:: FieldDescription |
@@ -1082,7 +1141,8 @@ requires each module to have a unique identifier.
 *Editor's note: Describe each Meta field*
 
 # 7 Data Model Generation
-A JADN schema combined with serialization rules defines a data model, a concrete schema that validates instances in the specified data format.
+A JADN schema combined with serialization rules defines a data model, a concrete schema that validates
+instances in the specified data format.
 
 # 8 Operational Considerations
 * Serialization (bulk vs pull)
@@ -1094,15 +1154,31 @@ A JADN schema combined with serialization rules defines a data model, a concrete
 -------
 
 # 9 Security Considerations
-This document presents a language for expressing the information needs of communicating applications, and rules for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues, although protocol specifications based on JADN naturally need security analysis when defined. Such specifications need to follow the guidelines in [RFC 3552](#rfc3552).
+This document presents a language for expressing the information needs of communicating applications, and rules
+for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues,
+although protocol specifications based on JADN naturally need security analysis when defined. Such specifications
+need to follow the guidelines in [RFC 3552](#rfc3552).
 
 Additional security considerations applicable to JADN-based specifications: 
-* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of this specification could always be improved through operational experience and developer feedback.
-* Where a JADN data validator is part of a system, the security of the system benefits from automatic data validation but depends on both the specificity of the JADN specification and the correctness of the validation implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and testing the validator against unreasonable data instances can address both concerns.
+* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of
+this specification could always be improved through operational experience and developer feedback.
+* Where a JADN data validator is part of a system, the security of the system benefits from automatic data
+validation but depends on both the specificity of the JADN specification and the correctness of the validation
+implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and
+testing the validator against unreasonable data instances can address both concerns.
 
-Security and bandwidth efficiency are the primary reasons for using an information model. Enumerating strings and map keys defines the information content of those values, which greatly reduces opportunities for exploitation. A firewall with a security policy of "Allow specific things I understand plus everything I don't understand" is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of [RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's "Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's enumerated lists of things that are understood. An executable IM format such as JADN provides the agility required to support evolving protocols.
+Security and bandwidth efficiency are benefits of using an information model. Enumerating strings and map keys
+defines the information content of those values, which greatly reduces opportunities for exploitation.
+A firewall with a security policy of "Allow specific things I understand plus everything I don't understand"
+is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of
+[RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's
+"Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's
+enumerated lists of things that are understood. An executable IM format such as JADN provides the agility
+required to support evolving protocols.
 
-Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification over complexity. Although JADN makes it easier to both define and understand complex specifications, complexity that is not essential to satisfying operational requirements is itself a security concern.
+Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification.
+Although JADN makes it easier to both define and understand complex specifications, complexity that is not
+essential to satisfying operational requirements is itself a security concern.
 
 -------
 
