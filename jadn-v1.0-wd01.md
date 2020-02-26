@@ -640,7 +640,7 @@ Field options are specified for each field within a type definition. Each option
 | 0x5b `'['` | minc | Integer | Minimum cardinality |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
-| 0x3c `'<'` | path | none | Use FieldName as a qualifier for fields in FieldType |
+| 0x3c `'<'` | dir | none | Use FieldName as a qualifier for fields in FieldType |
 | 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
 
 * FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
@@ -887,6 +887,25 @@ Example:
     Pixel = MapOf(Channel, Integer)
     
 Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown in the previous [section](#333-derived-enumerations).
+
+### 3.3.5 Pointers
+A hierarchical filesystem contains leaf nodes (files) and container nodes (directories), and it is a common operation to "walk a subtree" to enumerate paths to all of the files in and under a given directory.  The fields of a Map or Record type can be marked as containers using the "dir" field option ([Table 3-5](#table-3-5-field-options)) to indicate that fields below that type are included in a hierarchy. The container designation has no effect on the structure or serialization of information instances.  Its only effect is on the contents of a pointer list derived from that type.
+
+Example:
+
+    Catalog = Record {
+        1 a    TypeA,
+        2 b/   TypeB,
+    }
+    TypeA = Record {
+        1 foo  String,
+        2 bar  String
+    }
+    TypeB = Record {
+        1 foo  Integer,
+        2 bar  Integer
+    }
+    Paths = Map(Pointer(Catalog))
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
