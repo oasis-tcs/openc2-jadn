@@ -917,16 +917,16 @@ similar to a filesystem pathname or a URI.
 Pointer is a type option ([Table 3-2](#table-3-2-type-options)) that produces an Enumerated type containing JSON Pointer strings.
 In this example, Catalog field "a" is a single type and field "b" is designated as a collection of types by the "dir" option.
 As a result, the "Paths" type, maintained by hand or generated with the Pointer extension, lists the valid identifiers for
-mambers of a category, e.g., "Items":
+members of a category:
 
     Paths = Enumerated {
-      1 a,                    // Item 1
-      2 b/foo,                // Item 2
-      3 b/bar                 // Item 3
+        1 a,                    // Item 1
+        2 b/foo,                // Item 2
+        3 b/bar                 // Item 3
     }
 
-This can be used when an application 1) has a logical category of types, 2) defines those types
-in multiple locations, and 3) needs an identifier for each member of the category.
+This can be used when an application 1) has a category of types, e.g., "Items", 2) defines these types
+in multiple locations, and 3) needs an identifier that can be used to reference each member of the category.
 
 The structure of a "Catalog" value is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths or
