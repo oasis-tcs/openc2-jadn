@@ -889,12 +889,12 @@ Example:
 Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown in the previous [section](#333-derived-enumerations).
 
 ### 3.3.5 Pointers
-Applications may need to model both individual types and collections of types, analogous to a filesystem with both files
-and directories.  In a filesystem it is possible to "walk a subtree", generating a list files in and under the current directory.
+Applications may need to model both individual types and collections of types, analogous to a filesystem with files and
+directories.  In a filesystem it is possible to "walk a subtree", generating a list of files in and under the current directory.
+
 The fields of a Map or Record type can be marked as collections using the "dir" field option
-([Table 3-5](#table-3-5-field-options)) to indicate that fields below that type should be included in a list of types.
-The dir option has no effect on the structure or serialization of information; its only purpose is to indicate that
-types below the dir field should be included in a list of pathnames created by the Pointers extension.
+([Table 3-5](#table-3-5-field-options)). This indicates that fields below the current type should be included in a list of types.
+The dir option has no effect on the structure or serialization of information; its only purpose is to support the Pointer extension.
 
 Example:
 
@@ -912,12 +912,11 @@ Example:
     }
     Paths = Enumerated(Pointer(Catalog))
 
-JSON Pointer ([RFC 6901](#rfc6901)) defines the syntax for identifying a specific value within a document,
-similar to a filesystem pathname or a URI.
+JSON Pointer ([RFC 6901](#rfc6901)) defines the syntax for identifying a specific value within a document.
 Pointer is a type option ([Table 3-2](#table-3-2-type-options)) that produces an Enumerated type containing JSON Pointer strings.
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection of types by the "dir" option.
+In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option.
 As a result, the "Paths" type, maintained by hand or generated with the Pointer extension, lists the valid identifiers for
-members of a category:
+members of an application-defined category:
 
     Paths = Enumerated {
         1 a,                    // Item 1
@@ -925,8 +924,8 @@ members of a category:
         3 b/bar                 // Item 3
     }
 
-This can be used when an application 1) has a category of types, e.g., "Items", 2) defines these types
-in multiple locations, and 3) needs an identifier that can be used to reference each member of the category.
+This is useful when an application 1) has a category of types, e.g., "Items", 2) defines these types
+in multiple locations, and 3) needs an identifier that can be used to reference each member of the category. 
 
 The structure of a "Catalog" value is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths or
