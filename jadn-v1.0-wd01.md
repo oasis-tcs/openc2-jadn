@@ -526,6 +526,7 @@ which data values are instances of the defined type.
 | 0x2a `'*'` | vtype | String | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
 | 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
 | 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
+| 0x3e `'>'` | pointer | String | Extension: Enumerated type containing pointers derived from the specified Array, Choice, Map or Record type ([Section 3.3.5](#335-pointers)) |
 | **Validation** | | | |
 | 0x2f `'/'` | format | String | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
@@ -548,7 +549,7 @@ which data values are instances of the defined type.
 | Number | minv, maxv, format |
 | Null | |
 | String | minv, maxv, format, pattern |
-| Enumerated | id, enum |
+| Enumerated | id, enum, pointer |
 | Choice | id |
 | Array | minv, maxv, format |
 | ArrayOf | vtype, minv, maxv, unique |
@@ -712,6 +713,7 @@ The following extensions can be converted to core definitions:
 * Field multiplicity other than required/optional
 * Derived enumeration
 * MapOf type with Enumerated key type
+* Pointers
 
 ### 3.3.1 Type Definition Within Fields
 A type without fields (Simple types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
@@ -822,7 +824,7 @@ of types, analogous to a filesystem directory. The dir option has no effect on t
 its sole purpose is to support pathname generation with the Pointer extension.
 
 "Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer type option
-([Table 3-2](#table-3-2-type-options)) denotes all types in and under the specified Map or Record type.  Simplifying
+([Table 3-2](#table-3-2-type-options)) denotes all types in and under the specified type.  Simplifying
 replaces the Pointer extension with an Enumerated type containing a list of [JSON Pointers](#rfc6901) (pathnames) to each
 type. If no fields in the specified type are marked with the "dir" option, the result of the Pointer extension is
 identical to a [Derived Enumeration](#333-derived-enumerations).
