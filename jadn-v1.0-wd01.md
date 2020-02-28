@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 21 February 2020
+## 28 February 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -216,6 +216,8 @@ Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address
 Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
 ###### [RFC5234]
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
+###### [RFC6901]
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
 ###### [RFC7049]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
 ###### [RFC7405]
@@ -242,8 +244,6 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
-###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
 ###### [RFC8340]
@@ -526,6 +526,7 @@ which data values are instances of the defined type.
 | 0x2a `'*'` | vtype | String | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
 | 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
 | 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
+| 0x3e `'>'` | pointer | String | Extension: Enumerated type containing pointers derived from the specified Array, Choice, Map or Record type ([Section 3.3.5](#335-pointers)) |
 | **Validation** | | | |
 | 0x2f `'/'` | format | String | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
@@ -548,7 +549,7 @@ which data values are instances of the defined type.
 | Number | minv, maxv, format |
 | Null | |
 | String | minv, maxv, format, pattern |
-| Enumerated | id, enum |
+| Enumerated | id, enum, pointer |
 | Choice | id |
 | Array | minv, maxv, format |
 | ArrayOf | vtype, minv, maxv, unique |
@@ -640,7 +641,7 @@ Field options are specified for each field within a type definition. Each option
 | 0x5b `'['` | minc | Integer | Minimum cardinality |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
-| 0x3c `'<'` | dir | none | Use FieldName as a qualifier for fields in FieldType |
+| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType [Section 3.3.5](#335-pointers) |
 | 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
 
 * FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
@@ -696,80 +697,7 @@ type that controls which Choice element is used.
         3 details     Department(&dept)   // Field that selects which Choice element must be present
     }
 
-#### 3.2.2.3 Field Pathnames
-Fields where FieldType is Enumerated, Choice, Map, or Record may include the *path* option.
-Field names of the nested definition are qualified by the enclosing field name to prevent collisions,
-forming a relative path using the field separator (FS - [Section 3.1.1](#311-name-formats)) character.
-
-A pathname is equivalent to a JSON pointer ([RFC 6901](#rfc6901)), which begins with a reference
-to the root value of a JSON document and completes with a reference to some value within the document.
-A pathname instance is a reference to a type followed by the name of a field within the referenced type.
-
-Pathnames may be used to aggregate separately-defined sets of fields, or to
-apply constraints such as a choice of subfields within a larger set of fields.
-
-**Example:**
-
-With the type definitions:
-
-    Palette = Map {
-        1 burgundy Rgb,
-        2 grass    Rgb,
-        3 lapis    Rgb,
-        4 new/     New-Color    // "new/" is a reference to the root of New-Color
-    }
-    New-Color = Map {
-       17 maize    Rgb,
-        9 fuschia  Rgb,
-        2 aqua     Rgb
-    }
-    Rgb = Record {
-        1 red      Integer{0..255},
-        2 green    Integer{0..255},
-        3 blue     Integer{0..255}
-    }
-
-an API value of Palette: 
-
-    {'grass': {'red': 32, 'green': 240, 'blue': 24}, 'new/aqua': {'red': 64, 'green': 240, 'blue': 192}}
-
-is serialized in JSON format using qualified field names as:
-
-    87 non-whitespace bytes:
-    {
-      "grass": {
-        "red": 32,
-        "green": 240,
-        "blue": 24
-      },
-      "new/aqua": {
-        "red": 64,
-        "green": 240,
-        "blue": 192
-      }
-    }
-
-and is serialized in M-JSON and CBOR formats, nested because pathname strings are not used, as:
-
-                M-JSON value:  [2, [32, 240, 24], 4, [2, [64, 240, 192]]]
-    CBOR diagnostic notation:  {2: [32, 240, 24], 4: {2: [64, 240, 192]}}
-    
-    19 bytes:
-    A2             # map(2)
-       02          # unsigned(2) -- grass
-       83          # array(3)
-          18 20    # unsigned(32)  -- red
-          18 F0    # unsigned(240) -- green
-          18 18    # unsigned(24)  -- blue
-       04          # unsigned(4) -- new
-       A1          # map(1)
-          02       # unsigned(2) -- aqua
-          83       # array(3)
-             18 40 # unsigned(64)  -- red
-             18 F0 # unsigned(240) -- green
-             18 C0 # unsigned(192) -- blue
-
-#### 3.2.2.4 Default Value
+#### 3.2.2.3 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
 
 ## 3.3 JADN Extensions
@@ -785,6 +713,7 @@ The following extensions can be converted to core definitions:
 * Field multiplicity other than required/optional
 * Derived enumeration
 * MapOf type with Enumerated key type
+* Pointers
 
 ### 3.3.1 Type Definition Within Fields
 A type without fields (Simple types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
@@ -889,7 +818,16 @@ Example:
 Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown in the previous [section](#333-derived-enumerations).
 
 ### 3.3.5 Pointers
-A hierarchical filesystem contains leaf nodes (files) and container nodes (directories), and it is a common operation to "walk a subtree" to enumerate paths to all of the files in and under a given directory.  The fields of a Map or Record type can be marked as containers using the "dir" field option ([Table 3-5](#table-3-5-field-options)) to indicate that fields below that type are included in a hierarchy. The container designation has no effect on the structure or serialization of information instances.  Its only effect is on the contents of a pointer list derived from that type.
+Applications may need to model both individual types and collections of types, analogous to a filesystem with files and
+directories. The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field of a Map or Record type as a collection
+of types, analogous to a filesystem directory. The dir option has no effect on the structure or serialization of information;
+its sole purpose is to support pathname generation with the Pointer extension.
+
+"Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer type option
+([Table 3-2](#table-3-2-type-options)) denotes all types in and under the specified type.  Simplifying
+replaces the Pointer extension with an Enumerated type containing a list of [JSON Pointers](#rfc6901) (pathnames) to each
+type. If no fields in the specified type are marked with the "dir" option, the result of the Pointer extension is
+identical to a [Derived Enumeration](#333-derived-enumerations).
 
 Example:
 
@@ -898,17 +836,46 @@ Example:
         2 b/   TypeB,
     }
     TypeA = Record {
-        1 foo  String,
-        2 bar  String
+        1 x    Number,
+        2 y    Number
     }
     TypeB = Record {
-        1 foo  Integer,
-        2 bar  Integer
+        1 foo  String,
+        2 bar  TypeC
     }
-    Paths = Map(Pointer(Catalog))
+    Paths = Enumerated(Pointer(Catalog))
+
+In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option.
+Simplifying generates an Enumerated type listing the identifiers of all leaf types in and under Catalog:
+
+    Paths = Enumerated {
+        1 a,                    // Item 1
+        2 b/foo,                // Item 2
+        3 b/bar                 // Item 3
+    }
+
+This is useful when an application 1) has a category of types, e.g., "Items", 2) defines these types
+in multiple locations, and 3) needs identifiers that reference each member of the category.
+It also allows merging (or mounting, using the filesystem analogy) a separate specification: if TypeB is defined in
+Specification B, its subtypes are referenced from Specification A under field name (or mount point) "b".
+
+The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
+to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
+value is not considered an "Item":
+
+    {
+      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1
+      "b": {                            <-- "b" is a "dir", not an Item.
+        "foo": "Elephant",              <-- Item 2
+        "bar": { ... }                  <-- Item 3
+      }
+    }
 
 # 4 Serialization
-Applications may use any internal information representation that exhibits the characteristics defined in [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using a specific format. Several serialization formats are defined in this section. In order to be usable with JADN, serialization formats defined elsewhere must:
+Applications may use any internal information representation that exhibits the characteristics defined in
+[Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using
+a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
+serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
 * Specify how each option applicable to a type affects serialized values
 * Specify any validation requirements defined for that format
