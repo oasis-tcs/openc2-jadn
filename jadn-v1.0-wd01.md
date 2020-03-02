@@ -817,10 +817,11 @@ Example:
 Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
 
 ### 3.3.5 Pointers
-Applications may need to model both individual types and collections of types, analogous files and directories.
-The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field of a Map or Record type as a collection
-of types rather than a single type. The dir option has no effect on the structure or serialization of information;
-its sole purpose is to support pathname generation with the Pointer extension.
+Applications may need to model both individual types and collections of types, similar to the way filesystems
+have files and directories.
+The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field as a collection of types rather
+than a single type. The dir option has no effect on the structure or serialization of information;
+its sole purpose is to support pathname generation using the Pointer extension.
 
 "Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer extension
 ([Table 3-2](#table-3-2-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
@@ -858,7 +859,7 @@ in multiple locations, and 3) needs identifiers that reference each type in the 
 
 It also allows linking type definitions across specifications. If TypeB is defined in Specification B,
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
-development when using non-namespaced data formats such as JSON.
+development of schema modules even for data formats without namespaces.
 
 The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
