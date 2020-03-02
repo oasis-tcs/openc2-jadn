@@ -84,7 +84,7 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
 a schema bridge "translates data expressed in a given data model to another one that expresses the same information
 in a different way."  An information model defines the structure and content of application information and enables bridging
-by formally defining if two data objects represent the same information.
+by formally specifying what it means to express the "same information".
 
 [RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
 across Standards Developing Organizations in defining application layer data:
@@ -103,8 +103,8 @@ JADN addresses the requirements described in RFC 8477:
 > for formal purposes.*
 
 JADN does both. It is a formal information modeling language (expressable as JSON data) that can be
-validated for correctness, and its definitions can be converted to both tabular and text representations,
-ensuring that all descriptions are consistent with the formal model.
+validated for correctness, and its definitions can be converted to/from both tabular and text representations,
+ensuring that tabular descriptions accurately represent the formal model.
 
 > ***Formal Languages for Code Generation***
 >
@@ -122,7 +122,7 @@ validate and ingest application data on the fly, or used to generate static code
 
 A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
 and retrieved from a device, retrieved from a repository, or transferred along with application data.  This allows tools
-to display application data in a uniform manner independent of data format.
+to display schema-annotated application data independently of data format.
 
 > ***Translation***
 >
@@ -138,13 +138,12 @@ Once the IM is known, it is used by devices to serialize, deserialize and valida
 and translate data from one format to another. Security gateways can use the IM to filter out non-significant data
 and reject invalid data, whether generated maliciously or by accident.
 
-Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists to serve as
+Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
 a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple
-data models from it, as shown in RFC 3444, can provide more accurate results* than translating directly between
-separately-developed data models, in either a mesh or hub topology.
+data models from it, as shown in RFC 3444, provides more accurate results* than translating between
+separately-developed data models.
 
-*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossless round-trip translation
-across data models.*
+*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossy vs. lossless round-trip translation.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -815,18 +814,18 @@ Example:
     }
     Pixel = MapOf(Channel, Integer)
     
-Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown in the previous [section](#333-derived-enumerations).
+Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
 
 ### 3.3.5 Pointers
-Applications may need to model both individual types and collections of types, analogous to a filesystem with files and
-directories. The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field of a Map or Record type as a collection
-of types, analogous to a filesystem directory. The dir option has no effect on the structure or serialization of information;
+Applications may need to model both individual types and collections of types, analogous files and directories.
+The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field of a Map or Record type as a collection
+of types rather than a single type. The dir option has no effect on the structure or serialization of information;
 its sole purpose is to support pathname generation with the Pointer extension.
 
-"Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer type option
-([Table 3-2](#table-3-2-type-options)) denotes all types in and under the specified type.  Simplifying
-replaces the Pointer extension with an Enumerated type containing a list of [JSON Pointers](#rfc6901) (pathnames) to each
-type. If no fields in the specified type are marked with the "dir" option, the result of the Pointer extension is
+"Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer extension
+([Table 3-2](#table-3-2-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
+replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
+type. If no fields in the specified type are marked with the "dir" option, the Pointer extension is
 identical to a [Derived Enumeration](#333-derived-enumerations).
 
 Example:
@@ -854,10 +853,12 @@ Simplifying generates an Enumerated type listing the identifiers of all leaf typ
         3 b/bar                 // Item 3
     }
 
-This is useful when an application 1) has a category of types, e.g., "Items", 2) defines these types
-in multiple locations, and 3) needs identifiers that reference each member of the category.
-It also allows merging (or mounting, using the filesystem analogy) a separate specification: if TypeB is defined in
-Specification B, its subtypes are referenced from Specification A under field name (or mount point) "b".
+This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
+in multiple locations, and 3) needs identifiers that reference each type in the category.
+
+It also allows linking type definitions across specifications. If TypeB is defined in Specification B,
+its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
+development when using non-namespaced data formats such as JSON.
 
 The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
@@ -865,9 +866,9 @@ value is not considered an "Item":
 
     {
       "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1
-      "b": {                            <-- "b" is a "dir", not an Item.
-        "foo": "Elephant",              <-- Item 2
-        "bar": { ... }                  <-- Item 3
+      "b": {                            <-- "b" is a dir or namespace mount point, not an Item.
+        "foo": "Elephant",              <-- "b/foo" is Item 2
+        "bar": { ... }                  <-- "b/bar" is Item 3
       }
     }
 
