@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 28 February 2020
+## 13 March 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -845,7 +845,7 @@ Example:
     }
     Paths = Enumerated(Pointer(Catalog))
 
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option.
+In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option ("dirname/").
 Simplifying generates an Enumerated type listing the identifiers of all leaf types in and under Catalog:
 
     Paths = Enumerated {
@@ -857,19 +857,19 @@ Simplifying generates an Enumerated type listing the identifiers of all leaf typ
 This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
 in multiple locations, and 3) needs identifiers that reference each type in the category.
 
-It also allows linking type definitions across specifications. If TypeB is defined in Specification B,
+It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
-development of schema modules even for data formats without namespaces.
+development of schema modules regardless of whether the underlying data format has native namespace support.
 
 The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
 value is not considered an "Item":
 
     {
-      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1
+      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1 (TypeA)
       "b": {                            <-- "b" is a dir or namespace mount point, not an Item.
-        "foo": "Elephant",              <-- "b/foo" is Item 2
-        "bar": { ... }                  <-- "b/bar" is Item 3
+        "foo": "Elephant",              <-- "b/foo" is Item 2 (String)
+        "bar": { ... }                  <-- "b/bar" is Item 3 (TypeC)
       }
     }
 
