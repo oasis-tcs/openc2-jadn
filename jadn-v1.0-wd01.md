@@ -359,7 +359,7 @@ JADN type definitions have a regular structure designed to be easily describable
 * BaseType MUST be a JADN type.
 * If BaseType is a Simple type, ArrayOf, or MapOf, the type definition MUST NOT include Fields:
 ```
-[TypeName, BaseType, [TypeOption, ...], TypeDescription]
+        [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
 
 * If BaseType is Enumerated, each item definition MUST have three elements:
@@ -368,10 +368,10 @@ JADN type definitions have a regular structure designed to be easily describable
 2. **ItemValue:** the value of the item
 3. **ItemDescription:** a non-normative comment
 ```
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-    [ItemID, ItemValue, ItemDescription],
-    ...
-]]
+        [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
+            [ItemID, ItemValue, ItemDescription],
+            ...
+        ]]
 ```
 * If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 
@@ -381,10 +381,10 @@ JADN type definitions have a regular structure designed to be easily describable
 4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-5](#table-3-5-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
 5. **FieldDescription:** a non-normative comment
 ```
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-    [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
-    ...
-]]
+        [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
+            [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
+            ...
+        ]]
 ```
 * FieldID and FieldName values MUST be unique within a type definition.
 * If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
