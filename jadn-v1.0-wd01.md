@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 28 February 2020
+## 13 March 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -412,7 +412,6 @@ TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; e.g., Color-Values, length
 FieldName  = LC *31("_" / UC / LC / DIGIT)          ; e.g., color_values, length = 1-32 characters
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID e.g., td, length = 1-8 characters
 
-FS         = "/"      ; 'SOLIDUS', Separator between components of field pathnames, e.g., color/values
 Sys        = "$"      ; 'DOLLAR SIGN', Character used in tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
 LC         = %x61-7A  ; a-z
@@ -817,10 +816,11 @@ Example:
 Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
 
 ### 3.3.5 Pointers
-Applications may need to model both individual types and collections of types, analogous files and directories.
-The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field of a Map or Record type as a collection
-of types rather than a single type. The dir option has no effect on the structure or serialization of information;
-its sole purpose is to support pathname generation with the Pointer extension.
+Applications may need to model both individual types and collections of types, similar to the way filesystems
+have files and directories.
+The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field as a collection of types rather
+than a single type. The dir option has no effect on the structure or serialization of information;
+its sole purpose is to support pathname generation using the Pointer extension.
 
 "Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer extension
 ([Table 3-2](#table-3-2-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
@@ -844,7 +844,7 @@ Example:
     }
     Paths = Enumerated(Pointer(Catalog))
 
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option.
+In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option ("dirname/").
 Simplifying generates an Enumerated type listing the identifiers of all leaf types in and under Catalog:
 
     Paths = Enumerated {
@@ -856,19 +856,19 @@ Simplifying generates an Enumerated type listing the identifiers of all leaf typ
 This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
 in multiple locations, and 3) needs identifiers that reference each type in the category.
 
-It also allows linking type definitions across specifications. If TypeB is defined in Specification B,
+It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
-development when using non-namespaced data formats such as JSON.
+development of schema modules regardless of whether the underlying data format has native namespace support.
 
 The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
 value is not considered an "Item":
 
     {
-      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1
+      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1 (TypeA)
       "b": {                            <-- "b" is a dir or namespace mount point, not an Item.
-        "foo": "Elephant",              <-- "b/foo" is Item 2
-        "bar": { ... }                  <-- "b/bar" is Item 3
+        "foo": "Elephant",              <-- "b/foo" is Item 2 (String)
+        "bar": { ... }                  <-- "b/bar" is Item 3 (TypeC)
       }
     }
 
@@ -1040,12 +1040,12 @@ Enumerated type:
 Container types without the *id* option:
 ```
     TypeName = TYPESTRING {                   // TypeDescription
-        FieldID FieldName[FS] FIELDSTRING,    // FieldDescription
+        FieldID FieldName[/] FIELDSTRING,     // FieldDescription
         ...
     }
 ```
-If a field includes the *path* FieldOption, the Field Separator character (FS - [Section 3.1.1](#311-name-formats))
-is appended to FieldName.
+If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS character (/)
+as specified in [RFC 6901](rfc6901) is appended to FieldName.
 
 Container types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
@@ -1058,7 +1058,7 @@ followed by a label terminator ("::"):
     
     /* Choice.ID, Map.ID */
     TypeName = TYPESTRING {                   // TypeDescription
-        FieldID FIELDSTRING,                  // FieldName[FS]:: FieldDescription
+        FieldID FIELDSTRING,                  // FieldName[/]:: FieldDescription
         ...
     }
 ```
@@ -1103,13 +1103,13 @@ breaks out the MULTIPLICITY field option into a separate column:
 followed by (for container types without the *id* option):
 ```
 +---------+---------------+-------------+--------+------------------+
-| FieldID | FieldName[FS] | FIELDSTRING | [m..n] | FieldDescription |
+| FieldID | FieldName[/]  | FIELDSTRING | [m..n] | FieldDescription |
 +---------+---------------+-------------+--------+------------------+
 ```
 or (for container types with the *id* option):
 ```
 +---------+-------------+--------+----------------------------------+
-| FieldID | FIELDSTRING | [m..n] | FieldName[FS]:: FieldDescription |
+| FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
 +---------+-------------+--------+----------------------------------+
 ```
 An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
@@ -1253,11 +1253,10 @@ Config = Map{1..*} {                         // Configuration variables used to 
      1 $MaxBinary      Integer{1..*} optional,   // Schema default maximum number of octets
      2 $MaxString      Integer{1..*} optional,   // Schema default maximum number of characters
      3 $MaxElements    Integer{1..*} optional,   // Schema default maximum number of items/properties
-     4 $FS             String{1..1} optional,    // Field Separator character used in pathnames
-     5 $Sys            String{1..1} optional,    // System character for TypeName
-     6 $TypeName       String{1..127} optional,  // TypeName regex
-     7 $FieldName      String{1..127} optional,  // FieldName regex
-     8 $NSID           String{1..127} optional   // Namespace Identifier regex
+     4 $Sys            String{1..1} optional,    // System character for TypeName
+     5 $TypeName       String{1..127} optional,  // TypeName regex
+     6 $FieldName      String{1..127} optional,  // FieldName regex
+     7 $NSID           String{1..127} optional   // Namespace Identifier regex
 }
 ```
 ## C.2 Type Definitions
@@ -1474,11 +1473,10 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "$MaxBinary", "Integer", ["[0", "{1"], "Schema default maximum number of octets"],
     [2, "$MaxString", "Integer", ["[0", "{1"], "Schema default maximum number of characters"],
     [3, "$MaxElements", "Integer", ["[0", "{1"], "Schema default maximum number of items/properties"],
-    [4, "$FS", "String", ["[0", "{1", "}1"], "Field Separator character used in pathnames"],
-    [5, "$Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
-    [6, "$TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
-    [7, "$FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"],
-    [8, "$NSID", "String", ["[0", "{1", "}127"], "Namespace Identifier regex"]
+    [4, "$Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
+    [5, "$TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
+    [6, "$FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"],
+    [7, "$NSID", "String", ["[0", "{1", "}127"], "Namespace Identifier regex"]
   ]],
 
   ["Types", "ArrayOf", ["*Type"], ""],
@@ -1612,7 +1610,6 @@ A JADN module has the following structure:
         "$MaxString": {"type": "integer", "minValue": 1},
         "$MaxElements": {"type": "integer", "minValue": 1},
         "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
-        "$FS": {"type": "string", "minLength": 1, "maxLength": 1},
         "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
         "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
         "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
