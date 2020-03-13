@@ -364,9 +364,9 @@ JADN type definitions have a regular structure designed to be easily describable
 
 * If BaseType is Enumerated, each item definition MUST have three elements:
 
-1. **ItemID:** the integer identifier of the item
-2. **ItemValue:** the value of the item
-3. **ItemDescription:** a non-normative comment
+  1. **ItemID:** the integer identifier of the item
+  2. **ItemValue:** the value of the item
+  3. **ItemDescription:** a non-normative comment
 ```
         [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
             [ItemID, ItemValue, ItemDescription],
@@ -375,11 +375,11 @@ JADN type definitions have a regular structure designed to be easily describable
 ```
 * If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 
-1. **FieldID:** the integer identifier of the field
-2. **FieldName:** the name or label of the field
-3. **FieldType:** the type of the field, TypeName with optional Namespace ID prefix **NSID:TypeName**
-4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-5](#table-3-5-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
-5. **FieldDescription:** a non-normative comment
+    1. **FieldID:** the integer identifier of the field
+    2. **FieldName:** the name or label of the field
+    3. **FieldType:** the type of the field, TypeName with optional Namespace ID prefix **NSID:TypeName**
+    4. **FieldOptions:** an array of zero or more **FieldOption** ([Table 3-5](#table-3-5-field-options)) or **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the field
+    5. **FieldDescription:** a non-normative comment
 ```
         [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
             [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
