@@ -638,11 +638,11 @@ Field options are specified for each field within a type definition. Each option
 
 | ID | Label | Value | Definition |
 | --- | --- | --- | --- |
-| 0x5b `'['` | minc | Integer | Minimum cardinality |
+| 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type |
-| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType [Section 3.3.5](#335-pointers) |
-| 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
+| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-choice-with-explicit-tag)) |
+| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType ([Section 3.3.5](#335-pointers)) |
+| 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
 
 * FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
@@ -668,7 +668,7 @@ of an Array, Choice, Map, or Record type:
 If minc is 0, the field is optional, otherwise it is required.  
 If maxc is 1 the field is a single element, otherwise it is an array of elements.  
 
-A field definition with minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
+Multiplicities of optional (0..1) and required (1..1) are part of the JADN core. A field definition with minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
 
 Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
 
@@ -677,16 +677,16 @@ The Choice type represents a [Discriminated Union](#union), a data structure tha
 By default a Choice instance is a Map with exactly one key-value pair, where the key determines the value type.
 But if a "tag field" (*tfield*) option is present on a Choice field in an Array, Map, or Record container, it indicates that a separate Tag field within that container determines the value type.
 
-* The Tag field MUST be an Enumerated type derived from the Choice type.  It MAY contain a subset of fields from the Choice.
+* The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
 
 **Example:**
 
-    Product = Choice {                 // Discriminated union - type identified by a tag
+    Product = Choice {                 // Discriminated union
         1 furniture   Furniture,
         2 appliance   Appliance,
         3 software    Software
     }
-    Dept = Enumerated {                // Explicit Tag values = Enumerated type derived from the Choice type
+    Dept = Enumerated {                // Explicit Tag values = Enumerated type containing tags derived from the Choice
         1 furniture,
         2 appliance,
         3 software
@@ -709,9 +709,7 @@ Stock1 - Choice with intrinsic tag:
 
     [   
         395,
-        "software": {
-            "http://www.example.com/B902D1P0W37
-        }
+        { "software": "http://www.example.com/B902D1P0W37" }
     ]
 
 Stock2 - Choice with explicit tag:
@@ -719,7 +717,7 @@ Stock2 - Choice with explicit tag:
     [
         "software",
         395,
-        "http://www.example.com/B902D1P0W37
+        "http://www.example.com/B902D1P0W37"
     ]
 
 #### 3.2.2.3 Default Value
@@ -1207,26 +1205,29 @@ http://docs.oasis-open.org/templates/TCHandbook/ConformanceGuidelines.html.
 Remove this note before submitting for publication.)
 
 Conformance targets:
+This document defines two conformance levels for JADN implementations: Core and Extensions.
+
+This document defines several data formats. Conformance claims are made with respect to a specified data format,
+and conforming implementations must support at least one.
 
 * Core JADN
-* JADN Extensions ([Section 3.3](#33-jadn-extensions))
+    * Validate type definitions for correctness according to [Section 3.1](#31-type-definitions) and [Section 3.2](#32-options).
+    * Encode and decode documents according to serialization rules for format \<X\> defined in Section [Section 4](#4-serialization)
+    * Validate API values against type definitions
+* JADN Extensions
+    * In addition to all Core requirements, perform all type simplification operations defined in ([Section 3.3](#33-jadn-extensions))
+
+This document describes several schema support functions but defines no conformance requirements with respect to those functions:
+
+*Editor's Note: restructure section 3 to separate normative requirements for JADN definitions from descriptions of alternate formats.*
+
 * JADN Schema Translator
-    * Validate type definitions per Sections 3.1 and 3.2.
-    * Perform type simplification operations per Section 3.3.
-    * Translate JSON definitions to Table and JADN-IDL formats per Section 5.1.
+    * Translate type definitions in JSON format to Table and JADN-IDL formats per Section 5.1.
+    * Translate type definitions in JADN-IDL and Table formats to JSON format per Section 5.1.
     * Merge schema modules per Section 5.2.
-* JADN Reverse Schema Translator
-    * Translate JADN-IDL definitions to JSON format per Section 5.1.
 * JADN Concrete Schema Generator
     * Generate a schema in a format-specific language per serialization rules in Section 4.x.
-    Conformance testing requires JADN validator and format-specific validator to agree on all
-    good and bad data instances.
-* JADN Encoder/Decoder
-    * Validate type definition correctness per Sections 3.1 and 3.2.
-    * Perform type simplification operations per Section 3.3.
-    * Validate API values against type definitions per Sections 3.1 and 3.2.
-    * Encode and decode data instances per serialization rules for formats \<X\> and \<Y\> in Section 4.x. 
-    Conformance testing requires the implementation under test to support any two serialization formats.
+    JADN validator and format-specific validator should agree on all good and bad data instances.
 
 -------
 
