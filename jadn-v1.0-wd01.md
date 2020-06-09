@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 13 March 2020
+## 12 June 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -83,8 +83,8 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
 a schema bridge "translates data expressed in a given data model to another one that expresses the same information
-in a different way."  An information model defines the structure and content of application information and enables bridging
-by formally specifying what it means to express the "same information".
+in a different way."  An information model defines the structure and content of application information and enables bridge
+translation by formally specifying what it means to "express the same information".
 
 [RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
 across Standards Developing Organizations in defining application layer data:
@@ -120,7 +120,7 @@ validate and ingest application data on the fly, or used to generate static code
 > which use standard data models and/or retrieve formal language
 > descriptions from the devices themselves.*
 
-A JADN schema is itself an information object that can be serialized to an application data format (JSON, CBOR, XML, ...)
+A JADN schema is itself an information object that can be serialized to a data format (JSON, CBOR, XML, ...)
 and retrieved from a device, retrieved from a repository, or transferred along with application data.  This allows tools
 to display schema-annotated application data independently of data format.
 
@@ -143,7 +143,7 @@ a Rosetta stone to facilitate translation among them.  Starting with an informat
 data models from it, as shown in RFC 3444, provides more accurate results* than translating between
 separately-developed data models.
 
-*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossy vs. lossless round-trip translation.*
+*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossy vs. lossless round-trip translation between data models.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -156,18 +156,18 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ### 1.3.1 Schema
 An abstract schema, or information model, describes the structure and value constraints of information used by applications.
 
-A concrete schema, or data model, describes the structure and value constraints of a document used to store or communicate information.
+A concrete schema, or data model, describes the structure and value constraints of a document used to store information or communicate it between applications.
 
 ### 1.3.2 Document
-A document is a series of octets described by an information model and a data format, or equivalently, by a data model.
+A document is a series of octets described by a data format applied to an information model, or equivalently, by a data model.
 
 ### 1.3.3 Well-formed
 A well-formed document follows the syntactic structure of the document's media type.
 
 ### 1.3.4 Valid
-An instance is valid if it satisfies the constraints defined in a schema.
+An instance is valid if it satisfies the constraints defined in an information model.
 
-A document is valid if it is well-formed and also decodes into a valid instance.
+A document is valid if it is well-formed and also corresponds to a valid instance.
 
 ### 1.3.5 Data Format
 A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
@@ -183,7 +183,7 @@ An instance, or API value, is an item of application information to which a sche
 
 Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
 
-Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type.
+Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type. There is no "Any" core type, but Binary or String types can be used with or without additional tagging information to carry opaque (unvalidated) content.
 
 #### 1.3.6.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
@@ -258,6 +258,8 @@ Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.
 Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
 ###### [UML]
 "UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html.
+###### [UNION]
+"Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
 
 -------
 
@@ -327,7 +329,7 @@ JADN core types are defined in terms of the characteristics they provide to appl
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
-| Choice           | One key and value selected from a set of named or labeled fields. The key has an id and name or label, and is mapped to a value type. |
+| Choice           | A [discriminated union](union): one type selected from a set of named or labeled types. |
 | **Container**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
@@ -353,7 +355,7 @@ JADN type definitions have a regular structure designed to be easily describable
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
 3. **TypeOptions:** an array of zero or more **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
-5. **Fields:** an array of one or more field definitions, if applicable to BaseType
+5. **Fields:** an array of one or more field or item definitions, if applicable to BaseType
 
 * TypeName MUST NOT be a JADN type.
 * BaseType MUST be a JADN type.
@@ -362,7 +364,7 @@ JADN type definitions have a regular structure designed to be easily describable
         [TypeName, BaseType, [TypeOption, ...], TypeDescription]
 ```
 
-* If BaseType is Enumerated, each item definition MUST have three elements:
+* If BaseType is Enumerated, unless otherwise specified by TypeOptions each item definition MUST have three elements:
 
   1. **ItemID:** the integer identifier of the item
   2. **ItemValue:** the value of the item
@@ -638,7 +640,7 @@ Field options are specified for each field within a type definition. Each option
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | Integer | Minimum cardinality |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | Enumerated | Field that specifies the type of this field |
+| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type |
 | 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType [Section 3.3.5](#335-pointers) |
 | 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
 
@@ -670,30 +672,55 @@ A field definition with minc other than 0 or 1, or maxc other than 1, is an exte
 
 Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
 
-#### 3.2.2.2 Referenced Field Type
-A field may include the *tfield* option to specify another field within the same container
-type that controls which Choice element is used.
+#### 3.2.2.2 Choice with Explicit Tag
+The Choice type represents a [Discriminated Union](#union), a data structure that could take on several different, but fixed, types.
+By default a Choice instance is a Map with exactly one key-value pair, where the key determines the value type.
+But if a "tag field" (*tfield*) option is present on a Choice field in an Array, Map, or Record container, it indicates that a separate Tag field within that container determines the value type.
 
-* The *tfield* option MUST NOT appear in a field where FieldType does not refer to a Choice type.
-* The *tfield* option MUST NOT appear in a type where BaseType is not Array, Map, or Record.
+* The Tag field MUST be an Enumerated type derived from the Choice type.  It MAY contain a subset of fields from the Choice.
 
 **Example:**
 
-    Department = Choice {
+    Product = Choice {                 // Discriminated union - type identified by a tag
         1 furniture   Furniture,
-        2 kitchen     Appliance,
-        3 electronics Device
+        2 appliance   Appliance,
+        3 software    Software
     }
-    DeptID = Enumerated {
+    Dept = Enumerated {                // Explicit Tag values = Enumerated type derived from the Choice type
         1 furniture,
-        2 kitchen,
-        3 electronics
+        2 appliance,
+        3 software
     }
-    Product = Array {
-        1 dept        DeptID,             // Must be a valid Choice field
+    Software = String /uri
+
+    Stock1 = Array {                   // Discriminated union with intrinsic tag
+        1 quantity    Integer,
+        2 product     Product              // Value = Map with one key/value
+    }
+    Stock2 = Array {                   // Container with explicitly-tagged Discriminated union
+        1 dept        Dept,                // Tag = one key from Choice
         2 quantity    Integer,
-        3 details     Department(&dept)   // Field that selects which Choice element must be present
+        3 product     Product(Tag(dept))   // Choice specifying an explicit tag field
     }
+
+Example JSON serializations of these types are:
+
+Stock1 - Choice with intrinsic tag:
+
+    [   
+        395,
+        "software": {
+            "http://www.example.com/B902D1P0W37
+        }
+    ]
+
+Stock2 - Choice with explicit tag:
+
+    [
+        "software",
+        395,
+        "http://www.example.com/B902D1P0W37
+    ]
 
 #### 3.2.2.3 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
@@ -826,7 +853,7 @@ its sole purpose is to support pathname generation using the Pointer extension.
 ([Table 3-2](#table-3-2-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
 replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
 type. If no fields in the specified type are marked with the "dir" option, the Pointer extension is
-identical to a [Derived Enumeration](#333-derived-enumerations).
+similar to a [Derived Enumeration](#333-derived-enumerations), except that in a Pointer list ID values are sequential.
 
 Example:
 
@@ -1235,7 +1262,7 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
 A schema module is a collection of type definitions along with information about the module.
 ```
 Schema = Record {                            // Definition of a JADN schema module
-     1 meta            Meta,                     // Information about this module
+     1 meta            Meta optional,            // Information about this module
      2 types           Types                     // Types defined in this module
 }
 Meta = Map {                                 // Information about this module
@@ -1270,7 +1297,7 @@ Type = Array {
      2 BaseType,                                 // base_type::
      3 Options,                                  // type_options::
      4 Description,                              // type_description::
-     5 JADN-Type(&2)                             // fields::
+     5 JADN-Type(Tag(2))                         // fields::
 }
 BaseType = Enumerated {
      1 Binary,
@@ -1454,7 +1481,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
  },
  "types": [
   ["Schema", "Record", [], "Definition of a JADN schema module", [
-    [1, "meta", "Meta", [], "Information about this module"],
+    [1, "meta", "Meta", ["[0"], "Information about this module"],
     [2, "types", "Types", [], "Types defined in this module"]
   ]],
 
