@@ -315,7 +315,7 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definiton in IDL format is structurally similar to Protobuf, Thrift, ASN.1 and other definition-based languages:
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other languages based on named type definitions, primitives, and containers:
 ```
 Person = Record {
   1 name   String,
@@ -323,7 +323,7 @@ Person = Record {
   3 email  String optional
 }
 ```
-The normative format for JADN schemas is machine-oriented, but less human-friendly, JSON:
+The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to native JADN and vice-versa:
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -820,15 +820,16 @@ Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [De
 ### 3.3.5 Pointers
 Applications may need to model both individual types and collections of types, similar to the way filesystems
 have files and directories.
-The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field as a collection of types rather
-than a single type. The dir option has no effect on the structure or serialization of information;
+The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field as a collection of types.
+The dir option has no effect on the structure or serialization of information;
 its sole purpose is to support pathname generation using the Pointer extension.
 
-"Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer extension
+A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer extension
 ([Table 3-2](#table-3-2-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
 replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
-type. If no fields in the specified type are marked with the "dir" option, the Pointer extension is
-similar to a [Derived Enumeration](#333-derived-enumerations), except that in a Pointer list ID values are sequential.
+type. If no fields in the specified type are marked with the "dir" option, the Pointer extension has the same fields
+as the [Derived Enumeration](#333-derived-enumerations) extension except that IDs are sequential rather than copied
+from the referenced type.
 
 Example:
 
@@ -846,8 +847,9 @@ Example:
     }
     Paths = Enumerated(Pointer(Catalog))
 
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option ("dirname/").
-Simplifying generates an Enumerated type listing the identifiers of all leaf types in and under Catalog:
+In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option (shown
+as "b/").
+Simplifying replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
 
     Paths = Enumerated {
         1 a,                    // Item 1
@@ -856,7 +858,7 @@ Simplifying generates an Enumerated type listing the identifiers of all leaf typ
     }
 
 This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
-in multiple locations, and 3) needs identifiers that reference each type in the category.
+in multiple locations in a hierarchy, and 3) needs identifiers for each type in the category.
 
 It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
