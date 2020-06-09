@@ -297,7 +297,7 @@ information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
-| A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
+| A data definition language defines a specific data storage and exchange format. | An information modeling language expresses application needs in terms of desired effects. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number core types exist regardless of data representation. |
 | CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Core container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
@@ -305,7 +305,33 @@ information-centric focus:
 | Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.2 Implementation
+## 2.2 Examples
+
+Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
+```
+message Person {
+  required string name = 1;
+  required int32 id = 2;
+  optional string email = 3;
+}
+```
+The corresponding JADN definiton in IDL format is structurally similar to Protobuf, Thrift, ASN.1 and other definition-based languages:
+```
+Person = Record {
+  1 name   String,
+  2 id     Integer,
+  3 email  String optional
+}
+```
+The normative format for JADN schemas is machine-oriented, but less human-friendly, JSON:
+```
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "id", "Integer", [], ""],
+    [3, "email", "String", ["[0"], ""]
+]]
+```
+## 2.3 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
@@ -445,56 +471,7 @@ Map, MapOf, Record
 ```
 ###### Figure 3-2: JADN Default Size Limits
 
-### 3.1.3 Definition Formats
-
-JADN type definitions are themselves information objects that can be represented in many ways.
-[Section 5](#5-definition-formats) defines two styles (JADN-IDL and table) that can represent JADN definitions
-in a format that is more readable than JSON data.
-
-The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
-
-**Protobuf definition of Person:**
-```
-message Person {
-  required string name = 1;
-  required int32 id = 2;
-  optional string email = 3;
-}
-```
-
-The equivalent JADN definition is:
-
-**JADN definition of Person:**
-```
-["Person", "Record", [], "", [
-    [1, "name", "String", [], ""],
-    [2, "id", "Integer", [], ""],
-    [3, "email", "String", ["[0"], ""]
-]]
-```
-
-**JADN definition of Person in JADN-IDL format ([Section 5.1](#51-jadn-idl-format)):**
-```
-Person = Record {
-  1 name   String,
-  2 id     Integer,
-  3 email  String optional
-}
-```
-
-**JADN definition of Person in table style ([Section 5.2](#52-table-style)):**
-
-  *Type: Person (Record)*
-
-|  ID  |    Name   |   Type  |   #  | Description |
-| ---: | --------- | ------- | ---: | ----------- |
-|   1  | **name**  | String  |    1 |             |
-|   2  | **id**    | Integer |    1 |             |
-|   3  | **email** | String  | 0..1 |             |
-
-These represent the same IM definition, but conformance is based on native JSON definitions. Specifications that use JADN-IDL or table format SHOULD also make those definitions available in JADN format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
-
-### 3.1.4 Descriptions
+### 3.1.3 Descriptions
 Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
 * The description value MUST be a string, which MAY be empty.
 * Implementations MUST NOT present this string to end users.
@@ -1137,7 +1114,15 @@ or (for container types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
 +---------+-------------+--------+----------------------------------+
 ```
-An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
+Table xample:
+
+  *Type: Person (Record)*
+
+|  ID  |    Name   |   Type  |   #  | Description |
+| ---: | --------- | ------- | ---: | ----------- |
+|   1  | **name**  | String  |    1 |             |
+|   2  | **id**    | Integer |    1 |             |
+|   3  | **email** | String  | 0..1 |             |
 
 ## 5.3 Tree Diagrams
 
@@ -1218,8 +1203,6 @@ and conforming implementations must support at least one.
     * In addition to all Core requirements, perform all type simplification operations defined in ([Section 3.3](#33-jadn-extensions))
 
 This document describes several schema support functions but defines no conformance requirements with respect to those functions:
-
-*Editor's Note: restructure section 3 to separate normative requirements for JADN definitions from descriptions of alternate formats.*
 
 * JADN Schema Translator
     * Translate type definitions in JSON format to Table and JADN-IDL formats per Section 5.1.
