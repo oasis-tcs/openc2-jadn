@@ -23,7 +23,6 @@ This prose specification is one component of a Work Product that also includes:
 
 * Schema for JADN specifications
 * Conformance test data
-* Examples
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -49,12 +48,12 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 01 March 2019. OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html. Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
+_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 12 June 2020. OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html. Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
 
 ## Notices
-Copyright © OASIS Open 2019. All Rights Reserved.
+Copyright © OASIS Open 2020. All Rights Reserved.
 
 All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr) may be found at the OASIS website.
 
@@ -81,18 +80,18 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
-a schema bridge "translates data expressed in a given data model to another one that expresses the same information
-in a different way."  An information model defines the structure and content of application information and enables bridge
-translation by formally specifying what it means to "express the same information".
+In the Internet Architecture Board's [Bridge Taxonomy](#bridge), a schema bridge "translates data expressed in
+a given data model to another one that expresses the same information in a different way."
+JADN is an information modeling language that defines the structure and content of application information and
+enables data translation by formally specifying what is meant by "the same information".
 
-[RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
-across Standards Developing Organizations in defining application layer data:
+[RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
+in defining application layer data:
 
 > *One common problem is the lack of an encoding-independent standardization of the information,
 > the so-called information model.*
 
-JADN addresses the requirements described in RFC 8477:
+JADN addresses the requirements identified in the RFC:
 
 > ***Formal Languages for Documentation Purposes***
 >
@@ -139,11 +138,9 @@ and translate data from one format to another. Security gateways can use the IM 
 and reject invalid data, whether generated maliciously or by accident.
 
 Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
-a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple
-data models from it, as shown in RFC 3444, provides more accurate results* than translating between
+a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
+data models from it, as shown in RFC 3444, provides more accurate translation results than translating between
 separately-developed data models.
-
-*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossy vs. lossless round-trip translation between data models.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -297,7 +294,7 @@ information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
-| A data definition language is designed around specific data formats. | An information modeling language is designed to express application needs. |
+| A data definition language defines a specific data storage and exchange format. | An information modeling language expresses application needs in terms of desired effects. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number core types exist regardless of data representation. |
 | CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Core container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
@@ -305,7 +302,33 @@ information-centric focus:
 | Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.2 Implementation
+## 2.2 Examples
+
+Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
+```
+message Person {
+  required string name = 1;
+  required int32 id = 2;
+  optional string email = 3;
+}
+```
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
+```
+Person = Record {
+  1 name   String,
+  2 id     Integer,
+  3 email  String optional
+}
+```
+The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to and from native JADN format:
+```
+["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "id", "Integer", [], ""],
+    [3, "email", "String", ["[0"], ""]
+]]
+```
+## 2.3 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
@@ -314,7 +337,8 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
-JADN core types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
+JADN core types are defined in terms of the characteristics they provide to applications. 
+The mechanisms defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type does not guarantee that element order is preserved. Map implementations based on an order-preserving variable type are required to interoperate with those that are not.
 
 ###### Table 3-1. JADN Types
 
@@ -343,10 +367,6 @@ Applications MAY use any programming language data types or mechanisms that exhi
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
 * An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an otherwise identical instance without that key.
 * The length of an Array or ArrayOf instance does not include Null values after the last non-Null value; two instances that differ only in the number of trailing Nulls are equal.
-
-**API Values**
-
-The mechanisms chosen by a developer or defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most container types, a list of fields:
@@ -402,17 +422,16 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * JADN specifications MAY override the default name formats by defining one or more of:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character used in field pathnames
     * A "System" character used in tool-generated or specially-processed type names
     * The permitted format for the Namespace Identifier (NSID) used in type references
-* Schema authors MUST NOT create FieldNames containing the Field Separator character
+* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
 ```
 ABNF:
 TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; e.g., Color-Values, length = 1-32 characters
 FieldName  = LC *31("_" / UC / LC / DIGIT)          ; e.g., color_values, length = 1-32 characters
-NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID e.g., td, length = 1-8 characters
+NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
 
 Sys        = "$"      ; 'DOLLAR SIGN', Character used in tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
@@ -445,56 +464,7 @@ Map, MapOf, Record
 ```
 ###### Figure 3-2: JADN Default Size Limits
 
-### 3.1.3 Definition Formats
-
-JADN type definitions are themselves information objects that can be represented in many ways.
-[Section 5](#5-definition-formats) defines two styles (JADN-IDL and table) that can represent JADN definitions
-in a format that is more readable than JSON data.
-
-The [Protobuf](#proto) introduction has an example Person structure with three fields, the third of which is optional:
-
-**Protobuf definition of Person:**
-```
-message Person {
-  required string name = 1;
-  required int32 id = 2;
-  optional string email = 3;
-}
-```
-
-The equivalent JADN definition is:
-
-**JADN definition of Person:**
-```
-["Person", "Record", [], "", [
-    [1, "name", "String", [], ""],
-    [2, "id", "Integer", [], ""],
-    [3, "email", "String", ["[0"], ""]
-]]
-```
-
-**JADN definition of Person in JADN-IDL format ([Section 5.1](#51-jadn-idl-format)):**
-```
-Person = Record {
-  1 name   String,
-  2 id     Integer,
-  3 email  String optional
-}
-```
-
-**JADN definition of Person in table style ([Section 5.2](#52-table-style)):**
-
-  *Type: Person (Record)*
-
-|  ID  |    Name   |   Type  |   #  | Description |
-| ---: | --------- | ------- | ---: | ----------- |
-|   1  | **name**  | String  |    1 |             |
-|   2  | **id**    | Integer |    1 |             |
-|   3  | **email** | String  | 0..1 |             |
-
-These represent the same IM definition, but conformance is based on native JSON definitions. Specifications that use JADN-IDL or table format SHOULD also make those definitions available in JADN format (see [Appendix D](#appendix-d-definitions-in-jadn-format)).
-
-### 3.1.4 Descriptions
+### 3.1.3 Descriptions
 Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
 * The description value MUST be a string, which MAY be empty.
 * Implementations MUST NOT present this string to end users.
@@ -638,11 +608,11 @@ Field options are specified for each field within a type definition. Each option
 
 | ID | Label | Value | Definition |
 | --- | --- | --- | --- |
-| 0x5b `'['` | minc | Integer | Minimum cardinality |
+| 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type |
-| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType [Section 3.3.5](#335-pointers) |
-| 0x21 `'!'` | default | String | Reserved for default value [Section 3.2.2.4](#3224-default-value))|
+| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-choice-with-explicit-tag)) |
+| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType ([Section 3.3.5](#335-pointers)) |
+| 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
 
 * FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
@@ -668,7 +638,7 @@ of an Array, Choice, Map, or Record type:
 If minc is 0, the field is optional, otherwise it is required.  
 If maxc is 1 the field is a single element, otherwise it is an array of elements.  
 
-A field definition with minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
+Multiplicities of optional (0..1) and required (1..1) are part of the JADN core. A field definition with minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
 
 Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
 
@@ -677,16 +647,16 @@ The Choice type represents a [Discriminated Union](#union), a data structure tha
 By default a Choice instance is a Map with exactly one key-value pair, where the key determines the value type.
 But if a "tag field" (*tfield*) option is present on a Choice field in an Array, Map, or Record container, it indicates that a separate Tag field within that container determines the value type.
 
-* The Tag field MUST be an Enumerated type derived from the Choice type.  It MAY contain a subset of fields from the Choice.
+* The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
 
 **Example:**
 
-    Product = Choice {                 // Discriminated union - type identified by a tag
+    Product = Choice {                 // Discriminated union
         1 furniture   Furniture,
         2 appliance   Appliance,
         3 software    Software
     }
-    Dept = Enumerated {                // Explicit Tag values = Enumerated type derived from the Choice type
+    Dept = Enumerated {                // Explicit Tag values = Enumerated type containing tags derived from the Choice
         1 furniture,
         2 appliance,
         3 software
@@ -709,9 +679,7 @@ Stock1 - Choice with intrinsic tag:
 
     [   
         395,
-        "software": {
-            "http://www.example.com/B902D1P0W37
-        }
+        { "software": "http://www.example.com/B902D1P0W37" }
     ]
 
 Stock2 - Choice with explicit tag:
@@ -719,7 +687,7 @@ Stock2 - Choice with explicit tag:
     [
         "software",
         395,
-        "http://www.example.com/B902D1P0W37
+        "http://www.example.com/B902D1P0W37"
     ]
 
 #### 3.2.2.3 Default Value
@@ -845,15 +813,16 @@ Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [De
 ### 3.3.5 Pointers
 Applications may need to model both individual types and collections of types, similar to the way filesystems
 have files and directories.
-The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field as a collection of types rather
-than a single type. The dir option has no effect on the structure or serialization of information;
+The "dir" option ([Table 3-5](#table-3-5-field-options)) marks a field as a collection of types.
+The dir option has no effect on the structure or serialization of information;
 its sole purpose is to support pathname generation using the Pointer extension.
 
-"Walking" a filesystem subtree generates a list of all files in and under the current directory.  The Pointer extension
+A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer extension
 ([Table 3-2](#table-3-2-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
 replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
-type. If no fields in the specified type are marked with the "dir" option, the Pointer extension is
-similar to a [Derived Enumeration](#333-derived-enumerations), except that in a Pointer list ID values are sequential.
+type. If no fields in the specified type are marked with the "dir" option, the Pointer extension has the same fields
+as the [Derived Enumeration](#333-derived-enumerations) extension except that IDs are sequential rather than copied
+from the referenced type.
 
 Example:
 
@@ -871,8 +840,9 @@ Example:
     }
     Paths = Enumerated(Pointer(Catalog))
 
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option ("dirname/").
-Simplifying generates an Enumerated type listing the identifiers of all leaf types in and under Catalog:
+In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option (shown
+as "b/").
+Simplifying replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
 
     Paths = Enumerated {
         1 a,                    // Item 1
@@ -881,7 +851,7 @@ Simplifying generates an Enumerated type listing the identifiers of all leaf typ
     }
 
 This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
-in multiple locations, and 3) needs identifiers that reference each type in the category.
+in multiple locations in a hierarchy, and 3) needs identifiers for each type in the category.
 
 It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
@@ -1139,7 +1109,15 @@ or (for container types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
 +---------+-------------+--------+----------------------------------+
 ```
-An example property table using this style is shown in [Section 3.1.3](#313-definition-formats).
+Table xample:
+
+  *Type: Person (Record)*
+
+|  ID  |    Name   |   Type  |   #  | Description |
+| ---: | --------- | ------- | ---: | ----------- |
+|   1  | **name**  | String  |    1 |             |
+|   2  | **id**    | Integer |    1 |             |
+|   3  | **email** | String  | 0..1 |             |
 
 ## 5.3 Tree Diagrams
 
@@ -1207,26 +1185,27 @@ http://docs.oasis-open.org/templates/TCHandbook/ConformanceGuidelines.html.
 Remove this note before submitting for publication.)
 
 Conformance targets:
+This document defines two conformance levels for JADN implementations: Core and Extensions.
+
+This document defines several data formats. Conformance claims are made with respect to a specified data format,
+and conforming implementations must support at least one.
 
 * Core JADN
-* JADN Extensions ([Section 3.3](#33-jadn-extensions))
+    * Validate type definitions for correctness according to [Section 3.1](#31-type-definitions) and [Section 3.2](#32-options).
+    * Encode and decode documents according to serialization rules for format \<X\> defined in Section [Section 4](#4-serialization)
+    * Validate API values against type definitions
+* JADN Extensions
+    * In addition to all Core requirements, perform all type simplification operations defined in ([Section 3.3](#33-jadn-extensions))
+
+This document describes several schema support functions but defines no conformance requirements with respect to those functions:
+
 * JADN Schema Translator
-    * Validate type definitions per Sections 3.1 and 3.2.
-    * Perform type simplification operations per Section 3.3.
-    * Translate JSON definitions to Table and JADN-IDL formats per Section 5.1.
+    * Translate type definitions in JSON format to Table and JADN-IDL formats per Section 5.1.
+    * Translate type definitions in JADN-IDL and Table formats to JSON format per Section 5.1.
     * Merge schema modules per Section 5.2.
-* JADN Reverse Schema Translator
-    * Translate JADN-IDL definitions to JSON format per Section 5.1.
 * JADN Concrete Schema Generator
     * Generate a schema in a format-specific language per serialization rules in Section 4.x.
-    Conformance testing requires JADN validator and format-specific validator to agree on all
-    good and bad data instances.
-* JADN Encoder/Decoder
-    * Validate type definition correctness per Sections 3.1 and 3.2.
-    * Perform type simplification operations per Section 3.3.
-    * Validate API values against type definitions per Sections 3.1 and 3.2.
-    * Encode and decode data instances per serialization rules for formats \<X\> and \<Y\> in Section 4.x. 
-    Conformance testing requires the implementation under test to support any two serialization formats.
+    JADN validator and format-specific validator should agree on all good and bad data instances.
 
 -------
 
