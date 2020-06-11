@@ -23,7 +23,6 @@ This prose specification is one component of a Work Product that also includes:
 
 * Schema for JADN specifications
 * Conformance test data
-* Examples
 
 ### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
@@ -49,12 +48,12 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 01 March 2019. OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html. Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
+_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 12 June 2020. OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html. Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
 
 ## Notices
-Copyright © OASIS Open 2019. All Rights Reserved.
+Copyright © OASIS Open 2020. All Rights Reserved.
 
 All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr) may be found at the OASIS website.
 
@@ -81,18 +80,18 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-JADN is an information modeling and schema bridging language.  In the Internet Architecture Board's [Bridge Taxonomy](#bridge),
-a schema bridge "translates data expressed in a given data model to another one that expresses the same information
-in a different way."  An information model defines the structure and content of application information and enables bridge
-translation by formally specifying what it means to "express the same information".
+In the Internet Architecture Board's [Bridge Taxonomy](#bridge), a schema bridge "translates data expressed in
+a given data model to another one that expresses the same information in a different way."
+JADN is an information modeling language that defines the structure and content of application information and
+enables data translation by formally specifying what is meant by "the same information".
 
-[RFC 8477](#rfc8477) (the Internet of Things Semantic Interoperability 2016 Workshop Report) describes a lack of consistency
-across Standards Developing Organizations in defining application layer data:
+[RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
+in defining application layer data:
 
 > *One common problem is the lack of an encoding-independent standardization of the information,
 > the so-called information model.*
 
-JADN addresses the requirements described in RFC 8477:
+JADN addresses the requirements identified in the RFC:
 
 > ***Formal Languages for Documentation Purposes***
 >
@@ -139,11 +138,9 @@ and translate data from one format to another. Security gateways can use the IM 
 and reject invalid data, whether generated maliciously or by accident.
 
 Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
-a Rosetta stone to facilitate translation among them.  Starting with an information model and deriving multiple
-data models from it, as shown in RFC 3444, provides more accurate results* than translating between
+a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
+data models from it, as shown in RFC 3444, provides more accurate translation results than translating between
 separately-developed data models.
-
-*Note: See [[Transform](#transform)] for a discussion of data model pitfalls and lossy vs. lossless round-trip translation between data models.*
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
@@ -315,7 +312,7 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other languages based on named type definitions, primitives, and containers:
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
 ```
 Person = Record {
   1 name   String,
@@ -323,7 +320,7 @@ Person = Record {
   3 email  String optional
 }
 ```
-The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to native JADN and vice-versa:
+The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to and from native JADN format:
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -340,7 +337,8 @@ Two general approaches can be used to implement IM-based protocol specifications
 Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
 
 # 3 JADN Types
-JADN core types are defined in terms of the characteristics they provide to applications. For example, the Map type does not guarantee that elements will not be reordered.  An application that implements Map using an order-preserving variable type must interoperate with applications that do not preserve element order.
+JADN core types are defined in terms of the characteristics they provide to applications. 
+The mechanisms defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type does not guarantee that element order is preserved. Map implementations based on an order-preserving variable type are required to interoperate with those that are not.
 
 ###### Table 3-1. JADN Types
 
@@ -369,10 +367,6 @@ Applications MAY use any programming language data types or mechanisms that exhi
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
 * An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an otherwise identical instance without that key.
 * The length of an Array or ArrayOf instance does not include Null values after the last non-Null value; two instances that differ only in the number of trailing Nulls are equal.
-
-**API Values**
-
-The mechanisms chosen by a developer or defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most container types, a list of fields:
@@ -428,17 +422,16 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * JADN specifications MAY override the default name formats by defining one or more of:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A Field Separator character used in field pathnames
     * A "System" character used in tool-generated or specially-processed type names
     * The permitted format for the Namespace Identifier (NSID) used in type references
-* Schema authors MUST NOT create FieldNames containing the Field Separator character
+* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
 ```
 ABNF:
 TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; e.g., Color-Values, length = 1-32 characters
 FieldName  = LC *31("_" / UC / LC / DIGIT)          ; e.g., color_values, length = 1-32 characters
-NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID e.g., td, length = 1-8 characters
+NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
 
 Sys        = "$"      ; 'DOLLAR SIGN', Character used in tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
