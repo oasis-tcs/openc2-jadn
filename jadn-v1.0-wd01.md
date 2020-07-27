@@ -314,11 +314,10 @@ message Person {
 ```
 The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
 ```
-Person = Record {
-  1 name   String,
-  2 id     Integer,
-  3 email  String optional
-}
+Person = Record
+   1 name         String
+   2 id           Integer
+   3 email        String optional
 ```
 The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to and from native JADN format:
 ```
@@ -651,44 +650,43 @@ But if a "tag field" (*tfield*) option is present on a Choice field in an Array,
 
 **Example:**
 
-    Product = Choice {                 // Discriminated union
-        1 furniture   Furniture,
-        2 appliance   Appliance,
-        3 software    Software
-    }
-    Dept = Enumerated {                // Explicit Tag values = Enumerated type containing tags derived from the Choice
-        1 furniture,
-        2 appliance,
-        3 software
-    }
+    Product = Choice                        // Discriminated union
+       1 furniture    Furniture
+       2 appliance    Appliance
+       3 software     Software
+    
+    Dept = Enumerated                       // Explicit Tag values = Enumerated type containing tags derived from the Choice
+       1 furniture
+       2 appliance
+       3 software
+    
     Software = String /uri
-
-    Stock1 = Array {                   // Discriminated union with intrinsic tag
-        1 quantity    Integer,
-        2 product     Product              // Value = Map with one key/value
-    }
-    Stock2 = Array {                   // Container with explicitly-tagged Discriminated union
-        1 dept        Dept,                // Tag = one key from Choice
-        2 quantity    Integer,
-        3 product     Product(Tag(dept))   // Choice specifying an explicit tag field
-    }
+    
+    Stock1 = Record                         // Discriminated union with intrinsic tag
+       1 quantity     Integer
+       2 product      Product               // Value = Map with one key/value
+    
+    Stock2 = Record                         // Container with explicitly-tagged discriminated union
+       1 dept         Dept                  // Tag = one key from Choice
+       2 quantity     Integer
+       3 product      Product(TagId[dept])  // Choice specifying an explicit tag field
 
 Example JSON serializations of these types are:
 
 Stock1 - Choice with intrinsic tag:
 
-    [   
-        395,
-        { "software": "http://www.example.com/B902D1P0W37" }
-    ]
+    {
+        "quantity": 395,
+        "product": {"software": "http://www.example.com/B902D1P0W37"}
+    }
 
 Stock2 - Choice with explicit tag:
 
-    [
-        "software",
-        395,
-        "http://www.example.com/B902D1P0W37"
-    ]
+    {
+        "dept": "software",
+        "quantity": 395,
+        "product": "http://www.example.com/B902D1P0W37"
+    }
 
 #### 3.2.2.3 Default Value
 The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
@@ -715,18 +713,17 @@ Simplifying converts all anonymous type definitions to explicit named types and 
 
 Example:
 
-    Member = Record {
-        1 name  String,
-        2 email String /idn-email
-    }
+    Member = Record
+       1 name         String
+       2 email        String /email
 
 Simplifying replaces this with:
 
-    Member = Record {
-        1 name   String,
-        2 email  Member$email             // Field options only, "format" type option not allowed.
-    }
-    Member$email = String /idn-email      // Tool-generated type definition.
+    Member = Record
+       1 name         String
+       2 email        Member$email
+    
+    Member$email = String /email           // Tool-generated type definition.
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
@@ -738,28 +735,27 @@ size of 1.
 
 Example:
 
-    Roster = Record {
-        1 org_name String,
-        2 members  Member[0..*]               // Optional and repeated: cardinality = [0..*]
-    }
+    Roster = Record
+       1 org_name     String
+       2 members      Member [0..*]         // Optional and repeated: minc=0, maxc=0
 
 Simplifying replaces this with:
 
-    Roster = Record {
-        1 org_name String,
-        2 members  Roster$members optional    // Optional: cardinality = [0..1]
-    }
-    Roster$members = ArrayOf(Member){1..*}    // Tool-generated array: length = {1..*}
+    Roster = Record
+       1 org_name     String
+       2 members      Roster$members optional// Optional: minc=0, maxc=1
+    
+    Roster$members = ArrayOf(Member){1..*} // Tool-generated array: minv=1, maxv=0
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
 field multiplicity extension:
 
-    Roster = Record {
-        1 org_name String,
-        2 members  Members                    // members field is required: default cardinality = 1
-    }
-    Members = ArrayOf(Member)                 // Explicitly-defined array: default length = {0..*}
+    Roster = Record
+       1 org_name     String
+       2 members      Members               // members field is required: default minc = 1, maxc = 1
+    
+    Members = ArrayOf(Member)               // Explicitly-defined array: default minv = 0, maxv = 0
 
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
@@ -777,22 +773,23 @@ Enumerated type. It then replaces the type reference with the name of the explic
 
 Example:
 
-    Pixel = Map {
-        1 red   Integer,
-        2 green Integer,
-        3 blue  Integer
-    }
-    Channel = Enumerated(Enum(Pixel))       // Derived Enumerated type
-    ChannelMask = ArrayOf(Enum(Pixel))      // ArrayOf(derived enumeration)
+    Pixel = Map
+       1 red          Integer
+       2 green        Integer
+       3 blue         Integer
+    
+    Channel = Enumerated(Enum[Pixel])       // Derived Enumerated type
+    
+    ChannelMask = ArrayOf(Enum[Pixel])      // ArrayOf(derived enumeration)
 
 Simplifying replaces the Channel and ChannelMask definitions with:
 
-    Channel = Enumerated {                  // Tool-generated Enumerated type with explicit fields
-        1 red,
-        2 green,
-        3 blue
-    }
-    ChannelMask = ArrayOf(Channel)          // Refer to explicit Enumerated type
+    Channel2 = Enumerated
+       1 red
+       2 green
+       3 blue
+    
+    ChannelMask2 = ArrayOf(Channel)
 
 ### 3.3.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
@@ -801,12 +798,12 @@ enumeration. In order to use this extension, each ItemValue of the Enumerated ty
 
 Example:
 
-    Channel = Enumerated {
-        1 red,
-        2 green,
-        3 blue
-    }
-    Pixel = MapOf(Channel, Integer)
+    Channel3 = Enumerated
+       1 red
+       2 green
+       3 blue
+    
+    Pixel3 = MapOf(Channel3, Integer)
     
 Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
 
@@ -826,29 +823,28 @@ from the referenced type.
 
 Example:
 
-    Catalog = Record {
-        1 a    TypeA,
-        2 b/   TypeB,
-    }
-    TypeA = Record {
-        1 x    Number,
-        2 y    Number
-    }
-    TypeB = Record {
-        1 foo  String,
-        2 bar  TypeC
-    }
-    Paths = Enumerated(Pointer(Catalog))
+    Catalog = Record
+       1 a            TypeA
+       2 b/           TypeB
+    
+    TypeA = Record
+       1 x            Number
+       2 y            Number
+    
+    TypeB = Record
+       1 foo          String
+       2 bar          Integer
+    
+    Paths = Enumerated(Pointer[Catalog])
 
 In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option (shown
 as "b/").
 Simplifying replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
 
-    Paths = Enumerated {
-        1 a,                    // Item 1
-        2 b/foo,                // Item 2
-        3 b/bar                 // Item 3
-    }
+    Paths2 = Enumerated
+       1 a                                  // Item 1
+       2 b/foo                              // Item 2
+       3 b/bar                              // Item 3
 
 This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
 in multiple locations in a hierarchy, and 3) needs identifiers for each type in the category.
@@ -865,7 +861,7 @@ value is not considered an "Item":
       "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1 (TypeA)
       "b": {                            <-- "b" is a dir or namespace mount point, not an Item.
         "foo": "Elephant",              <-- "b/foo" is Item 2 (String)
-        "bar": { ... }                  <-- "b/bar" is Item 3 (TypeC)
+        "bar": 762                      <-- "b/bar" is Item 3 (TypeC)
       }
     }
 
@@ -1240,30 +1236,38 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
 
 A schema module is a collection of type definitions along with information about the module.
 ```
-Schema = Record {                            // Definition of a JADN schema module
-     1 meta            Meta optional,            // Information about this module
-     2 types           Types                     // Types defined in this module
-}
-Meta = Map {                                 // Information about this module
-     1 module          Namespace,                // Unique name/version
-     2 patch           String{1..*} optional,    // Patch version
-     3 title           String{1..*} optional,    // Title
-     4 description     String{1..*} optional,    // Description
-     5 imports         Imports optional,         // Imported schema modules
-     6 exports         Exports optional,         // Type definitions exported by this module
-     7 config          Config optional           // Configuration values for this module
-}
+       title: "JADN Metaschema"
+      module: "http://oasis-open.org/jadn/v1.0/schema"
+ description: "Syntax of a JSON Abstract Data Notation (JADN) module."
+     exports: ["Schema"]
+      config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"}
+
+Schema = Record                              // Definition of a JADN schema module
+   1 meta         Meta optional              // Information about this module
+   2 types        Types                      // Types defined in this module
+
+Meta = Map                                   // Information about this module
+   1 module       Namespace                  // Unique name/version: $id
+   2 patch        String{1..*} optional      // Patch version
+   3 title        String{1..*} optional      // Title
+   4 description  String{1..*} optional      // Description
+   5 comment      String{1..*} optional      // Comment: $comment
+   6 imports      Imports optional           // Imported schema modules
+   7 exports      Exports optional           // Type definitions exported by this module
+   8 config       Config optional            // Configuration values for this module
+
 Imports = MapOf(NSID, Namespace){1..*}       // List of imported modules
+
 Exports = ArrayOf(TypeName){1..*}            // List of type definitions intended to be public
-Config = Map{1..*} {                         // Configuration variables used to override JADN defaults
-     1 $MaxBinary      Integer{1..*} optional,   // Schema default maximum number of octets
-     2 $MaxString      Integer{1..*} optional,   // Schema default maximum number of characters
-     3 $MaxElements    Integer{1..*} optional,   // Schema default maximum number of items/properties
-     4 $Sys            String{1..1} optional,    // System character for TypeName
-     5 $TypeName       String{1..127} optional,  // TypeName regex
-     6 $FieldName      String{1..127} optional,  // FieldName regex
-     7 $NSID           String{1..127} optional   // Namespace Identifier regex
-}
+
+Config = Map{1..*}                           // Configuration variables used to override JADN defaults
+   1 $MaxBinary   Integer{1..*} optional     // Schema default maximum number of octets
+   2 $MaxString   Integer{1..*} optional     // Schema default maximum number of characters
+   3 $MaxElements Integer{1..*} optional     // Schema default maximum number of items/properties
+   4 $Sys         String{1..1} optional      // System character for TypeName
+   5 $TypeName    String{1..127} optional    // TypeName regex
+   6 $FieldName   String{1..127} optional    // FieldName regex
+   7 $NSID        String{1..127} optional    // Namespace Identifier regex
 ```
 ## C.2 Type Definitions
 
@@ -1271,65 +1275,78 @@ The structure of JADN type definitions ([Section 3.1](#31-type-definitions)) is 
 with options providing extensibility.
 ```
 Types = ArrayOf(Type)
-Type = Array {
-     1 TypeName,                                 // type_name::
-     2 BaseType,                                 // base_type::
-     3 Options,                                  // type_options::
-     4 Description,                              // type_description::
-     5 JADN-Type(Tag(2))                         // fields::
-}
-BaseType = Enumerated {
-     1 Binary,
-     2 Boolean,
-     3 Integer,
-     4 Number,
-     5 Null,
-     6 String,
-     7 Enumerated,
-     8 Choice,
-     9 Array,
-    10 ArrayOf,
-    11 Map,
-    12 MapOf,
-    13 Record
-}
-JADN-Type = Choice {
-     1 Binary          Null,
-     2 Boolean         Null,
-     3 Integer         Null,
-     4 Number          Null,
-     5 Null            Null,
-     6 String          Null,
-     7 Enumerated      Items,
-     8 Choice          Fields,
-     9 Array           Fields,
-    10 ArrayOf         Null,
-    11 Map             Fields,
-    12 MapOf           Null,
-    13 Record          Fields
-}
+
+Type = Array
+   1  TypeName                               // type_name::
+   2  BaseType                               // base_type::
+   3  Options                                // type_options::
+   4  Description                            // type_description::
+   5  JADN-Type(TagId[base_type])            // fields::
+
+BaseType = Enumerated
+   1 Binary
+   2 Boolean
+   3 Integer
+   4 Number
+   5 Null
+   6 String
+   7 Enumerated
+   8 Choice
+   9 Array
+  10 ArrayOf
+  11 Map
+  12 MapOf
+  13 Record
+
+JADN-Type = Choice
+   1 Binary       Empty
+   2 Boolean      Empty
+   3 Integer      Empty
+   4 Number       Empty
+   5 Null         Empty
+   6 String       Empty
+   7 Enumerated   Items
+   8 Choice       Fields
+   9 Array        Fields
+  10 ArrayOf      Empty
+  11 Map          Fields
+  12 MapOf        Empty
+  13 Record       Fields
+
+Empty = Array{0..0}
+
 Items = ArrayOf(Item)
-Item = Array {
-     1 FieldID,                                  // item_id::
-     2 String,                                   // item_value::
-     3 Description                               // item_description::
-}
+
+Item = Array
+   1  FieldID                                // item_id::
+   2  String                                 // item_value::
+   3  Description                            // item_description::
+
 Fields = ArrayOf(Field)
-Field = Array {
-     1 FieldID,                                  // field_id::
-     2 FieldName,                                // field_name::
-     3 TypeRef,                                  // field_type::
-     4 Options,                                  // field_options::
-     5 Description                               // field_description::
-}
+
+Field = Array
+   1  FieldID                                // field_id::
+   2  FieldName                              // field_name::
+   3  TypeRef                                // field_type::
+   4  Options                                // field_options::
+   5  Description                            // field_description::
+
 FieldID = Integer{0..*}
+
 Options = ArrayOf(Option){0..10}
+
 Option = String{1..*}
+
 Description = String
+
 Namespace = String /uri                      // Unique name of a module
-NSID = String(%$NSID%)                       // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
-TypeName = String(%$TypeName%)               // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
-FieldName = String(%$FieldName%)             // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
+
+NSID = String (%$NSID%)                      // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
+
+TypeName = String (%$TypeName%)              // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
+
+FieldName = String (%$FieldName%)            // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
+
 TypeRef = String                             // Autogenerated Type Reference pattern = ($NSID ':')? $TypeName
 ```
 
@@ -1347,40 +1364,29 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 
 **[3.2.2.2 Referenced Field Type](#3222-referenced-field-type)**
 ```
-["Department", "Choice", [], "", [
+["Product", "Choice", [], "Discriminated union", [
     [1, "furniture", "Furniture", [], ""],
-    [2, "kitchen", "Appliance", [], ""],
-    [3, "electronics", "Device", [], ""]
+    [2, "appliance", "Appliance", [], ""],
+    [3, "software", "Software", [], ""]
 ]],
-["DeptID", "Enumerated", [], "", [
-    [1, "furniture", ""],
-    [2, "kitchen", ""],
-    [3, "electronics", ""]
-]],
-["Product", "Array", [], "", [
-    [1, "dept", "String", [], "Must be a valid Choice field"],
-    [2, "quantity", "Integer", [], ""],
-    [3, "details", "Department", ["&dept"], "Field that selects which Choice element must be present"]
-]]
-```
 
-**[Section 3.2.2.3 Field Pathnames](#3223-field-pathnames):**
-```
-["Palette", "Map", [], "", [
-    [1, "burgundy", "Rgb", [], ""],
-    [2, "grass",    "Rgb", [], ""],
-    [3, "lapis",    "Rgb", [], ""],
-    [4, "new",      "New-Color", ["<"], "Incorporate fields of New-Color into Palette using qualified names"]
+["Dept", "Enumerated", [], "Explicit Tag values = Enumerated type containing tags derived from the Choice", [
+    [1, "furniture", ""],
+    [2, "appliance", ""],
+    [3, "software", ""]
 ]],
-["New-Color", "Map", [], "", [
-    [17, "maize",   "Rgb", [], ""],
-    [9, "fuschia", "Rgb", [], ""],
-    [2, "aqua",    "Rgb", [], ""]
+
+["Software", "String", ["/uri"], "", []],
+
+["Stock1", "Record", [], "Discriminated union with intrinsic tag", [
+    [1, "quantity", "Integer", [], ""],
+    [2, "product", "Product", [], "Value = Map with one key/value"]
 ]],
-["Rgb", "Record", [], "", [
-    [1, "red",     "Integer", ["[0", "]255"], ""],
-    [2, "green",   "Integer", ["[0", "]255"], ""],
-    [3, "blue",    "Integer", ["[0", "]255"], ""]
+
+["Stock2", "Record", [], "Container with explicitly-tagged discriminated union", [
+    [1, "dept", "Dept", [], "Tag = one key from Choice"],
+    [2, "quantity", "Integer", [], ""],
+    [3, "product", "Product", ["&1"], "Choice specifying an explicit tag field"]
 ]]
 ```
 
@@ -1388,13 +1394,15 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ```
 ["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
-    [2, "email", "String", ["/idn-email"], ""]
+    [2, "email", "String", ["/email"], ""]
 ]],
-["Member", "Record", [], "", [
+
+["Member2", "Record", [], "", [
     [1, "name", "String", [], ""],
-    [2, "email", "Member$email", [], "Name and field options only, no type options"]
+    [2, "email", "Member2$email", [], ""]
 ]],
-["Member$email", "String", ["/idn-email"], "Tool-generated type definition."]
+
+["Member2$email", "String", ["/email"], "Tool-generated type definition.", []]
 ```
 
 **[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
@@ -1404,88 +1412,122 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
     [2, "members", "Member", ["[0", "]0"], "Optional and repeated: minc=0, maxc=0"]
 ]],
 
-["Roster", "Record", [], "", [
+["Roster2", "Record", [], "", [
     [1, "org_name", "String", [], ""],
-    [2, "members", "Roster$members", ["[0"], "Optional: minc=0, maxc=1"]
+    [2, "members", "Roster2$members", ["[0"], "Optional: minc=0, maxc=1"]
 ]],
-["Roster$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0"],
 
-["Roster", "Record", [], "", [
+["Roster2$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0", []],
+
+["Roster3", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Members", [], "members field is required: default minc = 1, maxc = 1"]
 ]],
-["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0"]
+
+["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0", []]
 ```
 
 **[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
 ```
-["Pixel", "Map", [], "", [
-    [1, "red", "Integer", [], ""],
-    [2, "green", "Integer", [], ""],
-    [3, "blue", "Integer", [], ""]
-]],
-["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type"],
-["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)"],
+["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type", []],
 
-["Channel", "Enumerated", [], "", [
+["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)", []],
+
+["Channel2", "Enumerated", [], "", [
     [1, "red", ""],
     [2, "green", ""],
     [3, "blue", ""]
 ]],
-["ChannelMask", "ArrayOf", ["*Channel"], ""]
+
+["ChannelMask2", "ArrayOf", ["*Channel"], "", []]
 ```
+
 **[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
 
 Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
 ```
-["Channel", "Enumerated", [], "", [
+["Channel3", "Enumerated", [], "", [
     [1, "red", ""],
     [2, "green", ""],
     [3, "blue", ""]
 ]],
-["Pixel", "MapOf", ["*Integer", "+Channel"], ""]
+
+["Pixel3", "MapOf", ["+Channel3", "*Integer"], "", []]
 ```
+
+**[Section 3.3.5 Pointers](#335-pointers):**
+
+```
+["Catalog", "Record", [], "", [
+    [1, "a", "TypeA", [], ""],
+    [2, "b", "TypeB", ["<"], ""]
+]],
+
+["TypeA", "Record", [], "", [
+    [1, "x", "Number", [], ""],
+    [2, "y", "Number", [], ""]
+]],
+
+["TypeB", "Record", [], "", [
+    [1, "foo", "String", [], ""],
+    [2, "bar", "Integer", [], ""]
+]],
+
+["Paths", "Enumerated", [">Catalog"], "", []],
+
+["Paths2", "Enumerated", [], "", [
+    [1, "a", "Item 1"],
+    [2, "b/foo", "Item 2"],
+    [3, "b/bar", "Item 3"]
+]]
+```
+
 **[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
 ```
 {
  "meta": {
-  "module": "http://oasis-open.org/openc2/jadn/v1.0",
-  "patch": "0-wd01",
-  "title": "JADN Syntax",
+  "module": "http://oasis-open.org/jadn/v1.0/schema",
+  "title": "JADN Metaschema",
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
   "exports": ["Schema"],
   "config": {
-    "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
+   "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
  },
+
  "types": [
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", ["[0"], "Information about this module"],
     [2, "types", "Types", [], "Types defined in this module"]
   ]],
 
-["Meta", "Map", [], "Information about this module", [
-    [1, "module", "Namespace", [], "Unique name/version"],
-    [2, "patch", "String", ["[0", "{1"], "Patch version"],
-    [3, "title", "String", ["[0", "{1"], "Title"],
-    [4, "description", "String", ["[0", "{1"], "Description"],
-    [5, "imports", "Imports", ["[0"], "Imported schema modules"],
-    [6, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
-    [7, "config", "Config", ["[0"], "Configuration values for this module"]
-  ]],
-  ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules"],
-  ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public"],
-  ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
-    [1, "$MaxBinary", "Integer", ["[0", "{1"], "Schema default maximum number of octets"],
-    [2, "$MaxString", "Integer", ["[0", "{1"], "Schema default maximum number of characters"],
-    [3, "$MaxElements", "Integer", ["[0", "{1"], "Schema default maximum number of items/properties"],
-    [4, "$Sys", "String", ["[0", "{1", "}1"], "System character for TypeName"],
-    [5, "$TypeName", "String", ["[0", "{1", "}127"], "TypeName regex"],
-    [6, "$FieldName", "String", ["[0", "{1", "}127"], "FieldName regex"],
-    [7, "$NSID", "String", ["[0", "{1", "}127"], "Namespace Identifier regex"]
+  ["Meta", "Map", [], "Information about this module", [
+    [1, "module", "Namespace", [], "Unique name/version: $id"],
+    [2, "patch", "String", ["{1", "[0"], "Patch version"],
+    [3, "title", "String", ["{1", "[0"], "Title"],
+    [4, "description", "String", ["{1", "[0"], "Description"],
+    [5, "comment", "String", ["{1", "[0"], "Comment: $comment"],
+    [6, "imports", "Imports", ["[0"], "Imported schema modules"],
+    [7, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
+    [8, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
 
-  ["Types", "ArrayOf", ["*Type"], ""],
+  ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules", []],
+
+  ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public", []],
+
+  ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
+    [1, "$MaxBinary", "Integer", ["{1", "[0"], "Schema default maximum number of octets"],
+    [2, "$MaxString", "Integer", ["{1", "[0"], "Schema default maximum number of characters"],
+    [3, "$MaxElements", "Integer", ["{1", "[0"], "Schema default maximum number of items/properties"],
+    [4, "$Sys", "String", ["{1", "}1", "[0"], "System character for TypeName"],
+    [5, "$TypeName", "String", ["{1", "}127", "[0"], "TypeName regex"],
+    [6, "$FieldName", "String", ["{1", "}127", "[0"], "FieldName regex"],
+    [7, "$NSID", "String", ["{1", "}127", "[0"], "Namespace Identifier regex"]
+  ]],
+
+  ["Types", "ArrayOf", ["*Type"], "", []],
+
   ["Type", "Array", [], "", [
     [1, "type_name", "TypeName", [], ""],
     [2, "base_type", "BaseType", [], ""],
@@ -1493,6 +1535,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "type_description", "Description", [], ""],
     [5, "fields", "JADN-Type", ["&2"], ""]
   ]],
+
   ["BaseType", "Enumerated", [], "", [
     [1, "Binary", ""],
     [2, "Boolean", ""],
@@ -1508,28 +1551,35 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [12, "MapOf", ""],
     [13, "Record", ""]
   ]],
+
   ["JADN-Type", "Choice", [], "", [
-    [1, "Binary", "Null", [], ""],
-    [2, "Boolean", "Null", [], ""],
-    [3, "Integer", "Null", [], ""],
-    [4, "Number", "Null", [], ""],
-    [5, "Null", "Null", [], ""],
-    [6, "String", "Null", [], ""],
+    [1, "Binary", "Empty", [], ""],
+    [2, "Boolean", "Empty", [], ""],
+    [3, "Integer", "Empty", [], ""],
+    [4, "Number", "Empty", [], ""],
+    [5, "Null", "Empty", [], ""],
+    [6, "String", "Empty", [], ""],
     [7, "Enumerated", "Items", [], ""],
     [8, "Choice", "Fields", [], ""],
     [9, "Array", "Fields", [], ""],
-    [10, "ArrayOf", "Null", [], ""],
+    [10, "ArrayOf", "Empty", [], ""],
     [11, "Map", "Fields", [], ""],
-    [12, "MapOf", "Null", [], ""],
+    [12, "MapOf", "Empty", [], ""],
     [13, "Record", "Fields", [], ""]
   ]],
-  ["Items", "ArrayOf", ["*Item"], ""],
+
+  ["Empty", "Array", ["}0"], "", []],
+
+  ["Items", "ArrayOf", ["*Item"], "", []],
+
   ["Item", "Array", [], "", [
     [1, "item_id", "FieldID", [], ""],
     [2, "item_value", "String", [], ""],
     [3, "item_description", "Description", [], ""]
   ]],
-  ["Fields", "ArrayOf", ["*Field"], ""],
+
+  ["Fields", "ArrayOf", ["*Field"], "", []],
+
   ["Field", "Array", [], "", [
     [1, "field_id", "FieldID", [], ""],
     [2, "field_name", "FieldName", [], ""],
@@ -1537,15 +1587,24 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "field_options", "Options", [], ""],
     [5, "field_description", "Description", [], ""]
   ]],
-  ["FieldID", "Integer", ["{0"], ""],
-  ["Options", "ArrayOf", ["*Option", "}10"], ""],
-  ["Option", "String", ["{1"], ""],
-  ["Description", "String", [], ""],
-  ["Namespace", "String", ["/uri"], "Unique name of a module"],
-  ["NSID", "String", ["%$NSID"], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$"],
-  ["TypeName", "String", ["%$TypeName"], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$"],
-  ["FieldName", "String", ["%$FieldName"], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$"],
-  ["TypeRef", "String", [], "Autogenerated Type Reference pattern = ($NSID ':')? $TypeName"]
+
+  ["FieldID", "Integer", ["{0"], "", []],
+
+  ["Options", "ArrayOf", ["*Option", "}10"], "", []],
+
+  ["Option", "String", ["{1"], "", []],
+
+  ["Description", "String", [], "", []],
+
+  ["Namespace", "String", ["/uri"], "Unique name of a module", []],
+
+  ["NSID", "String", ["%$NSID"], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$", []],
+
+  ["TypeName", "String", ["%$TypeName"], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$", []],
+
+  ["FieldName", "String", ["%$FieldName"], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$", []],
+
+  ["TypeRef", "String", [], "Autogenerated Type Reference pattern = ($NSID ':')? $TypeName", []]
  ]
 }
 ```
@@ -1557,7 +1616,7 @@ A JADN module has the following structure:
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "$id": "http://oasis-open.org/openc2/jadn/v1.0",
   "type": "object",
-  "required": ["meta", "types"],
+  "required": ["types"],
   "additionalProperties": false,
   "properties": {
     "meta": {
@@ -1569,6 +1628,7 @@ A JADN module has the following structure:
         "patch": {"type": "string"},
         "title": {"type": "string"},
         "description": {"type": "string"},
+        "comment": {"type":  "string"},
         "imports": {"$ref": "#/definitions/Imports"},
         "exports": {"$ref": "#/definitions/Exports"},
         "config": {"$ref": "#/definitions/Config"}
@@ -1578,7 +1638,7 @@ A JADN module has the following structure:
       "type": "array",
       "items": {
         "type": "array",
-        "minItems": 4,
+        "minItems": 5,
         "maxItems": 5,
         "items": [
           {"$ref": "#/definitions/TypeName"},
@@ -1666,8 +1726,8 @@ A JADN module has the following structure:
     },
     "FieldName": {
       "type": "string",
-      "pattern": "^[a-z][_A-Za-z0-9]{0,31}$",
-      "description": "Default Field Name per section 3.1.1 Name Formats"
+      "pattern": "^[$A-Za-z][-_:A-Za-z0-9]{0,31}$",
+      "description": "Default Field Name per section 3.1.1 Name Formats, updated for JADN meta-schema and OC2 v1.0"
     },
     "BaseType": {
       "type": "string",
