@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 12 June 2020
+## 24 July 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
