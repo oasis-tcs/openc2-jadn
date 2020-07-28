@@ -418,11 +418,14 @@ The mechanisms defined by an IM library to represent instances of these types wi
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 * An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
-* An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an otherwise identical instance without that key.
-* The length of an Array or ArrayOf instance does not include Null values after the last non-Null value; two instances that differ only in the number of trailing Nulls are equal.
+* An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an
+otherwise identical instance without that key.
+* The length of an Array or ArrayOf instance does not include Null values after the last non-Null value;
+two instances that differ only in the number of trailing Nulls are equal.
 
 ## 3.1 Type Definitions
-JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible. Every definition creates a *Defined type* that has four elements, plus for most container types, a list of fields:
+JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible.
+Every definition creates a *Defined type* that has five elements:
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
@@ -432,16 +435,16 @@ JADN type definitions have a regular structure designed to be easily describable
 
 * TypeName MUST NOT be a JADN type.
 * BaseType MUST be a JADN type.
-* If BaseType is a Simple type, ArrayOf, or MapOf, the type definition MUST NOT include Fields:
+* If BaseType is a Simple type, ArrayOf, or MapOf, the Fields element MUST be empty:
 ```
-        [TypeName, BaseType, [TypeOption, ...], TypeDescription]
+        [TypeName, BaseType, [TypeOption, ...], TypeDescription, []]
 ```
 
-* If BaseType is Enumerated, unless otherwise specified by TypeOptions each item definition MUST have three elements:
+* If BaseType is Enumerated, each item definition MUST have three elements:
 
-  1. **ItemID:** the integer identifier of the item
-  2. **ItemValue:** the value of the item
-  3. **ItemDescription:** a non-normative comment
+    1. **ItemID:** the integer identifier of the item
+    2. **ItemValue:** the value of the item
+    3. **ItemDescription:** a non-normative comment
 ```
         [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
             [ItemID, ItemValue, ItemDescription],
@@ -1326,7 +1329,7 @@ The following individuals have participated in the creation of this specificatio
 | First Name | Last Name | Company |
 | :--- | :--- | :--- |
 | Brian | Berliner | Symantec |
-| Joseph | Brule | Department of Defense |
+| Joseph | Brule | National Security Agency |
 | Jason | Romano | General Dynamics |
 
 
