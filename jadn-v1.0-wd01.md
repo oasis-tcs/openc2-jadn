@@ -25,16 +25,36 @@ This prose specification is one component of a Work Product that also includes:
 * Conformance test data
 
 ### Abstract:
-JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models. It has several purposes, including definition of data structures, validation of data instances, providing hints for user interfaces working with structured data, and facilitating protocol internationalization. JADN specifications consist of two parts: abstract type definitions that are independent of data format, and serialization rules that define how to represent type instances using specific data formats. A JADN schema is itself a structured information object that can be serialized and transferred between applications, documented in multiple formats such as property tables and text-based data definition languages, and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models.
+It has several purposes, including definition of data structures, validation of data instances,
+providing hints for user interfaces working with structured data, and facilitating protocol internationalization.
+JADN specifications consist of two parts: abstract type definitions that are independent of data format,
+and serialization rules that define how to represent type instances using specific data formats.
+A JADN schema is itself a structured information object that can be serialized and transferred between applications,
+documented in multiple formats such as property tables and text-based data definition languages,
+and translated into concrete schemas used to validate specific data formats.
 
 ### Status:
-This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date. The level of approval is also listed above. Check the "Latest version" location noted above for possible later revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
+This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
+The level of approval is also listed above. Check the "Latest version" location noted above for possible later
+revisions of this document. Any other numbered Versions and other technical work produced by the
+Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
 
-TC members should send comments on this specification to the TC's email list. Others should send comments to the TC's public comment list, after subscribing to it by following the instructions at the "Send A Comment" button on the TC's web page at https://www.oasis-open.org/committees/openc2/.
+TC members should send comments on this specification to the TC's email list. Others should send comments
+to the TC's public comment list, after subscribing to it by following the instructions at the "Send A Comment"
+button on the TC's web page at https://www.oasis-open.org/committees/openc2/.
 
-This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the OASIS IPR Policy, the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page (https://www.oasis-open.org/committees/openc2/ipr.php).
+This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
+Mode of the OASIS IPR Policy, the mode chosen when the Technical Committee was established.
+For information on whether any patents have been disclosed that may be essential to implementing this specification,
+and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the
+TC's web page (https://www.oasis-open.org/committees/openc2/ipr.php).
 
-Note that any machine-readable content ([Computer Language Definitions](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsCompLang)) declared Normative for this Work Product is provided in separate plain text files. In the event of a discrepancy between any such plain text file and display content in the Work Product's prose narrative document(s), the content in the separate plain text file prevails.
+Note that any machine-readable content
+([Computer Language Definitions](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsCompLang))
+declared Normative for this Work Product is provided in separate plain text files. In the event of a discrepancy
+between any such plain text file and display content in the Work Product's prose narrative document(s),
+the content in the separate plain text file prevails.
 
 ### URI patterns:
 Initial publication URI:  
@@ -48,28 +68,59 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 12 June 2020. OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html. Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
+_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 12 June 2020.
+OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
+Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
 
 ## Notices
 Copyright © OASIS Open 2020. All Rights Reserved.
 
-All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr) may be found at the OASIS website.
+All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual
+Property Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr)
+may be found at the OASIS website.
 
-This document and translations of it may be copied and furnished to others, and derivative works that comment on or otherwise explain it or assist in its implementation may be prepared, copied, published, and distributed, in whole or in part, without restriction of any kind, provided that the above copyright notice and this section are included on all such copies and derivative works. However, this document itself may not be modified in any way, including by removing the copyright notice or references to OASIS, except as needed for the purpose of developing any document or deliverable produced by an OASIS Technical Committee (in which case the rules applicable to copyrights, as set forth in the OASIS IPR Policy, must be followed) or as required to translate it into languages other than English.
+This document and translations of it may be copied and furnished to others, and derivative works that comment
+on or otherwise explain it or assist in its implementation may be prepared, copied, published, and distributed,
+in whole or in part, without restriction of any kind, provided that the above copyright notice and this section
+are included on all such copies and derivative works. However, this document itself may not be modified in any way,
+including by removing the copyright notice or references to OASIS, except as needed for the purpose of developing
+any document or deliverable produced by an OASIS Technical Committee (in which case the rules applicable to copyrights,
+as set forth in the OASIS IPR Policy, must be followed) or as required to translate it into languages other than English.
 
 The limited permissions granted above are perpetual and will not be revoked by OASIS or its successors or assigns.
 
-This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE
+ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
-OASIS requests that any OASIS Party or any other party that believes it has patent claims that would necessarily be infringed by implementations of this OASIS Committee Specification or OASIS Standard, to notify OASIS TC Administrator and provide an indication of its willingness to grant patent licenses to such patent claims in a manner consistent with the IPR Mode of the OASIS Technical Committee that produced this specification.
+OASIS requests that any OASIS Party or any other party that believes it has patent claims that would necessarily
+be infringed by implementations of this OASIS Committee Specification or OASIS Standard, to notify OASIS TC Administrator
+and provide an indication of its willingness to grant patent licenses to such patent claims in a manner consistent
+with the IPR Mode of the OASIS Technical Committee that produced this specification.
 
-OASIS invites any party to contact the OASIS TC Administrator if it is aware of a claim of ownership of any patent claims that would necessarily be infringed by implementations of this specification by a patent holder that is not willing to provide a license to such patent claims in a manner consistent with the IPR Mode of the OASIS Technical Committee that produced this specification. OASIS may include such claims on its website, but disclaims any obligation to do so.
+OASIS invites any party to contact the OASIS TC Administrator if it is aware of a claim of ownership of any
+patent claims that would necessarily be infringed by implementations of this specification by a patent holder
+that is not willing to provide a license to such patent claims in a manner consistent with the IPR Mode of the
+OASIS Technical Committee that produced this specification. OASIS may include such claims on its website,
+but disclaims any obligation to do so.
 
-OASIS takes no position regarding the validity or scope of any intellectual property or other rights that might be claimed to pertain to the implementation or use of the technology described in this document or the extent to which any license under such rights might or might not be available; neither does it represent that it has made any effort to identify any such rights. Information on OASIS' procedures with respect to rights in any document or deliverable produced by an OASIS Technical Committee can be found on the OASIS website. Copies of claims of rights made available for publication and any assurances of licenses to be made available, or the result of an attempt made to obtain a general license or permission for the use of such proprietary rights by implementers or users of this OASIS Committee Specification or OASIS Standard, can be obtained from the OASIS TC Administrator. OASIS makes no representation that any information or list of intellectual property rights will at any time be complete, or that any claims in such list are, in fact, Essential Claims.
+OASIS takes no position regarding the validity or scope of any intellectual property or other rights that
+might be claimed to pertain to the implementation or use of the technology described in this document
+or the extent to which any license under such rights might or might not be available; neither does it represent
+that it has made any effort to identify any such rights. Information on OASIS' procedures with respect to rights
+in any document or deliverable produced by an OASIS Technical Committee can be found on the OASIS website.
+Copies of claims of rights made available for publication and any assurances of licenses to be made available,
+or the result of an attempt made to obtain a general license or permission for the use of such proprietary rights
+by implementers or users of this OASIS Committee Specification or OASIS Standard, can be obtained from the
+OASIS TC Administrator. OASIS makes no representation that any information or list of intellectual property rights
+will at any time be complete, or that any claims in such list are, in fact, Essential Claims.
 
-The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the owner and developer of this specification, and should be used only to refer to the organization and its official outputs. OASIS welcomes reference to, and implementation and use of, specifications, while reserving the right to enforce its marks against misleading uses. Please see https://www.oasis-open.org/policies-guidelines/trademark for above guidance.
+The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the owner and developer of this specification,
+and should be used only to refer to the organization and its official outputs. OASIS welcomes reference to,
+and implementation and use of, specifications, while reserving the right to enforce its marks against misleading uses.
+Please see https://www.oasis-open.org/policies-guidelines/trademark for above guidance.
 
 -------
 
@@ -80,18 +131,21 @@ The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the own
 
 # 1 Introduction
 
-In the Internet Architecture Board's [Bridge Taxonomy](#bridge), a schema bridge "translates data expressed in
-a given data model to another one that expresses the same information in a different way."
-JADN is an information modeling language that defines the structure and content of application information and
-enables data translation by formally specifying what is meant by "the same information".
-
+Internet [RFC 3444](#rfc3444) describes the difference between information models and data dodels, noting
+that the purpose of an information model is to model data at a conceptual level, independent of specific
+implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
 [RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
-in defining application layer data:
+in defining application layer data, attributing it to the lack of an encoding-independent standardization
+of the information represented by that data.
 
-> *One common problem is the lack of an encoding-independent standardization of the information,
-> the so-called information model.*
+This document defines an information modeling language intended to address that gap. It allows designers
+to model structured information in terms of application needs, and defines the process for translating an
+information model into multiple data formats. Following this process ensures that data can be transformed
+bidirectionally between data formats *without loss of information*. Or as the Internet Architecture Board's
+[Bridge Taxonomy](#bridge) puts it, it "translates data expressed in a given data model to another one
+that expresses the same information in a different way."
 
-JADN addresses the requirements identified in the RFC:
+The language defined in this document addresses the following requirements from RFC 8477:
 
 > ***Formal Languages for Documentation Purposes***
 >
@@ -101,9 +155,9 @@ JADN addresses the requirements identified in the RFC:
 > language as an alternative way of describing objects and resources
 > for formal purposes.*
 
-JADN does both. It is a formal information modeling language (expressable as JSON data) that can be
+JADN serves both purposes. It is a formal information modeling language (expressable as JSON data) that can be
 validated for correctness, and its definitions can be converted to/from both tabular and text representations,
-ensuring that tabular descriptions accurately represent the formal model.
+ensuring that the body of a specification accurately represents the formal model.
 
 > ***Formal Languages for Code Generation***
 >
@@ -111,7 +165,7 @@ ensuring that tabular descriptions accurately represent the formal model.
 > languages are needed by developers.*
 
 A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
-validate and ingest application data on the fly, or used to generate static code that performs these tasks.
+validate and serialize application data on the fly, or be used to generate static validation and serialization code.
 
 > ***Debugging Support***
 >
@@ -119,8 +173,8 @@ validate and ingest application data on the fly, or used to generate static code
 > which use standard data models and/or retrieve formal language
 > descriptions from the devices themselves.*
 
-A JADN schema is itself an information object that can be serialized to a data format (JSON, CBOR, XML, ...)
-and retrieved from a device, retrieved from a repository, or transferred along with application data.  This allows tools
+A JADN schema is itself an information object that can be serialized to a device's data format and retrieved
+from the device, retrieved from a repository, or transferred along with application data.  This allows tools
 to display schema-annotated application data independently of data format.
 
 > ***Translation***
@@ -139,8 +193,8 @@ and reject invalid data, whether generated maliciously or by accident.
 
 Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
 a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
-data models from it, as shown in RFC 3444, provides more accurate translation results than translating between
-separately-developed data models.
+data models from it, as shown in RFC 3444, provides more accurate translation results than attempting to translate
+across separately-developed data models.
 
 ## 1.1 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
