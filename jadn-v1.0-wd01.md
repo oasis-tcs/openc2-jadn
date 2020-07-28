@@ -694,8 +694,8 @@ Stock2 - Choice with explicit tag:
 **Intrinsic tags:**
 
 When discriminated unions are grouped the distinction between intrinsic and explicit tags becomes
-more apparent. A collection with intrinsic tags is simply a Map, which results in "friendly" encodings
-as named by the W3C JSON and XML [Transformations](transform) Workshop.
+more apparent. A collection with intrinsic tags is simply a Map, which results in what the
+[W3C JSON and XML Transformations Workshop](#transform) called "Friendly" encodings.
 
 ```
     Hashes = Map{1..*}                           // Multiple discriminated unions with intrinsic tag = Map
@@ -716,7 +716,7 @@ Data:
 **Explicit tags:**
 
 A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
-results in "unfriendly" encodings with repeated tag and value keys. Yet because some specifications are
+results in "UnFriendly" encodings with repeated tag and value keys. Yet because some specifications are
 written in this style, the "TagId" option exists to designate an explicit tag field to be used to validate
 the value.
 
@@ -1445,9 +1445,9 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ]],
 
 ["Hashes", "Map", ["{1"], "Multiple discriminated unions with intrinsic tag = Map", [
-    [1, "md5", "Binary", ["{16", "}16", "/x", "[0"], ""],
-    [2, "sha1", "Binary", ["{20", "}20", "/x", "[0"], ""],
-    [3, "sha256", "Binary", ["{32", "}32", "/x", "[0"], ""]
+    [1, "md5", "Binary", ["/x", "{16", "}16", "[0"], ""],
+    [2, "sha1", "Binary", ["/x", "{20", "}20", "[0"], ""],
+    [3, "sha256", "Binary", ["/x", "{32", "}32", "[0"], ""]
 ]],
 ["Hashes2", "ArrayOf", ["*HashVal"], "Multiple discriminated unions with explicit tags = Array", []],
 ["HashVal", "Record", [], "", [
@@ -1455,10 +1455,10 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
     [2, "value", "HashAlg", ["&1"], "Value selected from Choice by 'algorithm' field"]
 ]],
 ["HashAlg", "Choice", [], "", [
-    [1, "md5", "Binary", ["{16", "}16", "/x"], ""],
-    [2, "sha1", "Binary", ["{20", "}20", "/x"], ""],
-    [3, "sha256", "Binary", ["{32", "}32", "/x"], ""]
-]]
+    [1, "md5", "Binary", ["/x", "{16", "}16"], ""],
+    [2, "sha1", "Binary", ["/x", "{20", "}20"], ""],
+    [3, "sha256", "Binary", ["/x", "{32", "}32"], ""]
+]],
 ```
 
 **[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
