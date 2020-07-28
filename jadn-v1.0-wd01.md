@@ -131,7 +131,7 @@ Please see https://www.oasis-open.org/policies-guidelines/trademark for above gu
 
 # 1 Introduction
 
-Internet [RFC 3444](#rfc3444) describes the difference between information models and data dodels, noting
+Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
 that the purpose of an information model is to model data at a conceptual level, independent of specific
 implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
 [RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
@@ -1325,13 +1325,17 @@ The following individuals have participated in the creation of this specificatio
 
 | First Name | Last Name | Company |
 | :--- | :--- | :--- |
+| Brian | Berliner | Symantec |
+| Joseph | Brule | Department of Defense |
+| Jason | Romano | General Dynamics |
+
 
 -------
 
 # Appendix B. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | 2019-03-01 | David Kemp | Initial working draft |
+| jadn-v1.0-wd01 | 2020-10-01 | David Kemp | Initial working draft |
 
 # Appendix C. JADN Meta-schema
 
