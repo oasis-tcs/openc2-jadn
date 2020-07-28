@@ -637,14 +637,17 @@ of an Array, Choice, Map, or Record type:
 If minc is 0, the field is optional, otherwise it is required.  
 If maxc is 1 the field is a single element, otherwise it is an array of elements.  
 
-Multiplicities of optional (0..1) and required (1..1) are part of the JADN core. A field definition with minc other than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
+Multiplicities of optional (0..1) and required (1..1) are part of the JADN core. A field definition with minc other
+than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
 
-Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly one must be present. Values greater than 1 specify an array of elements.
+Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly
+one must be present. Values greater than 1 specify an array of elements.
 
-#### 3.2.2.2 Choice with Explicit Tag
+#### 3.2.2.2 Discriminated Union with Explicit Tag
 The Choice type represents a [Discriminated Union](#union), a data structure that could take on several different, but fixed, types.
-By default a Choice instance is a Map with exactly one key-value pair, where the key determines the value type.
-But if a "tag field" (*tfield*) option is present on a Choice field in an Array, Map, or Record container, it indicates that a separate Tag field within that container determines the value type.
+By default a Choice is a Map with exactly one key-value pair, where the key determines the value type.
+But if a "tag field" (*tfield*) option is present on a Choice field in an Array or Record container,
+it indicates that a separate Tag field within that container determines the value type.
 
 * The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
 
@@ -688,8 +691,63 @@ Stock2 - Choice with explicit tag:
         "product": "http://www.example.com/B902D1P0W37"
     }
 
+**Intrinsic tags:**
+
+When discriminated unions are grouped the distinction between intrinsic and explicit tags becomes
+more apparent. A collection with intrinsic tags is simply a Map, which results in "friendly" encodings
+as named by the W3C JSON and XML [Transformations](transform) Workshop.
+
+```
+    Hashes = Map{1..*}                           // Multiple discriminated unions with intrinsic tag = Map
+       1 md5          Binary{16..16} /x optional
+       2 sha1         Binary{20..20} /x optional
+       3 sha256       Binary{32..32} /x optional
+```
+
+Data:
+
+```json
+{
+    "sha256": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9",
+    "md5": "B64CF5EAF07E86D1697D4EEE96A670B6"
+}
+```
+
+**Explicit tags:**
+
+A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
+results in "unfriendly" encodings with repeated tag and value keys. Yet because some specifications are
+written in this style, the "TagId" option exists to designate an explicit tag field to be used to validate
+the value.
+
+```
+    Hashes2 = ArrayOf(HashVal)                   // Multiple discriminated unions with explicit tags = Array
+    
+    HashVal = Record
+       1 algorithm    Enumerated(Enum[HashAlg])  // Tag - one key from Choice
+       2 value        HashAlg(TagId[algorithm])  // Value selected from Choice by 'algorithm' field
+    
+    HashAlg = Choice
+       1 md5          Binary{16..16} /x
+       2 sha1         Binary{20..20} /x
+       3 sha256       Binary{32..32} /x
+```
+Data:
+```json
+[
+  {
+    "algorithm": "md5",
+    "value": "B64CF5EAF07E86D1697D4EEE96A670B6"
+  },{
+    "algorithm": "sha256",
+    "value": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9"
+  }
+]
+```
+
 #### 3.2.2.3 Default Value
-The *default* option is reserved for future use. It is intended to specify the value a receiving application uses for an optional field if an instance does not include its value.
+The *default* option is reserved for future use. It is intended to specify the value a receiving application
+uses for an optional field if an instance does not include its value.
 
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
@@ -1362,31 +1420,44 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 ]]
 ```
 
-**[3.2.2.2 Referenced Field Type](#3222-referenced-field-type)**
+**[3.2.2.2 Discriminated Union with Explicit Tag](#3222-discriminated-union-with-explicit-tag)
 ```
 ["Product", "Choice", [], "Discriminated union", [
     [1, "furniture", "Furniture", [], ""],
     [2, "appliance", "Appliance", [], ""],
     [3, "software", "Software", [], ""]
 ]],
-
 ["Dept", "Enumerated", [], "Explicit Tag values = Enumerated type containing tags derived from the Choice", [
     [1, "furniture", ""],
     [2, "appliance", ""],
     [3, "software", ""]
 ]],
-
 ["Software", "String", ["/uri"], "", []],
 
 ["Stock1", "Record", [], "Discriminated union with intrinsic tag", [
     [1, "quantity", "Integer", [], ""],
     [2, "product", "Product", [], "Value = Map with one key/value"]
 ]],
-
 ["Stock2", "Record", [], "Container with explicitly-tagged discriminated union", [
     [1, "dept", "Dept", [], "Tag = one key from Choice"],
     [2, "quantity", "Integer", [], ""],
     [3, "product", "Product", ["&1"], "Choice specifying an explicit tag field"]
+]],
+
+["Hashes", "Map", ["{1"], "Multiple discriminated unions with intrinsic tag = Map", [
+    [1, "md5", "Binary", ["{16", "}16", "/x", "[0"], ""],
+    [2, "sha1", "Binary", ["{20", "}20", "/x", "[0"], ""],
+    [3, "sha256", "Binary", ["{32", "}32", "/x", "[0"], ""]
+]],
+["Hashes2", "ArrayOf", ["*HashVal"], "Multiple discriminated unions with explicit tags = Array", []],
+["HashVal", "Record", [], "", [
+    [1, "algorithm", "Enumerated", ["#HashAlg"], "Tag - one key from Choice"],
+    [2, "value", "HashAlg", ["&1"], "Value selected from Choice by 'algorithm' field"]
+]],
+["HashAlg", "Choice", [], "", [
+    [1, "md5", "Binary", ["{16", "}16", "/x"], ""],
+    [2, "sha1", "Binary", ["{20", "}20", "/x"], ""],
+    [3, "sha256", "Binary", ["{32", "}32", "/x"], ""]
 ]]
 ```
 
