@@ -755,13 +755,13 @@ more apparent. A collection with intrinsic tags is simply a Map, which results i
 [W3C JSON and XML Transformations Workshop](#transform) called "Friendly" encodings.
 
 ```
-    Hashes = Map{1..*}                           // Multiple discriminated unions with intrinsic tag = Map
+    Hashes = Map{1..*}                           // Multiple discriminated unions with intrinsic tag is a Map
        1 md5          Binary{16..16} /x optional
        2 sha1         Binary{20..20} /x optional
        3 sha256       Binary{32..32} /x optional
 ```
 
-Data:
+Hashes Example:
 
 ```json
 {
@@ -778,7 +778,7 @@ written in this style, the "TagId" option exists to designate an explicit tag fi
 the value.
 
 ```
-    Hashes2 = ArrayOf(HashVal)                   // Multiple discriminated unions with explicit tags = Array
+    Hashes2 = ArrayOf(HashVal)                   // Multiple discriminated unions with explicit tags is an Array
     
     HashVal = Record
        1 algorithm    Enumerated(Enum[HashAlg])  // Tag - one key from Choice
@@ -789,7 +789,7 @@ the value.
        2 sha1         Binary{20..20} /x
        3 sha256       Binary{32..32} /x
 ```
-Data:
+Hashes2 Example:
 ```json
 [
   {
