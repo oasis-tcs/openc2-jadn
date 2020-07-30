@@ -25,7 +25,7 @@ This prose specification is one component of a Work Product that also includes:
 * Conformance test data
 
 ### Abstract:
-JSON Abstract Data Notation (JADN) is an information modeling language used to bridge between data models.
+JSON Abstract Data Notation (JADN) is an information modeling language used to define and translate across data models.
 It has several purposes, including definition of data structures, validation of data instances,
 providing hints for user interfaces working with structured data, and facilitating protocol internationalization.
 JADN specifications consist of two parts: abstract type definitions that are independent of data format,
@@ -989,6 +989,12 @@ serialization formats defined elsewhere must:
 * Specify how each option applicable to a type affects serialized values
 * Specify any validation requirements defined for that format
 
+Data formats are either "schemaless" or "schema-required". Serialization rules for schemaless formats such as
+JSON, CBOR, and XML should maintain independence of serialization and validation. As an example, the rules for
+converting XML elements and attributes into an API instance should not depend on the information model.
+Rules for schema-required data formats such as RFC 791-style field layouts, Protobuf, and Avro should facilitate
+separation of serialization and validation to the extent practical.
+
 ## 4.1 JSON Serialization
 The following serialization rules are used to represent JADN data types in a human-friendly JSON format.
 
@@ -1338,7 +1344,7 @@ The following individuals have participated in the creation of this specificatio
 # Appendix B. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | 2020-10-01 | David Kemp | Initial working draft |
+| jadn-v1.0-wd01 | 2020-08-01 | David Kemp | Initial working draft |
 
 # Appendix C. JADN Meta-schema
 
