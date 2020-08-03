@@ -1147,18 +1147,16 @@ Simple types:
 
 Enumerated type:
 ```
-    TypeName = TYPESTRING {                   // TypeDescription
-        ItemID ItemValue,                     // ItemDescription
+    TypeName = TYPESTRING                     // TypeDescription
+        ItemID ItemValue                      // ItemDescription
         ...
-    }
 ```
 
 Container types without the *id* option:
 ```
-    TypeName = TYPESTRING {                   // TypeDescription
-        FieldID FieldName[/] FIELDSTRING,     // FieldDescription
+    TypeName = TYPESTRING                     // TypeDescription
+        FieldID FieldName[/] FIELDSTRING      // FieldDescription
         ...
-    }
 ```
 If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS character (/)
 as specified in [RFC 6901](rfc6901) is appended to FieldName.
@@ -1168,15 +1166,13 @@ Container types with the *id* option treat the item/field name as a non-normativ
 followed by a label terminator ("::"):
 ```
     /* Enumerated.ID */
-    TypeName = TYPESTRING {                   // TypeDescription
+    TypeName = TYPESTRING                     // TypeDescription
         ItemID                                // ItemValue:: ItemDescription
-    }
     
     /* Choice.ID, Map.ID */
-    TypeName = TYPESTRING {                   // TypeDescription
-        FieldID FIELDSTRING,                  // FieldName[/]:: FieldDescription
+    TypeName = TYPESTRING                     // TypeDescription
+        FieldID FIELDSTRING                   // FieldName[/]:: FieldDescription
         ...
-    }
 ```
 
 **Type Options:**
@@ -1187,7 +1183,8 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
     TYPESTRING    = TYPE [".ID"] [S1] [VRANGE] [FORMAT]   ; TYPE is the value of BaseType or FieldType
     S1            = "(" *ktype* "," *vtype* ")"           ; if TYPE is MapOf
                   | "(" *vtype* ")"                       ; if TYPE is ArrayOf
-                  | "(Enum(" *enum* "))"                  ; if TYPE is Enumerated
+                  | "(Enum[" *enum* "])"                  ; if TYPE is Enumerated
+                  | "(Pointer[" *enum* "])"               ; if TYPE is Enumerated
                   | "(%" *pattern* "%)"                   ; if TYPE is String
     VRANGE        = "{" *minv* ".." *maxv* "}"
     FORMAT        = " /" *format*
@@ -1199,7 +1196,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
     FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
     MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
                   | " optional"
-    TFIELD        = "(&" *tfield* ")"
+    TFIELD        = "(TagId[" *tfield* "])"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
 
