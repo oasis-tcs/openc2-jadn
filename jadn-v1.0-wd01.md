@@ -1491,43 +1491,49 @@ This appendix contains the JADN definitions corresponding to all JADN-IDL defini
 
 **[3.2.2.2 Discriminated Union with Explicit Tag](#3222-discriminated-union-with-explicit-tag)
 ```
-["Product", "Choice", [], "Discriminated union", [
+  ["Product", "Choice", [], "Discriminated union", [
     [1, "furniture", "Furniture", [], ""],
     [2, "appliance", "Appliance", [], ""],
     [3, "software", "Software", [], ""]
-]],
-["Dept", "Enumerated", [], "Explicit Tag values = Enumerated type containing tags derived from the Choice", [
+  ]],
+
+  ["Dept", "Enumerated", [], "Explicit Tag values = Enumerated type containing tags derived from the Choice", [
     [1, "furniture", ""],
     [2, "appliance", ""],
     [3, "software", ""]
-]],
-["Software", "String", ["/uri"], "", []],
+  ]],
 
-["Stock1", "Record", [], "Discriminated union with intrinsic tag", [
+  ["Software", "String", ["/uri"], "", []],
+
+  ["Stock1", "Record", [], "Discriminated union with intrinsic tag", [
     [1, "quantity", "Integer", [], ""],
     [2, "product", "Product", [], "Value = Map with one key/value"]
-]],
-["Stock2", "Record", [], "Container with explicitly-tagged discriminated union", [
+  ]],
+
+  ["Stock2", "Record", [], "Container with explicitly-tagged discriminated union", [
     [1, "dept", "Dept", [], "Tag = one key from Choice"],
     [2, "quantity", "Integer", [], ""],
     [3, "product", "Product", ["&1"], "Choice specifying an explicit tag field"]
-]],
+  ]],
 
-["Hashes", "Map", ["{1"], "Multiple discriminated unions with intrinsic tag = Map", [
+  ["Hashes", "Map", ["{1"], "Multiple discriminated unions with intrinsic tags is a Map", [
     [1, "md5", "Binary", ["/x", "{16", "}16", "[0"], ""],
     [2, "sha1", "Binary", ["/x", "{20", "}20", "[0"], ""],
     [3, "sha256", "Binary", ["/x", "{32", "}32", "[0"], ""]
-]],
-["Hashes2", "ArrayOf", ["*HashVal"], "Multiple discriminated unions with explicit tags = Array", []],
-["HashVal", "Record", [], "", [
+  ]],
+
+  ["Hashes2", "ArrayOf", ["*HashVal"], "Multiple discriminated unions with explicit tags is an Array", []],
+
+  ["HashVal", "Record", [], "", [
     [1, "algorithm", "Enumerated", ["#HashAlg"], "Tag - one key from Choice"],
     [2, "value", "HashAlg", ["&1"], "Value selected from Choice by 'algorithm' field"]
-]],
-["HashAlg", "Choice", [], "", [
+  ]],
+
+  ["HashAlg", "Choice", [], "", [
     [1, "md5", "Binary", ["/x", "{16", "}16"], ""],
     [2, "sha1", "Binary", ["/x", "{20", "}20"], ""],
     [3, "sha256", "Binary", ["/x", "{32", "}32"], ""]
-]],
+  ]]
 ```
 
 **[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
@@ -1631,10 +1637,9 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
   "exports": ["Schema"],
   "config": {
-   "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
+    "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
  },
-
  "types": [
   ["Schema", "Record", [], "Definition of a JADN schema module", [
     [1, "meta", "Meta", ["[0"], "Information about this module"],
@@ -1651,11 +1656,8 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [7, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
     [8, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
-
   ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules", []],
-
   ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public", []],
-
   ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
     [1, "$MaxBinary", "Integer", ["{1", "[0"], "Schema default maximum number of octets"],
     [2, "$MaxString", "Integer", ["{1", "[0"], "Schema default maximum number of characters"],
@@ -1667,7 +1669,6 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ]],
 
   ["Types", "ArrayOf", ["*Type"], "", []],
-
   ["Type", "Array", [], "", [
     [1, "type_name", "TypeName", [], ""],
     [2, "base_type", "BaseType", [], ""],
@@ -1675,7 +1676,6 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "type_description", "Description", [], ""],
     [5, "fields", "JADN-Type", ["&2"], ""]
   ]],
-
   ["BaseType", "Enumerated", [], "", [
     [1, "Binary", ""],
     [2, "Boolean", ""],
@@ -1691,7 +1691,6 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [12, "MapOf", ""],
     [13, "Record", ""]
   ]],
-
   ["JADN-Type", "Choice", [], "", [
     [1, "Binary", "Empty", [], ""],
     [2, "Boolean", "Empty", [], ""],
@@ -1707,19 +1706,14 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [12, "MapOf", "Empty", [], ""],
     [13, "Record", "Fields", [], ""]
   ]],
-
   ["Empty", "Array", ["}0"], "", []],
-
   ["Items", "ArrayOf", ["*Item"], "", []],
-
   ["Item", "Array", [], "", [
     [1, "item_id", "FieldID", [], ""],
     [2, "item_value", "String", [], ""],
     [3, "item_description", "Description", [], ""]
   ]],
-
   ["Fields", "ArrayOf", ["*Field"], "", []],
-
   ["Field", "Array", [], "", [
     [1, "field_id", "FieldID", [], ""],
     [2, "field_name", "FieldName", [], ""],
@@ -1727,23 +1721,14 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [4, "field_options", "Options", [], ""],
     [5, "field_description", "Description", [], ""]
   ]],
-
   ["FieldID", "Integer", ["{0"], "", []],
-
   ["Options", "ArrayOf", ["*Option", "}10"], "", []],
-
   ["Option", "String", ["{1"], "", []],
-
   ["Description", "String", [], "", []],
-
   ["Namespace", "String", ["/uri"], "Unique name of a module", []],
-
   ["NSID", "String", ["%$NSID"], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$", []],
-
   ["TypeName", "String", ["%$TypeName"], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$", []],
-
   ["FieldName", "String", ["%$FieldName"], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$", []],
-
   ["TypeRef", "String", [], "Autogenerated Type Reference pattern = ($NSID ':')? $TypeName", []]
  ]
 }
