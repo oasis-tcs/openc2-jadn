@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 24 July 2020
+## 7 August 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -221,29 +221,48 @@ An instance is valid if it satisfies the constraints defined in an information m
 A document is valid if it is well-formed and also corresponds to a valid instance.
 
 ### 1.3.5 Data Format
-A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json,
+application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format.
+This specification defines XML, JSON, M-JSON, and CBOR data formats.
+Additional data formats may be defined for any media types that can represent instances of the JADN information model.
 
 Serialization rules for a data format define how instances of each type are represented in documents of that format.
 
 ### 1.3.6 Instance
-An instance, or API value, is an item of application information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
+An instance, or API value, is an item of application information to which a schema applies. An instance has one of the
+core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
 * **Container:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
-Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
+Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an
+instance having two fields with the same key is undefined.
 
-Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type. There is no "Any" core type, but Binary or String types can be used with or without additional tagging information to carry opaque (unvalidated) content.
+Note that JADN schemas may define their own extended type system. This should not be confused with the core types
+defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define,
+but the definition is based on the Binary core type.
+
+The only entities in a JADN schema are types, and the only pre-defined relationship between types is "contains".
+If application relationships (classes, methods, and inheritance, roles such as "owns" or "performs", etc.)
+are to be serialized, they must be modeled explicitly as extended types, perhaps with options and serialization rules.
 
 #### 1.3.6.1 Instance Equality
-Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
+Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
+according to the information model.  Mere formatting differences, including a document's data format, are insignificant.
+An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
+if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has
+exactly one field with a key equal to the other's, and that other field has an equal value.
+Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality
+with an instance serialized as a map in another.
 
 ### 1.3.7 Serialization
-Serialization, or encoding, is the process of converting application information into a document.  De-serialization, or decoding, converts a document into an instance usable by an application.
+Serialization, or encoding, is the process of converting application information into a document.
+De-serialization, or decoding, converts a document into an instance usable by an application.
 
 ### 1.3.8 Description
-Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and are ignored by applications using the schema.
+Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
+and are ignored by applications using the schema.
 
 ## 1.4 Normative References
 ###### [ES9]
@@ -319,9 +338,10 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
-data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
-If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
+data used for purposes such as text conversion, delimiting, and framing contains no information because it is known
+a priori. If the serialization is non-canonical, any additional entropy introduced during serialization
+(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization)
+is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
@@ -343,8 +363,8 @@ specifications.
 
 ## 2.1 Information Modeling
 
-JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers, and byte strings), but has an
-information-centric focus:
+JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers,
+and byte strings), but has an information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -366,14 +386,16 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to
+Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
 ```
 Person = Record
    1 name         String
    2 id           Integer
    3 email        String optional
 ```
-The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to and from native JADN format:
+The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms.
+Definitions written in JADN IDL can be translated to and from native JADN format:
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -384,14 +406,25 @@ The native JADN definition format is JSON, which enjoys broad support across pro
 ## 2.3 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
-1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without a separate schema generation step. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
+1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng),
+[JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610),
+then use format-specific serialization and validation libraries to process data in the selected format.
+Applications use data objects specific to each serialization format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries
+to process data without a separate schema generation step. Applications use the same IM instances regardless of
+serialization format, making it easy to bridge from one format to another.
  
-Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
+Implementations based on serialization-specific code interoperate with those using an IM serialization library,
+allowing developers to use either approach. 
 
 # 3 JADN Types
 JADN core types are defined in terms of the characteristics they provide to applications. 
-The mechanisms defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type does not guarantee that element order is preserved. Map implementations based on an order-preserving variable type are required to interoperate with those that are not.
+The mechanisms defined by an IM library to represent instances of these types within an application constitute
+an application programming interface (API). JADN types are the single point of convergence between multiple
+programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats
+that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type
+does not guarantee that element order is preserved. Map implementations based on an order-preserving variable
+type are required to interoperate with those that are not.
 
 ###### Table 3-1. JADN Types
 
@@ -523,13 +556,17 @@ Map, MapOf, Record
 ###### Figure 3-2: JADN Default Size Limits
 
 ### 3.1.3 Descriptions
-Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from
+schema authors to readers or maintainers of the schema.
 * The description value MUST be a string, which MAY be empty.
 * Implementations MUST NOT present this string to end users.
 * Tools for editing schemas SHOULD support displaying and editing descriptions.
 * Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
 
-Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing.
+Description values MAY be used in debug or error output which is intended for developers making use of schemas.
+Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert
+that media type or programming language's native comments to or from description values. Implementations MAY strip
+description values at any point during processing.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
