@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 24 July 2020
+## 7 August 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -197,17 +197,25 @@ data models from it, as shown in RFC 3444, provides more accurate translation re
 across separately-developed data models.
 
 ## 1.1 IPR Policy
-This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
+This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
+Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the
+Technical Committee was established. For information on whether any patents have been disclosed that may be essential
+to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual
+Property Rights section of the TC's web page
+([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
 ## 1.2 Terminology
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+ and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
+  when, and only when, they appear in all capitals, as shown here.
 
 ## 1.3 Definitions
 
 ### 1.3.1 Schema
 An abstract schema, or information model, describes the structure and value constraints of information used by applications.
 
-A concrete schema, or data model, describes the structure and value constraints of a document used to store information or communicate it between applications.
+A concrete schema, or data model, describes the structure and value constraints of a document used to store information
+or communicate it between applications.
 
 ### 1.3.2 Document
 A document is a series of octets described by a data format applied to an information model, or equivalently, by a data model.
@@ -221,29 +229,47 @@ An instance is valid if it satisfies the constraints defined in an information m
 A document is valid if it is well-formed and also corresponds to a valid instance.
 
 ### 1.3.5 Data Format
-A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json, application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format. This specification defines XML, JSON, M-JSON, and CBOR data formats. Additional data formats may be defined for any media types that can represent instances of the JADN information model.
+A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json,
+application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format.
+This specification defines XML, JSON, M-JSON, and CBOR data formats.
+Additional data formats may be defined for any media types that can represent instances of the JADN information model.
 
 Serialization rules for a data format define how instances of each type are represented in documents of that format.
 
 ### 1.3.6 Instance
-An instance, or API value, is an item of application information to which a schema applies. An instance has one of the core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
+An instance, or API value, is an item of application information to which a schema applies. An instance has one of the
+core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
 
 * **Simple:** Null, Boolean, Binary, Integer, Number, String
 * **Selector:** Enumerated, Choice
 * **Container:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
 
-Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an instance having two fields with the same key is undefined.
+Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an
+instance having two fields with the same key is undefined.
 
-Note that JADN schemas may define their own extended type system. This should not be confused with the core types defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define, but the definition is based on the Binary core type. There is no "Any" core type, but Binary or String types can be used with or without additional tagging information to carry opaque (unvalidated) content.
+Note that JADN schemas may define their own extended type system. This should not be confused with the core types
+defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define,
+but the definition is based on the Binary core type.
+The only core relationship between types is "contains".
+Extended relationships (class inheritance, roles such as "owns" or "performs", etc.)
+may be modeled explicitly as extended types, or potentially with options and serialization rules.
 
 #### 1.3.6.1 Instance Equality
-Two JADN instances are said to be equal if and only if they are of the same core type and have the same value according to the information model.  Mere formatting differences, including a document's data format, are insignificant.  An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has exactly one field with a key equal to the other's, and that other field has an equal value.  Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality with an instance serialized as a map in another.
+Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
+according to the information model.  Mere formatting differences, including a document's data format, are insignificant.
+An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
+if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has
+exactly one field with a key equal to the other's, and that other field has an equal value.
+Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality
+with an instance serialized as a map in another.
 
 ### 1.3.7 Serialization
-Serialization, or encoding, is the process of converting application information into a document.  De-serialization, or decoding, converts a document into an instance usable by an application.
+Serialization, or encoding, is the process of converting application information into a document.
+De-serialization, or decoding, converts a document into an instance usable by an application.
 
 ### 1.3.8 Description
-Description elements are reserved for comments from schema authors to readers or maintainers of the schema, and are ignored by applications using the schema.
+Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
+and are ignored by applications using the schema.
 
 ## 1.4 Normative References
 ###### [ES9]
@@ -319,9 +345,10 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 Information is *what* needs to be communicated between applications, and data is *how* that information
 is represented when communicating.  More formally, information is the unexpected data, or "entropy",
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
-data used for purposes such as text conversion, delimiting, and framing contains no information because it is known a priori.
-If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization) is discarded on deserialization.
+data used for purposes such as text conversion, delimiting, and framing contains no information because it is known
+a priori. If the serialization is non-canonical, any additional entropy introduced during serialization
+(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization)
+is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
 For example, an IPv4 address that can specify 2^32 different addresses is, by definition,
@@ -343,8 +370,8 @@ specifications.
 
 ## 2.1 Information Modeling
 
-JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers, and byte strings), but has an
-information-centric focus:
+JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers,
+and byte strings), but has an information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -356,7 +383,7 @@ information-centric focus:
 | Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.2 Examples
+## 2.2 Example Definitions
 
 Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
 ```
@@ -366,14 +393,16 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to
+Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions and containers:
 ```
 Person = Record
    1 name         String
    2 id           Integer
    3 email        String optional
 ```
-The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms. Definitions written in JADN IDL can be translated to and from native JADN format:
+The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms.
+Definitions written in JADN IDL can be translated to and from native JADN format:
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -384,14 +413,25 @@ The native JADN definition format is JSON, which enjoys broad support across pro
 ## 2.3 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
-1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng), [JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610), then use format-specific serialization and validation libraries to process data in the selected format. Applications use data objects specific to each serialization format.
-2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries to process data without a separate schema generation step. Applications use the same IM instances regardless of serialization format, making it easy to bridge from one format to another.
+1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng),
+[JSON Schema](#jsonschema), [Protobuf](#proto), or [CDDL](#rfc8610),
+then use format-specific serialization and validation libraries to process data in the selected format.
+Applications use data objects specific to each serialization format.
+2) Use the IM directly as a format-independent schema language, using IM serialization and validation libraries
+to process data without a separate schema generation step. Applications use the same IM instances regardless of
+serialization format, making it easy to bridge from one format to another.
  
-Implementations based on serialization-specific code interoperate with those using an IM serialization library, allowing developers to use either approach. 
+Implementations based on serialization-specific code interoperate with those using an IM serialization library,
+allowing developers to use either approach. 
 
 # 3 JADN Types
 JADN core types are defined in terms of the characteristics they provide to applications. 
-The mechanisms defined by an IM library to represent instances of these types within an application constitute an application programming interface (API). JADN types are the single point of convergence between multiple programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type does not guarantee that element order is preserved. Map implementations based on an order-preserving variable type are required to interoperate with those that are not.
+The mechanisms defined by an IM library to represent instances of these types within an application constitute
+an application programming interface (API). JADN types are the single point of convergence between multiple
+programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats
+that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type
+does not guarantee that element order is preserved. Map implementations based on an order-preserving variable
+type are required to interoperate with those that are not.
 
 ###### Table 3-1. JADN Types
 
@@ -406,7 +446,7 @@ The mechanisms defined by an IM library to represent instances of these types wi
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
-| Choice           | A [discriminated union](union): one type selected from a set of named or labeled types. |
+| Choice           | A [discriminated union](#union): one type selected from a set of named or labeled types. |
 | **Container**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
@@ -507,10 +547,15 @@ Specifications MAY use the same syntax for TypeName and FieldName. Using distinc
 does not affect the meaning of type definitions.
 
 ### 3.1.2 Upper Bounds
-Type definitions based on variable-length types may include maximum size limits. If an individual type does not define an explicit limit, it uses the default limit defined by the specification.  If the specification does not define a default, the definition uses the limits shown here, which are deliberately conservative to encourage specification authors to define limits based on application requirements.
+Type definitions based on variable-length types may include maximum size limits. If an individual type does not
+define an explicit limit, it uses the default limit defined by the specification.
+If the specification does not define a default, the definition uses the limits shown here, which are
+deliberately conservative to encourage specification authors to define limits based on application requirements.
 * JADN specifications SHOULD define size limits on the variable-length values shown in Figure 3-2.
 * Specifications that do not define alternate size limits MUST use the values shown in Figure 3-2.
-* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition, or the default limit defined in the specification containing its type definition, or if the specification does not define a default, the limit shown in Figure 3-2.
+* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition,
+or the default limit defined in the specification containing its type definition, or if the specification does
+not define a default, the limit shown in Figure 3-2.
 
 ```
 Type                Name         Limit   Description
@@ -523,13 +568,17 @@ Map, MapOf, Record
 ###### Figure 3-2: JADN Default Size Limits
 
 ### 3.1.3 Descriptions
-Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from schema authors to readers or maintainers of the schema.
+Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from
+schema authors to readers or maintainers of the schema.
 * The description value MUST be a string, which MAY be empty.
 * Implementations MUST NOT present this string to end users.
 * Tools for editing schemas SHOULD support displaying and editing descriptions.
 * Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
 
-Description values MAY be used in debug or error output which is intended for developers making use of schemas. Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert that media type or programming language's native comments to or from description values. Implementations MAY strip description values at any point during processing.
+Description values MAY be used in debug or error output which is intended for developers making use of schemas.
+Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert
+that media type or programming language's native comments to or from description values. Implementations MAY strip
+description values at any point during processing.
 
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
@@ -645,7 +694,7 @@ The *minv* and *maxv* options specify size or value limits.
 
 * For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
     * if *minv* is not present, it defaults to zero.
-    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.2](3-1-2-upper-bounds).
+    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.2](#312-upper-bounds).
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -668,7 +717,7 @@ Field options are specified for each field within a type definition. Each option
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-choice-with-explicit-tag)) |
+| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-discriminated-union-with-explicit-tag)) |
 | 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType ([Section 3.3.5](#335-pointers)) |
 | 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
 
@@ -1159,7 +1208,7 @@ Container types without the *id* option:
         ...
 ```
 If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS character (/)
-as specified in [RFC 6901](rfc6901) is appended to FieldName.
+as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
 Container types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
@@ -1477,7 +1526,7 @@ TypeRef = String                             // Autogenerated Type Reference pat
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 3.1.3 Definition Formats](#313-definition-formats):**
+**[Section 2.2 Example Definitions](#22-example-definitions):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
