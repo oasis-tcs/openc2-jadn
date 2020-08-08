@@ -197,17 +197,25 @@ data models from it, as shown in RFC 3444, provides more accurate translation re
 across separately-developed data models.
 
 ## 1.1 IPR Policy
-This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode) Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the Technical Committee was established. For information on whether any patents have been disclosed that may be essential to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
+This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
+Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the
+Technical Committee was established. For information on whether any patents have been disclosed that may be essential
+to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual
+Property Rights section of the TC's web page
+([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
 ## 1.2 Terminology
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+ and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
+  when, and only when, they appear in all capitals, as shown here.
 
 ## 1.3 Definitions
 
 ### 1.3.1 Schema
 An abstract schema, or information model, describes the structure and value constraints of information used by applications.
 
-A concrete schema, or data model, describes the structure and value constraints of a document used to store information or communicate it between applications.
+A concrete schema, or data model, describes the structure and value constraints of a document used to store information
+or communicate it between applications.
 
 ### 1.3.2 Document
 A document is a series of octets described by a data format applied to an information model, or equivalently, by a data model.
@@ -242,10 +250,9 @@ instance having two fields with the same key is undefined.
 Note that JADN schemas may define their own extended type system. This should not be confused with the core types
 defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define,
 but the definition is based on the Binary core type.
-
-The only entities in a JADN schema are types, and the only pre-defined relationship between types is "contains".
-If application relationships (classes, methods, and inheritance, roles such as "owns" or "performs", etc.)
-are to be serialized, they must be modeled explicitly as extended types, perhaps with options and serialization rules.
+The only core relationship between types is "contains".
+Extended relationships (class inheritance, roles such as "owns" or "performs", etc.)
+may be modeled explicitly as extended types, or potentially with options and serialization rules.
 
 #### 1.3.6.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
@@ -376,7 +383,7 @@ and byte strings), but has an information-centric focus:
 | Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.2 Examples
+## 2.2 Example Definitions
 
 Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
 ```
@@ -439,7 +446,7 @@ type are required to interoperate with those that are not.
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
 | Enumerated       | One value selected from a set of named or labeled integers.     |
-| Choice           | A [discriminated union](union): one type selected from a set of named or labeled types. |
+| Choice           | A [discriminated union](#union): one type selected from a set of named or labeled types. |
 | **Container**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
@@ -540,10 +547,15 @@ Specifications MAY use the same syntax for TypeName and FieldName. Using distinc
 does not affect the meaning of type definitions.
 
 ### 3.1.2 Upper Bounds
-Type definitions based on variable-length types may include maximum size limits. If an individual type does not define an explicit limit, it uses the default limit defined by the specification.  If the specification does not define a default, the definition uses the limits shown here, which are deliberately conservative to encourage specification authors to define limits based on application requirements.
+Type definitions based on variable-length types may include maximum size limits. If an individual type does not
+define an explicit limit, it uses the default limit defined by the specification.
+If the specification does not define a default, the definition uses the limits shown here, which are
+deliberately conservative to encourage specification authors to define limits based on application requirements.
 * JADN specifications SHOULD define size limits on the variable-length values shown in Figure 3-2.
 * Specifications that do not define alternate size limits MUST use the values shown in Figure 3-2.
-* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition, or the default limit defined in the specification containing its type definition, or if the specification does not define a default, the limit shown in Figure 3-2.
+* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition,
+or the default limit defined in the specification containing its type definition, or if the specification does
+not define a default, the limit shown in Figure 3-2.
 
 ```
 Type                Name         Limit   Description
@@ -682,7 +694,7 @@ The *minv* and *maxv* options specify size or value limits.
 
 * For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
     * if *minv* is not present, it defaults to zero.
-    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.2](3-1-2-upper-bounds).
+    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.2](#312-upper-bounds).
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -705,7 +717,7 @@ Field options are specified for each field within a type definition. Each option
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-choice-with-explicit-tag)) |
+| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-discriminated-union-with-explicit-tag)) |
 | 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType ([Section 3.3.5](#335-pointers)) |
 | 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
 
@@ -1196,7 +1208,7 @@ Container types without the *id* option:
         ...
 ```
 If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS character (/)
-as specified in [RFC 6901](rfc6901) is appended to FieldName.
+as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
 Container types with the *id* option treat the item/field name as a non-normative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
@@ -1514,7 +1526,7 @@ TypeRef = String                             // Autogenerated Type Reference pat
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 3.1.3 Definition Formats](#313-definition-formats):**
+**[Section 2.2 Example Definitions](#22-example-definitions):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
