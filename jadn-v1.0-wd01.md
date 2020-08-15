@@ -611,7 +611,7 @@ which data values are instances of the defined type.
 | 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
 | 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
 | 0x3e `'>'` | pointer | String | Extension: Enumerated type containing pointers derived from the specified Array, Choice, Map or Record type ([Section 3.3.5](#335-pointers)) |
-| 0x58 `'X'` | extend | none / If present, the type has an extension point where fields may be added in the future ([Section 3.2.1.9](#3219-extension-point))
+| 0x58 `'X'` | extend | none | If present, the type has an extension point where fields may be added in the future ([Section 3.2.1.9](#3219-extension-point))
 | **Validation** | | | |
 | 0x2f `'/'` | format | String | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
@@ -887,6 +887,7 @@ The following extensions can be converted to core definitions:
 * Derived enumeration
 * MapOf type with Enumerated key type
 * Pointers
+* Links
 
 ### 3.3.1 Type Definition Within Fields
 A type without fields (Simple types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
@@ -1048,31 +1049,30 @@ value is not considered an "Item":
     }
 
 ### 3.3.6 Links
-The definitions in an information model must be acyclic - types cannot reference themselves
-either directly or indirectly through other types.
-But with links an IM can model data structures that represent arbitrarily-connected *instance* graphs,
-the most obvious example being types addressable by URI and types that contain URI-valued fields.
-Links can have any syntax, such as integers, UUIDs, or unrestricted or restricted strings.
-The only requirement is that the identifier by which an instance is referenced (it's "id" or primary key)
-must have the same syntax as any links that reference it (foreign keys).
+Types in an information model cannot reference themselves, either directly or indirectly through other types.
+In other words, a type graph cannot have cycles.
+But an information model can represent arbitrarily-connected *instance* graphs using links.
+Links can have any syntax including integers, UUIDs, addresses, format-specific strings such as URIs,
+or unrestricted strings. The only information modelling requirement is that the
+identifier of an instance (its primary key) must have the same syntax as any links that reference it (foreign keys).
 
-The link extension slightly automates that requirement: the *key* option within a container type designates
-a field to be used as a primary key, and the *link* option designates a type as being a reference to an instance.
-The information model defines how instances are serialized, and presence of the *key* and *link* options MAY
-be used by applications to invoke processing operations such as referential integrity.
+The link extension automates that requirement: the *key* option within a container type designates
+a field to be used as a primary key, and the *link* option designates a reference to an instance of a specified type.
+The *key* and *link* options do not affect the serialization or validation of data, but they MAY
+be used by applications to perform relationship-aware operations such as checking or enforcing referential integrity.
 
 As an example, a Person type might be used to represent friends and family relationships:
 
     Person = Record
-        1 id        Integer(key)
+        1 id        Key(Integer)
         2 name      String
         3 mother    Link(Person)
         4 father    Link(Person)
         5 siblings  Link(Person) [0..*]
         6 friends   Link(Person) [0..*]
 
-Simplifying creates an explicit key type and replaces references with the type, but loses the information
-that the value represents a primary key or a relationship:
+Simplifying creates an explicit key type and replaces links with that type, but discards the indication
+that a field is a primary key or relationship:
 
     Person = Record
         1 id        Person$id
@@ -1346,7 +1346,7 @@ can be displayed as a [YANG tree diagram](#rfc8340) using the following conventi
 # 6 Schemas
 
 JADN schemas are organized into modules.  A schema module consists of an optional
-[information](#c1-schema-module) section and a list of [type definitions](#c2-type-definitions):
+information section and a list of [type definitions](#c2-type-definitions):
 
 ```
     Schema = Record                            // Definition of a JADN schema module
@@ -1354,23 +1354,23 @@ JADN schemas are organized into modules.  A schema module consists of an optiona
        2 types        Types                    // Types defined in this module
 ```
 
-If the info section is present the *module* field is required; all others are optional.
+If the [information](#c1-schema-module) section is present the *module* field is required; all others are optional.
 
 * **module:** A namespace URI that allows type definitions in this module to be unambiguously referenced from other
-modules. This is an identifier, not necessarily a locator for an accessible resource.
+modules. This is an identifier but not necessarily a locator for accessible resources.
 The namespace may include major or major.minor versioning information, such as http://example.com/acme2
 or http://example.com/acme/v1.3.
-* **version:** The incremental version of this module, a string that compares lexicographically higher
-than previous versions. References are to a module namespace only. Version may be used to determine
-the most recent namespece definition.
+* **version:** Incremental version of this module, a string that compares lexicographically higher
+than previous versions. The *imports* field references only namespaces. Version may be used to determine
+the most recent definition of a namespace.
 * **title:** A short name for this module.
 * **description:** A brief description of purpose or capabilities of this module
-* **comment:**
+* **comment:** Any other information applicable to the module.
 * **copyright:** A copyright notice.
-* **license:** License for the data in this module, SPDX licenseId (e.g., 'CC0-1.0').
-* **imports:** 
-* **exports:**
-* **config:**
+* **license:** License for this module. Value is an SPDX licenseId, CC0-1.0 is recommended.
+* **imports:** Map of NSIDs (short names) to namespaces of types referenced by this module.
+* **exports:** List of root types. May be used by schema tools to detect or prune unused types.
+* **config:** List of values, such as name formats and size limits, that are customized for this module.
 
 
 # 7 Data Model Generation
