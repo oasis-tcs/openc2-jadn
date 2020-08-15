@@ -731,13 +731,13 @@ Field options are specified for each field within a type definition. Each option
 | --- | --- | --- | --- |
 | 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-discriminated-union-with-explicit-tag)) |
+| 0x26 `'&'` | tagid | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-discriminated-union-with-explicit-tag)) |
 | 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType (Extension: [Section 3.3.5](#335-pointers)) |
 | 0x4b `'K'` | key | none | Field is a primary key for this type (Extension: [Section 3.3.6](#336-links)) |
 | 0x4c `'L'` | link | none | Field is a relationship or link to a type instance (Extension: [Section 3.3.6](#336-links))
 | 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
 
-* FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
+* FieldOptions MUST NOT include more than one of: a minc/maxc range, tagid, or path.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
@@ -770,7 +770,7 @@ one must be present. Values greater than 1 specify an array of elements.
 #### 3.2.2.2 Discriminated Union with Explicit Tag
 The Choice type represents a [Discriminated Union](#union), a data structure that could take on several different, but fixed, types.
 By default a Choice is a Map with exactly one key-value pair, where the key determines the value type.
-But if a "tag field" (*tfield*) option is present on a Choice field in an Array or Record container,
+But if a "tag field" (*tagid*) option is present on a Choice field in an Array or Record container,
 it indicates that a separate Tag field within that container determines the value type.
 
 * The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
@@ -1296,10 +1296,10 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 
 FIELDSTRING is the value of TYPESTRING combined with string representations of two mutually-exclusive field options:
 
-    FIELDSTRING   = TYPESTRING [MULTIPLICITY | TFIELD]
+    FIELDSTRING   = TYPESTRING [MULTIPLICITY | TAGID]
     MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
                   | " optional"
-    TFIELD        = "(TagId[" *tfield* "])"
+    TAGID        = "(TagId[" *tagid* "])"
 
 An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
 
@@ -1758,6 +1758,30 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "b/foo", "Item 2"],
     [3, "b/bar", "Item 3"]
 ]]
+```
+
+**[Section 3.3.6 Links](#336-links):**
+
+```
+  ["Person", "Record", [], "", [
+    [1, "id", "Integer", ["K"], ""],
+    [2, "name", "String", [], ""],
+    [3, "mother", "Person", ["L"], ""],
+    [4, "father", "Person", ["L"], ""],
+    [5, "siblings", "Person", ["[0", "]0", "L"], ""],
+    [6, "friends", "Person", ["[0", "]0", "L"], ""]
+  ]],
+
+  ["Person", "Record", [], "", [
+    [1, "id", "Person$id", [], ""],
+    [2, "name", "String", [], ""],
+    [3, "mother", "Person$id", [], ""],
+    [4, "father", "Person$id", ["], ""],
+    [5, "siblings", "Person$id", ["[0", "]0"], ""],
+    [6, "friends", "Person$id", ["[0", "]0"], ""]
+  ]],
+
+  ["Person$id", "Integer", [], "", []]
 ```
 
 **[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
