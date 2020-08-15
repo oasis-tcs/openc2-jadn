@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 7 August 2020
+## 14 August 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -206,8 +206,8 @@ Property Rights section of the TC's web page
 
 ## 1.2 Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
- and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
-  when, and only when, they appear in all capitals, as shown here.
+and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
+when, and only when, they appear in all capitals, as shown here.
 
 ## 1.3 Definitions
 
@@ -362,16 +362,16 @@ a 32 bit value*.  But different data may be used to represent that information:
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application. Directly converting display-oriented JSON data to
 CBOR format does not achieve the conciseness for which CBOR was designed. Instead, information modeling
-is key to effectively deriving CBOR and other concise data formats from typical XML- or JSON-based
-specifications.
+is key to effectively using both binary data formats such as Protobuf and CBOR and text formats
+such as XML and JSON.
 
 \* *Note: all references to information assume independent uniformly-distributed values.*
 *Source coding is beyond the scope of this specification.*
 
 ## 2.1 Information Modeling
 
-JADN is based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers,
-and byte strings), but has an information-centric focus:
+JADN type definitions are based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers,
+and byte strings), but with an information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -382,6 +382,12 @@ and byte strings), but has an information-centric focus:
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
 | Instance equality is defined at the data level. | Instance equality is defined at the information level. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
+
+The JADN serialization approach is based on three well-known equivalencies between binary/efficient and
+text/human-oriented data formats:
+1. Text representation of primitives such as IP addresses (formats)
+2. String enumeration (vocabularies and field ID/Names)
+3. Positional representation of table columns (records)
 
 ## 2.2 Example Definitions
 
@@ -445,7 +451,7 @@ type are required to interoperate with those that are not.
 | Null             | An unspecified or non-existent value, distinguishable from other values such as zero-length String or empty Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 |  **Selector**    |                                                                 |
-| Enumerated       | One value selected from a set of named or labeled integers.     |
+| Enumerated       | One id and string value selected from a vocabulary.             |
 | Choice           | A [discriminated union](#union): one type selected from a set of named or labeled types. |
 | **Container**     |                                                                 |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
@@ -458,10 +464,10 @@ type are required to interoperate with those that are not.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 * An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
-* An instance of a Map, MapOf, or Record type with a key mapped to a Null value is not equal to an
-otherwise identical instance without that key.
-* The length of an Array or ArrayOf instance does not include Null values after the last non-Null value;
-two instances that differ only in the number of trailing Nulls are equal.
+* An instance of a Map, MapOf, or Record type with a key mapped to a Null value MUST compare as equal to an
+otherwise identical instance without that key. This is the expected behavior of nullable fields.
+* The length of an Array or ArrayOf instance MUST not include Null values after the last non-Null value;
+two instances that differ only in the number of trailing Nulls MUST compare as equal.
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible.
@@ -483,7 +489,7 @@ Every definition creates a *Defined type* that has five elements:
 * If BaseType is Enumerated, each item definition MUST have three elements:
 
     1. **ItemID:** the integer identifier of the item
-    2. **ItemValue:** the value of the item
+    2. **ItemValue:** the string value of the item
     3. **ItemDescription:** a non-normative comment
 ```
         [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
@@ -509,6 +515,7 @@ Every definition creates a *Defined type* that has five elements:
 * If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 * FieldType MUST be a Simple type, ArrayOf, MapOf, or a Defined type.
 * If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
+* ItemValue MAY be any string, but the Enumerated type is often used to hold FieldID/FieldName pairs.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 Some extensions (e.g., [Derived Enumerations](#333-derived-enumerations), [Pointers](#335-pointers))
@@ -604,11 +611,14 @@ which data values are instances of the defined type.
 | 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
 | 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
 | 0x3e `'>'` | pointer | String | Extension: Enumerated type containing pointers derived from the specified Array, Choice, Map or Record type ([Section 3.3.5](#335-pointers)) |
+| 0x58 `'X'` | extend | none / If present, the type has an extension point where fields may be added in the future ([Section 3.2.1.9](#3219-extension-point))
 | **Validation** | | | |
 | 0x2f `'/'` | format | String | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
 | 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
-| 0x7b `'{'` | minv | Integer | Minimum numeric value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
-| 0x7d `'}'` | maxv | Integer | Maximum numeric value, octet or character count, or element count |
+| 0x7b `'{'` | minv | Integer | Minimum integer value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
+| 0x7d `'}'` | maxv | Integer | Maximum integer value, octet or character count, or element count |
+| 0x79 `'y'` | minf | Number | Minimum real number value |
+| 0x7a `'z'` | maxf | Number | Maximum real number value |
 | 0x71 `'q'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
 
 * TypeOptions MUST contain zero or one instance of each type option.
@@ -623,16 +633,16 @@ which data values are instances of the defined type.
 | Binary | minv, maxv, format |
 | Boolean | |
 | Integer | minv, maxv, format |
-| Number | minv, maxv, format |
+| Number | minf, maxf, format |
 | Null | |
 | String | minv, maxv, format, pattern |
-| Enumerated | id, enum, pointer |
-| Choice | id |
-| Array | minv, maxv, format |
+| Enumerated | id, enum, pointer, extend |
+| Choice | id, extend |
+| Array | minv, maxv, format, extend |
 | ArrayOf | vtype, minv, maxv, unique |
-| Map | id, minv, maxv |
+| Map | id, minv, maxv, extend |
 | MapOf | ktype, vtype, minv, maxv |
-| Record | minv, maxv |
+| Record | minv, maxv, extend |
 
 #### 3.2.1.1 Field Identifiers
 
@@ -708,6 +718,10 @@ The *unique* option specifies that values in an array must not be repeated.
 
 * For the ArrayOf type, if *unique* is present, an instance MUST be considered invalid if it contains duplicate values.
 
+#### 3.2.1.9 Extension Point
+The *extend* option, if present, specifies that an Enumerated, Choice, Array, Map and Record type includes an
+"extension point" where new fields may be appended without breaking backward compatibility. 
+
 ### 3.2.2 Field Options
 Field options are specified for each field within a type definition. Each option in Table 3-5 is a structural element of the type definition.
 
@@ -718,7 +732,9 @@ Field options are specified for each field within a type definition. Each option
 | 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
 | 0x5d `']'` | maxc | Integer | Maximum cardinality |
 | 0x26 `'&'` | tfield | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-discriminated-union-with-explicit-tag)) |
-| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType ([Section 3.3.5](#335-pointers)) |
+| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType (Extension: [Section 3.3.5](#335-pointers)) |
+| 0x4b `'K'` | key | none | Field is a primary key for this type (Extension: [Section 3.3.6](#336-links)) |
+| 0x4c `'L'` | link | none | Field is a relationship or link to a type instance (Extension: [Section 3.3.6](#336-links))
 | 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
 
 * FieldOptions MUST NOT include more than one of: a minc/maxc range, tfield, or path.  
@@ -1031,6 +1047,44 @@ value is not considered an "Item":
       }
     }
 
+### 3.3.6 Links
+The definitions in an information model must be acyclic - types cannot reference themselves
+either directly or indirectly through other types.
+But with links an IM can model data structures that represent arbitrarily-connected *instance* graphs,
+the most obvious example being types addressable by URI and types that contain URI-valued fields.
+Links can have any syntax, such as integers, UUIDs, or unrestricted or restricted strings.
+The only requirement is that the identifier by which an instance is referenced (it's "id" or primary key)
+must have the same syntax as any links that reference it (foreign keys).
+
+The link extension slightly automates that requirement: the *key* option within a container type designates
+a field to be used as a primary key, and the *link* option designates a type as being a reference to an instance.
+The information model defines how instances are serialized, and presence of the *key* and *link* options MAY
+be used by applications to invoke processing operations such as referential integrity.
+
+As an example, a Person type might be used to represent friends and family relationships:
+
+    Person = Record
+        1 id        Integer(key)
+        2 name      String
+        3 mother    Link(Person)
+        4 father    Link(Person)
+        5 siblings  Link(Person) [0..*]
+        6 friends   Link(Person) [0..*]
+
+Simplifying creates an explicit key type and replaces references with the type, but loses the information
+that the value represents a primary key or a relationship:
+
+    Person = Record
+        1 id        Person$id
+        2 name      String
+        3 mother    Person$id
+        4 father    Person$id
+        5 siblings  Person$id [0..*]
+        6 friends   Person$id [0..*]
+ 
+    Person$id = Integer
+
+
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in
 [Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using
@@ -1291,15 +1345,41 @@ can be displayed as a [YANG tree diagram](#rfc8340) using the following conventi
 
 # 6 Schemas
 
-JADN schemas are organized into modules.  A schema module includes a set of meta-information (or header) items
-and a list of type definitions. Definitions in one module can reference definitions from other modules; this
-requires each module to have a unique identifier.
+JADN schemas are organized into modules.  A schema module consists of an optional
+[information](#c1-schema-module) section and a list of [type definitions](#c2-type-definitions):
 
-*Editor's note: Describe each Meta field*
+```
+    Schema = Record                            // Definition of a JADN schema module
+       1 info         Information optional     // Information about this module
+       2 types        Types                    // Types defined in this module
+```
+
+If the info section is present the *module* field is required; all others are optional.
+
+* **module:** A namespace URI that allows type definitions in this module to be unambiguously referenced from other
+modules. This is an identifier, not necessarily a locator for an accessible resource.
+The namespace may include major or major.minor versioning information, such as http://example.com/acme2
+or http://example.com/acme/v1.3.
+* **version:** The incremental version of this module, a string that compares lexicographically higher
+than previous versions. References are to a module namespace only. Version may be used to determine
+the most recent namespece definition.
+* **title:** A short name for this module.
+* **description:** A brief description of purpose or capabilities of this module
+* **comment:**
+* **copyright:** A copyright notice.
+* **license:** License for the data in this module, SPDX licenseId (e.g., 'CC0-1.0').
+* **imports:** 
+* **exports:**
+* **config:**
+
 
 # 7 Data Model Generation
 A JADN schema combined with serialization rules defines a data model, a concrete schema that validates
 instances in the specified data format.
+
+As noted earlier, there are two ways to use an information model:
+1) Translate the information model to a concrete schema for a specific data format and use serialization software for that format.
+2) Use the information model directly to serialize, validate, and translate data across formats.
 
 # 8 Operational Considerations
 * Serialization (bulk vs pull)
@@ -1308,6 +1388,7 @@ instances in the specified data format.
 * Schema embedding - self-describing data
 * Bridging
 * Tabular data (not too many optional columns, sort fields by required/optional.  Tuples.)
+
 -------
 
 # 9 Security Considerations
@@ -1386,13 +1467,14 @@ The following individuals have participated in the creation of this specificatio
 | Joseph | Brule | National Security Agency |
 | Jason | Romano | General Dynamics |
 
-
 -------
 
 # Appendix B. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
 | jadn-v1.0-wd01 | 2020-08-01 | David Kemp | Initial working draft |
+
+-------
 
 # Appendix C. JADN Meta-schema
 
@@ -1415,32 +1497,34 @@ A schema module is a collection of type definitions along with information about
      exports: ["Schema"]
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"}
 
-Schema = Record                              // Definition of a JADN schema module
-   1 meta         Meta optional              // Information about this module
-   2 types        Types                      // Types defined in this module
+Schema = Record                                        // Definition of a JADN schema module
+   1 info             Information optional             // Information about this module
+   2 types            Types                            // Types defined in this module
 
-Meta = Map                                   // Information about this module
-   1 module       Namespace                  // Unique name/version: $id
-   2 patch        String{1..*} optional      // Patch version
-   3 title        String{1..*} optional      // Title
-   4 description  String{1..*} optional      // Description
-   5 comment      String{1..*} optional      // Comment: $comment
-   6 imports      Imports optional           // Imported schema modules
-   7 exports      Exports optional           // Type definitions exported by this module
-   8 config       Config optional            // Configuration values for this module
+Information = Map                                      // Information about this module
+   1 module           Namespace                        // Unique name/version: $id
+   2 version          String{1..*} optional            // Incrementing/patch version within module
+   3 title            String{1..*} optional            // Title
+   4 description      String{1..*} optional            // Description
+   5 comment          String{1..*} optional            // Comment: $comment
+   6 copyright        String{1..*} optional            // Copyright notice
+   7 license          String{1..*} optional            // SPDX licenseId (e.g., 'CC0-1.0')
+   8 imports          Imports optional                 // Imported schema modules
+   9 exports          Exports optional                 // Type definitions exported by this module
+  10 config           Config optional                  // Configuration values for this module
 
-Imports = MapOf(NSID, Namespace){1..*}       // List of imported modules
+Imports = MapOf(NSID, Namespace){1..*}                 // List of imported modules
 
-Exports = ArrayOf(TypeName){1..*}            // List of type definitions intended to be public
+Exports = ArrayOf(TypeName){1..*}                      // List of type definitions intended to be public
 
-Config = Map{1..*}                           // Configuration variables used to override JADN defaults
-   1 $MaxBinary   Integer{1..*} optional     // Schema default maximum number of octets
-   2 $MaxString   Integer{1..*} optional     // Schema default maximum number of characters
-   3 $MaxElements Integer{1..*} optional     // Schema default maximum number of items/properties
-   4 $Sys         String{1..1} optional      // System character for TypeName
-   5 $TypeName    String{1..127} optional    // TypeName regex
-   6 $FieldName   String{1..127} optional    // FieldName regex
-   7 $NSID        String{1..127} optional    // Namespace Identifier regex
+Config = Map{1..*}                                     // Configuration variables used to override JADN defaults
+   1 $MaxBinary       Integer{1..*} optional           // Schema default maximum number of octets
+   2 $MaxString       Integer{1..*} optional           // Schema default maximum number of characters
+   3 $MaxElements     Integer{1..*} optional           // Schema default maximum number of items/properties
+   4 $Sys             String{1..1} optional            // System character for TypeName
+   5 $TypeName        String{1..127} optional          // TypeName regex
+   6 $FieldName       String{1..127} optional          // FieldName regex
+   7 $NSID            String{1..127} optional          // Namespace Identifier regex
 ```
 ## C.2 Type Definitions
 
@@ -1450,11 +1534,11 @@ with options providing extensibility.
 Types = ArrayOf(Type)
 
 Type = Array
-   1  TypeName                               // type_name::
-   2  BaseType                               // base_type::
-   3  Options                                // type_options::
-   4  Description                            // type_description::
-   5  JADN-Type(TagId[base_type])            // fields::
+   1  TypeName                                         // type_name::
+   2  BaseType                                         // base_type::
+   3  Options                                          // type_options::
+   4  Description                                      // type_description::
+   5  JADN-Type(TagId[base_type])                      // fields::
 
 BaseType = Enumerated
    1 Binary
@@ -1472,37 +1556,37 @@ BaseType = Enumerated
   13 Record
 
 JADN-Type = Choice
-   1 Binary       Empty
-   2 Boolean      Empty
-   3 Integer      Empty
-   4 Number       Empty
-   5 Null         Empty
-   6 String       Empty
-   7 Enumerated   Items
-   8 Choice       Fields
-   9 Array        Fields
-  10 ArrayOf      Empty
-  11 Map          Fields
-  12 MapOf        Empty
-  13 Record       Fields
+   1 Binary           Empty
+   2 Boolean          Empty
+   3 Integer          Empty
+   4 Number           Empty
+   5 Null             Empty
+   6 String           Empty
+   7 Enumerated       Items
+   8 Choice           Fields
+   9 Array            Fields
+  10 ArrayOf          Empty
+  11 Map              Fields
+  12 MapOf            Empty
+  13 Record           Fields
 
 Empty = Array{0..0}
 
 Items = ArrayOf(Item)
 
 Item = Array
-   1  FieldID                                // item_id::
-   2  String                                 // item_value::
-   3  Description                            // item_description::
+   1  FieldID                                          // item_id::
+   2  String                                           // item_value::
+   3  Description                                      // item_description::
 
 Fields = ArrayOf(Field)
 
 Field = Array
-   1  FieldID                                // field_id::
-   2  FieldName                              // field_name::
-   3  TypeRef                                // field_type::
-   4  Options                                // field_options::
-   5  Description                            // field_description::
+   1  FieldID                                          // field_id::
+   2  FieldName                                        // field_name::
+   3  TypeRef                                          // field_type::
+   4  Options                                          // field_options::
+   5  Description                                      // field_description::
 
 FieldID = Integer{0..*}
 
@@ -1512,16 +1596,18 @@ Option = String{1..*}
 
 Description = String
 
-Namespace = String /uri                      // Unique name of a module
+Namespace = String /uri                                // Unique name of a module
 
-NSID = String (%$NSID%)                      // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
+NSID = String (%$NSID%)                                // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
 
-TypeName = String (%$TypeName%)              // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
+TypeName = String (%$TypeName%)                        // Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$
 
-FieldName = String (%$FieldName%)            // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
+FieldName = String (%$FieldName%)                      // Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$
 
-TypeRef = String                             // Autogenerated Type Reference pattern = ($NSID ':')? $TypeName
+TypeRef = String                                       // Autogenerated Type Reference pattern = ($NSID ':')? $TypeName
 ```
+
+-------
 
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
@@ -1677,30 +1763,32 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 **[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
 ```
 {
- "meta": {
+ "info": {
   "module": "http://oasis-open.org/jadn/v1.0/schema",
   "title": "JADN Metaschema",
   "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
   "exports": ["Schema"],
   "config": {
-    "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
+   "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
  },
  "types": [
   ["Schema", "Record", [], "Definition of a JADN schema module", [
-    [1, "meta", "Meta", ["[0"], "Information about this module"],
+    [1, "info", "Information", ["[0"], "Information about this module"],
     [2, "types", "Types", [], "Types defined in this module"]
   ]],
 
-  ["Meta", "Map", [], "Information about this module", [
+  ["Information", "Map", [], "Information about this module", [
     [1, "module", "Namespace", [], "Unique name/version: $id"],
-    [2, "patch", "String", ["{1", "[0"], "Patch version"],
+    [2, "version", "String", ["{1", "[0"], "Incrementing/patch version within module"],
     [3, "title", "String", ["{1", "[0"], "Title"],
     [4, "description", "String", ["{1", "[0"], "Description"],
     [5, "comment", "String", ["{1", "[0"], "Comment: $comment"],
-    [6, "imports", "Imports", ["[0"], "Imported schema modules"],
-    [7, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
-    [8, "config", "Config", ["[0"], "Configuration values for this module"]
+    [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
+    [7, "license", "String", ["{1", "[0"], "SPDX licenseId (e.g., 'CC0-1.0')"],
+    [8, "imports", "Imports", ["[0"], "Imported schema modules"],
+    [9, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
+    [10, "config", "Config", ["[0"], "Configuration values for this module"]
   ]],
   ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules", []],
   ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public", []],
@@ -1779,6 +1867,9 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
  ]
 }
 ```
+
+-------
+
 # Appendix E. JSON Schema for JADN
 
 A JADN module has the following structure:
@@ -1790,16 +1881,18 @@ A JADN module has the following structure:
   "required": ["types"],
   "additionalProperties": false,
   "properties": {
-    "meta": {
+    "info": {
       "type": "object",
       "required": ["module"],
       "additionalProperties": false,
       "properties": {
         "module": {"type": "string"},
-        "patch": {"type": "string"},
+        "version": {"type": "string"},
         "title": {"type": "string"},
         "description": {"type": "string"},
         "comment": {"type":  "string"},
+        "copyright": {"type": "string"},
+        "license": {"type": "string"},
         "imports": {"$ref": "#/definitions/Imports"},
         "exports": {"$ref": "#/definitions/Exports"},
         "config": {"$ref": "#/definitions/Config"}
@@ -1816,10 +1909,7 @@ A JADN module has the following structure:
           {"$ref": "#/definitions/BaseType"},
           {"$ref": "#/definitions/Options"},
           {"$ref": "#/definitions/Description"},
-          {"anyOf": [
-            {"$ref": "#/definitions/Items"},
-            {"$ref": "#/definitions/Fields"}
-          ]}
+          {"$ref": "#/definitions/Fields"}
         ]
       }
     }
@@ -1852,33 +1942,36 @@ A JADN module has the following structure:
         "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
-    "Items": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 3,
-        "maxItems": 3,
-        "items": [
-          {"type": "integer"},
-          {"type": "string"},
-          {"$ref": "#/definitions/Description"}
-        ]
-      }
-    },
     "Fields": {
       "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 5,
-        "maxItems": 5,
-        "items": [
-          {"type": "integer"},
-          {"$ref": "#/definitions/FieldName"},
-          {"$ref": "#/definitions/TypeRef"},
-          {"$ref": "#/definitions/Options"},
-          {"$ref": "#/definitions/Description"}
-        ]
-      }
+      "items": [
+        {"anyOf": [
+          {"$ref": "#/definitions/Item"},
+          {"$ref": "#/definitions/Field"}
+        ]}
+      ]
+    },
+    "Item": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": [
+        {"type": "integer"},
+        {"type": "string"},
+        {"$ref": "#/definitions/Description"}
+      ]
+    },
+    "Field": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": [
+        {"type": "integer"},
+        {"$ref": "#/definitions/FieldName"},
+        {"$ref": "#/definitions/TypeRef"},
+        {"$ref": "#/definitions/Options"},
+        {"$ref": "#/definitions/Description"}
+      ]
     },
     "NSID": {
       "type": "string",
@@ -1897,8 +1990,8 @@ A JADN module has the following structure:
     },
     "FieldName": {
       "type": "string",
-      "pattern": "^[$A-Za-z][-_:A-Za-z0-9]{0,31}$",
-      "description": "Default Field Name per section 3.1.1 Name Formats, updated for JADN meta-schema and OC2 v1.0"
+      "pattern": "^[$A-Za-z][_A-Za-z0-9]{0,31}$",
+      "description": "Default Field Name per section 3.1.1 Name Formats, updated for JADN meta-schema"
     },
     "BaseType": {
       "type": "string",
@@ -1918,6 +2011,8 @@ A JADN module has the following structure:
 ```
 
 In order to validate the JADN meta-schema, FieldName should be the pattern configured in Appendix D. 
+
+-------
 
 # Appendix F. ABNF Grammar for JADN IDL
 
