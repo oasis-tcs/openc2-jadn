@@ -250,9 +250,8 @@ instance having two fields with the same key is undefined.
 Note that JADN schemas may define their own extended type system. This should not be confused with the core types
 defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define,
 but the definition is based on the Binary core type.
-The only core relationship between types is "contains".
-Extended relationships (class inheritance, roles such as "owns" or "performs", etc.)
-may be modeled explicitly as extended types, or potentially with options and serialization rules.
+There is only one relationship between core types: a container type contains other types. But schemas may define
+extended relationships between instances, for example "owner" or "performer", using [links](#336-links).
 
 #### 1.3.6.1 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
@@ -1061,7 +1060,8 @@ a field to be used as a primary key, and the *link* option designates a referenc
 The *key* and *link* options do not affect the serialization or validation of data, but they MAY
 be used by applications to perform relationship-aware operations such as checking or enforcing referential integrity.
 
-As an example, a Person type might be used to represent friends and family relationships:
+As an example, a Person type might be used to represent friends and family relationships. This example assumes that
+an Organization type is defined elsewhere with a Key field called 'ein':
 
     Person = Record
         1 id        Key(Integer)
@@ -1070,6 +1070,7 @@ As an example, a Person type might be used to represent friends and family relat
         4 father    Link(Person)
         5 siblings  Link(Person) [0..*]
         6 friends   Link(Person) [0..*]
+        7 employer  Link(Organization) optional
 
 Simplifying creates an explicit key type and replaces links with that type, but discards the indication
 that a field is a primary key or relationship:
@@ -1081,8 +1082,10 @@ that a field is a primary key or relationship:
         4 father    Person$id
         5 siblings  Person$id [0..*]
         6 friends   Person$id [0..*]
+        7 employer  Organization$ein optional
  
     Person$id = Integer
+    Organization$ein = String{10..10}
 
 
 # 4 Serialization
@@ -1769,7 +1772,8 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [3, "mother", "Person", ["L"], ""],
     [4, "father", "Person", ["L"], ""],
     [5, "siblings", "Person", ["[0", "]0", "L"], ""],
-    [6, "friends", "Person", ["[0", "]0", "L"], ""]
+    [6, "friends", "Person", ["[0", "]0", "L"], ""],
+    [7, "employer", "Organization", ["[0", "L"], ""]
   ]],
 
   ["Person", "Record", [], "", [
@@ -1778,10 +1782,13 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [3, "mother", "Person$id", [], ""],
     [4, "father", "Person$id", ["], ""],
     [5, "siblings", "Person$id", ["[0", "]0"], ""],
-    [6, "friends", "Person$id", ["[0", "]0"], ""]
+    [6, "friends", "Person$id", ["[0", "]0"], ""],
+    [7, "employer", "Organization$ein", ["[0"], ""]
   ]],
 
-  ["Person$id", "Integer", [], "", []]
+  ["Person$id", "Integer", [], "", []],
+
+  ["Organization$ein", "String", ["{10", "}10"], "", []]
 ```
 
 **[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
