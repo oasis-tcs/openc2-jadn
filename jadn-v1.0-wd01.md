@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 14 August 2020
+## 21 August 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -311,6 +311,8 @@ Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.o
 Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
+###### [GRAPH]
+Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
@@ -379,7 +381,7 @@ and byte strings), but with an information-centric focus:
 | JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number core types exist regardless of data representation. |
 | CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Core container types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
-| Instance equality is defined at the data level. | Instance equality is defined at the information level. |
+| Instance equality is defined at the data level. | Instance equality is defined in ways meaningful to applications. For example "Optional" and "Nullable" are different at the data level but applications make no logical distinction between "not present" and "null value". |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
 The JADN serialization approach is based on three well-known equivalencies between binary/efficient and
@@ -388,7 +390,31 @@ text/human-oriented data formats:
 2. String enumeration (vocabularies and field ID/Names)
 3. Positional representation of table columns (records)
 
-## 2.2 Example Definitions
+## 2.2 Tree vs. Graph
+
+JADN types are not allowed to reference themselves, either directly or through other types. In other words, any set
+of JADN types must form an acyclic graph, and any type graph that has cycles is invalid. This is necessary to ensure
+that all serialized data has finite and known nesting depth.
+
+JADN container types define a directional relationship between container and contained types.
+Therefore every acyclic collection of JADN types forms one or more directed acyclic graphs (DAG).
+
+A directed (or rooted) tree is a DAG with the further restriction that a child can have only one parent.
+Although information types are generally arranged hierarchically, reuse of common types is an important goal
+in both design of information models and analysis of data, and JADN's flat type structure encourages reuse.
+Nonetheless, it is often useful to have a [tree-structured representation](#graph) of a target document's structure.
+Denormalizing the original model into a tree supports applications such as model queries that are otherwise
+difficult to implement, tree-structured content statistics, content transformations, and documentation.
+Type name uniqueness ensures that denormalization is reversible and that DAG and tree representations are equivalent.
+
+In contrast with undirected trees where a root may be chosen arbitrarily, every DAG has a topological
+ordering that determines its root. JADN supports designating one or more root types of an information model.
+This has two purposes:
+
+1. As a convenience to consumers, labeling root(s) without needing to discover them from a dependency graph
+2. As a tool for providers, allowing application-specific subsets of a comprehensive source model to be designated.
+
+## 2.3 Example Definitions
 
 Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
 ```
@@ -415,7 +441,12 @@ Definitions written in JADN IDL can be translated to and from native JADN format
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-## 2.3 Implementation
+IDL format is preferred for use in documentation, but conformance to the native structured format ensures
+that the IDL is properly constructed. It is often tempting to write text or table definitions that, while appearing
+plausible, are not valid.  A round-trip conversion to structured format and back provides higher assurance of
+correctness than (possibly incomplete) lint checking, as well as a consistently formatted output text.
+
+## 2.4 Implementation
 
 Two general approaches can be used to implement IM-based protocol specifications:
 1) Translate the IM to a data-format-specific schema language such [Relax-NG](#relaxng),
@@ -1468,7 +1499,15 @@ The following individuals have participated in the creation of this specificatio
 | :--- | :--- | :--- |
 | Brian | Berliner | Symantec |
 | Joseph | Brule | National Security Agency |
+| Toby | Considine | University of North Carolina |
 | Jason | Romano | General Dynamics |
+
+**External Reviewers:**
+
+| First Name | Last Name | Company |
+| :--- | :--- | :--- |
+| Carsten | Bormann | Universität Bremen |
+| Hans-Jürgen | Rennau | parsQube GmbH |
 
 -------
 
@@ -1615,7 +1654,7 @@ TypeRef = String                                       // Autogenerated Type Ref
 # Appendix D. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
-**[Section 2.2 Example Definitions](#22-example-definitions):**
+**[Section 2.3 Example Definitions](#23-example-definitions):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
