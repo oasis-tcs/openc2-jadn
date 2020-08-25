@@ -397,23 +397,22 @@ of JADN types must form an acyclic graph, and any type graph that has cycles is 
 that all serialized data has finite and known nesting depth.
 
 JADN container types define a directional relationship between container and contained types.
-Therefore every collection of JADN types forms one or more directed acyclic graphs (DAG).
+Therefore every acyclic collection of JADN types forms one or more directed acyclic graphs (DAG).
 
 A directed (or rooted) tree is a DAG with the further restriction that a child can have only one parent.
 Although information types are generally arranged hierarchically, reuse of common types is an important goal
-in both design of information models and analysis of data, and JADN's flat type structure encourages it.
-
+in both design of information models and analysis of data, and JADN's flat type structure encourages reuse.
 Nonetheless, it is often useful to have a [tree-structured representation](#graph) of a target document's structure.
 Denormalizing the original model into a tree supports applications such as model queries that are otherwise
 difficult to implement, tree-structured content statistics, content transformations, and documentation.
 Type name uniqueness ensures that denormalization is reversible and that DAG and tree representations are equivalent.
 
-Although it is possible to designate any node of an undirected tree as its root, every DAG has a topological
+In contrast with undirected trees where a root may be chosen arbitrarily, every DAG has a topological
 ordering that determines its root. JADN supports designating one or more root types of an information model.
 This has two purposes:
 
 1. As a convenience to consumers, labeling root(s) without needing to discover them from a dependency graph
-2. As a tool for providers, allowing a comprehensive source information model to be pruned into application-specific subsets
+2. As a tool for providers, allowing application-specific subsets of a comprehensive source model to be designated.
 
 ## 2.3 Example Definitions
 
