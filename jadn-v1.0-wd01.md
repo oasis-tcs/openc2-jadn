@@ -650,6 +650,7 @@ which data values are instances of the defined type.
 | 0x79 `'y'` | minf | Number | Minimum real number value |
 | 0x7a `'z'` | maxf | Number | Maximum real number value |
 | 0x71 `'q'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
+| 0x73 `'s'` | set | none | If present, an Array or ArrayOf instance is unordered ([Section 3.2.1.9](#3219-unordered-sets))|
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -668,11 +669,11 @@ which data values are instances of the defined type.
 | String | minv, maxv, format, pattern |
 | Enumerated | id, enum, pointer, extend |
 | Choice | id, extend |
-| Array | minv, maxv, format, extend |
-| ArrayOf | vtype, minv, maxv, unique |
-| Map | id, minv, maxv, extend |
-| MapOf | ktype, vtype, minv, maxv |
-| Record | minv, maxv, extend |
+| Array | extend, format, minv, maxv |
+| ArrayOf | vtype, minv, maxv, unique, set |
+| Map | id, extend, minv, maxv |
+| MapOf | vtype, ktype, minv, maxv |
+| Record | extend, minv, maxv |
 
 #### 3.2.1.1 Field Identifiers
 
@@ -746,9 +747,16 @@ The *minv* and *maxv* options specify size or value limits.
 #### 3.2.1.8 Unique Values
 The *unique* option specifies that values in an array must not be repeated.
 
-* For the ArrayOf type, if *unique* is present, an instance MUST be considered invalid if it contains duplicate values.
+* For the ArrayOf type, if *unique* is present an instance MUST be considered invalid if it contains duplicate values.
 
-#### 3.2.1.9 Extension Point
+#### 3.2.1.9 Set
+The *set* option, if present, specifies that an ArrayOf type is unordered, having the semantics of a SetOf
+type respectively.  Note that there is no unordered Array type because the type of each item in an Array is determined
+by its position.
+
+* For the ArrayOf type, if *set* is present an instance MUST be considered invalid if it contains duplicate values.
+
+#### 3.2.1.10 Extension Point
 The *extend* option, if present, specifies that an Enumerated, Choice, Array, Map and Record type includes an
 "extension point" where new fields may be appended without breaking backward compatibility. 
 
@@ -1372,10 +1380,32 @@ Table xample:
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-## 5.3 Tree Diagrams
+## 5.3 Entity Relationship Diagrams
+
+JADN type definitions have a Graphical Representation similar to ERDs used in database design.  There are two differences:
+
+1. The only entity type in a relational database is the Table, while JADN entity types are Choice, Array, Map, and Record.
+Entity types are specified at the top of the entity along with name, e.g., "Customer = Record"
+
+2. The only relationship in a relational database is a Link between foreign and primary keys.  Although JADN supports
+a Link extension ([Section 3.3.6](#336-links)), a container is the standard relationship between types. This is
+represented graphically by a line from a field in the container to the name (instead of primary key) of the
+contained type.
+
+Aside from those differences JADN models can be represented graphically using any ER notation: Chen, UML, crows foot, etc.
+Note that data types are not classes and class diagrams (having private/public attributes, methods, inheritance
+relationships, etc.) are not a good fit for representing them. The UML attribute type notation used in class diagrams, e.g.,
+
+    email_address [1..5 unique]: String /email
+
+is entirely at home in information model ER diagrams.
+
+## 5.4 Tree Diagrams
 
 Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
+
+*TBSL*
 
 # 6 Schemas
 
