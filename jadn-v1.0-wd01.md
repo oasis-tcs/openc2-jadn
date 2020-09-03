@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 21 August 2020
+## 28 August 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -335,7 +335,7 @@ Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.
 ###### [TRANSFORM]
 Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
 ###### [UML]
-"UML Multiplicity and Collections", https://www.uml-diagrams.org/multiplicity.html.
+*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF
 ###### [UNION]
 "Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
 
@@ -650,6 +650,7 @@ which data values are instances of the defined type.
 | 0x79 `'y'` | minf | Number | Minimum real number value |
 | 0x7a `'z'` | maxf | Number | Maximum real number value |
 | 0x71 `'q'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
+| 0x73 `'s'` | set | none | If present, an Array or ArrayOf instance is unordered ([Section 3.2.1.9](#3219-unordered-sets))|
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -668,11 +669,11 @@ which data values are instances of the defined type.
 | String | minv, maxv, format, pattern |
 | Enumerated | id, enum, pointer, extend |
 | Choice | id, extend |
-| Array | minv, maxv, format, extend |
-| ArrayOf | vtype, minv, maxv, unique |
-| Map | id, minv, maxv, extend |
-| MapOf | ktype, vtype, minv, maxv |
-| Record | minv, maxv, extend |
+| Array | extend, format, minv, maxv |
+| ArrayOf | vtype, minv, maxv, unique, set |
+| Map | id, extend, minv, maxv |
+| MapOf | vtype, ktype, minv, maxv |
+| Record | extend, minv, maxv |
 
 #### 3.2.1.1 Field Identifiers
 
@@ -746,9 +747,16 @@ The *minv* and *maxv* options specify size or value limits.
 #### 3.2.1.8 Unique Values
 The *unique* option specifies that values in an array must not be repeated.
 
-* For the ArrayOf type, if *unique* is present, an instance MUST be considered invalid if it contains duplicate values.
+* For the ArrayOf type, if *unique* is present an instance MUST be considered invalid if it contains duplicate values.
 
-#### 3.2.1.9 Extension Point
+#### 3.2.1.9 Set
+The *set* option, if present, specifies that an ArrayOf type is unordered, having the semantics of a SetOf
+type respectively.  Note that there is no unordered Array type because the type of each item in an Array is determined
+by its position.
+
+* For the ArrayOf type, if *set* is present an instance MUST be considered invalid if it contains duplicate values.
+
+#### 3.2.1.10 Extension Point
 The *extend* option, if present, specifies that an Enumerated, Choice, Array, Map and Record type includes an
 "extension point" where new fields may be appended without breaking backward compatibility. 
 
@@ -771,7 +779,7 @@ Field options are specified for each field within a type definition. Each option
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
-Multiplicity, as used in the Unified Modeling Language ([UML](#uml)), is a range of allowed cardinalities.
+Multiplicity, as used in the Unified Modeling Language ([UML Section 7.5.4](#uml)), is a range of allowed cardinalities.
 The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
 of an Array, Choice, Map, or Record type:
 
@@ -1064,7 +1072,7 @@ in multiple locations in a hierarchy, and 3) needs identifiers for each type in 
 
 It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
-development of schema modules regardless of whether the underlying data format has native namespace support.
+development of packages regardless of whether the underlying data format has native namespace support.
 
 The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
@@ -1372,39 +1380,62 @@ Table xample:
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-## 5.3 Tree Diagrams
+## 5.3 Entity Relationship Diagrams
+
+JADN type definitions have a Graphical Representation similar to ERDs used in database design.  The differences are:
+
+1. The only entity type in a relational database is the Table, while JADN entity types are Choice, Array, Map, and Record.
+Entity types are specified at the top of the entity along with name, e.g., "Customer = Record"
+
+2. The only relationship in a relational database is a Link between foreign and primary keys.  Although JADN supports
+a Link extension ([Section 3.3.6](#336-links)), a container is the standard relationship between types. This is
+represented graphically by a line from a field in the container to the name (instead of primary key) of the
+contained type.
+
+Aside from those differences JADN models can be represented graphically using any ER notation: Chen, UML, crows foot, etc.
+Note that data types are not classes and class diagrams (without the ability to define attribute-level relationships)
+are not suitable for representing them. However the UML attribute type notation used in class diagrams:
+
+   visibility name [multiplicity ordering] : type = initial_value
+
+is, excluding the visibility (-/+) annotation and adding JADN type options, appropriate in information
+model ER diagrams.
+
+## 5.4 Tree Diagrams
 
 Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
 
+*TBSL*
+
 # 6 Schemas
 
-JADN schemas are organized into modules.  A schema module consists of an optional
+JADN schemas are organized into packages.  A package consists of an optional
 information section and a list of [type definitions](#c2-type-definitions):
 
 ```
-    Schema = Record                            // Definition of a JADN schema module
-       1 info         Information optional     // Information about this module
-       2 types        Types                    // Types defined in this module
+    Schema = Record                            // Definition of a JADN package
+       1 info         Information optional     // Information about this package
+       2 types        Types                    // Types defined in this package
 ```
 
-If the [information](#c1-schema-module) section is present the *module* field is required; all others are optional.
+If the [information](#c1-schema-package) section is present the *package* field is required; all others are optional.
 
-* **module:** A namespace URI that allows type definitions in this module to be unambiguously referenced from other
-modules. This is an identifier but not necessarily a locator for accessible resources.
+* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced from other
+packages. This is an identifier but not necessarily a locator for accessible resources.
 The namespace may include major or major.minor versioning information, such as http://example.com/acme2
 or http://example.com/acme/v1.3.
-* **version:** Incremental version of this module, a string that compares lexicographically higher
-than previous versions. The *imports* field references only namespaces. Version may be used to determine
+* **version:** Incremental version of this package, a string that compares lexicographically higher
+than previous versions. The *namespaces* field references only package namespaces. Version may be used to determine
 the most recent definition of a namespace.
-* **title:** A short name for this module.
-* **description:** A brief description of purpose or capabilities of this module
-* **comment:** Any other information applicable to the module.
+* **title:** A short name for this package.
+* **description:** A brief description of purpose or capabilities of this package
+* **comment:** Any other information applicable to the package.
 * **copyright:** A copyright notice.
-* **license:** License for this module. Value is an SPDX licenseId, CC0-1.0 is recommended.
-* **imports:** Map of NSIDs (short names) to namespaces of types referenced by this module.
+* **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
+* **namespaces:** Map of NSIDs (short names) to namespaces of types referenced by this package.
 * **exports:** List of root types. May be used by schema tools to detect or prune unused types.
-* **config:** List of values, such as name formats and size limits, that are customized for this module.
+* **config:** List of values, such as name formats and size limits, that are customized for this package.
 
 
 # 7 Data Model Generation
@@ -1482,7 +1513,7 @@ This document describes several schema support functions but defines no conforma
 * JADN Schema Translator
     * Translate type definitions in JSON format to Table and JADN-IDL formats per Section 5.1.
     * Translate type definitions in JADN-IDL and Table formats to JSON format per Section 5.1.
-    * Merge schema modules per Section 5.2.
+    * Merge packages per Section 5.2.
 * JADN Concrete Schema Generator
     * Generate a schema in a format-specific language per serialization rules in Section 4.x.
     JADN validator and format-specific validator should agree on all good and bad data instances.
@@ -1529,33 +1560,33 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
     "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
 ```
-## C.1 Schema Module
+## C.1 package
 
-A schema module is a collection of type definitions along with information about the module.
+A package is a collection of type definitions along with information about the package.
 ```
        title: "JADN Metaschema"
-      module: "http://oasis-open.org/jadn/v1.0/schema"
- description: "Syntax of a JSON Abstract Data Notation (JADN) module."
+      package: "http://oasis-open.org/jadn/v1.0/schema"
+ description: "Syntax of a JSON Abstract Data Notation (JADN) package."
      exports: ["Schema"]
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"}
 
-Schema = Record                                        // Definition of a JADN schema module
-   1 info             Information optional             // Information about this module
-   2 types            Types                            // Types defined in this module
+Schema = Record                                        // Definition of a JADN package
+   1 info             Information optional             // Information about this package
+   2 types            Types                            // Types defined in this package
 
-Information = Map                                      // Information about this module
-   1 module           Namespace                        // Unique name/version: $id
-   2 version          String{1..*} optional            // Incrementing/patch version within module
+Information = Map                                      // Information about this package
+   1 package          Namespace                        // Unique name/version: $id
+   2 version          String{1..*} optional            // Incrementing/patch version within package
    3 title            String{1..*} optional            // Title
    4 description      String{1..*} optional            // Description
    5 comment          String{1..*} optional            // Comment: $comment
    6 copyright        String{1..*} optional            // Copyright notice
    7 license          String{1..*} optional            // SPDX licenseId (e.g., 'CC0-1.0')
-   8 imports          Imports optional                 // Imported schema modules
-   9 exports          Exports optional                 // Type definitions exported by this module
-  10 config           Config optional                  // Configuration values for this module
+   8 namespaces       Namespaces optional              // Imported packages
+   9 exports          Exports optional                 // Type definitions exported by this package
+  10 config           Config optional                  // Configuration values for this package
 
-Imports = MapOf(NSID, Namespace){1..*}                 // List of imported modules
+Namespaces = MapOf(NSID, Namespace){1..*}                 // List of imported packages
 
 Exports = ArrayOf(TypeName){1..*}                      // List of type definitions intended to be public
 
@@ -1638,7 +1669,7 @@ Option = String{1..*}
 
 Description = String
 
-Namespace = String /uri                                // Unique name of a module
+Namespace = String /uri                                // Unique name of a package
 
 NSID = String (%$NSID%)                                // Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$
 
@@ -1834,33 +1865,33 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 ```
 {
  "info": {
-  "module": "http://oasis-open.org/jadn/v1.0/schema",
+  "package": "http://oasis-open.org/jadn/v1.0/schema",
   "title": "JADN Metaschema",
-  "description": "Syntax of a JSON Abstract Data Notation (JADN) module.",
+  "description": "Syntax of a JSON Abstract Data Notation (JADN) package.",
   "exports": ["Schema"],
   "config": {
    "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
  },
  "types": [
-  ["Schema", "Record", [], "Definition of a JADN schema module", [
-    [1, "info", "Information", ["[0"], "Information about this module"],
-    [2, "types", "Types", [], "Types defined in this module"]
+  ["Schema", "Record", [], "Definition of a JADN package", [
+    [1, "info", "Information", ["[0"], "Information about this package"],
+    [2, "types", "Types", [], "Types defined in this package"]
   ]],
 
-  ["Information", "Map", [], "Information about this module", [
-    [1, "module", "Namespace", [], "Unique name/version: $id"],
-    [2, "version", "String", ["{1", "[0"], "Incrementing/patch version within module"],
+  ["Information", "Map", [], "Information about this package", [
+    [1, "package", "Namespace", [], "Unique name/version: $id"],
+    [2, "version", "String", ["{1", "[0"], "Incrementing/patch version within package"],
     [3, "title", "String", ["{1", "[0"], "Title"],
     [4, "description", "String", ["{1", "[0"], "Description"],
     [5, "comment", "String", ["{1", "[0"], "Comment: $comment"],
     [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
     [7, "license", "String", ["{1", "[0"], "SPDX licenseId (e.g., 'CC0-1.0')"],
-    [8, "imports", "Imports", ["[0"], "Imported schema modules"],
-    [9, "exports", "Exports", ["[0"], "Type definitions exported by this module"],
-    [10, "config", "Config", ["[0"], "Configuration values for this module"]
+    [8, "namespaces", "Namespaces", ["[0"], "Imported packages"],
+    [9, "exports", "Exports", ["[0"], "Type definitions exported by this package"],
+    [10, "config", "Config", ["[0"], "Configuration values for this package"]
   ]],
-  ["Imports", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported modules", []],
+  ["Namespaces", "MapOf", ["+NSID", "*Namespace", "{1"], "List of imported packages", []],
   ["Exports", "ArrayOf", ["*TypeName", "{1"], "List of type definitions intended to be public", []],
   ["Config", "Map", ["{1"], "Configuration variables used to override JADN defaults", [
     [1, "$MaxBinary", "Integer", ["{1", "[0"], "Schema default maximum number of octets"],
@@ -1929,7 +1960,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Options", "ArrayOf", ["*Option", "}10"], "", []],
   ["Option", "String", ["{1"], "", []],
   ["Description", "String", [], "", []],
-  ["Namespace", "String", ["/uri"], "Unique name of a module", []],
+  ["Namespace", "String", ["/uri"], "Unique name of a package", []],
   ["NSID", "String", ["%$NSID"], "Configurable pattern, default = ^[A-Za-z][A-Za-z0-9]{0,7}$", []],
   ["TypeName", "String", ["%$TypeName"], "Configurable pattern, default = ^[A-Z][-$A-Za-z0-9]{0,31}$", []],
   ["FieldName", "String", ["%$FieldName"], "Configurable pattern, default = ^[a-z][_A-Za-z0-9]{0,31}$", []],
@@ -1942,7 +1973,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 # Appendix E. JSON Schema for JADN
 
-A JADN module has the following structure:
+A JADN package has the following structure:
 ```
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1953,17 +1984,17 @@ A JADN module has the following structure:
   "properties": {
     "info": {
       "type": "object",
-      "required": ["module"],
+      "required": ["package"],
       "additionalProperties": false,
       "properties": {
-        "module": {"type": "string"},
+        "package": {"type": "string"},
         "version": {"type": "string"},
         "title": {"type": "string"},
         "description": {"type": "string"},
         "comment": {"type":  "string"},
         "copyright": {"type": "string"},
         "license": {"type": "string"},
-        "imports": {"$ref": "#/definitions/Imports"},
+        "namespaces": {"$ref": "#/definitions/Namespaces"},
         "exports": {"$ref": "#/definitions/Exports"},
         "config": {"$ref": "#/definitions/Config"}
       }
@@ -1985,7 +2016,7 @@ A JADN module has the following structure:
     }
   },
   "definitions": {
-    "Imports": {
+    "Namespaces": {
       "type": "object",
       "propertyNames": {"$ref": "#/definitions/NSID"},
       "patternProperties": {
@@ -2046,7 +2077,7 @@ A JADN module has the following structure:
     "NSID": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9]{0,7}$",
-      "description": "Namespace Identifier, defined in Imports, used in type references"
+      "description": "Namespace Identifier, defined in Namespaces, used in type references"
     },
     "TypeName": {
       "type": "string",
