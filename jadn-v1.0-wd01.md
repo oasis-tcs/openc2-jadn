@@ -432,8 +432,8 @@ Person = Record
    2 id           Integer
    3 email        String optional
 ```
-The native JADN definition format is JSON, which enjoys broad support across programming languages and platforms.
-Definitions written in JADN IDL can be translated to and from native JADN format:
+JADN is formally defined in [Section 3](#3-jadn-types) as structured data expressed in JSON format.
+JSON is unambiguous and enjoys broad support across programming languages and platforms.
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -441,10 +441,10 @@ Definitions written in JADN IDL can be translated to and from native JADN format
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-IDL format is preferred for use in documentation, but conformance to the native structured format ensures
-that the IDL is properly constructed. It is often tempting to write text or table definitions that, while appearing
-plausible, are not valid.  A round-trip conversion to structured format and back provides higher assurance of
-correctness than (possibly incomplete) lint checking, as well as a consistently formatted output text.
+IDL is preferred for use in documentation, but conformance is based on the formal language, and
+specifications in other formats are validated by converting them to native format.
+This "data-first" approach allows documentation styles to be adjusted if necessary without affecting the
+JADN language.
 
 ## 2.4 Implementation
 
@@ -541,7 +541,7 @@ Every definition creates a *Defined type* that has five elements:
         ]]
 ```
 * FieldID and FieldName values MUST be unique within a type definition.
-* If BaseType is Array or Record, FieldID MUST be the position of the field within the type, numbered consecutively starting at 1.
+* If BaseType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
 * If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Defined type.
 * If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
@@ -549,7 +549,7 @@ Every definition creates a *Defined type* that has five elements:
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 Some extensions (e.g., [Derived Enumerations](#333-derived-enumerations), [Pointers](#335-pointers))
-require the Fields element be empty.
+supply field definitions and require the Fields element be empty.
 
 ### 3.1.1 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
@@ -623,7 +623,7 @@ structure of [Section 3.1](#31-type-definitions). New requirements can be accomm
 without modifying that structure.
 
 Each option is a text string that may be included in TypeOptions or FieldOptions. The first character of the string
-is the option ID as defined in [Table 3-2](#table-3-2-type-options) and [Table 3-5](#table-3-5-field-options).
+is the option ID as defined in [Section 3.2.1](#321-type-options) and [Section 3.2.2](#322-field-options).
 The remaining characters are the value of that option, if any.
 
 ### 3.2.1 Type Options
@@ -631,28 +631,23 @@ Type options apply to the type definition as a whole. Structural options are int
 defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain
 which data values are instances of the defined type.
 
-*Editor's note: reformat as a Map type with discussion of option serialization*
-
-###### Table 3-2. Type Options
-
-| ID | Label | Value | Definition |
-| --- | --- | --- | --- |
-|  **Structural** | | | |
-| 0x3d `'='` | id | none | If present, Enumerated values and fields of structured types are denoted by FieldID rather than FieldName ([Section 3.2.1.1](#3211-field-identifiers)) |
-| 0x2a `'*'` | vtype | String | Value type for ArrayOf and MapOf ([Section 3.2.1.2](#3212-value-type)) |
-| 0x2b `'+'` | ktype | String | Key type for MapOf ([Section 3.2.1.3](#3213-key-type)) |
-| 0x23 `'#'` | enum | String | Extension: Enumerated type derived from the specified Array, Choice, Map or Record type ([Section 3.3.3](#333-derived-enumerations)) |
-| 0x3e `'>'` | pointer | String | Extension: Enumerated type containing pointers derived from the specified Array, Choice, Map or Record type ([Section 3.3.5](#335-pointers)) |
-| 0x58 `'X'` | extend | none | If present, the type has an extension point where fields may be added in the future ([Section 3.2.1.9](#3219-extension-point))
-| **Validation** | | | |
-| 0x2f `'/'` | format | String | Semantic validation keyword from [Section 3.2.1.5](#3215-semantic-validation) |
-| 0x25 `'%'` | pattern | String | Regular expression used to validate a String type ([Section 3.2.1.6](#3216-pattern)) |
-| 0x7b `'{'` | minv | Integer | Minimum integer value, octet or character count, or element count ([Section 3.2.1.7](#3217-size-and-value-constraints)) |
-| 0x7d `'}'` | maxv | Integer | Maximum integer value, octet or character count, or element count |
-| 0x79 `'y'` | minf | Number | Minimum real number value |
-| 0x7a `'z'` | maxf | Number | Maximum real number value |
-| 0x71 `'q'` | unique | none | If present, an ArrayOf instance must not contain duplicate values |
-| 0x73 `'s'` | set | none | If present, an Array or ArrayOf instance is unordered ([Section 3.2.1.9](#3219-unordered-sets))|
+```
+TypeOption = Map
+    61 id       Boolean   '='  Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
+    42 vtype    String    '*'  Value type for ArrayOf and MapOf (Section 3.2.1.2)
+    43 ktype    String    '+'  Key type for MapOf (Section 3.2.1.3)
+    35 enum     String    '#'  Extension: Enumerated type derived from a specified type (Section 3.3.3)
+    62 pointer  String    '>'  Extension: Enumerated type containing pointers derived from a specified type (Section 3.3.5)
+    88 extend   Boolean   'X'  Type has an extension point where fields may be added in the future (Section 3.2.1.9)
+    47 format   String    '/'  Semantic validation keyword (Section 3.2.1.5)
+    37 pattern  String    '%'  Regular expression used to validate a String type (Section 3.2.1.6)
+   123 minv     Integer   '{'  Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
+   125 maxv     Integer   '}'  Maximum integer value, octet or character count, or element count
+   121 minf     Number    'y'  Minimum real number value
+   122 maxf     Number    'z'  Maximum real number value
+   113 unique   Boolean   'q'  ArrayOf instance must not contain duplicate values
+   115 set      Boolean   's'  ArrayOf instance is unordered (Section 3.2.1.9)
+```
 
 * TypeOptions MUST contain zero or one instance of each type option.
 * TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
@@ -767,21 +762,18 @@ with a warning and the unrecognized data may be ignored or discarded before cont
 the extend option all unrecognized data generates an error.
 
 ### 3.2.2 Field Options
-Field options are specified for each field within a type definition. Each option in Table 3-5 is a structural element of the type definition.
+Field options are specified for each field within a type definition.
 
-###### Table 3-5. Field Options
+    FieldOptions = Map
+      91 minc     Integer      '['  Minimum cardinality (Section 3.2.2.1)
+      93 maxc     Integer      ']'  Maximum cardinality
+      38 tagid    Enumerated   '&'  Field containing an explicit tag for this Choice type (Section 3.2.2.2)
+      60 dir      Boolean      '<'  Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
+      75 key      Boolean      'K'  Field is a primary key for this type (Extension: Section 3.3.6)
+      76 link     Boolean      'L'  Field is a relationship or link to a type instance (Extension: Section 3.3.6)
+      33 default  String       '!'  Default value (Section 3.2.2.3)
 
-| ID | Label | Value | Definition |
-| --- | --- | --- | --- |
-| 0x5b `'['` | minc | Integer | Minimum cardinality ([Section 3.2.2.1](#3221-multiplicity)) |
-| 0x5d `']'` | maxc | Integer | Maximum cardinality |
-| 0x26 `'&'` | tagid | Enumerated | Field containing an explicit tag for this Choice type ([Section 3.2.2.2](#3222-discriminated-union-with-explicit-tag)) |
-| 0x3c `'<'` | dir | none | Use FieldName as a path prefix for fields in FieldType (Extension: [Section 3.3.5](#335-pointers)) |
-| 0x4b `'K'` | key | none | Field is a primary key for this type (Extension: [Section 3.3.6](#336-links)) |
-| 0x4c `'L'` | link | none | Field is a relationship or link to a type instance (Extension: [Section 3.3.6](#336-links))
-| 0x21 `'!'` | default | String | Reserved for default value ([Section 3.2.2.3](#3223-default-value)) |
-
-* FieldOptions MUST NOT include more than one of: a minc/maxc range, tagid, or path.  
+* FieldOptions MUST NOT include more than one of each option.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
@@ -1396,18 +1388,18 @@ hints that similar design methodologies may be applicable.
 The differences between database and information ERDs are:
 
 1. An information model is entirely contained within the entities shown on an information ERD. Connectors
-shown on a diagram are either derived from (relationships, multiplicity) or not included in
+shown on a diagram are either derived from (relationships, multiplicity) or are external supplements to
 (entity and connector positions, connector types, text fonts and colors) the information model.
 
-2. All entities in a relational database ERD are tables, while entities in an information ERD may be any information type.
+2. Attribute IDs and Names are both shown in an information ERD.
+
+3. All entities in a relational database ERD are tables, while entities in an information ERD may be any information type.
 A type definition contains both the name of the type being defined and its base type, for example "Person : Record" or
 "EmailAddr : String".
 
-3. A relational database ERD represents an undirected graph because while there is an asymmetry between the primary
-key (PK) of an entity and foreign keys (FK) that refer to it, the purpose of a database is to support joins in
-either direction.
-An information ERD represents a directed acyclic graph (DAG) because 1) it does not require any entity
-to *have* a unique PK, and 2) it does not assume indexing support for efficient link resolution.
+4. A relational database ERD represents an undirected graph because while there is an asymmetry between the primary
+key (PK) of an entity and foreign keys (FK) that refer to it, a DBMS supports joins in either direction.
+An information ERD represents a directed acyclic graph (DAG).
 
 The primary relationship in an an information ERD is between an attribute of a structured type and the type of
 that attribute. The relationship is directed because one type *uses* another, and instances of the first type
@@ -1417,15 +1409,13 @@ containing those attributes, but an information ERD primarily represents static 
 Links are used as an exception to break relationship cycles and normalize references rather than routinely
 for all relationships.
 
-Figure 5-1 is an example database ERD taken from the
-[Visual Paradigm](https://online.visual-paradigm.com/w/vnpbmoax/drive/#diagramlist:proj=0&new=ERDiagram)
-template collection. It represents a general undirected graph.
+As an example, Figure 5-1 is a database ERD from a diagramming tool's template collection.
 
 ![ERD-DB](images/erd-db.jpg)
 
 **Figure 5-1. Database Entity Relationship Diagram**
 
-An Information ERD is derived from that example by selecting an appropriate entity as root, assigning the structure
+An Information ERD can be derived from that example by selecting an appropriate entity as root, assigning the structured
 type Record to each entity, and showing connectors from containing to contained types.
 
 ![ERD-IM](images/erd-im.png)
@@ -1451,7 +1441,8 @@ In this example the logical choice for root is "Course", resulting in data value
           "building": "Stewart"
 }}}]}}
 ```
-"Exam" is a less desirable root for an information model because it results in Course information duplicated for each section:
+"Exam" may be less desirable as a root for an information model: it either duplicates course information in
+each section of a course or relies on a separate course index (Map):
 ```json
 { "exam": {
     "id": 8231,
@@ -1470,7 +1461,6 @@ In this example the logical choice for root is "Course", resulting in data value
         "department": "Math"
 }}]}}
 ```
-
 
 ## 5.4 Tree Diagrams
 
