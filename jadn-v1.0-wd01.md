@@ -499,6 +499,20 @@ otherwise identical instance without that key. This is the expected behavior of 
 * The length of an Array or ArrayOf instance MUST not include Null values after the last non-Null value;
 two instances that differ only in the number of trailing Nulls MUST compare as equal.
 
+[UML](#uml) Table 7.1 defines two properties, isUnique and isOrdered, that apply to collections of values.
+The JADN types that exhibit these properties are:
+
+| isOrdered | isUnique | Collection | JADN Value Type         | JADN Key:Value Type |
+| :-------: | :------: | :--------- | :---------------------  | :------------------ |
+| false     | true     | Set        | ArrayOf + set option    | Map, MapOf          |
+| true      | false    | Sequence   | ArrayOf                 | Array               |
+| true      | true     | OrderedSet | ArrayOf + unique option | Record              |
+| false     | false    | Bag        | none                    | none                |
+
+JADN does not define types for collections whose values cannot be selected by value or position.
+Applications that need "pick an element at random" semantics from a Bag/Urn collection may use the
+Array or ArrayOf type and ignore element order.
+
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible.
 Every definition creates a *Defined type* that has five elements:
@@ -1494,9 +1508,11 @@ the most recent definition of a namespace.
 * **comment:** Any other information applicable to the package.
 * **copyright:** A copyright notice.
 * **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
-* **namespaces:** Map of NSIDs (short names) to namespaces of types referenced by this package.
-* **exports:** List of root types. May be used by schema tools to detect or prune unused types.
-* **config:** List of values, such as name formats and size limits, that are customized for this package.
+* **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
+defined in other packages.
+* **exports:** Root types. All types defined in a package can be referenced under the package's namespace.
+Exports may be used by schema tools to detect unused types or prune when copying definitions between files.
+* **config:** Values such as name formats and size limits that are customized for this package.
 
 
 # 7 Data Model Generation
