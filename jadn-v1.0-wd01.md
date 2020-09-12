@@ -499,19 +499,16 @@ otherwise identical instance without that key. This is the expected behavior of 
 * The length of an Array or ArrayOf instance MUST not include Null values after the last non-Null value;
 two instances that differ only in the number of trailing Nulls MUST compare as equal.
 
-[UML](#uml) Table 7.1 defines two properties, isUnique and isOrdered, that apply to collections of values.
+[UML](#uml) Section 7.5 "Types and Multiplicity" defines two properties, isUnique and isOrdered, that constrain
+the kind and number of values contained in a collection of values.
 The JADN types that exhibit these properties are:
 
-| isOrdered | isUnique | Collection | JADN Value Type         | JADN Key:Value Type |
-| :-------: | :------: | :--------- | :---------------------  | :------------------ |
-| false     | true     | Set        | ArrayOf + set option    | Map, MapOf          |
-| true      | false    | Sequence   | ArrayOf                 | Array               |
-| true      | true     | OrderedSet | ArrayOf + unique option | Record              |
-| false     | false    | Bag        | none                    | none                |
-
-JADN does not define types for collections whose values cannot be selected by value or position.
-Applications that need "pick an element at random" semantics from a Bag/Urn collection may use the
-Array or ArrayOf type and ignore element order.
+| isOrdered | isUnique | Collection | JADN Value Type      | JADN Key:Value Type |
+| :-------: | :------: | :--------- | :------------------  | :------------------ |
+| false     | true     | Set        | ArrayOf + set        | Map, MapOf          |
+| true      | false    | Sequence   | ArrayOf              | Array               |
+| true      | true     | OrderedSet | ArrayOf + unique     | Record              |
+| false     | false    | Bag        | ArrayOf + unordered  | none                |
 
 ## 3.1 Type Definitions
 JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible.
@@ -647,20 +644,21 @@ which data values are instances of the defined type.
 
 ```
 TypeOption = Map
-    61 id       Boolean   '='  Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
-    42 vtype    String    '*'  Value type for ArrayOf and MapOf (Section 3.2.1.2)
-    43 ktype    String    '+'  Key type for MapOf (Section 3.2.1.3)
-    35 enum     String    '#'  Extension: Enumerated type derived from a specified type (Section 3.3.3)
-    62 pointer  String    '>'  Extension: Enumerated type containing pointers derived from a specified type (Section 3.3.5)
-    88 extend   Boolean   'X'  Type has an extension point where fields may be added in the future (Section 3.2.1.9)
-    47 format   String    '/'  Semantic validation keyword (Section 3.2.1.5)
-    37 pattern  String    '%'  Regular expression used to validate a String type (Section 3.2.1.6)
-   123 minv     Integer   '{'  Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
-   125 maxv     Integer   '}'  Maximum integer value, octet or character count, or element count
-   121 minf     Number    'y'  Minimum real number value
-   122 maxf     Number    'z'  Maximum real number value
-   113 unique   Boolean   'q'  ArrayOf instance must not contain duplicate values
-   115 set      Boolean   's'  ArrayOf instance is unordered (Section 3.2.1.9)
+    61 id        Boolean   // '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
+    42 vtype     String    // '*' Value type for ArrayOf and MapOf (Section 3.2.1.2)
+    43 ktype     String    // '+' Key type for MapOf (Section 3.2.1.3)
+    35 enum      String    // '#' Extension: Enumerated type derived from a specified type (Section 3.3.3)
+    62 pointer   String    // '>' Extension: Enumerated type containing pointers derived from a specified type (Section 3.3.5)
+    47 format    String    // '/' Semantic validation keyword (Section 3.2.1.5)
+    37 pattern   String    // '%' Regular expression used to validate a String type (Section 3.2.1.6)
+   123 minv      Integer   // '{' Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
+   125 maxv      Integer   // '}' Maximum integer value, octet or character count, or element count
+   121 minf      Number    // 'y' Minimum real number value
+   122 maxf      Number    // 'z' Maximum real number value
+   113 unique    Boolean   // 'q' ArrayOf instance must not contain duplicate values (Section 3.2.1.8)
+   115 set       Boolean   // 's' ArrayOf instance is unordered and unique (Section 3.2.1.9)
+    98 unordered Boolean   // 'b' ArrayOf instance is unordered (Section 3.2.1.10)
+    88 extend    Boolean   // 'X' Type has an extension point where fields may be added in the future (Section 3.2.1.11)
 ```
 
 * TypeOptions MUST contain zero or one instance of each type option.
@@ -681,7 +679,7 @@ TypeOption = Map
 | Enumerated | id, enum, pointer, extend |
 | Choice | id, extend |
 | Array | extend, format, minv, maxv |
-| ArrayOf | vtype, minv, maxv, unique, set |
+| ArrayOf | vtype, minv, maxv, unique, set, unordered |
 | Map | id, extend, minv, maxv |
 | MapOf | vtype, ktype, minv, maxv |
 | Record | extend, minv, maxv |
@@ -742,7 +740,8 @@ The *pattern* option specifies a regular expression used to validate a String in
 * A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
 
 #### 3.2.1.7 Size and Value Constraints
-The *minv* and *maxv* options specify size or value limits.
+The *minv* and *maxv* options specify size or integer value limits.
+The *minf* and *maxf* options specify real number value limits.
 
 * For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
     * if *minv* is not present, it defaults to zero.
@@ -750,10 +749,12 @@ The *minv* and *maxv* options specify size or value limits.
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
-
-* For Integer and Number types:
+* For Integer types:
     * if *minv* is present, an instance MUST be considered invalid if its value is less than *minv*.
     * if *maxv* is present, an instance MUST be considered invalid if its value is greater than *maxv*.
+* For Number types:
+    * if *minf* is present, an instance MUST be considered invalid if its value is less than *minf*.
+    * if *maxf* is present, an instance MUST be considered invalid if its value is greater than *maxf*.
 
 #### 3.2.1.8 Unique Values
 The *unique* option specifies that values in an array must not be repeated.
@@ -761,13 +762,17 @@ The *unique* option specifies that values in an array must not be repeated.
 * For the ArrayOf type, if *unique* is present an instance MUST be considered invalid if it contains duplicate values.
 
 #### 3.2.1.9 Set
-The *set* option, if present, specifies that an ArrayOf type is unordered, having the semantics of a SetOf
-type respectively.  Note that there is no unordered Array type because the type of each item in an Array is determined
-by its position.
+The *set* option specifies that an ArrayOf type is unordered and unique, having the semantics of a SetOf
+type respectively.
 
 * For the ArrayOf type, if *set* is present an instance MUST be considered invalid if it contains duplicate values.
 
-#### 3.2.1.10 Extension Point
+#### 3.2.1.10 Unordered
+The *unordered* option specifies that an ArrayOf type may contain duplicate values and that its values have no
+defined order.  Because values cannot be selected by value or position, it has the semantics of a "bag" or "urn"
+from which elements are picked at random.
+
+#### 3.2.1.11 Extension Point
 The *extend* option, if present, specifies that an Enumerated, Choice, Array, Map or Record type includes an
 "extension point" where new fields may be appended without breaking backward compatibility. This has no effect on
 instance validation, it is solely a hint that validators may use when processing unrecognized data.
@@ -920,8 +925,7 @@ Hashes2 Example:
 ```
 
 #### 3.2.2.3 Default Value
-The *default* option is reserved for future use. It is intended to specify the value a receiving application
-uses for an optional field if an instance does not include its value.
+The *default* option specifies the initial or default value of a field.
 
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
