@@ -1362,6 +1362,8 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
 An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
 
 ### 5.2 Table Style
+*This section is non-normative*
+
 Some specifications present type definitions in property table form, using varied style conventions.
 This specification does not define a normative property table format, but this section is one example
 of how JADN definitions may be displayed as property tables.
@@ -1386,7 +1388,7 @@ or (for structured types with the *id* option):
 | FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
 +---------+-------------+--------+----------------------------------+
 ```
-Table xample:
+**Example Markdown Table:**
 
   *Type: Person (Record)*
 
@@ -1396,26 +1398,32 @@ Table xample:
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
+**Example HTML Table:**
+
+![HTML Table](images/person-html.png)
+
 ## 5.3 Entity Relationship Diagrams
+*This section is non-normative*
 
 JADN type definitions have a graphical representation similar to ERDs used in database design.
-This document does not address the design of information models.
-But the existence of a graphical representation similar to those used for database and software design
-hints that similar design methodologies may be applicable.
+This document does not address the design of information models, but processes similar to those used
+for databases and software may be used to design information models. Common graphical representations
+suggests use of common design processes.
 
 The differences between database and information ERDs are:
 
-1. An information model is entirely contained within the entities shown on an information ERD. Connectors
-shown on a diagram are either derived from (relationships, multiplicity) or are external supplements to
-(entity and connector positions, connector types, text fonts and colors) the information model.
+1. An information model is contained entirely within the entities shown on an information ERD.  Connectors
+are derived from content of the entities and are shown only to aid understanding the model. Connectors
+are normally directed arrows from containing to contained types and may include multiplicity information. Link
+connectors are undirected and represent the same relationships as in database ERDs.
 
 2. Attribute IDs and Names are both shown in an information ERD.
 
-3. All entities in a relational database ERD are tables, while entities in an information ERD may be any information type.
+3. All entities in a relational database ERD are tables, while entities in an information ERD are type definitions.
 A type definition contains both the name of the type being defined and its base type, for example "Person : Record" or
 "EmailAddr : String".
 
-4. A relational database ERD represents an undirected graph because while there is an asymmetry between the primary
+A relational database ERD represents an undirected graph because while there is an asymmetry between the primary
 key (PK) of an entity and foreign keys (FK) that refer to it, a DBMS supports joins in either direction.
 An information ERD represents a directed acyclic graph (DAG).
 
@@ -1481,6 +1489,7 @@ each section of a course or relies on a separate course index (Map):
 ```
 
 ## 5.4 Tree Diagrams
+*This section is non-normative*
 
 Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
