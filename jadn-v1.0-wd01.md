@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 11 September 2020
+## 18 September 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -130,7 +130,6 @@ Please see https://www.oasis-open.org/policies-guidelines/trademark for above gu
 -------
 
 # 1 Introduction
-
 Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
 that the purpose of an information model is to model data at a conceptual level, independent of specific
 implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
@@ -138,12 +137,34 @@ implementations or protocols used to transport the data. The IETF report on Sema
 in defining application layer data, attributing it to the lack of an encoding-independent standardization
 of the information represented by that data.
 
-This document defines an information modeling language intended to address that gap. It allows designers
-to model structured information in terms of application needs, and defines the process for translating an
-information model into multiple data formats. Following this process ensures that data can be transformed
-bidirectionally between data formats *without loss of information*. Or as the Internet Architecture Board's
-[Bridge Taxonomy](#bridge) puts it, it "translates data expressed in a given data model to another one
-that expresses the same information in a different way."
+This document defines an information modeling language intended to address that gap. JADN is
+a [formal description technique](#fdt) that combines *structural abstraction* based on graph theory
+and *data abstraction* based on information theory to define structured data objects as a composition of
+simple *DataTypes* ([UML](#uml) Section 10.2.3.1). As with any FDT this approach is intended to be
+formal, descriptive, and technically useful. It allows the language to be both specialized for data
+and integrated into the design of interfaces, services and systems. Tools with no specific knowledge
+of JADN are nonetheless able to treat an information model as a generic graph.
+
+**Graph theory** - a JADN information model is a graph consisting of nodes and edges. Each node has a name
+that is unique across the model. Each edge is either directed or undirected and has a label unique
+within the node that defines it. Any graph with these properties can either represent (be a view of) or be
+a source template for a JADN information model.
+
+**Information theory** - each node in a JADN model formally defines a "type" in terms of the characteristics
+it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
+and JADN has three mechanisms to define the information conveyed by a type separately from the data
+used to serialize it:
+
+1. Representation of primitives such as IP addresses by binary value or as text (formats)
+2. Enumeration of string values by tag or content (vocabularies and field ID/Names)
+3. Representation of tablular data by column name or position (records)
+
+Separating the information needed by applications from information-less (insignificant) data used to
+format it for human consumption allows a single model to define multiple data formats ranging from nearly
+pure-information RFC 791 IP headers to highly-verbose XML. This allows data to be translated
+bidirectionally between data formats without loss of information.
+
+## 1.1 Requirements
 
 The language defined in this document addresses the following requirements from RFC 8477:
 
@@ -196,7 +217,7 @@ a Rosetta stone to facilitate translation among them.  Starting with a common in
 data models from it, as shown in RFC 3444, provides more accurate translation results than attempting to translate
 across separately-developed data models.
 
-## 1.1 IPR Policy
+## 1.2 IPR Policy
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
 Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the
 Technical Committee was established. For information on whether any patents have been disclosed that may be essential
@@ -204,12 +225,7 @@ to implementing this specification, and any offers of patent licensing terms, pl
 Property Rights section of the TC's web page
 ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
-## 1.2 Terminology
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
-and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
-when, and only when, they appear in all capitals, as shown here.
-
-## 1.3 Definitions
+## 1.3 Terminology
 
 ### 1.3.1 Schema
 An abstract schema, or information model, describes the structure and value constraints of information used by applications.
@@ -217,18 +233,26 @@ An abstract schema, or information model, describes the structure and value cons
 A concrete schema, or data model, describes the structure and value constraints of a document used to store information
 or communicate it between applications.
 
-### 1.3.2 Document
+### 1.3.2 Graph
+A graph is mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes
+(or vertices) and edges. An information model is a graph where nodes define information types and edges define
+relationships between types.
+
+### 1.3.3 Package
+A package is a namespace for the set of nodes it contains. A node may reference nodes contained in other packages by namespace.
+
+### 1.3.4 Document
 A document is a series of octets described by a data format applied to an information model, or equivalently, by a data model.
 
-### 1.3.3 Well-formed
+### 1.3.5 Well-formed
 A well-formed document follows the syntactic structure of the document's media type.
 
-### 1.3.4 Valid
+### 1.3.6 Valid
 An instance is valid if it satisfies the constraints defined in an information model.
 
 A document is valid if it is well-formed and also corresponds to a valid instance.
 
-### 1.3.5 Data Format
+### 1.3.7 Data Format
 A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json,
 application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format.
 This specification defines XML, JSON, M-JSON, and CBOR data formats.
@@ -236,13 +260,14 @@ Additional data formats may be defined for any media types that can represent in
 
 Serialization rules for a data format define how instances of each type are represented in documents of that format.
 
-### 1.3.6 Instance
+### 1.3.8 Instance
 An instance, or API value, is an item of application information to which a schema applies. An instance has one of the
-core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types are:
+core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types
+are classified by [UML](#uml) as:
 
 * **Primitive:** Null, Boolean, Binary, Integer, Number, String
-* **Selector:** Enumerated, Choice
-* **Structured:** Array, ArrayOf(value_type), Map, MapOf(key_type, value_type), Record.
+* **Enumeration:** Enumerated
+* **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
 
 Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an
 instance having two fields with the same key is undefined.
@@ -253,7 +278,7 @@ but the definition is based on the Binary core type.
 There is only one relationship between core types: a structured type contains other types. But schemas may define
 extended relationships between instances, for example "owner" or "performer", using [links](#336-links).
 
-#### 1.3.6.1 Instance Equality
+#### 1.3.9 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
 according to the information model.  Mere formatting differences, including a document's data format, are insignificant.
 An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
@@ -262,13 +287,18 @@ exactly one field with a key equal to the other's, and that other field has an e
 Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality
 with an instance serialized as a map in another.
 
-### 1.3.7 Serialization
+### 1.3.10 Serialization
 Serialization, or encoding, is the process of converting application information into a document.
 De-serialization, or decoding, converts a document into an instance usable by an application.
 
-### 1.3.8 Description
+### 1.3.11 Description
 Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
 and are ignored by applications using the schema.
+
+### 1.3.12 Key words used to indicate requirement levels
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
+when, and only when, they appear in all capitals, as shown here.
 
 ## 1.4 Normative References
 ###### [ES9]
@@ -311,6 +341,8 @@ Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.o
 Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
+###### [FDT]
+Gotzhein, G., Bredereke, J., editors, *"Formal Description Techniques IX"*, https://link.springer.com/book/10.1007/978-0-387-35079-0
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
 ###### [PROTO]
@@ -383,12 +415,6 @@ and byte strings), but with an information-centric focus:
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
 | Instance equality is defined at the data level. | Instance equality is defined in ways meaningful to applications. For example "Optional" and "Nullable" are different at the data level but applications make no logical distinction between "not present" and "null value". |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
-
-The JADN serialization approach is based on three well-known equivalencies between binary/efficient and
-text/human-oriented data formats:
-1. Text representation of primitives such as IP addresses (formats)
-2. String enumeration (vocabularies and field ID/Names)
-3. Positional representation of table columns (records)
 
 ## 2.2 Tree vs. Graph
 
@@ -473,19 +499,19 @@ type are required to interoperate with those that are not.
 
 |    JADN Type     |       Definition                                                |
 | :--------------  | :-------------------------------------------------------------- |
-|  **Primitive**      |                                                                 |
+|  **Primitive**   |                                                                 |
 | Binary           | A sequence of octets.  Length is the number of octets.          |
 | Boolean          | An element with one of two values: true or false.               |
 | Integer          | A positive or negative whole number.                            |
 | Number           | A real number.                                                  |
 | Null             | An unspecified or non-existent value, distinguishable from other values such as zero-length String or empty Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
-|  **Selector**    |                                                                 |
-| Enumerated       | One id and string value selected from a vocabulary.             |
-| Choice           | A [discriminated union](#union): one type selected from a set of named or labeled types. |
-| **Structured**     |                                                                 |
+| **Enumeration**  |                                                                 |
+| Enumerated       | A vocabulary of items where each item has an id and a string value |
+| **Structured**     |                                                               |
 | Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
+| Choice           | A [discriminated union](#union): one type selected from a set of named or labeled types. |
 | Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
 | Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
