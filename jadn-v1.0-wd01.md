@@ -141,9 +141,10 @@ This document defines an information modeling language intended to address that 
 a [formal description technique](#fdt) that combines *structural abstraction* based on graph theory
 and *data abstraction* based on information theory to define structured data objects as a composition of
 simple *DataTypes* ([UML](#uml) Section 10.2.3.1). As with any FDT this approach is intended to be
-formal, descriptive, and technically useful. It allows the language to be both specialized for data
-and integrated into the design of interfaces, services and systems. Tools with no specific knowledge
-of JADN are nonetheless able to treat an information model as a generic graph.
+formal, descriptive, and technically useful. Tools with no specific knowledge of JADN are able to treat
+an information model as a generic graph, which allows the language to be both specialized for data
+and integrated into design processes and tooling for software objects, interfaces, services and
+systems.
 
 **Graph theory** - a JADN information model is a graph consisting of nodes and edges. Each node has a name
 that is unique across the model. Each edge is either directed or undirected and has a label unique
@@ -155,14 +156,14 @@ it provides to applications. Information theory quantifies the novelty (news val
 and JADN has three mechanisms to define the information conveyed by a type separately from the data
 used to serialize it:
 
-1. Representation of primitives such as IP addresses by binary value or as text (formats)
+1. Representation of primitives such as dates or IP addresses by binary value or as text (formats)
 2. Enumeration of string values by tag or content (vocabularies and field ID/Names)
 3. Representation of tablular data by column name or position (records)
 
 Separating the information needed by applications from information-less (insignificant) data used to
-format it for human consumption allows a single model to define multiple data formats ranging from nearly
-pure-information RFC 791 IP headers to highly-verbose XML. This allows data to be translated
-bidirectionally between data formats without loss of information.
+represent it for machine parsing and human consumption allows a single information model to define
+data models for formats ranging from nearly pure-information RFC 791 IP headers to highly-verbose XML.
+This allows data to be translated bidirectionally among multiple formats without losing information.
 
 ## 1.1 Requirements
 
@@ -278,7 +279,7 @@ but the definition is based on the Binary core type.
 There is only one relationship between core types: a structured type contains other types. But schemas may define
 extended relationships between instances, for example "owner" or "performer", using [links](#336-links).
 
-#### 1.3.9 Instance Equality
+### 1.3.9 Instance Equality
 Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
 according to the information model.  Mere formatting differences, including a document's data format, are insignificant.
 An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
@@ -342,7 +343,7 @@ Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-upload
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [FDT]
-Gotzhein, G., Bredereke, J., editors, *"Formal Description Techniques IX"*, https://link.springer.com/book/10.1007/978-0-387-35079-0
+König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
 ###### [PROTO]
@@ -398,13 +399,13 @@ CBOR format does not achieve the conciseness for which CBOR was designed. Instea
 is key to effectively using both binary data formats such as Protobuf and CBOR and text formats
 such as XML and JSON.
 
-\* *Note: all references to information assume independent uniformly-distributed values.*
-*Source coding is beyond the scope of this specification.*
+\* *Note: all references to information assume independent uniformly-distributed values.
+Non-uniform or correlated data has less than one byte of entropy per data byte, but source coding is
+outside the scope of this specification.*
 
 ## 2.1 Information Modeling
 
-JADN type definitions are based on the [CBOR](#rfc7049) data model ([JSON](#rfc8259) types plus integers, special numbers,
-and byte strings), but with an information-centric focus:
+JADN type definitions are based on the [CBOR](#rfc7049) data model but with an information-centric focus:
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -425,7 +426,7 @@ that all serialized data has finite and known nesting depth.
 JADN structured types define a directional relationship between containing and contained types.
 Therefore every acyclic collection of JADN types forms one or more directed acyclic graphs (DAG).
 
-A directed (or rooted) tree is a DAG with the further restriction that a child can have only one parent.
+A directed tree is a DAG with the further restriction that a child can have only one parent.
 Although information types are generally arranged hierarchically, reuse of common types is an important goal
 in both design of information models and analysis of data, and JADN's flat type structure encourages reuse.
 Nonetheless, it is often useful to have a [tree-structured representation](#graph) of a target document's structure.
@@ -487,13 +488,9 @@ Implementations based on serialization-specific code interoperate with those usi
 allowing developers to use either approach. 
 
 # 3 JADN Types
-JADN core types are defined in terms of the characteristics they provide to applications. 
-The mechanisms defined by an IM library to represent instances of these types within an application constitute
-an application programming interface (API). JADN types are the single point of convergence between multiple
-programming language APIs and multiple serialization formats -- any programming mechanisms and any data formats
-that exhibit the behavior required of a type are interchangeable and interoperable. For example, the Map type
-does not guarantee that element order is preserved. Map implementations based on an order-preserving variable
-type are required to interoperate with those that are not.
+JADN core types are defined in terms of the characteristics they provide to applications.
+A programming mechanism (variable type, object class, etc.) is conforming if it exhibits the required behavior.
+A data format is usable if it carries the information needed to support the required behavior.
 
 ###### Table 3-1. JADN Types
 
@@ -521,9 +518,9 @@ Applications MAY use any programming language data types or mechanisms that exhi
 * An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
 * An instance of a Map, MapOf, or Record type with a key mapped to a Null value MUST compare as equal to an
-otherwise identical instance without that key. This is the expected behavior of nullable fields.
-* The length of an Array or ArrayOf instance MUST not include Null values after the last non-Null value;
-two instances that differ only in the number of trailing Nulls MUST compare as equal.
+otherwise identical instance without that key.
+* The length of an Array, ArrayOf or Record instance MUST not include Null values after the last non-Null value.
+* Two Array, ArrayOf or Record instances that differ only in the number of trailing Nulls MUST compare as equal.
 
 [UML](#uml) Section 7.5 "Types and Multiplicity" defines two properties, isUnique and isOrdered, that constrain
 the kind and number of values contained in a collection of values.
@@ -537,14 +534,14 @@ The JADN types that exhibit these properties are:
 | false     | false    | Bag        | ArrayOf + unordered  | none                |
 
 ## 3.1 Type Definitions
-JADN type definitions have a regular structure designed to be easily describable, easily processed, stable, and extensible.
-Every definition creates a *Defined type* that has five elements:
+JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
+Every definition has five elements: 
 
 1. **TypeName:** the name of the type being defined
 2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
 3. **TypeOptions:** an array of zero or more **TypeOption** ([Table 3-2](#table-3-2-type-options)) applicable to the type being defined
 4. **TypeDescription:** a non-normative comment
-5. **Fields:** an array of field or enumerated item definitions
+5. **Fields:** an array of item or field definitions
 
 * TypeName MUST NOT be a JADN type.
 * BaseType MUST be a JADN type.
@@ -587,6 +584,12 @@ Every definition creates a *Defined type* that has five elements:
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 Some extensions (e.g., [Derived Enumerations](#333-derived-enumerations), [Pointers](#335-pointers))
 supply field definitions and require the Fields element be empty.
+
+This structure allows each type definition to be treated as a graph node with minimal JADN-specific
+knowledge.  Node name (TypeName), edge names (FieldID/FieldName), and edge endpoints (FieldType) are
+found at fixed positions. Other positions can be ignored when reading and filled with empty values
+when creating a node. Data such as multiplicity and link options can be used enrich a graph if
+recognized by the application.
 
 ### 3.1.1 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
@@ -1128,21 +1131,24 @@ value is not considered an "Item":
       }
     }
 
+Note that the *enum* and *pointer* extensions create shallow dependencies: the referenced
+types are needed in order to simplify them but types below the direct references are not.
+
 ### 3.3.6 Links
 Types in an information model cannot reference themselves, either directly or indirectly through other types.
 In other words, a type graph cannot have cycles.
 But an information model can represent arbitrarily-connected *instance* graphs using links.
 Links can have any syntax including integers, UUIDs, addresses, format-specific strings such as URIs,
-or unrestricted strings. The only information modelling requirement is that the
+or unrestricted strings. The only information modeling requirement is that the
 identifier of an instance (its primary key) must have the same syntax as any links that reference it (foreign keys).
 
 The link extension automates that requirement: the *key* option within a structured type designates
-a field to be used as a primary key, and the *link* option designates a reference to an instance of a specified type.
+a field as a primary key, and the *link* option designates a reference to an instance of a specified type.
 The *key* and *link* options do not affect the serialization or validation of data, but they MAY
 be used by applications to perform relationship-aware operations such as checking or enforcing referential integrity.
 
-As an example, a Person type might be used to represent friends and family relationships. This example assumes that
-an Organization type is defined elsewhere with a Key field called 'ein':
+As an example, a Person type might be used to represent friends, family and employment relationships. This example
+assumes that an Organization type is defined elsewhere with a Key field called 'ein':
 
     Person = Record
         1 id        Key(Integer)
@@ -1153,7 +1159,7 @@ an Organization type is defined elsewhere with a Key field called 'ein':
         6 friends   Link(Person) [0..*]
         7 employer  Link(Organization) optional
 
-Simplifying creates an explicit key type and replaces links with that type, but discards the indication
+Simplifying creates an explicit key type and replaces links with that type, but discards the explicit indicator
 that a field is a primary key or relationship:
 
     Person = Record
