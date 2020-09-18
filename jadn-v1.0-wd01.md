@@ -579,11 +579,11 @@ Every definition has five elements:
 * If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Defined type.
 * If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
-* ItemValue MAY be any string, but the Enumerated type is often used to hold FieldID/FieldName pairs.
+* ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
-Some extensions (e.g., [Derived Enumerations](#333-derived-enumerations), [Pointers](#335-pointers))
-supply field definitions and require the Fields element be empty.
+The [Derived Enumerations](#333-derived-enumerations) and [Pointers](#335-pointers) TypeOptions are extensions
+that supply field definitions and require Fields to be empty.
 
 This structure allows each type definition to be treated as a graph node with minimal JADN-specific
 knowledge.  Node name (TypeName), edge names (FieldID/FieldName), and edge endpoints (FieldType) are
@@ -813,13 +813,13 @@ the extend option all unrecognized data generates an error.
 Field options are specified for each field within a type definition.
 
     FieldOptions = Map
-      91 minc     Integer      '['  Minimum cardinality (Section 3.2.2.1)
-      93 maxc     Integer      ']'  Maximum cardinality
-      38 tagid    Enumerated   '&'  Field containing an explicit tag for this Choice type (Section 3.2.2.2)
-      60 dir      Boolean      '<'  Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
-      75 key      Boolean      'K'  Field is a primary key for this type (Extension: Section 3.3.6)
-      76 link     Boolean      'L'  Field is a relationship or link to a type instance (Extension: Section 3.3.6)
-      33 default  String       '!'  Default value (Section 3.2.2.3)
+      91 minc     Integer      // '[' Minimum cardinality (Section 3.2.2.1)
+      93 maxc     Integer      // ']' Maximum cardinality
+      38 tagid    Enumerated   // '&' Field containing an explicit tag for this Choice type (Section 3.2.2.2)
+      60 dir      Boolean      // '<' Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
+      75 key      Boolean      // 'K' Field is a primary key for this type (Extension: Section 3.3.6)
+      76 link     Boolean      // 'L' Field is a relationship or link to a type instance (Extension: Section 3.3.6)
+      33 default  String       // '!' Default value (Section 3.2.2.3)
 
 * FieldOptions MUST NOT include more than one of each option.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
