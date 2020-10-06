@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 18 September 2020
+## 2 October 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -152,9 +152,9 @@ within the node that defines it. Any graph with these properties can either repr
 a source template for a JADN information model.
 
 **Information theory** - each node in a JADN model formally defines a "type" in terms of the characteristics
-it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
-and JADN has three mechanisms to define the information conveyed by a type separately from the data
-used to serialize it:
+it provides to applications, i.e. constraints on the valid values of instances of that type.
+Information theory quantifies the novelty (news value, or "entropy") of data, and JADN has three mechanisms
+to define the information conveyed by a type separately from the data used to serialize it:
 
 1. Representation of primitives such as dates or IP addresses by binary value or as text (formats)
 2. Enumeration of string values by tag or content (vocabularies and field ID/Names)
@@ -162,7 +162,8 @@ used to serialize it:
 
 Separating the information needed by applications from information-less (insignificant) data used to
 represent it for machine parsing and human consumption allows a single information model to define
-data models for formats ranging from nearly pure-information RFC 791 IP headers to highly-verbose XML.
+data models for formats ranging from the nearly pure information IP headers defined in RFC 791 to
+highly-verbose XML.
 This allows data to be translated bidirectionally among multiple formats without losing information.
 
 ## 1.1 Requirements
@@ -335,7 +336,7 @@ Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RF
 ###### [RFC8259]
 Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
 
-## 1.5 Non-Normative References
+## 1.5 Informative References
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [BRIDGE]
@@ -403,9 +404,40 @@ such as XML and JSON.
 Non-uniform or correlated data has less than one byte of entropy per data byte, but source coding is
 outside the scope of this specification.*
 
-## 2.1 Information Modeling
+## 2.1 Graph Modeling
 
-JADN type definitions are based on the [CBOR](#rfc7049) data model but with an information-centric focus:
+A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) in the form of a graph.
+The graph elements of a node (TypeName, FieldId, FieldName, FieldType) define relationships between nodes.
+
+* A graph is a collection of nodes and relationships between nodes (edges).
+* An undirected graph has symmetric edges; the edges in a directed graph have an orientation.
+* A tree is a connected acyclic undirected graph, an undirected graph where any pair of nodes is connected by exactly
+one path.
+* A directed (or rooted) tree is a hierarchy. A directed tree is constructed from a tree by selecting one node as
+root and assigning all edge directions either toward or away from the root. Every rooted tree has an underlying
+undirected tree.
+* A directed acyclic graph (DAG) is a directed graph with no directed cycles, or equivalently a directed graph with
+a topological ordering, a sequence of nodes such that every edge is directed from earlier to later in the sequence.
+
+Every JADN information model MUST be a collection of one or more DAGs. This ensures that all serialized data has
+finite and known nesting depth. A DAG can be refactored into another DAG having the same underlying undirected
+graph but with a different root, and the underlying graphs of two DAGs can be compared for equality. This graph-based
+equivalence expands the range of data models that can be derived from a single information model.
+
+A DAG differs from a directed tree in that a node may have more than one parent. A DAG can be converted to a directed
+tree by denormalizing (copying subtrees below multi-parent nodes), and a directed tree can be converted to a DAG by
+normalizing (combining identical subtrees).
+Reuse of common types is an important goal in both design of information models and analysis of data, and JADN's
+flat type structure facilitates and encourages reuse.
+However, it is often useful to have a [tree-structured representation](#graph) of a document's structure.
+Converting an information model into a directed tree supports applications such as model queries that are
+otherwise difficult to implement, tree-structured content statistics, content transformations, and documentation.
+
+## 2.2 Information Modeling
+
+JADN type definitions are based on the [CBOR](#rfc7049) data model but with an information-centric focus.   The
+information elements of a node (BaseType, TypeOptions, FieldOptions) define the constraints that must be satisfied
+for an instance to be considered valid. Constraints define the upper bound on the information in an instance.
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -416,30 +448,6 @@ JADN type definitions are based on the [CBOR](#rfc7049) data model but with an i
 | No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
 | Instance equality is defined at the data level. | Instance equality is defined in ways meaningful to applications. For example "Optional" and "Nullable" are different at the data level but applications make no logical distinction between "not present" and "null value". |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
-
-## 2.2 Tree vs. Graph
-
-JADN types are not allowed to reference themselves, either directly or through other types. In other words, any set
-of JADN types must form an acyclic graph, and any type graph that has cycles is invalid. This is necessary to ensure
-that all serialized data has finite and known nesting depth.
-
-JADN structured types define a directional relationship between containing and contained types.
-Therefore every acyclic collection of JADN types forms one or more directed acyclic graphs (DAG).
-
-A directed tree is a DAG with the further restriction that a child can have only one parent.
-Although information types are generally arranged hierarchically, reuse of common types is an important goal
-in both design of information models and analysis of data, and JADN's flat type structure encourages reuse.
-Nonetheless, it is often useful to have a [tree-structured representation](#graph) of a target document's structure.
-Denormalizing the original model into a tree supports applications such as model queries that are otherwise
-difficult to implement, tree-structured content statistics, content transformations, and documentation.
-Type name uniqueness ensures that denormalization is reversible and that DAG and tree representations are equivalent.
-
-In contrast with undirected trees where a root may be chosen arbitrarily, every DAG has a topological
-ordering that determines its root. JADN supports designating one or more root types of an information model.
-This has two purposes:
-
-1. As a convenience to consumers, labeling root(s) without needing to discover them from a dependency graph
-2. As a tool for providers, allowing application-specific subsets of a comprehensive source model to be designated.
 
 ## 2.3 Example Definitions
 
@@ -523,15 +531,19 @@ otherwise identical instance without that key.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing Nulls MUST compare as equal.
 
 [UML](#uml) Section 7.5 "Types and Multiplicity" defines two properties, isUnique and isOrdered, that constrain
-the kind and number of values contained in a collection of values.
-The JADN types that exhibit these properties are:
+the kind and number of values contained in a collection.  The JADN types that hold homogeneous (single-type) and
+heterogeneous (defined-type) collections with these properties are:
 
-| isOrdered | isUnique | Collection | JADN Value Type      | JADN Key:Value Type |
-| :-------: | :------: | :--------- | :------------------  | :------------------ |
-| false     | true     | Set        | ArrayOf + set        | Map, MapOf          |
-| true      | false    | Sequence   | ArrayOf              | Array               |
-| true      | true     | OrderedSet | ArrayOf + unique     | Record              |
-| false     | false    | Bag        | ArrayOf + unordered  | none                |
+| isOrdered | isUnique | Name       | JADN Values         | JADN Typed Values  |
+| :-------: | :------: | :--------- | :------------------ | :----------------- |
+| false     | true     | Set        | ArrayOf + set       | Map, MapOf, Choice |
+| true      | false    | Sequence   | ArrayOf             | Array              |
+| true      | true     | OrderedSet | ArrayOf + unique    | Record             |
+| false     | false    | Bag        | ArrayOf + unordered | none               |
+
+Note that a data instance of an unordered mapping type containing multiple elements with the same key is invalid
+because its values are neither unique nor ordered. In order to reference its values it must be converted into,
+for example, an array of maps or a map of arrays. 
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
@@ -673,25 +685,26 @@ which data values are instances of the defined type.
 
 ```
 TypeOption = Map
-    61 id        Boolean   // '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
-    42 vtype     String    // '*' Value type for ArrayOf and MapOf (Section 3.2.1.2)
-    43 ktype     String    // '+' Key type for MapOf (Section 3.2.1.3)
-    35 enum      String    // '#' Extension: Enumerated type derived from a specified type (Section 3.3.3)
-    62 pointer   String    // '>' Extension: Enumerated type containing pointers derived from a specified type (Section 3.3.5)
-    47 format    String    // '/' Semantic validation keyword (Section 3.2.1.5)
-    37 pattern   String    // '%' Regular expression used to validate a String type (Section 3.2.1.6)
-   123 minv      Integer   // '{' Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
-   125 maxv      Integer   // '}' Maximum integer value, octet or character count, or element count
-   121 minf      Number    // 'y' Minimum real number value
-   122 maxf      Number    // 'z' Maximum real number value
-   113 unique    Boolean   // 'q' ArrayOf instance must not contain duplicate values (Section 3.2.1.8)
-   115 set       Boolean   // 's' ArrayOf instance is unordered and unique (Section 3.2.1.9)
-    98 unordered Boolean   // 'b' ArrayOf instance is unordered (Section 3.2.1.10)
-    88 extend    Boolean   // 'X' Type has an extension point where fields may be added in the future (Section 3.2.1.11)
+    61 id        Boolean    // '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
+    42 vtype     String     // '*' Value type for ArrayOf and MapOf (Section 3.2.1.2)
+    43 ktype     String     // '+' Key type for MapOf (Section 3.2.1.3)
+    35 enum      String     // '#' Extension: Enumerated type derived from a specified type (Section 3.3.3)
+    62 pointer   String     // '>' Extension: Enumerated type containing pointers derived from a specified type (Section 3.3.5)
+    47 format    String     // '/' Semantic validation keyword (Section 3.2.1.5)
+    37 pattern   String     // '%' Regular expression used to validate a String type (Section 3.2.1.6)
+   123 minv      Integer    // '{' Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
+   125 maxv      Integer    // '}' Maximum integer value, octet or character count, or element count
+   121 minf      Number     // 'y' Minimum real number value
+   122 maxf      Number     // 'z' Maximum real number value
+   113 unique    Boolean    // 'q' ArrayOf instance must not contain duplicate values (Section 3.2.1.8)
+   115 set       Boolean    // 's' ArrayOf instance is unordered and unique (Section 3.2.1.9)
+    98 unordered Boolean    // 'b' ArrayOf instance is unordered (Section 3.2.1.10)
+    88 extend    Boolean    // 'X' Type has an extension point where fields may be added in the future (Section 3.2.1.11)
+    33 default   String     // '!' Default value (Section 3.2.1.12)
 ```
 
 * TypeOptions MUST contain zero or one instance of each type option.
-* TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3.
+* TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3 plus a default value.
 * If BaseType is ArrayOf, TypeOptions MUST include the *vtype* option.
 * If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
@@ -791,8 +804,7 @@ The *unique* option specifies that values in an array must not be repeated.
 * For the ArrayOf type, if *unique* is present an instance MUST be considered invalid if it contains duplicate values.
 
 #### 3.2.1.9 Set
-The *set* option specifies that an ArrayOf type is unordered and unique, having the semantics of a SetOf
-type respectively.
+The *set* option specifies that an ArrayOf type is unordered and unique.
 
 * For the ArrayOf type, if *set* is present an instance MUST be considered invalid if it contains duplicate values.
 
@@ -802,24 +814,29 @@ defined order.  Because values cannot be selected by value or position, it has t
 from which elements are picked at random.
 
 #### 3.2.1.11 Extension Point
-The *extend* option, if present, specifies that an Enumerated, Choice, Array, Map or Record type includes an
-"extension point" where new fields may be appended without breaking backward compatibility. This has no effect on
-instance validation, it is solely a hint that validators may use when processing unrecognized data.
-For self-delimiting data formats an unrecognized attribute encountered on an extensible type may be flagged
-with a warning and the unrecognized data may be ignored or discarded before continuing. For types without
-the extend option all unrecognized data generates an error.
+The *extend* option is an assertion that an Enumerated, Choice, Array, Map or Record type MAY be incomplete and that
+future versions MAY add new fields that do not change the definitions of existing fields.  This option does not affect
+the validity of data with respect to a specific schema, it is an indicator that applications may be able to obtain
+a newer version of the same package for which the data is valid. Types without this option assert that
+the package identifier will be changed if any field is added, modified, or deleted.
+
+#### 3.2.2.3 Default Value
+The *default* option specifies the initial or default value of a field. Applications deserializing
+a document MUST initialize an unspecified type with its default value.
+Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
 
 ### 3.2.2 Field Options
 Field options are specified for each field within a type definition.
 
-    FieldOptions = Map
-      91 minc     Integer      // '[' Minimum cardinality (Section 3.2.2.1)
-      93 maxc     Integer      // ']' Maximum cardinality
-      38 tagid    Enumerated   // '&' Field containing an explicit tag for this Choice type (Section 3.2.2.2)
-      60 dir      Boolean      // '<' Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
-      75 key      Boolean      // 'K' Field is a primary key for this type (Extension: Section 3.3.6)
-      76 link     Boolean      // 'L' Field is a relationship or link to a type instance (Extension: Section 3.3.6)
-      33 default  String       // '!' Default value (Section 3.2.2.3)
+```
+FieldOptions = Map
+    91 minc      Integer    // '[' Minimum cardinality (Section 3.2.2.1)
+    93 maxc      Integer    // ']' Maximum cardinality
+    38 tagid     Enumerated // '&' Field containing an explicit tag for this Choice type (Section 3.2.2.2)
+    60 dir       Boolean    // '<' Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
+    75 key       Boolean    // 'K' Field is a primary key for this type (Extension: Section 3.3.6)
+    76 link      Boolean    // 'L' Field is a relationship or link to a type instance (Extension: Section 3.3.6)
+```
 
 * FieldOptions MUST NOT include more than one of each option.  
 * All type options ([Table 3-2](#table-3-2-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
@@ -952,9 +969,6 @@ Hashes2 Example:
   }
 ]
 ```
-
-#### 3.2.2.3 Default Value
-The *default* option specifies the initial or default value of a field.
 
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
@@ -1320,11 +1334,12 @@ communication.  They produce JSON instances equivalent to the diagnostic notatio
 
 [Section 3.1](#31-type-definitions) defines the native JSON format of JADN type definitions.
 Although JSON data is unambiguous and supported in many programming languages, it is cumbersome
-to use as a documentation format. This section defines two alternative ways of documenting JADN information
-models - a formal text-based interface definition language and an example property table layout.
-In addition, tree diagrams can be used to provide a high-level overview of JADN information models.
+to use as a documentation format. This section defines a formal text-based interface definition
+language and illustrates several alternative ways of documenting information models.
 
 ### 5.1 JADN-IDL Format
+
+*This section is normative*
 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
 It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
@@ -1354,7 +1369,8 @@ Structured types without the *id* option:
 If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS character (/)
 as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
-Structured types with the *id* option treat the item/field name as a non-normative label
+Structured types with the *id* option treat the item/field name as an informative label
+
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
@@ -1394,7 +1410,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
 An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
 
 ### 5.2 Table Style
-*This section is non-normative*
+*This section is informative*
 
 Some specifications present type definitions in property table form, using varied style conventions.
 This specification does not define a normative property table format, but this section is one example
@@ -1435,7 +1451,7 @@ or (for structured types with the *id* option):
 ![HTML Table](images/person-html.png)
 
 ## 5.3 Entity Relationship Diagrams
-*This section is non-normative*
+*This section is informative*
 
 JADN type definitions have a graphical representation similar to ERDs used in database design.
 This document does not address the design of information models, but processes similar to those used
@@ -1521,7 +1537,7 @@ each section of a course or relies on a separate course index (Map):
 ```
 
 ## 5.4 Tree Diagrams
-*This section is non-normative*
+*This section is informative*
 
 Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
 can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
