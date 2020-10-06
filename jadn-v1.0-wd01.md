@@ -1370,6 +1370,7 @@ If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS cha
 as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
 Structured types with the *id* option treat the item/field name as an informative label
+
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
