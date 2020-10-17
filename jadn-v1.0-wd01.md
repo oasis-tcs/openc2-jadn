@@ -1021,8 +1021,9 @@ Hashes2 Example:
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
 more compact or that support the [DRY](#dry) software design principle.
-Extensions can be "simplified" (replaced by core definitions) without changing
-the meaning of the definition. Simplifying reduces the code needed to serialize and validate data
+Extensions can be replaced by core definitions without changing the meaning of the definition.
+In other words, extensions are a form of syntactic sugar.
+Simplifying ("de-sugaring") reduces the code needed to serialize and validate data
 and may make specifications easier to understand.  But it creates additional definitions that must
 be kept in sync, expanding the specification and increasing maintenance effort.
 
@@ -1036,7 +1037,7 @@ The following extensions can be converted to core definitions:
 
 ### 3.3.1 Type Definition Within Fields
 A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
-Simplifying converts all anonymous type definitions to explicit named types and excludes all type options
+Simplifying converts all anonymous type definitions to explicit named types and excludes all TypeOption values
 ([Section 3.2.1](#321-type-options)) from FieldOptions.
 
 Example:
@@ -1505,7 +1506,7 @@ or (for structured types with the *id* option):
 
 JADN type definitions have a graphical representation similar to ERDs used in database design.
 This document does not address the design of information models, but processes similar to those used
-for databases and software may be used to design information models.
+for databases and software may be used.
 
 The differences between database and information ERDs are:
 
@@ -1514,7 +1515,7 @@ are derived from the node content and are shown to visually illustrate the infor
 are directed arrows from containing to contained types and may include multiplicity information.
 Dynamic relationships (links) are directed from foreign key to primary key, the reverse direction from container
 relationships.
-Links may be illustrated as undirected edges, or as directed edges visually distingishable from static edges.
+Links may be illustrated as undirected edges, or as directed edges visually distinguishable from static edges.
 
 2. In an information ERD attributes have both an ID and a name, each of which must be unique within the node.
 
@@ -1586,7 +1587,7 @@ can be displayed as a [YANG tree diagram](#rfc8340) using the following conventi
 # 6 Schemas
 
 JADN schemas are organized into packages.  A package consists of an optional
-information section and a list of [type definitions](#c2-type-definitions):
+[information](#c1-package) section and a list of [type definitions](#c2-type-definitions):
 
 ```
     Schema = Record                            // Definition of a JADN package
@@ -1594,7 +1595,7 @@ information section and a list of [type definitions](#c2-type-definitions):
        2 types        Types                    // Types defined in this package
 ```
 
-If the [information](#c1-package) section is present the *package* field is required; all others are optional.
+If the information section is present the *package* field is required; all others are optional.
 
 * **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced from other
 packages. This is an identifier but not necessarily a locator for accessible resources.
@@ -1670,12 +1671,14 @@ and conforming implementations must support at least one.
 * JADN Extensions
     * In addition to all Core requirements, perform all type simplification operations defined in ([Section 3.3](#33-jadn-extensions))
 
-This document describes several schema support functions but defines no conformance requirements with respect to those functions:
+This document describes several schema support functions but defines no corresponding conformance requirements:
 
+* JADN Extensions
+    * Recognize and reverse type simplification operations, i.e., given a core schema, generate syntactic sugar where applicable.
 * JADN Schema Translator
     * Translate type definitions in JSON format to Table and JADN-IDL formats per Section 5.1.
     * Translate type definitions in JADN-IDL and Table formats to JSON format per Section 5.1.
-    * Merge packages per Section 5.2.
+    * Combine or merge packages per Section 5.2.
 * JADN Concrete Schema Generator
     * Generate a schema in a format-specific language per serialization rules in Section 4.x.
 
