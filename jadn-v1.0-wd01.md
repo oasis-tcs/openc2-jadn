@@ -129,6 +129,8 @@ Please see https://www.oasis-open.org/policies-guidelines/trademark for above gu
   - [1.1 Requirements](#11-requirements)
   - [1.2 IPR Policy](#12-ipr-policy)
   - [1.3 Terminology](#13-terminology)
+    - [1.3.1 Glossary](#131-glossary)
+    - [1.3.2 Key words used to indicate requirement levels](#132-key-words-used-to-indicate-requirement-levels)
   - [1.4 Normative References](#14-normative-references)
   - [1.5 Informative References](#15-informative-references)
 - [2 Information vs. Data](#2-information-vs-data)
@@ -138,8 +140,19 @@ Please see https://www.oasis-open.org/policies-guidelines/trademark for above gu
   - [2.4 Implementation](#24-implementation)
 - [3 JADN Types](#3-jadn-types)
   - [3.1 Type Definitions](#31-type-definitions)
+    - [3.1.1 Name Formats](#311-name-formats)
+    - [3.1.2 Upper Bounds](#312-upper-bounds)
+    - [3.1.3 Descriptions](#313-descriptions)
   - [3.2 Options](#32-options)
+    - [3.2.1 Type Options](#321-type-options)
+    - [3.2.2 Field Options](#322-field-options)
   - [3.3 JADN Extensions](#33-jadn-extensions)
+    - [3.3.1 Type Definition Within Fields](#331-type-definition-within-fields)
+    - [3.3.2 Field Multiplicity](#332-field-multiplicity)
+    - [3.3.3 Derived Enumerations](#333-derived-enumerations)
+    - [3.3.4 MapOf With Enumerated Key](#334-mapof-with-enumerated-key)
+    - [3.3.5 Pointers](#335-pointers)
+    - [3.3.6 Links](#336-links)
 - [4 Serialization](#4-serialization)
   - [4.1 JSON Serialization](#41-json-serialization)
   - [4.2 CBOR Serialization](#42-cbor-serialization)
@@ -157,7 +170,7 @@ Please see https://www.oasis-open.org/policies-guidelines/trademark for above gu
 - [Appendix A. Acknowledgments](#appendix-a-acknowledgments)
 - [Appendix B. Revision History](#appendix-b-revision-history)
 - [Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema)
-  - [C.1 package](#c1-package)
+  - [C.1 Package](#c1-package)
   - [C.2 Type Definitions](#c2-type-definitions)
 - [Appendix D. Definitions in JADN format](#appendix-d-definitions-in-jadn-format)
 - [Appendix E. JSON Schema for JADN](#appendix-e-json-schema-for-jadn)
@@ -272,14 +285,12 @@ Property Rights section of the TC's web page
 ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
 ## 1.3 Terminology
-### 1.3.1 Terms
+### 1.3.1 Glossary
 
 * **Schema**:
     An abstract schema, or information model, describes the structure and value constraints of information
-    used by applications.
-
-    A concrete schema, or data model, describes the structure and value constraints of a document used to
-    store information or communicate it between applications.
+    used by applications. A concrete schema, or data model, describes the structure and value constraints
+    of a document used to store information or communicate it between applications.
 
 * **Graph**:
     A mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes and edges.
@@ -296,7 +307,6 @@ Property Rights section of the TC's web page
 
 * **Valid**:
     An instance is valid if it satisfies the constraints defined in an information model.
-
     A document is valid if it is well-formed and also corresponds to a valid instance.
 
 * **Data Format**:
@@ -307,22 +317,24 @@ Property Rights section of the TC's web page
 
 * **Instance**:
     An instance, or API value, is an item of application information to which a schema applies.
-    An instance has one of the types defined in [Section 3](#3-jadn-types), and a set of valid values.
-    The JADN types are:
+    An instance has one of the base types defined in [Section 3](#3-jadn-types) and value constraints
+    defined in the schema by type name.
+    The base types are:
     * **Primitive:** Null, Boolean, Binary, Integer, Number, String
     * **Enumeration:** Enumerated
     * **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
 
+* **Equality**:
     Two instances are equal if and only if they are of the same type and have the same value according to the
     information model. Formatting differences, including a document's data format, are insignificant.
-    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
-    if and only if they have the same 32 bit value.
-    A Record instance serialized as an array in one document can be compared for equality
-    with an instance serialized as a map in another.
+    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR
+    byte string if and only if they have the same 32 bit value.
+    A Record instance serialized as an array is equal to a Record instance serialized as a map
+    if and only if they have the same keys and the same value for each key.
 
 * **Serialization**:
     Serialization, or encoding, is the process of converting application information into a document.
-    De-serialization, or decoding, converts a document into an instance usable by an application.
+    De-serialization, or decoding, converts a document into information instances usable by an application.
 
 * **Description**:
     Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
@@ -707,9 +719,11 @@ This section defines the mechanism used to support a varied set of information n
 structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options
 without modifying that structure.
 
-Each option is a text string that may be included in TypeOptions or FieldOptions. The first character of the string
-is the option ID as defined in [Section 3.2.1](#321-type-options) and [Section 3.2.2](#322-field-options).
-The remaining characters are the value of that option, if any.
+Each option is a text string that may be included in TypeOptions or FieldOptions, encoded as follows:
+* The first character is the option ID. Its Unicode codepoint is the numeric value (FieldID) shown in
+[Section 3.2.1](#321-type-options) and [Section 3.2.2](#322-field-options).
+* The remaining characters are the option value. Boolean options have no additional characters;
+if the option ID is present it's value is True, otherwise it's value is False.
 
 ### 3.2.1 Type Options
 Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types
@@ -717,7 +731,7 @@ defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional
 which data values are instances of the defined type.
 
 ```
-TypeOption = Map
+TypeOption = Choice
     61 id        Boolean    // '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
     42 vtype     String     // '*' Value type for ArrayOf and MapOf (Section 3.2.1.2)
     43 ktype     String     // '+' Key type for MapOf (Section 3.2.1.3)
@@ -725,7 +739,7 @@ TypeOption = Map
     62 pointer   String     // '>' Extension: Enumerated type containing pointers derived from a specified type (Section 3.3.5)
     47 format    String     // '/' Semantic validation keyword (Section 3.2.1.5)
     37 pattern   String     // '%' Regular expression used to validate a String type (Section 3.2.1.6)
-   121 minf      Number     // 'y' Minimum real number value
+   121 minf      Number     // 'y' Minimum real number value (Section 3.2.1.7)
    122 maxf      Number     // 'z' Maximum real number value
    123 minv      Integer    // '{' Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
    125 maxv      Integer    // '}' Maximum integer value, octet or character count, or element count
@@ -736,8 +750,8 @@ TypeOption = Map
     33 default   String     // '!' Default value (Section 3.2.1.12)
 ```
 
-* TypeOptions MUST contain zero or one instance of each type option.
-* TypeOptions MUST contain only TypeOptions allowed for BaseType as shown in Table 3-3 plus a default value.
+* TypeOptions MUST contain zero or one instance of each TypeOption.
+* TypeOptions MUST contain only TypeOption instances allowed for BaseType as shown in Table 3-3, plus a default value.
 * If BaseType is ArrayOf, TypeOptions MUST include the *vtype* option.
 * If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
@@ -859,20 +873,21 @@ a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
 
 ### 3.2.2 Field Options
-Field options are specified for each field within a type definition.
+Field options may be specified for each field within a structured type definition.
 
 ```
-FieldOptions = Map
+FieldOption = Choice
     91 minc      Integer    // '[' Minimum cardinality (Section 3.2.2.1)
     93 maxc      Integer    // ']' Maximum cardinality
     38 tagid     Enumerated // '&' Field containing an explicit tag for this Choice type (Section 3.2.2.2)
     60 dir       Boolean    // '<' Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
     75 key       Boolean    // 'K' Field is a primary key for this type (Extension: Section 3.3.6)
-    76 link      Boolean    // 'L' Field is a relationship or link to a type instance (Extension: Section 3.3.6)
+    76 link      Boolean    // 'L' Field is a relationship link to a type instance (Extension: Section 3.3.6)
 ```
 
-* FieldOptions MUST NOT include more than one of each option.  
-* All type options ([Section 3.2.1](#321-type-options)) included in FieldOptions MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
+* FieldOptions MUST NOT include more than one of each option.
+* All TypeOption values ([Section 3.2.1](#321-type-options)) included in FieldOptions are extensions. Each TypeOption
+MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
 Multiplicity, as used in the Unified Modeling Language ([UML Section 7.5.4](#uml)), is a range of allowed cardinalities.
@@ -1330,9 +1345,9 @@ communication.  They produce JSON instances equivalent to the diagnostic notatio
 | **Record** | Same as **Array**. |
 
 ## 4.4 XML Serialization:
-* When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+*This section is informative. Normative XML serialization rules will be defined in a future version of this specification.*
 
-*Editor's note: prototype serialization rules - need XML expertise to fix.*
+* When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
 | :--- | :--- |
@@ -1706,7 +1721,7 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
     "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
 ```
-## C.1 package
+## C.1 Package
 
 A package is a collection of type definitions along with information about the package.
 ```
