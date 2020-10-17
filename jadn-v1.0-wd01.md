@@ -1662,25 +1662,27 @@ Conformance targets:
 This document defines two conformance levels for JADN implementations: Core and Extensions.
 
 This document defines several data formats. Conformance claims are made with respect to a specified data format,
-and conforming implementations must support at least one.
+and conforming implementations must support at least one data format.
 
 * Core JADN
-    * Validate type definitions for correctness according to [Section 3.1](#31-type-definitions) and [Section 3.2](#32-options).
-    * Encode and decode documents according to serialization rules for format \<X\> defined in Section [Section 4](#4-serialization)
-    * Validate API values against type definitions
+    * Validate schema packages according to [Section 3.1](#31-type-definitions), [Section 3.2](#32-options)
+    and [section 6](#6-schemas)
+    * Validate API values against a schema package
+    * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 4](#4-serialization)
 * JADN Extensions
-    * In addition to all Core requirements, perform all type simplification operations defined in ([Section 3.3](#33-jadn-extensions))
+    * Satisfy all Core requirements
+    * Translate JADN packages bi-directionally between JSON format and JADN IDL format defined in [Section 5.1](#51-jadn-idl-format)
+    * Perform all type simplification operations defined in [Section 3.3](#33-jadn-extensions)
 
 This document describes several schema support functions but defines no corresponding conformance requirements:
 
 * JADN Extensions
-    * Recognize and reverse type simplification operations, i.e., given a core schema, generate syntactic sugar where applicable.
+    * Recognize and reverse type simplification operations, i.e., given a core schema package,
+     generate syntactic sugar where applicable.
 * JADN Schema Translator
-    * Translate type definitions in JSON format to Table and JADN-IDL formats per Section 5.1.
-    * Translate type definitions in JADN-IDL and Table formats to JSON format per Section 5.1.
-    * Combine or merge packages per Section 5.2.
-* JADN Concrete Schema Generator
-    * Generate a schema in a format-specific language per serialization rules in Section 4.x.
+    * Translate JADN packages to informative documentation formats (table, diagram, tree) described in Section 5
+* JADN Concrete Schema Generators
+    * Generate format-specific concrete schemas per serialization rules in Section 4.x.
 
 -------
 
