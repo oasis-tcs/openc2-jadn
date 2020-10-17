@@ -6,7 +6,7 @@
 
 ## Working Draft 01
 
-## 16 October 2020
+## 21 October 2020
 
 ### Technical Committee:
 * [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -25,13 +25,13 @@ This prose specification is one component of a Work Product that also includes:
 * Conformance test data
 
 ### Abstract:
-JSON Abstract Data Notation (JADN) is an information modeling language used to define and translate across data models.
-It has several purposes, including definition of data structures, validation of data instances,
-providing hints for user interfaces working with structured data, and facilitating protocol internationalization.
+JSON Abstract Data Notation (JADN) is an information modeling language.
+It has several purposes including defining data structures, validating data instances,
+informing user interfaces working with structured data, and facilitating protocol internationalization.
 JADN specifications consist of two parts: abstract type definitions that are independent of data format,
 and serialization rules that define how to represent type instances using specific data formats.
 A JADN schema is itself a structured information object that can be serialized and transferred between applications,
-documented in multiple formats such as property tables and text-based data definition languages,
+documented in multiple formats such as text-based interface definition languages, property tables or diagrams,
 and translated into concrete schemas used to validate specific data formats.
 
 ### Status:
@@ -68,7 +68,7 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 12 June 2020.
+_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 21 October 2020.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
@@ -272,76 +272,63 @@ Property Rights section of the TC's web page
 ([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
 
 ## 1.3 Terminology
+### 1.3.1 Terms
 
-### 1.3.1 Schema
-An abstract schema, or information model, describes the structure and value constraints of information used by applications.
+* **Schema**:
+    An abstract schema, or information model, describes the structure and value constraints of information
+    used by applications.
 
-A concrete schema, or data model, describes the structure and value constraints of a document used to store information
-or communicate it between applications.
+    A concrete schema, or data model, describes the structure and value constraints of a document used to
+    store information or communicate it between applications.
 
-### 1.3.2 Graph
-A graph is mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes
-(or vertices) and edges. An information model is a graph where nodes define information types and edges define
-relationships between types.
+* **Graph**:
+    A mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes and edges.
+    An information model is a graph where nodes define information types and edges define relationships between types.
 
-### 1.3.3 Package
-A package is a namespace for the set of nodes it contains. A node may reference nodes contained in other packages by namespace.
+* **Package**:
+    A namespace for the set of nodes it contains. A node may reference nodes contained in other packages by namespace.
 
-### 1.3.4 Document
-A document is a series of octets described by a data format applied to an information model, or equivalently, by a data model.
+* **Document**:
+    A series of octets described by a data format applied to an information model, or equivalently, by a data model.
 
-### 1.3.5 Well-formed
-A well-formed document follows the syntactic structure of the document's media type.
+* **Well-formed**:
+    A well-formed document follows the syntactic structure of the document's media type.
 
-### 1.3.6 Valid
-An instance is valid if it satisfies the constraints defined in an information model.
+* **Valid**:
+    An instance is valid if it satisfies the constraints defined in an information model.
 
-A document is valid if it is well-formed and also corresponds to a valid instance.
+    A document is valid if it is well-formed and also corresponds to a valid instance.
 
-### 1.3.7 Data Format
-A data format, defined by serialization rules, specifies the media type (e.g., application/xml, application/json,
-application/cbor), design goals (e.g., human readability, efficiency), and style preferences for documents in that format.
-This specification defines XML, JSON, M-JSON, and CBOR data formats.
-Additional data formats may be defined for any media types that can represent instances of the JADN information model.
+* **Data Format**:
+    A data format, defined by serialization rules, specifies the media type (XML, JSON, ...), design goals
+    (human readability, efficiency), and style preferences for documents in that format.
+    This specification defines a baseline set of data formats. Additional data formats may be defined for
+    any media types that can represent instances of the JADN information model.
 
-Serialization rules for a data format define how instances of each type are represented in documents of that format.
+* **Instance**:
+    An instance, or API value, is an item of application information to which a schema applies.
+    An instance has one of the types defined in [Section 3](#3-jadn-types), and a set of valid values.
+    The JADN types are:
+    * **Primitive:** Null, Boolean, Binary, Integer, Number, String
+    * **Enumeration:** Enumerated
+    * **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
 
-### 1.3.8 Instance
-An instance, or API value, is an item of application information to which a schema applies. An instance has one of the
-core types defined in [Section 3](#3-jadn-types), and a set of possible values depending on the type. The core types
-are classified by [UML](#uml) as:
+    Two instances are equal if and only if they are of the same type and have the same value according to the
+    information model. Formatting differences, including a document's data format, are insignificant.
+    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
+    if and only if they have the same 32 bit value.
+    A Record instance serialized as an array in one document can be compared for equality
+    with an instance serialized as a map in another.
 
-* **Primitive:** Null, Boolean, Binary, Integer, Number, String
-* **Enumeration:** Enumerated
-* **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
+* **Serialization**:
+    Serialization, or encoding, is the process of converting application information into a document.
+    De-serialization, or decoding, converts a document into an instance usable by an application.
 
-Since mapping types cannot have two fields with the same key, behavior for a JADN document that tries to define an
-instance having two fields with the same key is undefined.
+* **Description**:
+    Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
+    and are ignored by applications using the schema.
 
-Note that JADN schemas may define their own extended type system. This should not be confused with the core types
-defined here. As an example, "IPv4-Address" is a reasonable extended type for a schema to define,
-but the definition is based on the Binary core type.
-There is only one relationship between core types: a structured type contains other types. But schemas may define
-extended relationships between instances, for example "owner" or "performer", using [links](#336-links).
-
-### 1.3.9 Instance Equality
-Two JADN instances are said to be equal if and only if they are of the same core type and have the same value
-according to the information model.  Mere formatting differences, including a document's data format, are insignificant.
-An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR byte string
-if and only if they have the same 32 bit value.  Two Record instances are equal if and only if each field in one has
-exactly one field with a key equal to the other's, and that other field has an equal value.
-Because Record keys are ordered, an instance serialized as an array in one document can be compared for equality
-with an instance serialized as a map in another.
-
-### 1.3.10 Serialization
-Serialization, or encoding, is the process of converting application information into a document.
-De-serialization, or decoding, converts a document into an instance usable by an application.
-
-### 1.3.11 Description
-Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
-and are ignored by applications using the schema.
-
-### 1.3.12 Key words used to indicate requirement levels
+### 1.3.2 Key words used to indicate requirement levels
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
 and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
 when, and only when, they appear in all capitals, as shown here.
