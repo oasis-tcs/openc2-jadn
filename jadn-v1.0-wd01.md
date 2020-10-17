@@ -1503,33 +1503,22 @@ or (for structured types with the *id* option):
 
 JADN type definitions have a graphical representation similar to ERDs used in database design.
 This document does not address the design of information models, but processes similar to those used
-for databases and software may be used to design information models. Common graphical representations
-suggests use of common design processes.
+for databases and software may be used to design information models.
 
 The differences between database and information ERDs are:
 
-1. An information model is contained entirely within the entities shown on an information ERD.  Connectors
-are derived from content of the entities and are shown only to aid understanding the model. Connectors
-are normally directed arrows from containing to contained types and may include multiplicity information. Link
-connectors are undirected and represent the same relationships as in database ERDs.
+1. An information model is defined entirely by the entities (nodes) shown on an information ERD.  Edges
+are derived from the node content and are shown to visually illustrate the information model. Static relationships
+are directed arrows from containing to contained types and may include multiplicity information.
+Dynamic relationships (links) are directed from foreign key to primary key, the reverse direction from container
+relationships.
+Links may be illustrated as undirected edges, or as directed edges visually distingishable from static edges.
 
-2. Attribute IDs and Names are both shown in an information ERD.
+2. In an information ERD attributes have both an ID and a name, each of which must be unique within the node.
 
 3. All entities in a relational database ERD are tables, while entities in an information ERD are type definitions.
 A type definition contains both the name of the type being defined and its base type, for example "Person : Record" or
 "EmailAddr : String".
-
-A relational database ERD represents an undirected graph because while there is an asymmetry between the primary
-key (PK) of an entity and foreign keys (FK) that refer to it, a DBMS supports joins in either direction.
-An information ERD represents a directed acyclic graph (DAG).
-
-The primary relationship in an an information ERD is between an attribute of a structured type and the type of
-that attribute. The relationship is directed because one type *uses* another, and instances of the first type
-*contain* instances of the second. The type graph must be acyclic to ensure that instances are not nested to
-indefinite depth. Attributes having same type may be compared for equality and used to link instances
-containing those attributes, but an information ERD primarily represents static container relationships.
-Links are used as an exception to break relationship cycles and normalize references rather than routinely
-for all relationships.
 
 As an example, Figure 5-1 is a database ERD from a diagramming tool's template collection.
 
