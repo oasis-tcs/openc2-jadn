@@ -2070,7 +2070,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ]],
   ["Types", "ArrayOf", ["*Type"], "", []],
   ["Type", "Array", [], "", [
-    [1, "type_name", "TypeName", [], ""],
+    [1, "type_name", "TypeRef", [], ""],
     [2, "base_type", "BaseType", [], ""],
     [3, "type_options", "Options", [], ""],
     [4, "type_description", "Description", [], ""],
@@ -2172,7 +2172,7 @@ A JADN package has the following structure:
         "minItems": 2,
         "maxItems": 5,
         "items": [
-          {"$ref": "#/definitions/TypeName"},
+          {"$ref": "#/definitions/TypeRef"},
           {"$ref": "#/definitions/BaseType"},
           {"$ref": "#/definitions/Options"},
           {"$ref": "#/definitions/Description"},
