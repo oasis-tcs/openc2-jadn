@@ -11,6 +11,7 @@
 /* pk 2019-02-18 - v1.7.1 (experimental) changed px to pt (and reduced numbers) for fonts and tables; added bigtitle style */
 /* pk 2019-05-23 - v1.7.2 (based on 1.7.1) changed monospace "code" font to Courier New */
 /* pk 2019-08-01 - v1.7.3 substitute PostScript name for fonts (LiberationSans for "Liberation Sans" and CourierNew for "Courier New") to address a flaw in "wkhtmltopdf" which rendered all text as bold. Changed "bigtitle" to "h1big"*/
+/* dk 2020-10-21 - v1.7.3a (unofficial for jadn, based on 1.7.3) update block quotes and code blocks
 
 body {
     margin-left: 3pc;
@@ -65,17 +66,20 @@ th {
 .table-striped tbody tr:nth-child(even){background-color:#d6f3ff}
 
 /* style for code blocks */
-code,kbd,pre,samp{
-	font-family:CourierNew, monospace;
-	font-size:1em;
-	white-space: pre-wrap;
-	background-color:#e8e8e8;
-	display:inline;
-	}
+pre {
+    background-color:#f0f0f0;
+    padding: 6px;
+}
+
+code,kbd,samp{
+    font-family:CourierNew, monospace;
+    white-space: pre-wrap;
+    font-size: 10pt;
+}
 
 /* offset block quote */
 blockquote {
-	background-color:#e8e8e8;
-	display:inline;
-	}
-
+    background-color:#f0f0f0;
+    padding-left: 10px;
+    border-left: solid lightgray 6px;
+}

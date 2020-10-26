@@ -1,0 +1,153 @@
+{
+ "info": {
+  "package": "https://oasis-open.org/jadn/v1.0/examples",
+  "description": "Example type definitions from JADN Specification"
+ },
+
+ "types": [
+  ["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "id", "Integer", [], ""],
+    [3, "email", "String", ["[0"], ""]
+  ]],
+
+  ["Product", "Choice", [], "Discriminated union", [
+    [1, "furniture", "Furniture", [], ""],
+    [2, "appliance", "Appliance", [], ""],
+    [3, "software", "Software", [], ""]
+  ]],
+
+  ["Dept", "Enumerated", [], "Explicit Tag values = Enumerated type containing tags derived from the Choice", [
+    [1, "furniture", ""],
+    [2, "appliance", ""],
+    [3, "software", ""]
+  ]],
+
+  ["Software", "String", ["/uri"], "", []],
+
+  ["Stock1", "Record", [], "Discriminated union with intrinsic tag", [
+    [1, "quantity", "Integer", [], ""],
+    [2, "product", "Product", [], "Value = Map with one key/value"]
+  ]],
+
+  ["Stock2", "Record", [], "Container with explicitly-tagged discriminated union", [
+    [1, "dept", "Dept", [], "Tag = one key from Choice"],
+    [2, "quantity", "Integer", [], ""],
+    [3, "product", "Product", ["&1"], "Choice specifying an explicit tag field"]
+  ]],
+
+  ["Hashes", "Map", ["{1"], "Multiple discriminated unions with intrinsic tags is a Map", [
+    [1, "md5", "Binary", ["/x", "{16", "}16", "[0"], ""],
+    [2, "sha1", "Binary", ["/x", "{20", "}20", "[0"], ""],
+    [3, "sha256", "Binary", ["/x", "{32", "}32", "[0"], ""]
+  ]],
+
+  ["Hashes2", "ArrayOf", ["*HashVal"], "Multiple discriminated unions with explicit tags is an Array", []],
+
+  ["HashVal", "Record", [], "", [
+    [1, "algorithm", "Enumerated", ["#HashAlg"], "Tag - one key from Choice"],
+    [2, "value", "HashAlg", ["&1"], "Value selected from Choice by 'algorithm' field"]
+  ]],
+
+  ["HashAlg", "Choice", [], "", [
+    [1, "md5", "Binary", ["/x", "{16", "}16"], ""],
+    [2, "sha1", "Binary", ["/x", "{20", "}20"], ""],
+    [3, "sha256", "Binary", ["/x", "{32", "}32"], ""]
+  ]],
+
+  ["Member", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "email", "String", ["/email"], ""]
+  ]],
+
+  ["Member2", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "email", "Member2$email", [], ""]
+  ]],
+
+  ["Member2$email", "String", ["/email"], "Tool-generated type definition.", []],
+
+  ["Roster", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Member", ["[0", "]0"], "Optional and repeated: minc=0, maxc=0"]
+  ]],
+
+  ["Roster2", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Roster2$members", ["[0"], "Optional: minc=0, maxc=1"]
+  ]],
+
+  ["Roster2$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0", []],
+
+  ["Roster3", "Record", [], "", [
+    [1, "org_name", "String", [], ""],
+    [2, "members", "Members", [], "members field is required: default minc = 1, maxc = 1"]
+  ]],
+
+  ["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0", []],
+
+  ["Pixel", "Map", [], "", [
+    [1, "red", "Integer", [], ""],
+    [2, "green", "Integer", [], ""],
+    [3, "blue", "Integer", [], ""]
+  ]],
+
+  ["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type", []],
+
+  ["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)", []],
+
+  ["Channel2", "Enumerated", [], "", [
+    [1, "red", ""],
+    [2, "green", ""],
+    [3, "blue", ""]
+  ]],
+
+  ["ChannelMask2", "ArrayOf", ["*Channel"], "", []],
+
+  ["Channel3", "Enumerated", [], "", [
+    [1, "red", ""],
+    [2, "green", ""],
+    [3, "blue", ""]
+  ]],
+
+  ["Pixel3", "MapOf", ["*Integer", "+Channel3"], "", []],
+
+  ["Catalog", "Record", [], "", [
+    [1, "a", "TypeA", [], ""],
+    [2, "b", "TypeB", ["<"], ""]
+  ]],
+
+  ["TypeA", "Record", [], "", [
+    [1, "x", "Number", [], ""],
+    [2, "y", "Number", [], ""]
+  ]],
+
+  ["TypeB", "Record", [], "", [
+    [1, "foo", "String", [], ""],
+    [2, "bar", "Integer", [], ""]
+  ]],
+
+  ["Paths", "Enumerated", [">Catalog"], "", []],
+
+  ["Paths2", "Enumerated", [], "", [
+    [1, "a", "Item 1"],
+    [2, "b/foo", "Item 2"],
+    [3, "b/bar", "Item 3"]
+  ]],
+
+  ["Person2", "Record", [], "", [
+    [1, "id", "Integer", ["K"], "key"],
+    [2, "name", "String", [], ""],
+    [3, "mother", "Person2", ["L"], "link"],
+    [4, "father", "Person2", ["L"], "link"],
+    [5, "siblings", "Person2", ["[0", "]0", "L"], "link"],
+    [6, "friends", "Person2", ["[0", "]0", "L"], "link"],
+    [7, "employer", "Organization", ["[0", "L"], ""]
+  ]],
+
+  ["Organization", "Record", [], "", [
+    [1, "ein", "String", ["{10", "}10", "K"], ""],
+    [2, "name", "String", [], ""]
+  ]]
+ ]
+}
