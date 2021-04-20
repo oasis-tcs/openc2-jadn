@@ -1,30 +1,50 @@
-
-![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v2.0.jpg)
+![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v3.0.png)
 -------
 
 # Specification for JSON Abstract Data Notation Version 1.0
 
-## Working Draft 01
+## Committee Specification Draft 01
 
-## 21 October 2020
+## 20 April 2021
 
-### Technical Committee:
-* [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
+<!-- URI list start (commented out except during publication by OASIS TC Admin)
 
-### Chairs:
-* Joe Brule (jmbrule@radium.ncsc.mil), [National Security Agency](https://www.nsa.gov/)
-* Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
+#### This version:
+https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html \
+https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.pdf
 
-### Editor:
-* David Kemp (dkemp@radium.ncsc.mil), [National Security Agency](https://www.nsa.gov/)
+#### Previous version:
+N/A
 
-### Additional artifacts:
+#### Latest version:
+https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html \
+https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf
+
+URI list end (commented out except during publication by OASIS TC Admin) -->
+
+#### Technical Committee:
+[OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
+
+#### Chairs:
+Joe Brule (jmbrule@nsa.gov), [National Security Agency](https://www.nsa.gov/) \
+Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
+
+#### Editor:
+David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.gov/)
+
+#### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
+* JSON schema: jadn-v1.0.json
+* JADN schema: jadn-v1.0.jadn
+* `(Note: Any normative computer language definitions that are part of the Work Product, such as XML instances,
+  schemas and Java(TM) code, including fragments of such, must be (a) well formed and valid, (b) provided in
+  separate plain text files, (c) referenced from the Work Product; and (d) where any definition in these separate
+  files disagrees with the definition found in the specification, the definition in the separate file prevails.
+  Remove this note before submitting for publication.)`
 
-* Schema for JADN specifications
-* Conformance test data
-
-### Abstract:
+#### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language.
 It has several purposes including defining data structures, validating data instances,
 informing user interfaces working with structured data, and facilitating protocol internationalization.
@@ -34,151 +54,135 @@ A JADN schema is itself a structured information object that can be serialized a
 documented in multiple formats such as text-based interface definition languages, property tables or diagrams,
 and translated into concrete schemas used to validate specific data formats.
 
-### Status:
+#### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
 The level of approval is also listed above. Check the "Latest version" location noted above for possible later
-revisions of this document. Any other numbered Versions and other technical work produced by the
-Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
+revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee
+(TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
 
-TC members should send comments on this specification to the TC's email list. Others should send comments
-to the TC's public comment list, after subscribing to it by following the instructions at the "Send A Comment"
-button on the TC's web page at https://www.oasis-open.org/committees/openc2/.
+TC members should send comments on this specification to the TC's email list. Others should send comments to the
+TC's public comment list, after subscribing to it by following the instructions at the "Send A Comment" button
+on the TC's web page at https://www.oasis-open.org/committees/openc2/.
 
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
 Mode of the OASIS IPR Policy, the mode chosen when the Technical Committee was established.
 For information on whether any patents have been disclosed that may be essential to implementing this specification,
-and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the
-TC's web page (https://www.oasis-open.org/committees/openc2/ipr.php).
+and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page
+(https://www.oasis-open.org/committees/openc2/ipr.php).
 
-Note that any machine-readable content
+Note that any machine-readable content 
 ([Computer Language Definitions](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsCompLang))
 declared Normative for this Work Product is provided in separate plain text files. In the event of a discrepancy
-between any such plain text file and display content in the Work Product's prose narrative document(s),
-the content in the separate plain text file prevails.
+between any such plain text file and display content in the Work Product's prose narrative document(s), the content
+in the separate plain text file prevails.
 
-### URI patterns:
-Initial publication URI:  
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html
+#### Key words:
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",
+"NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14
+[[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
-Permanent "Latest version" URI:  
-https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html
-
-### Citation format:
+#### Citation format:
 When referencing this specification the following citation format should be used:
 
 **[JADN-v1.0]**
 
-_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 21 October 2020.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 20 April 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
 
 ## Notices
-Copyright © OASIS Open 2020. All Rights Reserved.
+Copyright © OASIS Open 2021. All Rights Reserved.
 
-All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual
-Property Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr)
-may be found at the OASIS website.
-
-This document and translations of it may be copied and furnished to others, and derivative works that comment
-on or otherwise explain it or assist in its implementation may be prepared, copied, published, and distributed,
-in whole or in part, without restriction of any kind, provided that the above copyright notice and this section
-are included on all such copies and derivative works. However, this document itself may not be modified in any way,
-including by removing the copyright notice or references to OASIS, except as needed for the purpose of developing
-any document or deliverable produced by an OASIS Technical Committee (in which case the rules applicable to copyrights,
-as set forth in the OASIS IPR Policy, must be followed) or as required to translate it into languages other than English.
-
-The limited permissions granted above are perpetual and will not be revoked by OASIS or its successors or assigns.
-
-This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE
-ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-OASIS requests that any OASIS Party or any other party that believes it has patent claims that would necessarily
-be infringed by implementations of this OASIS Committee Specification or OASIS Standard, to notify OASIS TC Administrator
-and provide an indication of its willingness to grant patent licenses to such patent claims in a manner consistent
-with the IPR Mode of the OASIS Technical Committee that produced this specification.
-
-OASIS invites any party to contact the OASIS TC Administrator if it is aware of a claim of ownership of any
-patent claims that would necessarily be infringed by implementations of this specification by a patent holder
-that is not willing to provide a license to such patent claims in a manner consistent with the IPR Mode of the
-OASIS Technical Committee that produced this specification. OASIS may include such claims on its website,
-but disclaims any obligation to do so.
-
-OASIS takes no position regarding the validity or scope of any intellectual property or other rights that
-might be claimed to pertain to the implementation or use of the technology described in this document
-or the extent to which any license under such rights might or might not be available; neither does it represent
-that it has made any effort to identify any such rights. Information on OASIS' procedures with respect to rights
-in any document or deliverable produced by an OASIS Technical Committee can be found on the OASIS website.
-Copies of claims of rights made available for publication and any assurances of licenses to be made available,
-or the result of an attempt made to obtain a general license or permission for the use of such proprietary rights
-by implementers or users of this OASIS Committee Specification or OASIS Standard, can be obtained from the
-OASIS TC Administrator. OASIS makes no representation that any information or list of intellectual property rights
-will at any time be complete, or that any claims in such list are, in fact, Essential Claims.
+Distributed under the terms of the OASIS [IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr).
 
 The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the owner and developer of this specification,
-and should be used only to refer to the organization and its official outputs. OASIS welcomes reference to,
-and implementation and use of, specifications, while reserving the right to enforce its marks against misleading uses.
-Please see https://www.oasis-open.org/policies-guidelines/trademark for above guidance.
+and should be used only to refer to the organization and its official outputs.
+
+For complete copyright information please see the Notices section in the Appendix.
 
 -------
 
 # Table of Contents
-- [1 Introduction](#1-introduction)
-  - [1.1 Requirements](#11-requirements)
-  - [1.2 IPR Policy](#12-ipr-policy)
-  - [1.3 Terminology](#13-terminology)
-    - [1.3.1 Glossary](#131-glossary)
-    - [1.3.2 Key words used to indicate requirement levels](#132-key-words-used-to-indicate-requirement-levels)
-  - [1.4 Normative References](#14-normative-references)
-  - [1.5 Informative References](#15-informative-references)
-- [2 Information vs. Data](#2-information-vs-data)
-  - [2.1 Graph Modeling](#21-graph-modeling)
-  - [2.2 Information Modeling](#22-information-modeling)
-  - [2.3 Example Definitions](#23-example-definitions)
-  - [2.4 Implementation](#24-implementation)
-- [3 JADN Types](#3-jadn-types)
-  - [3.1 Type Definitions](#31-type-definitions)
-    - [3.1.1 Name Formats](#311-name-formats)
-    - [3.1.2 Upper Bounds](#312-upper-bounds)
-    - [3.1.3 Descriptions](#313-descriptions)
-  - [3.2 Options](#32-options)
-    - [3.2.1 Type Options](#321-type-options)
-    - [3.2.2 Field Options](#322-field-options)
-  - [3.3 JADN Extensions](#33-jadn-extensions)
-    - [3.3.1 Type Definition Within Fields](#331-type-definition-within-fields)
-    - [3.3.2 Field Multiplicity](#332-field-multiplicity)
-    - [3.3.3 Derived Enumerations](#333-derived-enumerations)
-    - [3.3.4 MapOf With Enumerated Key](#334-mapof-with-enumerated-key)
-    - [3.3.5 Pointers](#335-pointers)
-    - [3.3.6 Links](#336-links)
-- [4 Serialization](#4-serialization)
-  - [4.1 JSON Serialization](#41-json-serialization)
-  - [4.2 CBOR Serialization](#42-cbor-serialization)
-  - [4.3 M-JSON Serialization:](#43-m-json-serialization)
-  - [4.4 XML Serialization:](#44-xml-serialization)
-- [5 Definition Formats](#5-definition-formats)
-  - [5.1 JADN-IDL Format](#51-jadn-idl-format)
-  - [5.2 Table Style](#52-table-style)
-  - [5.3 Entity Relationship Diagrams](#53-entity-relationship-diagrams)
-  - [5.4 Tree Diagrams](#54-tree-diagrams)
-- [6 Schemas](#6-schemas)
-- [7 Operational Considerations](#7-operational-considerations)
-- [8 Security Considerations](#8-security-considerations)
-- [9 Conformance](#9-conformance)
-- [Appendix A. Acknowledgments](#appendix-a-acknowledgments)
-- [Appendix B. Revision History](#appendix-b-revision-history)
-- [Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema)
-  - [C.1 Package](#c1-package)
-  - [C.2 Type Definitions](#c2-type-definitions)
-- [Appendix D. Definitions in JADN format](#appendix-d-definitions-in-jadn-format)
-- [Appendix E. JSON Schema for JADN](#appendix-e-json-schema-for-jadn)
-- [Appendix F. ABNF Grammar for JADN IDL](#appendix-f-abnf-grammar-for-jadn-idl)
+[[TOC will be inserted here]]
 
 -------
 
 # 1 Introduction
+
+<!-- All text is normative unless otherwise labeled -->
+
+## 1.1 Changes from earlier versions
+
+
+## 1.2 Glossary
+
+### 1.2.1 Definitions of terms
+
+* **Schema**:
+    An abstract schema, or information model, describes the structure and value constraints of information
+    used by applications. A concrete schema, or data model, describes the structure and value constraints
+    of a document used to store information or communicate it between applications.
+
+* **Graph**:
+    A mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes and edges.
+    An information model is a graph where nodes define information types and edges define relationships between types.
+
+* **Package**:
+    A namespace for the set of nodes it contains. A node may reference nodes contained in other packages by namespace.
+
+* **Document**:
+    A series of octets described by a data format applied to an information model, or equivalently, by a data model.
+
+* **Well-formed**:
+    A well-formed document follows the syntactic structure of the document's media type.
+
+* **Valid**:
+    An instance is valid if it satisfies the constraints defined in an information model.
+    A document is valid if it is well-formed and also corresponds to a valid instance.
+
+* **Data Format**:
+    A data format, defined by serialization rules, specifies the media type (XML, JSON, ...), design goals
+    (human readability, efficiency), and style preferences for documents in that format.
+    This specification defines a baseline set of data formats. Additional data formats may be defined for
+    any media types that can represent instances of the JADN information model.
+
+* **Instance**:
+    An instance, or API value, is an item of application information to which a schema applies.
+    An instance has one of the base types defined in [Section 3](#3-jadn-types) and value constraints
+    defined in the schema by type name.
+    The base types are:
+    * **Primitive:** Null, Boolean, Binary, Integer, Number, String
+    * **Enumeration:** Enumerated
+    * **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
+
+* **Equality**:
+    Two instances are equal if and only if they are of the same type and have the same value according to the
+    information model. Formatting differences, including a document's data format, are insignificant.
+    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR
+    byte string if and only if they have the same 32 bit value.
+    A Record instance serialized as an array is equal to a Record instance serialized as a map
+    if and only if they have the same keys and the same value for each key.
+
+* **Serialization**:
+    Serialization, or encoding, is the process of converting application information into a document.
+    De-serialization, or decoding, converts a document into information instances usable by an application.
+
+* **Description**:
+    Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
+    and are ignored by applications using the schema.
+
+### 1.2.2 Acronyms and abbreviations
+
+### 1.2.3 Document conventions
+
+- Naming conventions
+- Font colors and styles
+- Typographic conventions
+
+## 1.3 Requirements
+
 Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
 that the purpose of an information model is to model data at a conceptual level, independent of specific
 implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
@@ -275,148 +279,6 @@ Numerous data definition languages are in use. JADN is not intended to replace a
 a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
 data models from it, as shown in RFC 3444, provides more accurate translation results than attempting to translate
 across separately-developed data models.
-
-## 1.2 IPR Policy
-This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
-Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the
-Technical Committee was established. For information on whether any patents have been disclosed that may be essential
-to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual
-Property Rights section of the TC's web page
-([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
-
-## 1.3 Terminology
-### 1.3.1 Glossary
-
-* **Schema**:
-    An abstract schema, or information model, describes the structure and value constraints of information
-    used by applications. A concrete schema, or data model, describes the structure and value constraints
-    of a document used to store information or communicate it between applications.
-
-* **Graph**:
-    A mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes and edges.
-    An information model is a graph where nodes define information types and edges define relationships between types.
-
-* **Package**:
-    A namespace for the set of nodes it contains. A node may reference nodes contained in other packages by namespace.
-
-* **Document**:
-    A series of octets described by a data format applied to an information model, or equivalently, by a data model.
-
-* **Well-formed**:
-    A well-formed document follows the syntactic structure of the document's media type.
-
-* **Valid**:
-    An instance is valid if it satisfies the constraints defined in an information model.
-    A document is valid if it is well-formed and also corresponds to a valid instance.
-
-* **Data Format**:
-    A data format, defined by serialization rules, specifies the media type (XML, JSON, ...), design goals
-    (human readability, efficiency), and style preferences for documents in that format.
-    This specification defines a baseline set of data formats. Additional data formats may be defined for
-    any media types that can represent instances of the JADN information model.
-
-* **Instance**:
-    An instance, or API value, is an item of application information to which a schema applies.
-    An instance has one of the base types defined in [Section 3](#3-jadn-types) and value constraints
-    defined in the schema by type name.
-    The base types are:
-    * **Primitive:** Null, Boolean, Binary, Integer, Number, String
-    * **Enumeration:** Enumerated
-    * **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
-
-* **Equality**:
-    Two instances are equal if and only if they are of the same type and have the same value according to the
-    information model. Formatting differences, including a document's data format, are insignificant.
-    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR
-    byte string if and only if they have the same 32 bit value.
-    A Record instance serialized as an array is equal to a Record instance serialized as a map
-    if and only if they have the same keys and the same value for each key.
-
-* **Serialization**:
-    Serialization, or encoding, is the process of converting application information into a document.
-    De-serialization, or decoding, converts a document into information instances usable by an application.
-
-* **Description**:
-    Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
-    and are ignored by applications using the schema.
-
-### 1.3.2 Key words used to indicate requirement levels
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
-and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
-when, and only when, they appear in all capitals, as shown here.
-
-## 1.4 Normative References
-###### [ES9]
-ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
-###### [EUI]
-"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
-###### [JSONSCHEMA]
-Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 September 2019, https://tools.ietf.org/html/draft-handrews-json-schema-validation-02, or for latest drafts: https://json-schema.org/work-in-progress.
-###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
-###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
-###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
-###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
-###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
-###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
-###### [RFC5234]
-Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
-###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
-###### [RFC7049]
-Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
-###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
-###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
-###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
-###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
-
-## 1.5 Informative References
-###### [AVRO]
-Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
-###### [BRIDGE]
-Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
-###### [DRY]
-*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
-###### [FDT]
-König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
-###### [GRAPH]
-Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
-###### [PROTO]
-Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
-###### [RELAXNG]
-OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
-###### [RFC3444]
-Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
-###### [RFC3552]
-Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
-###### [RFC7493]
-Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
-###### [RFC8340]
-Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
-###### [RFC8477]
-Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
-(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
-###### [RFC8610]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
-###### [THRIFT]
-Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
-###### [TRANSFORM]
-Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
-###### [UML]
-*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF
-###### [UNION]
-"Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
-
--------
 
 # 2 Information vs. Data
 
@@ -1686,7 +1548,129 @@ This document describes several schema support functions but defines no correspo
 
 -------
 
-# Appendix A. Acknowledgments
+# Appendix A. References
+
+This appendix contains the normative and informative references that are used in this document.
+Normative references are specific (identified by date of publication and/or edition number or version number)
+and Informative references are either specific or non-specific.
+
+While any hyperlinks included in this appendix were valid at the time of publication, OASIS cannot guarantee their long-term validity.
+
+## A.1 Normative References
+
+The following documents are referenced in such a way that some or all of their content constitutes requirements of this document.
+
+###### [ES9]
+ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
+###### [EUI]
+"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+###### [JSONSCHEMA]
+Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 September 2019, https://tools.ietf.org/html/draft-handrews-json-schema-validation-02, or for latest drafts: https://json-schema.org/work-in-progress.
+###### [RFC791]
+Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
+###### [RFC2119]
+Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
+###### [RFC2673]
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
+###### [RFC4291]
+Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
+###### [RFC4632]
+Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
+###### [RFC4648]
+Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
+###### [RFC5234]
+Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
+###### [RFC6901]
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
+###### [RFC7049]
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
+###### [RFC7405]
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
+###### [RFC8174]
+Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
+###### [RFC8200]
+Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
+###### [RFC8259]
+Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
+
+## A.2 Informative References
+
+###### [AVRO]
+Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
+###### [BRIDGE]
+Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
+###### [DRY]
+*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
+###### [FDT]
+König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
+###### [GRAPH]
+Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
+###### [PROTO]
+Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
+###### [RELAXNG]
+OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
+###### [RFC3444]
+Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
+###### [RFC3552]
+Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+###### [RFC7493]
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
+###### [RFC8340]
+Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+###### [RFC8477]
+Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
+###### [RFC8610]
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
+###### [THRIFT]
+Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
+###### [TRANSFORM]
+Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
+###### [UML]
+*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF
+###### [UNION]
+"Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
+
+-------
+
+# Appendix B. Safety, Security and Privacy Considerations
+
+(Note: OASIS strongly recommends that Technical Committees consider issues that might affect safety, security,
+privacy, and/or data protection in implementations of their specification and document them for implementers and
+adopters. For some purposes, you may find it required, e.g. if you apply for IANA registration.
+
+While it may not be immediately obvious how your specification might make systems vulnerable to attack, most
+specifications, because they involve communications between systems, message formats, or system settings,
+open potential channels for exploit. For example, IETF [[RFC3552](#rfc3552)] lists “eavesdropping, replay,
+message insertion, deletion, modification, and man-in-the-middle” as well as potential denial of service
+attacks as threats that must be considered and, if appropriate, addressed in IETF RFCs.
+
+In addition to considering and describing foreseeable risks, this section should include guidance on how
+implementers and adopters can protect against these risks.
+
+We encourage editors and TC members concerned with this subject to read _Guidelines for Writing RFC Text
+on Security Considerations_, IETF [[RFC3552](#rfc3552)], for more information.
+
+Remove this note before submitting for publication.)
+
+-------
+
+# Appendix C. Acknowledgments
+
+Note: A Work Product approved by the TC must include a list of people who participated in the development of the Work Product.
+This is generally done by collecting the list of names in this appendix. This list shall be initially compiled by the Chair,
+and any Member of the TC may add or remove their names from the list by request. Remove this note before submitting for publication.
+
+## C.1 Special Thanks
+
+The following individuals shared their expertise during creation of this specification and are gratefully acknowledged:
+
+| First Name | Last Name | Company |
+| :--- | :--- | :--- |
+| Carsten | Bormann | Universität Bremen |
+| Hans-Jürgen | Rennau | parsQube GmbH |
+
+## C.2 Participants
 
 The following individuals have participated in the creation of this specification and are gratefully acknowledged:
 
@@ -1698,24 +1682,18 @@ The following individuals have participated in the creation of this specificatio
 | Joseph | Brule | National Security Agency |
 | Toby | Considine | University of North Carolina |
 | Jason | Romano | General Dynamics |
-
-**External Reviewers:**
-
-| First Name | Last Name | Company |
-| :--- | :--- | :--- |
-| Carsten | Bormann | Universität Bremen |
-| Hans-Jürgen | Rennau | parsQube GmbH |
+| Duncan | Sparrell | sFractal Consulting |
 
 -------
 
-# Appendix B. Revision History
+# Appendix D. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | 2020-10-21 | David Kemp | Initial working draft |
+| jadn-v1.0-wd01 | 2021-04-20 | David Kemp | Initial working draft |
 
 -------
 
-# Appendix C. JADN Meta-schema
+# Appendix E. JADN Meta-schema
 
 A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates
 itself and other JADN schemas. In order to validate itself, the meta-schema requires a name format change
@@ -1726,7 +1704,7 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
     "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
 ```
-## C.1 Package
+## E.1 Package
 
 A package is a collection of type definitions along with information about the package.
 ```
@@ -1766,7 +1744,7 @@ Config = Map{1..*}                           // Config vars override JADN defaul
    6 $FieldName   String{1..127} optional    // FieldName regex
    7 $NSID        String{1..127} optional    // Namespace Identifier regex
 ```
-## C.2 Type Definitions
+## E.2 Type Definitions
 
 The structure of JADN type definitions ([Section 3.1](#31-type-definitions)) is intended to remain stable,
 with options providing extensibility.
@@ -1837,7 +1815,7 @@ TypeRef = String                             // Autogenerated ($NSID ':')? $Type
 
 -------
 
-# Appendix D. Definitions in JADN format
+# Appendix F. Definitions in JADN format
 This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
 
 **[Section 2.3 Example Definitions](#23-example-definitions):**
@@ -2100,7 +2078,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 -------
 
-# Appendix E. JSON Schema for JADN
+# Appendix G. JSON Schema for JADN
 
 A JADN package has the following structure:
 ```
@@ -2235,8 +2213,62 @@ A JADN package has the following structure:
 
 -------
 
-# Appendix F. ABNF Grammar for JADN IDL
+# Appendix H. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
 
 *TBSL*
+
+-------
+
+# Appendix I. Notices
+
+Copyright © OASIS Open 2021. All Rights Reserved.
+
+All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual Property
+Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr)
+may be found at the OASIS website.
+
+This document and translations of it may be copied and furnished to others, and derivative works that comment on or
+otherwise explain it or assist in its implementation may be prepared, copied, published, and distributed,
+in whole or in part, without restriction of any kind, provided that the above copyright notice and this section
+are included on all such copies and derivative works. However, this document itself may not be modified in any way,
+including by removing the copyright notice or references to OASIS, except as needed for the purpose of developing
+any document or deliverable produced by an OASIS Technical Committee (in which case the rules applicable to copyrights,
+as set forth in the OASIS IPR Policy, must be followed) or as required to translate it into languages other than English.
+
+The limited permissions granted above are perpetual and will not be revoked by OASIS or its successors or assigns.
+
+This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE
+ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+As stated in the OASIS IPR Policy, the following three paragraphs in brackets apply to OASIS Standards Final
+Deliverable documents (Committee Specification, Candidate OASIS Standard, OASIS Standard, or Approved Errata).
+
+\[OASIS requests that any OASIS Party or any other party that believes it has patent claims that would necessarily
+be infringed by implementations of this OASIS Standards Final Deliverable, to notify OASIS TC Administrator and
+provide an indication of its willingness to grant patent licenses to such patent claims in a manner consistent
+with the IPR Mode of the OASIS Technical Committee that produced this deliverable.\]
+
+\[OASIS invites any party to contact the OASIS TC Administrator if it is aware of a claim of ownership of any patent
+claims that would necessarily be infringed by implementations of this OASIS Standards Final Deliverable by a patent
+holder that is not willing to provide a license to such patent claims in a manner consistent with the IPR Mode of
+the OASIS Technical Committee that produced this OASIS Standards Final Deliverable. OASIS may include such claims
+on its website, but disclaims any obligation to do so.\]
+
+\[OASIS takes no position regarding the validity or scope of any intellectual property or other rights that might
+be claimed to pertain to the implementation or use of the technology described in this OASIS Standards Final
+Deliverable or the extent to which any license under such rights might or might not be available; neither does
+it represent that it has made any effort to identify any such rights. Information on OASIS' procedures with
+respect to rights in any document or deliverable produced by an OASIS Technical Committee can be found on the
+OASIS website. Copies of claims of rights made available for publication and any assurances of licenses to be
+made available, or the result of an attempt made to obtain a general license or permission for the use of such
+proprietary rights by implementers or users of this OASIS Standards Final Deliverable, can be obtained from the
+OASIS TC Administrator. OASIS makes no representation that any information or list of intellectual property rights
+will at any time be complete, or that any claims in such list are, in fact, Essential Claims.\]
+
+The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the owner and developer of this
+specification, and should be used only to refer to the organization and its official outputs. OASIS welcomes
+reference to, and implementation and use of, specifications, while reserving the right to enforce its marks
+against misleading uses. Please see https://www.oasis-open.org/policies-guidelines/trademark for above guidance.
