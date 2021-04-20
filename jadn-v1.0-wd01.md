@@ -1490,36 +1490,7 @@ Exports may be used by schema tools to detect unused types or prune when copying
 
 -------
 
-# 8 Security Considerations
-This document presents a language for expressing the information needs of communicating applications, and rules
-for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues,
-although protocol specifications based on JADN naturally need security analysis when defined. Such specifications
-need to follow the guidelines in [RFC 3552](#rfc3552).
-
-Additional security considerations applicable to JADN-based specifications: 
-* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of
-this specification could always be improved through operational experience and developer feedback.
-* Where a JADN data validator is part of a system, the security of the system benefits from automatic data
-validation but depends on both the specificity of the JADN specification and the correctness of the validation
-implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and
-testing the validator against unreasonable data instances can address both concerns.
-
-Security and bandwidth efficiency are benefits of using an information model. Enumerating strings and map keys
-defines the information content of those values, which greatly reduces opportunities for exploitation.
-A firewall with a security policy of "Allow specific things I understand plus everything I don't understand"
-is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of
-[RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's
-"Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's
-enumerated lists of things that are understood. An executable IM format such as JADN provides the agility
-required to support evolving protocols.
-
-Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification.
-Although JADN makes it easier to both define and understand complex specifications, complexity that is not
-essential to satisfying operational requirements is itself a security concern.
-
--------
-
-# 9 Conformance
+# 8 Conformance
 Conformance targets:
 This document defines two conformance levels for JADN implementations: Core and Extensions.
 
@@ -1635,31 +1606,35 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 
 # Appendix B. Safety, Security and Privacy Considerations
 
-(Note: OASIS strongly recommends that Technical Committees consider issues that might affect safety, security,
-privacy, and/or data protection in implementations of their specification and document them for implementers and
-adopters. For some purposes, you may find it required, e.g. if you apply for IANA registration.
+This document presents a language for expressing the information needs of communicating applications, and rules
+for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues,
+although protocol specifications based on JADN naturally need security analysis when defined. Such specifications
+need to follow the guidelines in [RFC 3552](#rfc3552).
 
-While it may not be immediately obvious how your specification might make systems vulnerable to attack, most
-specifications, because they involve communications between systems, message formats, or system settings,
-open potential channels for exploit. For example, IETF [[RFC3552](#rfc3552)] lists “eavesdropping, replay,
-message insertion, deletion, modification, and man-in-the-middle” as well as potential denial of service
-attacks as threats that must be considered and, if appropriate, addressed in IETF RFCs.
+Additional security considerations applicable to JADN-based specifications: 
+* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of
+this specification could always be improved through operational experience and developer feedback.
+* Where a JADN data validator is part of a system, the security of the system benefits from automatic data
+validation but depends on both the specificity of the JADN specification and the correctness of the validation
+implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and
+testing the validator against unreasonable data instances can address both concerns.
 
-In addition to considering and describing foreseeable risks, this section should include guidance on how
-implementers and adopters can protect against these risks.
+Security and bandwidth efficiency are benefits of using an information model. Enumerating strings and map keys
+defines the information content of those values, which greatly reduces opportunities for exploitation.
+A firewall with a security policy of "Allow specific things I understand plus everything I don't understand"
+is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of
+[RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's
+"Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's
+enumerated lists of things that are understood. An executable IM format such as JADN provides the agility
+required to support evolving protocols.
 
-We encourage editors and TC members concerned with this subject to read _Guidelines for Writing RFC Text
-on Security Considerations_, IETF [[RFC3552](#rfc3552)], for more information.
-
-Remove this note before submitting for publication.)
+Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification.
+Although JADN makes it easier to both define and understand complex specifications, complexity that is not
+essential to satisfying operational requirements is itself a security concern.
 
 -------
 
 # Appendix C. Acknowledgments
-
-Note: A Work Product approved by the TC must include a list of people who participated in the development of the Work Product.
-This is generally done by collecting the list of names in this appendix. This list shall be initially compiled by the Chair,
-and any Member of the TC may add or remove their names from the list by request. Remove this note before submitting for publication.
 
 ## C.1 Special Thanks
 
@@ -1673,8 +1648,6 @@ The following individuals shared their expertise during creation of this specifi
 ## C.2 Participants
 
 The following individuals have participated in the creation of this specification and are gratefully acknowledged:
-
-**OpenC2 TC Members:**
 
 | First Name | Last Name | Company |
 | :--- | :--- | :--- |
