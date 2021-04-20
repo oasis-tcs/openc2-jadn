@@ -36,13 +36,8 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema: jadn-v1.0.json
-* JADN schema: jadn-v1.0.jadn
-* `(Note: Any normative computer language definitions that are part of the Work Product, such as XML instances,
-  schemas and Java(TM) code, including fragments of such, must be (a) well formed and valid, (b) provided in
-  separate plain text files, (c) referenced from the Work Product; and (d) where any definition in these separate
-  files disagrees with the definition found in the specification, the definition in the separate file prevails.
-  Remove this note before submitting for publication.)`
+* JSON schema for JADN documents: jadn-v1.0.json
+* JADN schema for JADN documents: jadn-v1.0.jadn
 
 #### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language.
@@ -181,7 +176,7 @@ For complete copyright information please see the Notices section in the Appendi
 - Font colors and styles
 - Typographic conventions
 
-## 1.3 Requirements
+## 1.3 Background
 
 Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
 that the purpose of an information model is to model data at a conceptual level, independent of specific
@@ -227,7 +222,7 @@ to data models for name-value or friendly XML or JSON:
 | 2. Strings     | Value    | Value        | Tag          |
 | 3. Table Rows  | Col Name | Position     | Position     |
 
-## 1.1 Requirements
+## 1.4 Requirements
 
 The language defined in this document addresses the following requirements from RFC 8477:
 
@@ -1320,7 +1315,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
                   | " optional"
     TAGID        = "(TagId[" *tagid* "])"
 
-An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
+An ABNF grammar for JADN-IDL is shown in [Appendix H](#appendix-h-abnf-grammar-for-jadn-idl).
 
 ## 5.2 Table Style
 *This section is informative*
@@ -1479,18 +1474,7 @@ Exports may be used by schema tools to detect unused types or prune when copying
 
 -------
 
-# 7 Operational Considerations
-*TBSL*
-* Serialization (bulk vs pull)
-* Validation (integrated with serialization, separate)
-* Localization
-* Schema embedding - self-describing data
-* Bridging
-* Tabular data (not too many optional columns, sort fields by required/optional.  Tuples.)
-
--------
-
-# 8 Conformance
+# 7 Conformance
 Conformance targets:
 This document defines two conformance levels for JADN implementations: Core and Extensions.
 
@@ -1666,7 +1650,142 @@ The following individuals have participated in the creation of this specificatio
 
 -------
 
-# Appendix E. JADN Meta-schema
+# Appendix E. JSON Schema for JADN Documents
+
+A JADN package has the following structure:
+```
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
+  "description": "Validates structure of a JADN schema, does not check values",
+  "type": "object",
+  "required": ["types"],
+  "additionalProperties": false,
+  "properties": {
+    "info": {
+      "type": "object",
+      "required": ["package"],
+      "additionalProperties": false,
+      "properties": {
+        "package": {"type": "string"},
+        "version": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "comment": {"type":  "string"},
+        "copyright": {"type": "string"},
+        "license": {"type": "string"},
+        "namespaces": {"$ref": "#/definitions/Namespaces"},
+        "exports": {"$ref": "#/definitions/Exports"},
+        "config": {"$ref": "#/definitions/Config"}
+      }
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 5,
+        "items": [
+          {"$ref": "#/definitions/TypeRef"},
+          {"$ref": "#/definitions/BaseType"},
+          {"$ref": "#/definitions/Options"},
+          {"$ref": "#/definitions/Description"},
+          {"$ref": "#/definitions/Fields"}
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Namespaces": {
+      "type": "object",
+      "propertyNames": {"$ref": "#/definitions/NSID"},
+      "patternProperties": {
+        "": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "Exports": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "$MaxBinary": {"type": "integer", "minValue": 1},
+        "$MaxString": {"type": "integer", "minValue": 1},
+        "$MaxElements": {"type": "integer", "minValue": 1},
+        "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
+        "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
+        "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
+        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
+      }
+    },
+    "Fields": {
+      "type": "array",
+      "items": [
+        {"anyOf": [
+          {"$ref": "#/definitions/Item"},
+          {"$ref": "#/definitions/Field"}
+        ]}
+      ]
+    },
+    "Item": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 3,
+      "items": [
+        {"type": "integer"},
+        {"type": "string"},
+        {"$ref": "#/definitions/Description"}
+      ]
+    },
+    "Field": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": [
+        {"type": "integer"},
+        {"$ref": "#/definitions/FieldName"},
+        {"$ref": "#/definitions/TypeRef"},
+        {"$ref": "#/definitions/Options"},
+        {"$ref": "#/definitions/Description"}
+      ]
+    },
+    "NSID": {
+      "type": "string"
+    },
+    "TypeName": {
+      "type": "string"
+    },
+    "TypeRef": {
+      "type": "string"
+    },
+    "FieldName": {
+      "type": "string"
+    },
+    "BaseType": {
+      "type": "string",
+      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
+               "Enumerated", "Choice",
+               "Array", "ArrayOf", "Map", "MapOf", "Record"]
+    },
+    "Options": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "Description": {
+      "type": "string"
+    }
+  }
+}
+```
+
+-------
+
+# Appendix F. JADN Meta-schema for JADN Documents
 
 A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates
 itself and other JADN schemas. In order to validate itself, the meta-schema requires a name format change
@@ -1677,7 +1796,7 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
     "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
 ```
-## E.1 Package
+## F.1 Package
 
 A package is a collection of type definitions along with information about the package.
 ```
@@ -1717,7 +1836,7 @@ Config = Map{1..*}                           // Config vars override JADN defaul
    6 $FieldName   String{1..127} optional    // FieldName regex
    7 $NSID        String{1..127} optional    // Namespace Identifier regex
 ```
-## E.2 Type Definitions
+## F.2 Type Definitions
 
 The structure of JADN type definitions ([Section 3.1](#31-type-definitions)) is intended to remain stable,
 with options providing extensibility.
@@ -1788,8 +1907,8 @@ TypeRef = String                             // Autogenerated ($NSID ':')? $Type
 
 -------
 
-# Appendix F. Definitions in JADN format
-This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
+# Appendix G. JADN Type Definitions From This Document
+This appendix contains the JADN type definitions corresponding to all JADN-IDL examples in this document.
 
 **[Section 2.3 Example Definitions](#23-example-definitions):**
 ```
@@ -1942,7 +2061,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Organization$ein", "String", ["{10", "}10"], "", []]
 ```
 
-**[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
+**[Appendix F. JADN Meta-schema](#appendix-f-jadn-meta-schema-for-jadn-documents):**
 ```
 {
  "info": {
@@ -2046,141 +2165,6 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["FieldName", "String", ["%$FieldName"], "Default = ^[a-z][_A-Za-z0-9]{0,31}$", []],
   ["TypeRef", "String", [], "Autogenerated ($NSID ':')? $TypeName", []]
  ]
-}
-```
-
--------
-
-# Appendix G. JSON Schema for JADN
-
-A JADN package has the following structure:
-```
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
-  "description": "Validates structure of a JADN schema, does not check values",
-  "type": "object",
-  "required": ["types"],
-  "additionalProperties": false,
-  "properties": {
-    "info": {
-      "type": "object",
-      "required": ["package"],
-      "additionalProperties": false,
-      "properties": {
-        "package": {"type": "string"},
-        "version": {"type": "string"},
-        "title": {"type": "string"},
-        "description": {"type": "string"},
-        "comment": {"type":  "string"},
-        "copyright": {"type": "string"},
-        "license": {"type": "string"},
-        "namespaces": {"$ref": "#/definitions/Namespaces"},
-        "exports": {"$ref": "#/definitions/Exports"},
-        "config": {"$ref": "#/definitions/Config"}
-      }
-    },
-    "types": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 2,
-        "maxItems": 5,
-        "items": [
-          {"$ref": "#/definitions/TypeRef"},
-          {"$ref": "#/definitions/BaseType"},
-          {"$ref": "#/definitions/Options"},
-          {"$ref": "#/definitions/Description"},
-          {"$ref": "#/definitions/Fields"}
-        ]
-      }
-    }
-  },
-  "definitions": {
-    "Namespaces": {
-      "type": "object",
-      "propertyNames": {"$ref": "#/definitions/NSID"},
-      "patternProperties": {
-        "": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
-    "Exports": {
-      "type": "array",
-      "items": {"type": "string"}
-    },
-    "Config": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "$MaxBinary": {"type": "integer", "minValue": 1},
-        "$MaxString": {"type": "integer", "minValue": 1},
-        "$MaxElements": {"type": "integer", "minValue": 1},
-        "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
-        "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
-      }
-    },
-    "Fields": {
-      "type": "array",
-      "items": [
-        {"anyOf": [
-          {"$ref": "#/definitions/Item"},
-          {"$ref": "#/definitions/Field"}
-        ]}
-      ]
-    },
-    "Item": {
-      "type": "array",
-      "minItems": 2,
-      "maxItems": 3,
-      "items": [
-        {"type": "integer"},
-        {"type": "string"},
-        {"$ref": "#/definitions/Description"}
-      ]
-    },
-    "Field": {
-      "type": "array",
-      "minItems": 3,
-      "maxItems": 5,
-      "items": [
-        {"type": "integer"},
-        {"$ref": "#/definitions/FieldName"},
-        {"$ref": "#/definitions/TypeRef"},
-        {"$ref": "#/definitions/Options"},
-        {"$ref": "#/definitions/Description"}
-      ]
-    },
-    "NSID": {
-      "type": "string"
-    },
-    "TypeName": {
-      "type": "string"
-    },
-    "TypeRef": {
-      "type": "string"
-    },
-    "FieldName": {
-      "type": "string"
-    },
-    "BaseType": {
-      "type": "string",
-      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
-               "Enumerated", "Choice",
-               "Array", "ArrayOf", "Map", "MapOf", "Record"]
-    },
-    "Options": {
-      "type": "array",
-      "items": {"type": "string"}
-    },
-    "Description": {
-      "type": "string"
-    }
-  }
 }
 ```
 
