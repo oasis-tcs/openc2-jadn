@@ -1,30 +1,45 @@
-
-![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v2.0.jpg)
+![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v3.0.png)
 -------
 
 # Specification for JSON Abstract Data Notation Version 1.0
 
-## Working Draft 01
+## Committee Specification Draft 01
 
-## 21 October 2020
+## 20 April 2021
 
-### Technical Committee:
-* [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
+<!-- URI list start (commented out except during publication by OASIS TC Admin)
 
-### Chairs:
-* Joe Brule (jmbrule@radium.ncsc.mil), [National Security Agency](https://www.nsa.gov/)
-* Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
+#### This version:
+https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html \
+https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.pdf
 
-### Editor:
-* David Kemp (dkemp@radium.ncsc.mil), [National Security Agency](https://www.nsa.gov/)
+#### Previous version:
+N/A
 
-### Additional artifacts:
+#### Latest version:
+https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html \
+https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf
+
+URI list end (commented out except during publication by OASIS TC Admin) -->
+
+#### Technical Committee:
+[OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
+
+#### Chairs:
+Joe Brule (jmbrule@nsa.gov), [National Security Agency](https://www.nsa.gov/) \
+Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
+
+#### Editor:
+David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.gov/)
+
+#### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
+* JSON schema for JADN documents: jadn-v1.0.json
+* JADN schema for JADN documents: jadn-v1.0.jadn
 
-* Schema for JADN specifications
-* Conformance test data
-
-### Abstract:
+#### Abstract:
 JSON Abstract Data Notation (JADN) is an information modeling language.
 It has several purposes including defining data structures, validating data instances,
 informing user interfaces working with structured data, and facilitating protocol internationalization.
@@ -34,258 +49,71 @@ A JADN schema is itself a structured information object that can be serialized a
 documented in multiple formats such as text-based interface definition languages, property tables or diagrams,
 and translated into concrete schemas used to validate specific data formats.
 
-### Status:
+#### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
 The level of approval is also listed above. Check the "Latest version" location noted above for possible later
-revisions of this document. Any other numbered Versions and other technical work produced by the
-Technical Committee (TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
+revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee
+(TC) are listed at https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical.
 
-TC members should send comments on this specification to the TC's email list. Others should send comments
-to the TC's public comment list, after subscribing to it by following the instructions at the "Send A Comment"
-button on the TC's web page at https://www.oasis-open.org/committees/openc2/.
+TC members should send comments on this specification to the TC's email list. Others should send comments to the
+TC's public comment list, after subscribing to it by following the instructions at the "Send A Comment" button
+on the TC's web page at https://www.oasis-open.org/committees/openc2/.
 
 This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
 Mode of the OASIS IPR Policy, the mode chosen when the Technical Committee was established.
 For information on whether any patents have been disclosed that may be essential to implementing this specification,
-and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the
-TC's web page (https://www.oasis-open.org/committees/openc2/ipr.php).
+and any offers of patent licensing terms, please refer to the Intellectual Property Rights section of the TC's web page
+(https://www.oasis-open.org/committees/openc2/ipr.php).
 
-Note that any machine-readable content
+Note that any machine-readable content 
 ([Computer Language Definitions](https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsCompLang))
 declared Normative for this Work Product is provided in separate plain text files. In the event of a discrepancy
-between any such plain text file and display content in the Work Product's prose narrative document(s),
-the content in the separate plain text file prevails.
+between any such plain text file and display content in the Work Product's prose narrative document(s), the content
+in the separate plain text file prevails.
 
-### URI patterns:
-Initial publication URI:  
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html
+#### Key words:
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",
+"NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14
+[[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
-Permanent "Latest version" URI:  
-https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html
-
-### Citation format:
+#### Citation format:
 When referencing this specification the following citation format should be used:
 
 **[JADN-v1.0]**
 
-_Specification for JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 21 October 2020.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 20 April 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
 
 ## Notices
-Copyright © OASIS Open 2020. All Rights Reserved.
+Copyright © OASIS Open 2021. All Rights Reserved.
 
-All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual
-Property Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr)
-may be found at the OASIS website.
-
-This document and translations of it may be copied and furnished to others, and derivative works that comment
-on or otherwise explain it or assist in its implementation may be prepared, copied, published, and distributed,
-in whole or in part, without restriction of any kind, provided that the above copyright notice and this section
-are included on all such copies and derivative works. However, this document itself may not be modified in any way,
-including by removing the copyright notice or references to OASIS, except as needed for the purpose of developing
-any document or deliverable produced by an OASIS Technical Committee (in which case the rules applicable to copyrights,
-as set forth in the OASIS IPR Policy, must be followed) or as required to translate it into languages other than English.
-
-The limited permissions granted above are perpetual and will not be revoked by OASIS or its successors or assigns.
-
-This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE
-ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-OASIS requests that any OASIS Party or any other party that believes it has patent claims that would necessarily
-be infringed by implementations of this OASIS Committee Specification or OASIS Standard, to notify OASIS TC Administrator
-and provide an indication of its willingness to grant patent licenses to such patent claims in a manner consistent
-with the IPR Mode of the OASIS Technical Committee that produced this specification.
-
-OASIS invites any party to contact the OASIS TC Administrator if it is aware of a claim of ownership of any
-patent claims that would necessarily be infringed by implementations of this specification by a patent holder
-that is not willing to provide a license to such patent claims in a manner consistent with the IPR Mode of the
-OASIS Technical Committee that produced this specification. OASIS may include such claims on its website,
-but disclaims any obligation to do so.
-
-OASIS takes no position regarding the validity or scope of any intellectual property or other rights that
-might be claimed to pertain to the implementation or use of the technology described in this document
-or the extent to which any license under such rights might or might not be available; neither does it represent
-that it has made any effort to identify any such rights. Information on OASIS' procedures with respect to rights
-in any document or deliverable produced by an OASIS Technical Committee can be found on the OASIS website.
-Copies of claims of rights made available for publication and any assurances of licenses to be made available,
-or the result of an attempt made to obtain a general license or permission for the use of such proprietary rights
-by implementers or users of this OASIS Committee Specification or OASIS Standard, can be obtained from the
-OASIS TC Administrator. OASIS makes no representation that any information or list of intellectual property rights
-will at any time be complete, or that any claims in such list are, in fact, Essential Claims.
+Distributed under the terms of the OASIS [IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr).
 
 The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the owner and developer of this specification,
-and should be used only to refer to the organization and its official outputs. OASIS welcomes reference to,
-and implementation and use of, specifications, while reserving the right to enforce its marks against misleading uses.
-Please see https://www.oasis-open.org/policies-guidelines/trademark for above guidance.
+and should be used only to refer to the organization and its official outputs.
+
+For complete copyright information please see the Notices section in the Appendix.
 
 -------
 
 # Table of Contents
-- [1 Introduction](#1-introduction)
-  - [1.1 Requirements](#11-requirements)
-  - [1.2 IPR Policy](#12-ipr-policy)
-  - [1.3 Terminology](#13-terminology)
-    - [1.3.1 Glossary](#131-glossary)
-    - [1.3.2 Key words used to indicate requirement levels](#132-key-words-used-to-indicate-requirement-levels)
-  - [1.4 Normative References](#14-normative-references)
-  - [1.5 Informative References](#15-informative-references)
-- [2 Information vs. Data](#2-information-vs-data)
-  - [2.1 Graph Modeling](#21-graph-modeling)
-  - [2.2 Information Modeling](#22-information-modeling)
-  - [2.3 Example Definitions](#23-example-definitions)
-  - [2.4 Implementation](#24-implementation)
-- [3 JADN Types](#3-jadn-types)
-  - [3.1 Type Definitions](#31-type-definitions)
-    - [3.1.1 Name Formats](#311-name-formats)
-    - [3.1.2 Upper Bounds](#312-upper-bounds)
-    - [3.1.3 Descriptions](#313-descriptions)
-  - [3.2 Options](#32-options)
-    - [3.2.1 Type Options](#321-type-options)
-    - [3.2.2 Field Options](#322-field-options)
-  - [3.3 JADN Extensions](#33-jadn-extensions)
-    - [3.3.1 Type Definition Within Fields](#331-type-definition-within-fields)
-    - [3.3.2 Field Multiplicity](#332-field-multiplicity)
-    - [3.3.3 Derived Enumerations](#333-derived-enumerations)
-    - [3.3.4 MapOf With Enumerated Key](#334-mapof-with-enumerated-key)
-    - [3.3.5 Pointers](#335-pointers)
-    - [3.3.6 Links](#336-links)
-- [4 Serialization](#4-serialization)
-  - [4.1 JSON Serialization](#41-json-serialization)
-  - [4.2 CBOR Serialization](#42-cbor-serialization)
-  - [4.3 M-JSON Serialization:](#43-m-json-serialization)
-  - [4.4 XML Serialization:](#44-xml-serialization)
-- [5 Definition Formats](#5-definition-formats)
-  - [5.1 JADN-IDL Format](#51-jadn-idl-format)
-  - [5.2 Table Style](#52-table-style)
-  - [5.3 Entity Relationship Diagrams](#53-entity-relationship-diagrams)
-  - [5.4 Tree Diagrams](#54-tree-diagrams)
-- [6 Schemas](#6-schemas)
-- [7 Operational Considerations](#7-operational-considerations)
-- [8 Security Considerations](#8-security-considerations)
-- [9 Conformance](#9-conformance)
-- [Appendix A. Acknowledgments](#appendix-a-acknowledgments)
-- [Appendix B. Revision History](#appendix-b-revision-history)
-- [Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema)
-  - [C.1 Package](#c1-package)
-  - [C.2 Type Definitions](#c2-type-definitions)
-- [Appendix D. Definitions in JADN format](#appendix-d-definitions-in-jadn-format)
-- [Appendix E. JSON Schema for JADN](#appendix-e-json-schema-for-jadn)
-- [Appendix F. ABNF Grammar for JADN IDL](#appendix-f-abnf-grammar-for-jadn-idl)
+[[TOC will be inserted here]]
 
 -------
 
 # 1 Introduction
-Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
-that the purpose of an information model is to model data at a conceptual level, independent of specific
-implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
-[RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
-in defining application layer data, attributing it to the lack of an encoding-independent standardization
-of the information represented by that data.
 
-This document defines an information modeling language intended to address that gap. JADN is a
-[formal description technique](#fdt) that combines *structural abstraction* based on graph theory and
-*data abstraction* based on information theory to specify the syntax of structured data.
-As with any FDT this approach is intended to be formal, descriptive, and technically useful.
-Tools with no specific JADN knowledge are able to treat an information model as a generic graph,
-allowing reuse of existing design processes and tooling for software objects, interfaces, services and
-systems.
+<!-- All text is normative unless otherwise labeled -->
 
-**Graph theory** - a JADN information model is a graph that defines pairwise relations between nodes.
-Each node has a name that is unique across the model. Each edge has a name that is unique within the node
-that defines it. Any graph with these properties can be either a view of or a structural template for
-a JADN information model.
+## 1.1 Changes from earlier versions
 
-**Information theory** - each node defines a DataType ([UML](#uml) Section 10.2) in terms of the characteristics
-it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
-and JADN DataTypes define the information conveyed by an instance separately from the data used to serialize it.
-Separating significant information from insignificant data allows a single information model to define
-data models ranging from nearly pure-information specifications such as RFC 791 to highly-verbose XML.
 
-JADN defines three equivalence relationships between information and data:
-1. Serialization of primitives such as dates and IP addresses by binary value or text representation (formats)
-2. Serialization of enumerated strings by tag or value (vocabularies and field IDs)
-3. Serialization of table rows by column name or position (records)
+## 1.2 Glossary
 
-The [W3C Data Workshop](#transform) used the terms "Friendly" for XML and JSON encodings that associate
-data types directly with variables and "UnFriendly" for encodings that use repeated variable names
-in name-value pairs. JADN serialization rules can define multiple data formats (name-value, friendly, or
-machine-optimized) within one media-type, making it possible to transform data between data formats as well
-as media-types. This is particularly useful for defining CBOR data models that are both concise and equivalent
-to data models for name-value or friendly XML or JSON:
-
-| Data Format:   | JSON     | Compact JSON | Machine JSON |
-| -------------- | -------- | ------------ | ------------ |
-| 1. Primitives  | Text Rep | Text Rep     | Base64       |
-| 2. Strings     | Value    | Value        | Tag          |
-| 3. Table Rows  | Col Name | Position     | Position     |
-
-## 1.1 Requirements
-
-The language defined in this document addresses the following requirements from RFC 8477:
-
-> ***Formal Languages for Documentation Purposes***
->
-> *To simplify review and publication, SDOs need formal descriptions of
-> their data and interaction models.  Several of them use a tabular
-> representation found in the specification itself but use a formal
-> language as an alternative way of describing objects and resources
-> for formal purposes.*
-
-JADN serves both purposes. It is a formal information modeling language (expressable as JSON data) that can be
-validated for correctness, and its definitions can be converted to/from both tabular and text representations,
-ensuring that the body of a specification accurately represents the formal model.
-
-> ***Formal Languages for Code Generation***
->
-> *Code-generation tools that use formal data and information modeling
-> languages are needed by developers.*
-
-A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
-validate and serialize application data on the fly, or be used to generate static validation and serialization code.
-
-> ***Debugging Support***
->
-> *Debugging tools are needed that implement generic object browsers,
-> which use standard data models and/or retrieve formal language
-> descriptions from the devices themselves.*
-
-A JADN schema is itself an information object that can be serialized to a device's data format and retrieved
-from the device, retrieved from a repository, or transferred along with application data.  This allows tools
-to display schema-annotated application data independently of data format.
-
-> ***Translation***
->
-> * *The working assumption is that devices need to have a common data
-> model with a priori knowledge of data types and actions.*
-> * *Another potential approach is to have a minimal amount of information
-> on the device to allow for a runtime binding to a specific model,*
-> * *Moreover, gateways, bridges and other similar devices need to
-> dynamically translate (or map) one data model to another one.*
-
-Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
-Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate
-and translate data from one format to another. Security gateways can use the IM to filter out non-significant data
-and reject invalid data, whether generated maliciously or by accident.
-
-Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
-a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
-data models from it, as shown in RFC 3444, provides more accurate translation results than attempting to translate
-across separately-developed data models.
-
-## 1.2 IPR Policy
-This specification is provided under the [Non-Assertion](https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode)
-Mode of the [OASIS IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr), the mode chosen when the
-Technical Committee was established. For information on whether any patents have been disclosed that may be essential
-to implementing this specification, and any offers of patent licensing terms, please refer to the Intellectual
-Property Rights section of the TC's web page
-([https://www.oasis-open.org/committees/openc2/ipr.php](https://www.oasis-open.org/committees/openc2/ipr.php)).
-
-## 1.3 Terminology
-### 1.3.1 Glossary
+### 1.2.1 Definitions of terms
 
 * **Schema**:
     An abstract schema, or information model, describes the structure and value constraints of information
@@ -340,83 +168,112 @@ Property Rights section of the TC's web page
     Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
     and are ignored by applications using the schema.
 
-### 1.3.2 Key words used to indicate requirement levels
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
-and "OPTIONAL" in this document are to be interpreted as described in [[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)]
-when, and only when, they appear in all capitals, as shown here.
+### 1.2.2 Acronyms and abbreviations
 
-## 1.4 Normative References
-###### [ES9]
-ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
-###### [EUI]
-"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
-###### [JSONSCHEMA]
-Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 September 2019, https://tools.ietf.org/html/draft-handrews-json-schema-validation-02, or for latest drafts: https://json-schema.org/work-in-progress.
-###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
-###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
-###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
-###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
-###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
-###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
-###### [RFC5234]
-Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
-###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
-###### [RFC7049]
-Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
-###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
-###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
-###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
-###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
+### 1.2.3 Document conventions
 
-## 1.5 Informative References
-###### [AVRO]
-Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
-###### [BRIDGE]
-Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
-###### [DRY]
-*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
-###### [FDT]
-König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
-###### [GRAPH]
-Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
-###### [PROTO]
-Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
-###### [RELAXNG]
-OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
-###### [RFC3444]
-Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
-###### [RFC3552]
-Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
-###### [RFC7493]
-Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
-###### [RFC8340]
-Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
-###### [RFC8477]
-Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
-(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
-###### [RFC8610]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
-###### [THRIFT]
-Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
-###### [TRANSFORM]
-Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
-###### [UML]
-*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF
-###### [UNION]
-"Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
+- Naming conventions
+- Font colors and styles
+- Typographic conventions
 
--------
+## 1.3 Background
+
+Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
+that the purpose of an information model is to model data at a conceptual level, independent of specific
+implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
+[RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
+in defining application layer data, attributing it to the lack of an encoding-independent standardization
+of the information represented by that data.
+
+This document defines an information modeling language intended to address that gap. JADN is a
+[formal description technique](#fdt) that combines *structural abstraction* based on graph theory and
+*data abstraction* based on information theory to specify the syntax of structured data.
+As with any FDT this approach is intended to be formal, descriptive, and technically useful.
+Tools with no specific JADN knowledge are able to treat an information model as a generic graph,
+allowing reuse of existing design processes and tooling for software objects, interfaces, services and
+systems.
+
+**Graph theory** - a JADN information model is a graph that defines pairwise relations between nodes.
+Each node has a name that is unique across the model. Each edge has a name that is unique within the node
+that defines it. Any graph with these properties can be either a view of or a structural template for
+a JADN information model.
+
+**Information theory** - each node defines a DataType ([UML](#uml) Section 10.2) in terms of the characteristics
+it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
+and JADN DataTypes define the information conveyed by an instance separately from the data used to serialize it.
+Separating significant information from insignificant data allows a single information model to define
+data models ranging from nearly pure-information specifications such as RFC 791 to highly-verbose XML.
+
+JADN defines three equivalence relationships between information and data:
+1. Serialization of primitives such as dates and IP addresses by binary value or text representation (formats)
+2. Serialization of enumerated strings by tag or value (vocabularies and field IDs)
+3. Serialization of table rows by column name or position (records)
+
+The [W3C Data Workshop](#transform) used the terms "Friendly" for XML and JSON encodings that associate
+data types directly with variables and "UnFriendly" for encodings that use repeated variable names
+in name-value pairs. JADN serialization rules can define multiple data formats (name-value, friendly, or
+machine-optimized) within one media-type, making it possible to transform data between data formats as well
+as media-types. This is particularly useful for defining CBOR data models that are both concise and equivalent
+to data models for name-value or friendly XML or JSON:
+
+| Data Format:   | JSON     | Compact JSON | Machine JSON |
+| -------------- | -------- | ------------ | ------------ |
+| 1. Primitives  | Text Rep | Text Rep     | Base64       |
+| 2. Strings     | Value    | Value        | Tag          |
+| 3. Table Rows  | Col Name | Position     | Position     |
+
+## 1.4 Requirements
+
+The language defined in this document addresses the following requirements from RFC 8477:
+
+> ***Formal Languages for Documentation Purposes***
+>
+> *To simplify review and publication, SDOs need formal descriptions of
+> their data and interaction models.  Several of them use a tabular
+> representation found in the specification itself but use a formal
+> language as an alternative way of describing objects and resources
+> for formal purposes.*
+
+JADN serves both purposes. It is a formal information modeling language (expressable as JSON data) that can be
+validated for correctness, and its definitions can be converted to/from both tabular and text representations,
+ensuring that the body of a specification accurately represents the formal model.
+
+> ***Formal Languages for Code Generation***
+>
+> *Code-generation tools that use formal data and information modeling
+> languages are needed by developers.*
+
+A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
+validate and serialize application data on the fly, or be used to generate static validation and serialization code.
+
+> ***Debugging Support***
+>
+> *Debugging tools are needed that implement generic object browsers,
+> which use standard data models and/or retrieve formal language
+> descriptions from the devices themselves.*
+
+A JADN schema is itself an information object that can be serialized to a device's data format and retrieved
+from the device, retrieved from a repository, or transferred along with application data.  This allows tools
+to display schema-annotated application data independently of data format.
+
+> ***Translation***
+>
+> * *The working assumption is that devices need to have a common data
+> model with a priori knowledge of data types and actions.*
+> * *Another potential approach is to have a minimal amount of information
+> on the device to allow for a runtime binding to a specific model,*
+> * *Moreover, gateways, bridges and other similar devices need to
+> dynamically translate (or map) one data model to another one.*
+
+Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
+Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate
+and translate data from one format to another. Security gateways can use the IM to filter out non-significant data
+and reject invalid data, whether generated maliciously or by accident.
+
+Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
+a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
+data models from it, as shown in RFC 3444, provides more accurate translation results than attempting to translate
+across separately-developed data models.
 
 # 2 Information vs. Data
 
@@ -1458,7 +1315,7 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
                   | " optional"
     TAGID        = "(TagId[" *tagid* "])"
 
-An ABNF grammar for JADN-IDL is shown in [Appendix F](#appendix-f-abnf-grammar-for-jadn-idl).
+An ABNF grammar for JADN-IDL is shown in [Appendix H](#appendix-h-abnf-grammar-for-jadn-idl).
 
 ## 5.2 Table Style
 *This section is informative*
@@ -1617,47 +1474,7 @@ Exports may be used by schema tools to detect unused types or prune when copying
 
 -------
 
-# 7 Operational Considerations
-*TBSL*
-* Serialization (bulk vs pull)
-* Validation (integrated with serialization, separate)
-* Localization
-* Schema embedding - self-describing data
-* Bridging
-* Tabular data (not too many optional columns, sort fields by required/optional.  Tuples.)
-
--------
-
-# 8 Security Considerations
-This document presents a language for expressing the information needs of communicating applications, and rules
-for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues,
-although protocol specifications based on JADN naturally need security analysis when defined. Such specifications
-need to follow the guidelines in [RFC 3552](#rfc3552).
-
-Additional security considerations applicable to JADN-based specifications: 
-* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of
-this specification could always be improved through operational experience and developer feedback.
-* Where a JADN data validator is part of a system, the security of the system benefits from automatic data
-validation but depends on both the specificity of the JADN specification and the correctness of the validation
-implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and
-testing the validator against unreasonable data instances can address both concerns.
-
-Security and bandwidth efficiency are benefits of using an information model. Enumerating strings and map keys
-defines the information content of those values, which greatly reduces opportunities for exploitation.
-A firewall with a security policy of "Allow specific things I understand plus everything I don't understand"
-is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of
-[RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's
-"Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's
-enumerated lists of things that are understood. An executable IM format such as JADN provides the agility
-required to support evolving protocols.
-
-Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification.
-Although JADN makes it easier to both define and understand complex specifications, complexity that is not
-essential to satisfying operational requirements is itself a security concern.
-
--------
-
-# 9 Conformance
+# 7 Conformance
 Conformance targets:
 This document defines two conformance levels for JADN implementations: Core and Extensions.
 
@@ -1686,11 +1503,135 @@ This document describes several schema support functions but defines no correspo
 
 -------
 
-# Appendix A. Acknowledgments
+# Appendix A. References
+
+This appendix contains the normative and informative references that are used in this document.
+Normative references are specific (identified by date of publication and/or edition number or version number)
+and Informative references are either specific or non-specific.
+
+While any hyperlinks included in this appendix were valid at the time of publication, OASIS cannot guarantee their long-term validity.
+
+## A.1 Normative References
+
+The following documents are referenced in such a way that some or all of their content constitutes requirements of this document.
+
+###### [ES9]
+ECMA International, *"ECMAScript 2018 Language Specification"*, ECMA-262 9th Edition, June 2018, https://www.ecma-international.org/ecma-262.
+###### [EUI]
+"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+###### [JSONSCHEMA]
+Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 September 2019, https://tools.ietf.org/html/draft-handrews-json-schema-validation-02, or for latest drafts: https://json-schema.org/work-in-progress.
+###### [RFC791]
+Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
+###### [RFC2119]
+Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
+###### [RFC2673]
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
+###### [RFC4291]
+Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
+###### [RFC4632]
+Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
+###### [RFC4648]
+Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
+###### [RFC5234]
+Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
+###### [RFC6901]
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
+###### [RFC7049]
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
+###### [RFC7405]
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
+###### [RFC8174]
+Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
+###### [RFC8200]
+Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
+###### [RFC8259]
+Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
+
+## A.2 Informative References
+
+###### [AVRO]
+Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
+###### [BRIDGE]
+Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
+###### [DRY]
+*"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
+###### [FDT]
+König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
+###### [GRAPH]
+Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
+###### [PROTO]
+Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
+###### [RELAXNG]
+OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
+###### [RFC3444]
+Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
+###### [RFC3552]
+Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+###### [RFC7493]
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
+###### [RFC8340]
+Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+###### [RFC8477]
+Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
+###### [RFC8610]
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
+###### [THRIFT]
+Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
+###### [TRANSFORM]
+Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
+###### [UML]
+*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF
+###### [UNION]
+"Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
+
+-------
+
+# Appendix B. Safety, Security and Privacy Considerations
+
+This document presents a language for expressing the information needs of communicating applications, and rules
+for generating data structures to satisfy those needs.  As such, it does not inherently introduce security issues,
+although protocol specifications based on JADN naturally need security analysis when defined. Such specifications
+need to follow the guidelines in [RFC 3552](#rfc3552).
+
+Additional security considerations applicable to JADN-based specifications: 
+* The JADN language could cause confusion in a way that results in security issues. Clarity and unambiguity of
+this specification could always be improved through operational experience and developer feedback.
+* Where a JADN data validator is part of a system, the security of the system benefits from automatic data
+validation but depends on both the specificity of the JADN specification and the correctness of the validation
+implementation.  Tightening the specification (e.g., by defining upper bounds and other value constraints) and
+testing the validator against unreasonable data instances can address both concerns.
+
+Security and bandwidth efficiency are benefits of using an information model. Enumerating strings and map keys
+defines the information content of those values, which greatly reduces opportunities for exploitation.
+A firewall with a security policy of "Allow specific things I understand plus everything I don't understand"
+is less secure than a firewall that allows only things that are understood. The "Must-Ignore" policy of
+[RFC 7493](#rfc7493) compromises security by allowing everything that is not understood. Information modeling's
+"Must-Understand" approach enhances security and accommodates new protocol elements by adding them to the IM's
+enumerated lists of things that are understood. An executable IM format such as JADN provides the agility
+required to support evolving protocols.
+
+Writers of JADN specifications are strongly encouraged to value simplicity and transparency of the specification.
+Although JADN makes it easier to both define and understand complex specifications, complexity that is not
+essential to satisfying operational requirements is itself a security concern.
+
+-------
+
+# Appendix C. Acknowledgments
+
+## C.1 Special Thanks
+
+The following individuals shared their expertise during creation of this specification and are gratefully acknowledged:
+
+| First Name | Last Name | Company |
+| :--- | :--- | :--- |
+| Carsten | Bormann | Universität Bremen |
+| Hans-Jürgen | Rennau | parsQube GmbH |
+
+## C.2 Participants
 
 The following individuals have participated in the creation of this specification and are gratefully acknowledged:
-
-**OpenC2 TC Members:**
 
 | First Name | Last Name | Company |
 | :--- | :--- | :--- |
@@ -1698,24 +1639,153 @@ The following individuals have participated in the creation of this specificatio
 | Joseph | Brule | National Security Agency |
 | Toby | Considine | University of North Carolina |
 | Jason | Romano | General Dynamics |
-
-**External Reviewers:**
-
-| First Name | Last Name | Company |
-| :--- | :--- | :--- |
-| Carsten | Bormann | Universität Bremen |
-| Hans-Jürgen | Rennau | parsQube GmbH |
+| Duncan | Sparrell | sFractal Consulting |
 
 -------
 
-# Appendix B. Revision History
+# Appendix D. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | 2020-10-21 | David Kemp | Initial working draft |
+| jadn-v1.0-wd01 | 2021-04-20 | David Kemp | Initial working draft |
 
 -------
 
-# Appendix C. JADN Meta-schema
+# Appendix E. JSON Schema for JADN Documents
+
+A JADN package has the following structure:
+```
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
+  "description": "Validates structure of a JADN schema, does not check values",
+  "type": "object",
+  "required": ["types"],
+  "additionalProperties": false,
+  "properties": {
+    "info": {
+      "type": "object",
+      "required": ["package"],
+      "additionalProperties": false,
+      "properties": {
+        "package": {"type": "string"},
+        "version": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "comment": {"type":  "string"},
+        "copyright": {"type": "string"},
+        "license": {"type": "string"},
+        "namespaces": {"$ref": "#/definitions/Namespaces"},
+        "exports": {"$ref": "#/definitions/Exports"},
+        "config": {"$ref": "#/definitions/Config"}
+      }
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 5,
+        "items": [
+          {"$ref": "#/definitions/TypeRef"},
+          {"$ref": "#/definitions/BaseType"},
+          {"$ref": "#/definitions/Options"},
+          {"$ref": "#/definitions/Description"},
+          {"$ref": "#/definitions/Fields"}
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Namespaces": {
+      "type": "object",
+      "propertyNames": {"$ref": "#/definitions/NSID"},
+      "patternProperties": {
+        "": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "Exports": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "$MaxBinary": {"type": "integer", "minValue": 1},
+        "$MaxString": {"type": "integer", "minValue": 1},
+        "$MaxElements": {"type": "integer", "minValue": 1},
+        "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
+        "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
+        "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
+        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
+      }
+    },
+    "Fields": {
+      "type": "array",
+      "items": [
+        {"anyOf": [
+          {"$ref": "#/definitions/Item"},
+          {"$ref": "#/definitions/Field"}
+        ]}
+      ]
+    },
+    "Item": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 3,
+      "items": [
+        {"type": "integer"},
+        {"type": "string"},
+        {"$ref": "#/definitions/Description"}
+      ]
+    },
+    "Field": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": [
+        {"type": "integer"},
+        {"$ref": "#/definitions/FieldName"},
+        {"$ref": "#/definitions/TypeRef"},
+        {"$ref": "#/definitions/Options"},
+        {"$ref": "#/definitions/Description"}
+      ]
+    },
+    "NSID": {
+      "type": "string"
+    },
+    "TypeName": {
+      "type": "string"
+    },
+    "TypeRef": {
+      "type": "string"
+    },
+    "FieldName": {
+      "type": "string"
+    },
+    "BaseType": {
+      "type": "string",
+      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
+               "Enumerated", "Choice",
+               "Array", "ArrayOf", "Map", "MapOf", "Record"]
+    },
+    "Options": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "Description": {
+      "type": "string"
+    }
+  }
+}
+```
+
+-------
+
+# Appendix F. JADN Meta-schema for JADN Documents
 
 A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates
 itself and other JADN schemas. In order to validate itself, the meta-schema requires a name format change
@@ -1726,7 +1796,7 @@ from the JADN default ([Section 3.1.1](#311-name-formats)):
     "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,31}$"
   }
 ```
-## C.1 Package
+## F.1 Package
 
 A package is a collection of type definitions along with information about the package.
 ```
@@ -1766,7 +1836,7 @@ Config = Map{1..*}                           // Config vars override JADN defaul
    6 $FieldName   String{1..127} optional    // FieldName regex
    7 $NSID        String{1..127} optional    // Namespace Identifier regex
 ```
-## C.2 Type Definitions
+## F.2 Type Definitions
 
 The structure of JADN type definitions ([Section 3.1](#31-type-definitions)) is intended to remain stable,
 with options providing extensibility.
@@ -1837,8 +1907,8 @@ TypeRef = String                             // Autogenerated ($NSID ':')? $Type
 
 -------
 
-# Appendix D. Definitions in JADN format
-This appendix contains the JADN definitions corresponding to all JADN-IDL definitions in this document.
+# Appendix G. JADN Type Definitions From This Document
+This appendix contains the JADN type definitions corresponding to all JADN-IDL examples in this document.
 
 **[Section 2.3 Example Definitions](#23-example-definitions):**
 ```
@@ -1991,7 +2061,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["Organization$ein", "String", ["{10", "}10"], "", []]
 ```
 
-**[Appendix C. JADN Meta-schema](#appendix-c-jadn-meta-schema):**
+**[Appendix F. JADN Meta-schema](#appendix-f-jadn-meta-schema-for-jadn-documents):**
 ```
 {
  "info": {
@@ -2100,143 +2170,62 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 
 -------
 
-# Appendix E. JSON Schema for JADN
-
-A JADN package has the following structure:
-```
-{
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
-  "description": "Validates structure of a JADN schema, does not check values",
-  "type": "object",
-  "required": ["types"],
-  "additionalProperties": false,
-  "properties": {
-    "info": {
-      "type": "object",
-      "required": ["package"],
-      "additionalProperties": false,
-      "properties": {
-        "package": {"type": "string"},
-        "version": {"type": "string"},
-        "title": {"type": "string"},
-        "description": {"type": "string"},
-        "comment": {"type":  "string"},
-        "copyright": {"type": "string"},
-        "license": {"type": "string"},
-        "namespaces": {"$ref": "#/definitions/Namespaces"},
-        "exports": {"$ref": "#/definitions/Exports"},
-        "config": {"$ref": "#/definitions/Config"}
-      }
-    },
-    "types": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 2,
-        "maxItems": 5,
-        "items": [
-          {"$ref": "#/definitions/TypeRef"},
-          {"$ref": "#/definitions/BaseType"},
-          {"$ref": "#/definitions/Options"},
-          {"$ref": "#/definitions/Description"},
-          {"$ref": "#/definitions/Fields"}
-        ]
-      }
-    }
-  },
-  "definitions": {
-    "Namespaces": {
-      "type": "object",
-      "propertyNames": {"$ref": "#/definitions/NSID"},
-      "patternProperties": {
-        "": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
-    "Exports": {
-      "type": "array",
-      "items": {"type": "string"}
-    },
-    "Config": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "$MaxBinary": {"type": "integer", "minValue": 1},
-        "$MaxString": {"type": "integer", "minValue": 1},
-        "$MaxElements": {"type": "integer", "minValue": 1},
-        "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
-        "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
-      }
-    },
-    "Fields": {
-      "type": "array",
-      "items": [
-        {"anyOf": [
-          {"$ref": "#/definitions/Item"},
-          {"$ref": "#/definitions/Field"}
-        ]}
-      ]
-    },
-    "Item": {
-      "type": "array",
-      "minItems": 2,
-      "maxItems": 3,
-      "items": [
-        {"type": "integer"},
-        {"type": "string"},
-        {"$ref": "#/definitions/Description"}
-      ]
-    },
-    "Field": {
-      "type": "array",
-      "minItems": 3,
-      "maxItems": 5,
-      "items": [
-        {"type": "integer"},
-        {"$ref": "#/definitions/FieldName"},
-        {"$ref": "#/definitions/TypeRef"},
-        {"$ref": "#/definitions/Options"},
-        {"$ref": "#/definitions/Description"}
-      ]
-    },
-    "NSID": {
-      "type": "string"
-    },
-    "TypeName": {
-      "type": "string"
-    },
-    "TypeRef": {
-      "type": "string"
-    },
-    "FieldName": {
-      "type": "string"
-    },
-    "BaseType": {
-      "type": "string",
-      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
-               "Enumerated", "Choice",
-               "Array", "ArrayOf", "Map", "MapOf", "Record"]
-    },
-    "Options": {
-      "type": "array",
-      "items": {"type": "string"}
-    },
-    "Description": {
-      "type": "string"
-    }
-  }
-}
-```
-
--------
-
-# Appendix F. ABNF Grammar for JADN IDL
+# Appendix H. ABNF Grammar for JADN IDL
 
 [Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
 
 *TBSL*
+
+-------
+
+# Appendix I. Notices
+
+Copyright © OASIS Open 2021. All Rights Reserved.
+
+All capitalized terms in the following text have the meanings assigned to them in the OASIS Intellectual Property
+Rights Policy (the "OASIS IPR Policy"). The full [Policy](https://www.oasis-open.org/policies-guidelines/ipr)
+may be found at the OASIS website.
+
+This document and translations of it may be copied and furnished to others, and derivative works that comment on or
+otherwise explain it or assist in its implementation may be prepared, copied, published, and distributed,
+in whole or in part, without restriction of any kind, provided that the above copyright notice and this section
+are included on all such copies and derivative works. However, this document itself may not be modified in any way,
+including by removing the copyright notice or references to OASIS, except as needed for the purpose of developing
+any document or deliverable produced by an OASIS Technical Committee (in which case the rules applicable to copyrights,
+as set forth in the OASIS IPR Policy, must be followed) or as required to translate it into languages other than English.
+
+The limited permissions granted above are perpetual and will not be revoked by OASIS or its successors or assigns.
+
+This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE
+ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+As stated in the OASIS IPR Policy, the following three paragraphs in brackets apply to OASIS Standards Final
+Deliverable documents (Committee Specification, Candidate OASIS Standard, OASIS Standard, or Approved Errata).
+
+\[OASIS requests that any OASIS Party or any other party that believes it has patent claims that would necessarily
+be infringed by implementations of this OASIS Standards Final Deliverable, to notify OASIS TC Administrator and
+provide an indication of its willingness to grant patent licenses to such patent claims in a manner consistent
+with the IPR Mode of the OASIS Technical Committee that produced this deliverable.\]
+
+\[OASIS invites any party to contact the OASIS TC Administrator if it is aware of a claim of ownership of any patent
+claims that would necessarily be infringed by implementations of this OASIS Standards Final Deliverable by a patent
+holder that is not willing to provide a license to such patent claims in a manner consistent with the IPR Mode of
+the OASIS Technical Committee that produced this OASIS Standards Final Deliverable. OASIS may include such claims
+on its website, but disclaims any obligation to do so.\]
+
+\[OASIS takes no position regarding the validity or scope of any intellectual property or other rights that might
+be claimed to pertain to the implementation or use of the technology described in this OASIS Standards Final
+Deliverable or the extent to which any license under such rights might or might not be available; neither does
+it represent that it has made any effort to identify any such rights. Information on OASIS' procedures with
+respect to rights in any document or deliverable produced by an OASIS Technical Committee can be found on the
+OASIS website. Copies of claims of rights made available for publication and any assurances of licenses to be
+made available, or the result of an attempt made to obtain a general license or permission for the use of such
+proprietary rights by implementers or users of this OASIS Standards Final Deliverable, can be obtained from the
+OASIS TC Administrator. OASIS makes no representation that any information or list of intellectual property rights
+will at any time be complete, or that any claims in such list are, in fact, Essential Claims.\]
+
+The name "OASIS" is a trademark of [OASIS](https://www.oasis-open.org/), the owner and developer of this
+specification, and should be used only to refer to the organization and its official outputs. OASIS welcomes
+reference to, and implementation and use of, specifications, while reserving the right to enforce its marks
+against misleading uses. Please see https://www.oasis-open.org/policies-guidelines/trademark for above guidance.
