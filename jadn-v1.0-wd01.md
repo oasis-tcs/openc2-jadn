@@ -40,14 +40,15 @@ This prose specification is one component of a Work Product that also includes:
 * JADN schema for JADN documents: jadn-v1.0.jadn
 
 #### Abstract:
-JSON Abstract Data Notation (JADN) is an information modeling language.
-It has several purposes including defining data structures, validating data instances,
-informing user interfaces working with structured data, and facilitating protocol internationalization.
-JADN specifications consist of two parts: abstract type definitions that are independent of data format,
-and serialization rules that define how to represent type instances using specific data formats.
-A JADN schema is itself a structured information object that can be serialized and transferred between applications,
-documented in multiple formats such as text-based interface definition languages, property tables or diagrams,
-and translated into concrete schemas used to validate specific data formats.
+JSON Abstract Data Notation (JADN) is a UML-based information modeling language used to define data structures
+in a manner independent of programming language and data format. A JADN information model can validate data
+instances, translate instances losslessly between data formats, generate concrete schemas, and inform user
+interfaces.
+A JADN specification consists of two parts: abstract type definitions that define the information model,
+and serialization rules for supported data formats. The information model is itself a structured object
+that can be serialized and transferred between applications. The model can be documented using a compact
+and expressive interface definition language, property tables and entity relationship diagrams, easing its
+use with familiar design processes and architecture tools.
 
 #### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
@@ -106,26 +107,29 @@ For complete copyright information please see the Notices section in the Appendi
 
 # 1 Introduction
 
-<!-- All text is normative unless otherwise labeled -->
-
 ## 1.1 Changes from earlier versions
 
+N/A
 
 ## 1.2 Glossary
 
 ### 1.2.1 Definitions of terms
 
-* **Schema**:
-    An abstract schema, or information model, describes the structure and value constraints of information
-    used by applications. A concrete schema, or data model, describes the structure and value constraints
-    of a document used to store information or communicate it between applications.
+* **Information Model**:
+    An abstract schema that defines the structure and value constraints of information used by applications.
+
+* **Data Model**:
+    A concrete schema that defines the structure and value constraints of information serialized for transmission
+    or storage using a specific data format.
 
 * **Graph**:
-    A mathematical structure used to model pairwise relations between objects.  A graph is made up of nodes and edges.
-    An information model is a graph where nodes define information types and edges define relationships between types.
+    A mathematical structure consisting of nodes and edges used to model pairwise relations between objects.
+    An information model is a graph where the nodes are information types and edges represent
+    relationships between types.
 
 * **Package**:
-    A namespace for the set of nodes it contains. A node may reference nodes contained in other packages by namespace.
+    A namespace for the set of types it contains. A type may reference types defined in other packages using
+    their namespaces.
 
 * **Document**:
     A series of octets described by a data format applied to an information model, or equivalently, by a data model.
@@ -138,19 +142,16 @@ For complete copyright information please see the Notices section in the Appendi
     A document is valid if it is well-formed and also corresponds to a valid instance.
 
 * **Data Format**:
-    A data format, defined by serialization rules, specifies the media type (XML, JSON, ...), design goals
-    (human readability, efficiency), and style preferences for documents in that format.
-    This specification defines a baseline set of data formats. Additional data formats may be defined for
-    any media types that can represent instances of the JADN information model.
+    A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
+    design goals (human readability, efficiency), and style preferences for documents in that format.
 
 * **Instance**:
-    An instance, or API value, is an item of application information to which a schema applies.
-    An instance has one of the base types defined in [Section 3](#3-jadn-types) and value constraints
-    defined in the schema by type name.
-    The base types are:
-    * **Primitive:** Null, Boolean, Binary, Integer, Number, String
+    An instance, or API value, is an item of application information defined by an information model type.
+    An instance has the base type and satisfies all additional value constraints specified in the type definition.
+    The base types defined in [Section 3](#3-jadn-types) are:
+    * **Primitive:** Boolean, Binary, Integer, Number, String
     * **Enumeration:** Enumerated
-    * **Structured:** Array, ArrayOf(value_type), Choice, Map, MapOf(key_type, value_type), Record.
+    * **Structured:** Array, ArrayOf, Choice, Map, MapOf, Record.
 
 * **Equality**:
     Two instances are equal if and only if they are of the same type and have the same value according to the
@@ -161,14 +162,18 @@ For complete copyright information please see the Notices section in the Appendi
     if and only if they have the same keys and the same value for each key.
 
 * **Serialization**:
-    Serialization, or encoding, is the process of converting application information into a document.
-    De-serialization, or decoding, converts a document into information instances usable by an application.
+    Serialization, or encoding, converts application information into a document.
+    De-serialization, or decoding, converts a document into information instances usable by applications.
 
 * **Description**:
     Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
     and are ignored by applications using the schema.
 
 ### 1.2.2 Acronyms and abbreviations
+
+* **DM**: Data Model
+* **IM**: Information Model
+* **UML**: Unified Modeling Language
 
 ### 1.2.3 Document conventions
 
