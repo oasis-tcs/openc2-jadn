@@ -40,15 +40,14 @@ This prose specification is one component of a Work Product that also includes:
 * JADN schema for JADN documents: jadn-v1.0.jadn
 
 #### Abstract:
-JSON Abstract Data Notation (JADN) is a UML-based information modeling language used to define data structures
-in a manner independent of programming language and data format. A JADN information model can validate data
-instances, translate instances losslessly between data formats, generate concrete schemas, and inform user
-interfaces.
-A JADN specification consists of two parts: abstract type definitions that define the information model,
-and serialization rules for supported data formats. The information model is itself a structured object
-that can be serialized and transferred between applications. The model can be documented using a compact
-and expressive interface definition language, property tables and entity relationship diagrams, easing its
-use with familiar design processes and architecture tools.
+JSON Abstract Data Notation (JADN) is a UML-based information modeling language that defines structured data
+independently of programming language and data format. JADN information models are used to validate data
+instances, translate losslessly across data formats, and generate concrete schemas.
+A JADN specification consists of two parts: type definitions that comprise the information model,
+and serialization rules that define how instances are represented as data.
+The information model is itself an instance that can be serialized and transferred between applications.
+The model is documented using a compact and expressive interface definition language, property tables, or
+entity relationship diagrams, easing integration with existing design processes and architecture tools.
 
 #### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
@@ -106,6 +105,51 @@ For complete copyright information please see the Notices section in the Appendi
 -------
 
 # 1 Introduction
+[RFC 3444](#rfc3444) "Information Models and Data Models" notes that the main purpose of
+an information model is to model objects at a conceptual level, independent of specific implementations
+or protocols used to transport the data.
+[RFC 8477](#rfc8477) "IoT Semantic Interoperability Workshop 2016" describes a lack of consistency across
+Standards Developing Organizations in defining application layer data, attributing it to the lack of an
+encoding-independent standardization of the information represented by that data.
+
+This document defines an information modeling language intended to address that gap. JADN is a
+[formal description technique](#fdt) that combines type constraints defined by the Unified Modeling Language
+[UML](#uml) with data abstraction based on information theory and structural characterization from graph theory.
+
+UML defines "Simple Classifiers" including DataTypes, and "Structured Classifiers" including Classes, Components,
+Associations and Collaborations. The defining characteristic of DataTypes is that instances are distinguished
+only by their value, whereas Class instances have behavior, inheritance, roles, and other complex characteristics.
+UML class models and diagrams are commonly referred to as "Data Models", but they model the world as Classes
+rather than as Data. One significant distinction is that class models are undirected graphs with many kinds of
+relationship, while information models are directed graphs with only two kinds of relationship:
+"contains" and "references".
+
+JADN uses UML DataTypes to define information, allowing it to characterize a type's
+information content, define multiple data models that represent the same information, and support
+lossless round-trip conversion of instances to multiple data formats.
+
+Note on terminology: Industry has multiple, often conflicting definitions of data modeling terms,
+including "Information Engineering" itself, which at one time referred to data modeling
+[DATAMOD] (top line in Figure 1), but now is more closely aligned with information theory
+and machine learning [INFOENG]. There is also Russell Ackoff's Knowlege Hierarchy and variants thereof,
+as in [DIKW] (bottom line in Figure 1), where data refers to "symbols that are properties of observables".
+JADN (middle line in Figure 1) provides a link between the old and new meanings of Information Engineering,
+being a formal definition of information that lies between conceptual data models and physical data symbols.
+
+```code
+              +------------+   +------------+                   +------------+
+Data          | Conceptual |   |  Logical   |                   |  Physical  |
+Modeling:     | Data Model |   | Data Model |                   | Data Model |
+              +------------+   +------------+                   +------------+
+
+JADN          +------------+   +------------+   +-------------+   +---------+
+Information   | Conceptual |   |  Logical   |   | Information |   |  Data   |
+Modeling:     |   Model    |   |   Model    |   |    Model    |   |  Model  |
+              +------------+   +------------+   +-------------+   +---------+
+
+DIKW Pyramid:              Knowledge               Information        Data
+```
+**Figure 1**: Information Engineering Terminology
 
 ## 1.1 Changes from earlier versions
 
@@ -114,22 +158,27 @@ N/A
 ## 1.2 Glossary
 
 ### 1.2.1 Definitions of terms
+* **Information**:
+    A measure of the entropy (resolution of uncertainty) in a message. Information is the essential
+    meaning of a message, as opposed to insignificant data that can be added, modified, or deleted without
+    affecting meaning. 
 
 * **Information Model**:
-    An abstract schema that defines the structure and value constraints of information used by applications.
+    An abstract schema that defines the structure and value constraints of information used within and across applications.
 
 * **Data Model**:
-    A concrete schema that defines the structure and value constraints of information serialized for transmission
-    or storage using a specific data format.
+    A concrete schema that defines the structure and value constraints of serialized data.
+    A single information model corresponds to multiple equivalent data models; two data models are equivalent if
+    they represent the same information.
 
 * **Graph**:
-    A mathematical structure consisting of nodes and edges used to model pairwise relations between objects.
-    An information model is a graph where the nodes are information types and edges represent
+    A mathematical structure used to model pairwise relationships between objects.
+    An information model is a graph where nodes are information type definitions and edges are
     relationships between types.
 
 * **Package**:
-    A namespace for the set of types it contains. A type may reference types defined in other packages using
-    their namespaces.
+    A namespace for the set of types it contains. A type references a type defined in another package using
+    its namespace.
 
 * **Document**:
     A series of octets described by a data format applied to an information model, or equivalently, by a data model.
@@ -146,16 +195,15 @@ N/A
     design goals (human readability, efficiency), and style preferences for documents in that format.
 
 * **Instance**:
-    An instance, or API value, is an item of application information defined by an information model type.
-    An instance has the base type and satisfies all additional value constraints specified in the type definition.
-    The base types defined in [Section 3](#3-jadn-types) are:
+    An instance, or API value, is an item of information that satisfies the structure and value constraints
+    defined by a type.  Types are defined by an information modeling language; JADN types are:
     * **Primitive:** Boolean, Binary, Integer, Number, String
     * **Enumeration:** Enumerated
     * **Structured:** Array, ArrayOf, Choice, Map, MapOf, Record.
 
-* **Equality**:
-    Two instances are equal if and only if they are of the same type and have the same value according to the
-    information model. Formatting differences, including a document's data format, are insignificant.
+* **Instance Equality**:
+    Two instances are equal if and only if they are of the same type and have the same information value.
+    Formatting differences, including a document's data format, are insignificant.
     An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR
     byte string if and only if they have the same 32 bit value.
     A Record instance serialized as an array is equal to a Record instance serialized as a map
@@ -181,18 +229,8 @@ N/A
 - Font colors and styles
 - Typographic conventions
 
-## 1.3 Background
-
-Internet [RFC 3444](#rfc3444) describes the difference between information models and data models, noting
-that the purpose of an information model is to model data at a conceptual level, independent of specific
-implementations or protocols used to transport the data. The IETF report on Semantic Interoperability,
-[RFC 8477](#rfc8477) describes a lack of consistency across Standards Developing Organizations
-in defining application layer data, attributing it to the lack of an encoding-independent standardization
-of the information represented by that data.
-
-This document defines an information modeling language intended to address that gap. JADN is a
-[formal description technique](#fdt) that combines *structural abstraction* based on graph theory and
-*data abstraction* based on information theory to specify the syntax of structured data.
+<!-- ## 1.3 Background
+*Clean up, move into Introduction*
 As with any FDT this approach is intended to be formal, descriptive, and technically useful.
 Tools with no specific JADN knowledge are able to treat an information model as a generic graph,
 allowing reuse of existing design processes and tooling for software objects, interfaces, services and
@@ -226,59 +264,7 @@ to data models for name-value or friendly XML or JSON:
 | 1. Primitives  | Text Rep | Text Rep     | Base64       |
 | 2. Strings     | Value    | Value        | Tag          |
 | 3. Table Rows  | Col Name | Position     | Position     |
-
-## 1.4 Requirements
-
-The language defined in this document addresses the following requirements from RFC 8477:
-
-> ***Formal Languages for Documentation Purposes***
->
-> *To simplify review and publication, SDOs need formal descriptions of
-> their data and interaction models.  Several of them use a tabular
-> representation found in the specification itself but use a formal
-> language as an alternative way of describing objects and resources
-> for formal purposes.*
-
-JADN serves both purposes. It is a formal information modeling language (expressable as JSON data) that can be
-validated for correctness, and its definitions can be converted to/from both tabular and text representations,
-ensuring that the body of a specification accurately represents the formal model.
-
-> ***Formal Languages for Code Generation***
->
-> *Code-generation tools that use formal data and information modeling
-> languages are needed by developers.*
-
-A JADN schema, expressed as JSON data, can be read by applications and either interpreted as "byte code" to
-validate and serialize application data on the fly, or be used to generate static validation and serialization code.
-
-> ***Debugging Support***
->
-> *Debugging tools are needed that implement generic object browsers,
-> which use standard data models and/or retrieve formal language
-> descriptions from the devices themselves.*
-
-A JADN schema is itself an information object that can be serialized to a device's data format and retrieved
-from the device, retrieved from a repository, or transferred along with application data.  This allows tools
-to display schema-annotated application data independently of data format.
-
-> ***Translation***
->
-> * *The working assumption is that devices need to have a common data
-> model with a priori knowledge of data types and actions.*
-> * *Another potential approach is to have a minimal amount of information
-> on the device to allow for a runtime binding to a specific model,*
-> * *Moreover, gateways, bridges and other similar devices need to
-> dynamically translate (or map) one data model to another one.*
-
-Devices and gateways can use JADN information models that are either known a-priori or bound at runtime.
-Once the IM is known, it is used by devices to serialize, deserialize and validate data, and by gateways to validate
-and translate data from one format to another. Security gateways can use the IM to filter out non-significant data
-and reject invalid data, whether generated maliciously or by accident.
-
-Numerous data definition languages are in use. JADN is not intended to replace any of them; it exists as
-a Rosetta stone to facilitate translation among them.  Starting with a common information model and deriving multiple
-data models from it, as shown in RFC 3444, provides more accurate translation results than attempting to translate
-across separately-developed data models.
+-->
 
 # 2 Information vs. Data
 
@@ -1559,12 +1545,18 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [BRIDGE]
 Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
+###### [DATAMOD]
+InfoAdvisors, *"What are Conceptual, Logical, and Physical Data Models?"*, https://www.datamodel.com/index.php/articles/what-are-conceptual-logical-and-physical-data-models
+###### [DIKW]
+Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [FDT]
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
+###### [IE]
+Wikipedia, "Information Engineering", https://en.wikipedia.org/wiki/Information_engineering_(field)
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
