@@ -40,12 +40,12 @@ This prose specification is one component of a Work Product that also includes:
 * JADN schema for JADN documents: jadn-v1.0.jadn
 
 #### Abstract:
-JSON Abstract Data Notation (JADN) is a UML-based information modeling language that defines structured data
-independently of programming language and data format. JADN information models are used to validate data
-instances, translate losslessly across data formats, and generate concrete schemas.
+JSON Abstract Data Notation (JADN) is a UML-based information modeling language that defines data structure
+independently of data format. JADN information models are used to validate information
+instances, enable lossless translation across data formats, and generate concrete schemas.
 A JADN specification consists of two parts: type definitions that comprise the information model,
-and serialization rules that define how instances are represented as data.
-The information model is itself an instance that can be serialized and transferred between applications.
+and serialization rules that define how information instances are represented as data.
+The information model is itself an information instance that can be serialized and transferred between applications.
 The model is documented using a compact and expressive interface definition language, property tables, or
 entity relationship diagrams, easing integration with existing design processes and architecture tools.
 
@@ -105,49 +105,50 @@ For complete copyright information please see the Notices section in the Appendi
 -------
 
 # 1 Introduction
-[RFC 3444](#rfc3444) "Information Models and Data Models" notes that the main purpose of
+[RFC 3444](#rfc3444), "Information Models and Data Models", notes that the main purpose of
 an information model is to model objects at a conceptual level, independent of specific implementations
 or protocols used to transport the data.
-[RFC 8477](#rfc8477) "IoT Semantic Interoperability Workshop 2016" describes a lack of consistency across
+[RFC 8477](#rfc8477), "IoT Semantic Interoperability Workshop 2016", describes a lack of consistency across
 Standards Developing Organizations in defining application layer data, attributing it to the lack of an
 encoding-independent standardization of the information represented by that data.
-
 This document defines an information modeling language intended to address that gap. JADN is a
-[formal description technique](#fdt) that combines type constraints defined by the Unified Modeling Language
-[UML](#uml) with data abstraction based on information theory and structural characterization from graph theory.
+[formal description technique](#fdt) that combines type constraints from the Unified Modeling Language
+[UML](#uml) with information theory based data abstraction and graph theory based structural organization.
 
-UML defines "Simple Classifiers" including DataTypes, and "Structured Classifiers" including Classes, Components,
-Associations and Collaborations. The defining characteristic of DataTypes is that instances are distinguished
-only by their value, whereas Class instances have behavior, inheritance, roles, and other complex characteristics.
-UML class models and diagrams are commonly referred to as "Data Models", but they model the world as Classes
-rather than as Data. One significant distinction is that class models are undirected graphs with many kinds of
-relationship, while information models are directed graphs with only two kinds of relationship:
-"contains" and "references".
+UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
+Associations and Collaborations. The defining characteristic of a DataType is that instances are distinguished
+only by their value, whereas Class instances also have behavior, inheritance, roles, and other complex characteristics.
+UML class models and diagrams are commonly referred to as "Data Models", but they model the world as classes
+rather than as data. A significant distinction is that class models are undirected graphs representing an
+unlimited variety of semantic relationships, while information models are directed graphs with only two
+relationship types: "contains" and "references".
+Converting a Class model to an Information model is largely a matter of assigning the type and direction of
+each relationship.
 
-JADN uses UML DataTypes to define information, allowing it to characterize a type's
-information content, define multiple data models that represent the same information, and support
-lossless round-trip conversion of instances to multiple data formats.
+Industry has multiple, often conflicting definitions of data modeling terms, including the term
+"Information Engineering" itself, which at one time referred to [data modeling](#datamod) but is now more
+closely aligned with information theory and machine learning [IE](#ie).
+Ackoff's Knowlege Hierarchy as described in [DIEK](#diek) refers to data as symbols that are properties
+of observables and to information as descriptions inferred from data.
 
-Note on terminology: Industry has multiple, often conflicting definitions of data modeling terms,
-including "Information Engineering" itself, which at one time referred to data modeling
-[DATAMOD] (top line in Figure 1), but now is more closely aligned with information theory
-and machine learning [INFOENG]. There is also Russell Ackoff's Knowlege Hierarchy and variants thereof,
-as in [DIKW] (bottom line in Figure 1), where data refers to "symbols that are properties of observables".
-JADN (middle line in Figure 1) provides a link between the old and new meanings of Information Engineering,
-being a formal definition of information that lies between conceptual data models and physical data symbols.
+JADN aligns with the newer meaning of Information Engineering and formalizes the relationship between
+information and data, providing a standardized technology-agnostic "physical" information layer
+between a logical data model and multiple technology-specific physical data models.
 
 ```code
+                          Classes
               +------------+   +------------+                   +------------+
 Data          | Conceptual |   |  Logical   |                   |  Physical  |
 Modeling:     | Data Model |   | Data Model |                   | Data Model |
               +------------+   +------------+                   +------------+
 
-JADN          +------------+   +------------+   +-------------+   +---------+
-Information   | Conceptual |   |  Logical   |   | Information |   |  Data   |
-Modeling:     |   Model    |   |   Model    |   |    Model    |   |  Model  |
-              +------------+   +------------+   +-------------+   +---------+
+DIKW Pyramid:             Knowledge               Information        Data
 
-DIKW Pyramid:              Knowledge               Information        Data
+JADN          +------------+   +------------+   +-------------+   +---------+
+Information   | Conceptual |   |  Logical   |   | Information |   |   Data  |-+
+Modeling:     |   Model    |   |   Model    |   |    Model    |   |  Models | |
+              +------------+   +------------+   +-------------+   +---------+ |
+                                                                    +---------+
 ```
 **Figure 1**: Information Engineering Terminology
 
@@ -159,12 +160,13 @@ N/A
 
 ### 1.2.1 Definitions of terms
 * **Information**:
-    A measure of the entropy (resolution of uncertainty) in a message. Information is the essential
-    meaning of a message, as opposed to insignificant data that can be added, modified, or deleted without
-    affecting meaning. 
+    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed to
+    represent the essential meaning of a message, excluding data that is known a-priori and insignificant data
+    that does not affect meaning.
 
 * **Information Model**:
-    An abstract schema that defines the structure and value constraints of information used within and across applications.
+    An abstract schema that defines the structure and value constraints of information used within and across
+    applications.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
@@ -269,7 +271,7 @@ to data models for name-value or friendly XML or JSON:
 # 2 Information vs. Data
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
-is represented when communicating.  More formally, information is the unexpected data, or "entropy",
+is represented when communicating.  More formally, information is the unexpected data, or entropy,
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known
 a priori. If the serialization is non-canonical, any additional entropy introduced during serialization
@@ -297,25 +299,33 @@ outside the scope of this specification.*
 
 ## 2.1 Graph Modeling
 
-A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) in the form of a graph.
-The graph elements of a node (TypeName, FieldId, FieldName, FieldType) define relationships between nodes.
+A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) where
+each type has a TypeName, and each field within a structured type has a FieldType that is a predefined
+or model-defined type.  The latter represents a directed relationship from the defining type to the referenced type.
+The relationship is "contains" by default, but if the boolean "link" FieldOption is true the
+relationship is "references".
 
-* A graph is a collection of nodes and relationships between nodes (edges).
-* An undirected graph has symmetric edges; the edges in a directed graph have an orientation.
-* A tree is a connected acyclic undirected graph, an undirected graph where any pair of nodes is connected by exactly
-one path.
-* A directed (or rooted) tree is a hierarchy. A directed tree is constructed from a tree by selecting one node as
-root and assigning all edge directions either toward or away from the root. Every rooted tree has an underlying
-undirected tree.
+The contain edges of an information model must form a directed acyclic graph in order to ensure that:
+1) every model has one or more roots,
+2) every path from a root to any leaf has finite length, and (equivalently)
+3) every instance has finite nesting depth.
+
+There is no restriction on reference edges, so if a model has contain cycles, they may be broken by converting
+one or more edges to references.
+
+A few results from graph theory are useful for determining equivalence of data models:
+* A tree is a connected acyclic undirected graph, where any pair of nodes is connected by exactly one path.
+* A directed (or rooted) tree is a hierarchy. A directed tree is constructed from an (undirected) tree by
+  selecting one node as root and assigning all edge directions either toward or away from the root.
 * A directed acyclic graph (DAG) is a directed graph with no directed cycles, or equivalently a directed graph with
-a topological ordering, a sequence of nodes such that every edge is directed from earlier to later in the sequence.
+  a topological ordering, a sequence of nodes such that every edge is directed from earlier to later in the sequence.
+* A DAG differs from a directed tree in that nodes may have more than one parent.
 
-Every JADN information model MUST be a collection of one or more DAGs. This ensures that all serialized data has
-finite and known nesting depth. A DAG can be refactored into another DAG having the same underlying undirected
-graph but with a different root, and the underlying graphs of two DAGs can be compared for equality. This graph-based
-equivalence expands the range of data models that can be derived from a single information model.
+A DAG can be refactored into another DAG having the same underlying undirected graph but with a different root,
+and the underlying graphs of two DAGs can be compared for equality. This equivalence expands the
+range of data models that can be derived from a single information model.
 
-A DAG differs from a directed tree in that a node may have more than one parent. A DAG can be converted to a directed
+A DAG can be converted to a directed
 tree by denormalizing (copying subtrees below multi-parent nodes), and a directed tree can be converted to a DAG by
 normalizing (combining identical subtrees).
 Reuse of common types is an important goal in both design of information models and analysis of data, and JADN's
@@ -389,20 +399,19 @@ allowing developers to use either approach.
 -------
 
 # 3 JADN Types
-JADN core types are defined in terms of the characteristics they provide to applications.
+JADN predefined types are defined in terms of the characteristics they provide to applications.
 A programming mechanism (variable type, object class, etc.) is conforming if it exhibits the required behavior.
 A data format is usable if it carries the information needed to support the required behavior.
 
-###### Table 3-1. JADN Types
+###### Table 3-1. JADN Predefined Types
 
-|    JADN Type     |       Definition                                                |
+|      Type        |       Definition                                                |
 | :--------------  | :-------------------------------------------------------------- |
 |  **Primitive**   |                                                                 |
 | Binary           | A sequence of octets.  Length is the number of octets.          |
 | Boolean          | An element with one of two values: true or false.               |
 | Integer          | A positive or negative whole number.                            |
 | Number           | A real number.                                                  |
-| Null             | An unspecified or non-existent value, distinguishable from other values such as zero-length String or empty Array. |
 | String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
 | **Enumeration**  |                                                                 |
 | Enumerated       | A vocabulary of items where each item has an id and a string value |
@@ -440,61 +449,60 @@ for example, an array of maps or a map of arrays.
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
-Every definition has five elements: 
 
-1. **TypeName:** the name of the type being defined
-2. **BaseType:** the JADN type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
-3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to the type being defined
-4. **TypeDescription:** a non-normative comment
-5. **Fields:** an array of item or field definitions
+| **TypeName** | **BaseType** | **TypeOptions** | **TypeDescription** |      |
+| -----------: | -----------: | --------------: | ------------------: | :--- |
+| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
+| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
+| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
 
-* TypeName MUST NOT be a JADN type.
-* BaseType MUST be a JADN type.
-* If BaseType is a Primitive type, ArrayOf, or MapOf, the Fields element MUST be empty:
-```
-        [TypeName, BaseType, [TypeOption, ...], TypeDescription, []]
-```
+* Every definition has five elements:
+    1. **TypeName:** the name of the type being defined
+    2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
+    3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to the type being defined
+    4. **TypeDescription:** a non-normative comment
+    5. **Fields:** an array of **Item** or **Field** definitions
+
+
+* If BaseType is a Primitive type, ArrayOf, or MapOf, the Fields array MUST be empty:
+
 
 * If BaseType is Enumerated, each item definition MUST have three elements:
 
     1. **ItemID:** the integer identifier of the item
     2. **ItemValue:** the string value of the item
     3. **ItemDescription:** a non-normative comment
-```
-        [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-            [ItemID, ItemValue, ItemDescription],
-            ...
-        ]]
-```
-* If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
 
+
+* If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
     1. **FieldID:** the integer identifier of the field
     2. **FieldName:** the name or label of the field
     3. **FieldType:** the type of the field, TypeName with optional Namespace ID prefix **NSID:TypeName**
     4. **FieldOptions:** an array of zero or more **FieldOption** ([Section 3.2.2](#322-field-options)) or **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to the field
     5. **FieldDescription:** a non-normative comment
+
+
+The JSON serialization of each JADN type definition reflects the structure shown above:
 ```
         [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
             [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
             ...
         ]]
 ```
+
+### 3.1.1 Requirements
+* TypeName MUST NOT be a JADN predefined type  
+* BaseType MUST be a JADN predefined type
 * FieldID and FieldName values MUST be unique within a type definition.
 * If BaseType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
 * If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a Defined type.
-* If FieldType is not a JADN Type, FieldOptions MUST NOT contain any TypeOption.
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
+* If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
 * ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 The [Derived Enumerations](#333-derived-enumerations) and [Pointers](#335-pointers) TypeOptions are extensions
 that supply field definitions and require Fields to be empty.
-
-This structure allows each type definition to be treated as a graph node with minimal JADN-specific
-knowledge.  Node name (TypeName), edge names (FieldID/FieldName), and edge endpoints (FieldType) are
-found at fixed positions. Other positions can be ignored when reading and filled with empty values
-when creating a node. Data such as multiplicity and link options can be used enrich a graph if
-recognized by the application.
 
 ### 3.1.1 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
@@ -1547,7 +1555,7 @@ Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.o
 Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
 ###### [DATAMOD]
 InfoAdvisors, *"What are Conceptual, Logical, and Physical Data Models?"*, https://www.datamodel.com/index.php/articles/what-are-conceptual-logical-and-physical-data-models
-###### [DIKW]
+###### [DIEK]
 Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
