@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 20 April 2021
+## 30 April 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
@@ -41,8 +41,8 @@ This prose specification is one component of a Work Product that also includes:
 
 #### Abstract:
 JSON Abstract Data Notation (JADN) is a UML-based information modeling language that defines data structure
-independently of data format. JADN information models are used to validate information
-instances, enable lossless translation across data formats, and generate concrete schemas.
+independently of data format. Information models are used to define and generate physical data models,
+validate information instances, and enable lossless translation across data formats.
 A JADN specification consists of two parts: type definitions that comprise the information model,
 and serialization rules that define how information instances are represented as data.
 The information model is itself an information instance that can be serialized and transferred between applications.
@@ -81,7 +81,7 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 20 April 2021.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 30 April 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
@@ -113,42 +113,42 @@ Standards Developing Organizations in defining application layer data, attributi
 encoding-independent standardization of the information represented by that data.
 This document defines an information modeling language intended to address that gap. JADN is a
 [formal description technique](#fdt) that combines type constraints from the Unified Modeling Language
-[UML](#uml) with information theory based data abstraction and graph theory based structural organization.
+[UML](#uml) with data abstraction based on information theory and structural organization using results
+from graph theory.
+
+Industry has multiple, often conflicting definitions of data modeling terms, including the term
+"[Information Engineering](#ie)", which at one time referred to [data modeling](#datamod) but is
+now more closely aligned with information theory and machine learning.
+Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
+and informally calls information "descriptions inferred from data".
+JADN formalizes the relationship between information and data, creating a standardized
+technology-agnostic information model that lies between the traditional logical data model
+and multiple technology-specific physical data models.
 
 UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
 Associations and Collaborations. The defining characteristic of a DataType is that instances are distinguished
 only by their value, whereas Class instances also have behavior, inheritance, roles, and other complex characteristics.
-UML class models and diagrams are commonly referred to as "Data Models", but they model the world as classes
-rather than as data. A significant distinction is that class models are undirected graphs representing an
-unlimited variety of semantic relationships, while information models are directed graphs with only two
-relationship types: "contains" and "references".
-Converting a Class model to an Information model is largely a matter of assigning the type and direction of
-each relationship.
-
-Industry has multiple, often conflicting definitions of data modeling terms, including the term
-"Information Engineering" itself, which at one time referred to [data modeling](#datamod) but is now more
-closely aligned with information theory and machine learning [IE](#ie).
-Ackoff's Knowlege Hierarchy as described in [DIEK](#diek) refers to data as symbols that are properties
-of observables and to information as descriptions inferred from data.
-
-JADN aligns with the newer meaning of Information Engineering and formalizes the relationship between
-information and data, providing a standardized technology-agnostic "physical" information layer
-between a logical data model and multiple technology-specific physical data models.
-
+UML class models and diagrams are commonly referred to as "Data Models", but they model "the real world" using
+classes while information models model data itself using datatypes. A practical distinction is that class models
+are undirected graphs representing an unlimited variety of semantic relationships, while information models
+are directed graphs with only two kinds of relationship: "contains" and "references".
+Converting a class model to an information model is largely a matter of assigning the type and direction of
+each relationship and establishing identifiers for all referenceable types.
 ```code
-                          Classes
-              +------------+   +------------+                   +------------+
-Data          | Conceptual |   |  Logical   |                   |  Physical  |
-Modeling:     | Data Model |   | Data Model |                   | Data Model |
-              +------------+   +------------+                   +------------+
+DIKW Pyramid:            Knowledge               Information          Data
 
-DIKW Pyramid:             Knowledge               Information        Data
+UML:                      Classes                 DataTypes
 
-JADN          +------------+   +------------+   +-------------+   +---------+
-Information   | Conceptual |   |  Logical   |   | Information |   |   Data  |-+
-Modeling:     |   Model    |   |   Model    |   |    Model    |   |  Models | |
-              +------------+   +------------+   +-------------+   +---------+ |
-                                                                    +---------+
+              +------------+   +------------+                     +------------+
+Data          | Conceptual |   |  Logical   |                     |  Physical  |
+Modeling:     | Data Model |   | Data Model |                     | Data Model |
+              +------------+   +------------+                     +------------+
+
+              +------------+   +------------+   +-------------+   +-------------+
+Information   | Conceptual |   |  Logical   |   | Information |   |   Physical  |-+
+Modeling:     |   Model    |   |   Model    |   |    Model    |   | Data Models | |
+              +------------+   +------------+   +-------------+   +-------------+ |
+                                                                    +-------------+
 ```
 **Figure 1**: Information Engineering Terminology
 
@@ -160,13 +160,13 @@ N/A
 
 ### 1.2.1 Definitions of terms
 * **Information**:
-    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed to
-    represent the essential meaning of a message, excluding data that is known a-priori and insignificant data
-    that does not affect meaning.
+    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed
+    to represent the essential meaning of a message, excluding data that is known a-priori and data that does
+    not affect meaning.
 
 * **Information Model**:
     An abstract schema that defines the structure and value constraints of information used within and across
-    applications.
+    applications, irrespective of data format.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
@@ -179,8 +179,8 @@ N/A
     relationships between types.
 
 * **Package**:
-    A namespace for the set of types it contains. A type references a type defined in another package using
-    its namespace.
+    A container that defines a namespace for the set of types it contains. A type references types from another
+    package using its namespace.
 
 * **Document**:
     A series of octets described by a data format applied to an information model, or equivalently, by a data model.
@@ -231,41 +231,21 @@ N/A
 - Font colors and styles
 - Typographic conventions
 
-<!-- ## 1.3 Background
+<!--
+## 1.3 Background
 *Clean up, move into Introduction*
 As with any FDT this approach is intended to be formal, descriptive, and technically useful.
 Tools with no specific JADN knowledge are able to treat an information model as a generic graph,
 allowing reuse of existing design processes and tooling for software objects, interfaces, services and
 systems.
 
-**Graph theory** - a JADN information model is a graph that defines pairwise relations between nodes.
-Each node has a name that is unique across the model. Each edge has a name that is unique within the node
-that defines it. Any graph with these properties can be either a view of or a structural template for
-a JADN information model.
+**Graph theory** - 
 
 **Information theory** - each node defines a DataType ([UML](#uml) Section 10.2) in terms of the characteristics
 it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
 and JADN DataTypes define the information conveyed by an instance separately from the data used to serialize it.
 Separating significant information from insignificant data allows a single information model to define
 data models ranging from nearly pure-information specifications such as RFC 791 to highly-verbose XML.
-
-JADN defines three equivalence relationships between information and data:
-1. Serialization of primitives such as dates and IP addresses by binary value or text representation (formats)
-2. Serialization of enumerated strings by tag or value (vocabularies and field IDs)
-3. Serialization of table rows by column name or position (records)
-
-The [W3C Data Workshop](#transform) used the terms "Friendly" for XML and JSON encodings that associate
-data types directly with variables and "UnFriendly" for encodings that use repeated variable names
-in name-value pairs. JADN serialization rules can define multiple data formats (name-value, friendly, or
-machine-optimized) within one media-type, making it possible to transform data between data formats as well
-as media-types. This is particularly useful for defining CBOR data models that are both concise and equivalent
-to data models for name-value or friendly XML or JSON:
-
-| Data Format:   | JSON     | Compact JSON | Machine JSON |
-| -------------- | -------- | ------------ | ------------ |
-| 1. Primitives  | Text Rep | Text Rep     | Base64       |
-| 2. Strings     | Value    | Value        | Tag          |
-| 3. Table Rows  | Col Name | Position     | Position     |
 -->
 
 # 2 Information vs. Data
@@ -288,16 +268,23 @@ a 32 bit value*.  But different data may be used to represent that information:
 * IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
 
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
-but provide no information to the receiving application. Directly converting display-oriented JSON data to
-CBOR format does not achieve the conciseness for which CBOR was designed. Instead, information modeling
-is key to effectively using both binary data formats such as Protobuf and CBOR and text formats
-such as XML and JSON.
+but provide no information to the receiving application.  Field names and enumerated strings selected
+from a dozen possibliities contain less than four *bits* of information, while the strings themselves
+may be half a dozen to hundreds of *bytes* of data.
+Directly converting display-oriented JSON data to CBOR format does not achieve the conciseness
+for which CBOR was designed. Instead, information modeling is key to effectively using both
+binary data formats such as Protobuf and CBOR and text formats such as XML and JSON.
 
 \* *Note: all references to information assume independent uniformly-distributed values.
-Non-uniform or correlated data has less than one byte of entropy per data byte, but source coding is
-outside the scope of this specification.*
+Non-uniform or correlated data contains less than one byte of information per data byte,
+but source coding is beyond the scope of this specification.*
 
 ## 2.1 Graph Modeling
+
+A JADN information model is a graph that defines pairwise relations between nodes.
+Each node has a name that is unique across the model. Each edge has a name that is unique within the node
+that defines it. Any graph with these properties can be either a view of or a structural template for
+a JADN information model.
 
 A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) where
 each type has a TypeName, and each field within a structured type has a FieldType that is a predefined
@@ -335,22 +322,53 @@ Converting an information model into a directed tree supports applications such 
 otherwise difficult to implement, tree-structured content statistics, content transformations, and documentation.
 
 ## 2.2 Information Modeling
-
-JADN type definitions are based on the [CBOR](#rfc7049) data model but with an information-centric focus.   The
-information elements of a node (BaseType, TypeOptions, FieldOptions) define the constraints that must be satisfied
-for an instance to be considered valid. Constraints define the upper bound on the information in an instance.
+Data modeling in the conceptual/logical/physical sense is a top-down process starting with goals and ending
+with a physical data model. But in practice "data modeling" is often a bottom-up process that begins with
+a collection of desired data instances and ends with a concrete schema.
+That process could be called data-centric design, in contrast with information-centric design which
+begins with a set of types that reflect purpose rather than syntax.  Because an information model is a graph,
+information-centric design integrates easily with logical and conceptual models, enabling bottom-up and top-down
+approaches to meet in the middle.
 
 | Data-centric | Information-centric |
 | --- | --- |
 | A data definition language defines a specific data storage and exchange format. | An information modeling language expresses application needs in terms of desired effects. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
-| JSON Schema defines integer as a value constraint on the JSON number type: "integer matches any number with a zero fractional part". | Distinct Integer and Number core types exist regardless of data representation. |
-| CDDL says: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | Core structured types are based on five distinct composition styles.  Each type can be represented in multiple data formats. |
-| No table composition style is defined. | Tables are a fundamental way of organizing information. The Record core type contains tabular information that can be represented as either arrays or maps in multiple data formats. |
-| Instance equality is defined at the data level. | Instance equality is defined in ways meaningful to applications. For example "Optional" and "Nullable" are different at the data level but applications make no logical distinction between "not present" and "null value". |
+| JSON Schema defines integer as a value constraint on the JSON number type. | Distinct Integer and Number types reflect mathematical properties regardless of data representation. |
+| CDDL types: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | The five structured types are defined unambiguously in terms of composition characteristics.  Each type can be represented in multiple data formats. |
+| No table composition style exists. | Tables are a fundamental way of organizing information. The Record type holds tabular information that can be represented as either arrays or maps in multiple data formats. |
+| Instance equality is defined at the data level. | Instance equality is defined in ways meaningful to applications. For example "Optional" and "Nullable" are different at the data level but applications make no logical distinction between "not present" and "present with null value". Record data values in array and map formats are different at the data level but their information instances can be compared for equality. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
 
-## 2.3 Example Definitions
+Information-centric design promotes consensus when faced with conflicting developer preferences.
+Because information is the "substance" of a message, separating substance (information) from style (data format)
+may make it easier to agree on an information model first, deferring debate on data formats.
+JADN defines three kinds of information that have alternate representations:
+1. Primitive types such as dates and IP addresses: text representation or numeric value (formats)
+2. Enumerations: string value or numeric id (Enumerated vocabularies and field identifiers)
+3. Table rows: column name or position (Records)
+
+These alternatives can be grouped to form named serialization styles:
+
+| Style:       | Verbose<br>repeated name-value pairs | Compact<br>element / property names-values | Concise<br>machine-to-machine optimized |
+| ------------ | ------------------- | ------------------- | ------------------------- |
+| Primitives   | Text Representation | Text Representation | Integer / Binary / Base64 |
+| Enumerations | String              | String              | Integer                   |
+| Table Rows   | Column Name         | Column Position     | Column Position           |
+
+Each serialization style is applied to a data language to form the data format: "Compact JSON",
+"Concise JSON", "Compact XML", "Verbose CBOR", etc.  [JSON and XML Transformations](#transform) uses the terms
+"Friendly" for XML and JSON encodings that associate data types directly with variables and "Unfriendly"
+for encodings that use repeated variable names in name-value pairs. JADN uses Compact and Verbose respectively
+to refer to those styles. (The name "Verbose" is intended to be descriptive rather than judgemental;
+it is in any case less pejorative than "Unfriendly".)
+
+An information model allows data to be validated and successfully round-tripped between the typical verbose
+JSON style and CBOR data that actually reflects the "Concise" in its name. Information models can
+be reverse-engineered from existing XML and CBOR data models, allowing incompatibilities to be identified
+and harmonized, enabling successful data translation.
+
+## 2.3 Information Definitions
 
 Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
 ```
@@ -361,15 +379,24 @@ message Person {
 }
 ```
 The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to
-Protobuf, Thrift, ASN.1 and other data definition languages that use named type definitions:
+Protobuf:
 ```
 Person = Record
-   1 name         String
-   2 id           Integer
-   3 email        String optional
+   1 name     String
+   2 id       Integer
+   3 email    String optional
 ```
-JADN is formally defined in [Section 3](#3-jadn-types) as structured data expressed in JSON format.
-JSON is unambiguous and enjoys broad support across programming languages and platforms.
+Property tables (also [Section 5](#5-definition-formats)) include the same content:
+
+**_Type: Person (Record)_**
+
+| ID | Name | Type | # | Description |
+| ---: | :--- | :--- | ---: | :--- |
+| 1 | **name** | String | 1 |  |
+| 2 | **id** | Integer | 1 |  |
+| 3 | **email** | String | 0..1 |  |
+
+The normative form of a JADN type definition ([Section 3](#3-jadn-types)) is JSON data:
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
@@ -377,10 +404,7 @@ JSON is unambiguous and enjoys broad support across programming languages and pl
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-IDL is preferred for use in documentation, but conformance is based on the formal language, and
-specifications in other formats are validated by converting them to native format.
-This "data-first" approach allows documentation styles to be adjusted if necessary without affecting the
-JADN language.
+IDL or property tables are preferred for use in documentation, but conformance is based on the normative JSON form.
 
 ## 2.4 Implementation
 
@@ -746,8 +770,8 @@ FieldOption = Choice
 MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
 
 #### 3.2.2.1 Multiplicity
-Multiplicity, as used in the Unified Modeling Language ([UML Section 7.5.4](#uml)), is a range of allowed cardinalities.
-The *minc* and *maxc* options specify the minimum and maximum cardinality (number of elements) in a field
+Cardinality is the number of elements in a group, and multiplicity is the range of allowed cardinalities
+for that group. The *minc* and *maxc* options specify the minimum and maximum cardinality in a field
 of an Array, Choice, Map, or Record type:
 
 | minc | maxc | Multiplicity | Description | Keywords |
@@ -756,7 +780,7 @@ of an Array, Choice, Map, or Record type:
 |    1 |    1 |    1 | Exactly one instance | required |
 |    0 |    0 | 0..* | Zero or more instances | optional, repeated |
 |    1 |    0 | 1..* | At least one instance | required, repeated |
-|    m |    n | m..n | At least m but no more than n instances | required, repeated if m > 1 |
+|    m |    n | m..n | At least m but no more than n instances | required, repeated |
 
 * if *minc* is not present, it defaults to 1.
 * if *maxc* is not present, it defaults to the greater of 1 or *minc*.
@@ -764,10 +788,8 @@ of an Array, Choice, Map, or Record type:
 * if *maxc* is less than *minc*, the field definition MUST be considered invalid.
 
 If minc is 0, the field is optional, otherwise it is required.  
-If maxc is 1 the field is a single element, otherwise it is an array of elements.  
-
-Multiplicities of optional (0..1) and required (1..1) are part of the JADN core. A field definition with minc other
-than 0 or 1, or maxc other than 1, is an extension described in [Section 3.3.2](#332-field-multiplicity).
+If maxc is 1 the field is a single element, otherwise it is an array of elements
+as described in [Section 3.3.2](#332-field-multiplicity).  
 
 Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly
 one must be present. Values greater than 1 specify an array of elements.
@@ -775,7 +797,7 @@ one must be present. Values greater than 1 specify an array of elements.
 #### 3.2.2.2 Discriminated Union with Explicit Tag
 The Choice type represents a [Discriminated Union](#union), a data structure that could take on several different, but fixed, types.
 By default a Choice is a Map with exactly one key-value pair, where the key determines the value type.
-But if a "tag field" (*tagid*) option is present on a Choice field in an Array or Record container,
+But if the *tagid* option is present on a Choice field in an Array or Record container,
 it indicates that a separate Tag field within that container determines the value type.
 
 * The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
@@ -846,7 +868,7 @@ Hashes Example:
 
 A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
 results in "UnFriendly" encodings with repeated tag and value keys. Yet because some specifications are
-written in this style, the "TagId" option exists to designate an explicit tag field to be used to specify
+written in this style, the *tagid* option exists to designate an explicit field to be used to specify
 the value type.
 
 ```
