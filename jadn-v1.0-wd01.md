@@ -1,7 +1,7 @@
 ![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v3.0.png)
 -------
 
-# Specification for JSON Abstract Data Notation Version 1.0
+# Specification for JSON Abstract Data Notation (JADN) Version 1.0
 
 ## Committee Specification Draft 01
 
@@ -198,10 +198,11 @@ N/A
 
 * **Instance**:
     An instance, or API value, is an item of information that satisfies the structure and value constraints
-    defined by a type.  Types are defined by an information modeling language; JADN types are:
+    defined by a type.  Types are defined by an information modeling language; JADN built-in types are:
     * **Primitive:** Boolean, Binary, Integer, Number, String
     * **Enumeration:** Enumerated
-    * **Structured:** Array, ArrayOf, Choice, Map, MapOf, Record.
+    * **Specialization:*** Choice
+    * **Structured:** Array, ArrayOf, Map, MapOf, Record
 
 * **Instance Equality**:
     Two instances are equal if and only if they are of the same type and have the same information value.
@@ -326,9 +327,9 @@ Data modeling in the conceptual/logical/physical sense is a top-down process sta
 with a physical data model. But in practice "data modeling" is often a bottom-up process that begins with
 a collection of desired data instances and ends with a concrete schema.
 That process could be called data-centric design, in contrast with information-centric design which
-begins with a set of types that reflect purpose rather than syntax.  Because an information model is a graph,
-information-centric design integrates easily with logical and conceptual models, enabling bottom-up and top-down
-approaches to meet in the middle.
+begins with a set of types that reflect purpose rather than syntax.
+Because an information model is a graph, information-centric design integrates easily with
+logical and conceptual models, enabling bottom-up and top-down approaches to meet in the middle.
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -348,7 +349,7 @@ JADN defines three kinds of information that have alternate representations:
 2. Enumerations: string value or numeric id (Enumerated vocabularies and field identifiers)
 3. Table rows: column name or position (Records)
 
-These alternatives can be grouped to form named serialization styles:
+These alternatives can be grouped into distinct serialization styles:
 
 | Style:       | Verbose<br>repeated name-value pairs | Compact<br>element / property names-values | Concise<br>machine-to-machine optimized |
 | ------------ | ------------------- | ------------------- | ------------------------- |
@@ -356,17 +357,18 @@ These alternatives can be grouped to form named serialization styles:
 | Enumerations | String              | String              | Integer                   |
 | Table Rows   | Column Name         | Column Position     | Column Position           |
 
-Each serialization style is applied to a data language to form the data format: "Compact JSON",
+A data format is a serialization style applied to a data language: "Compact JSON",
 "Concise JSON", "Compact XML", "Verbose CBOR", etc.  [JSON and XML Transformations](#transform) uses the terms
 "Friendly" for XML and JSON encodings that associate data types directly with variables and "Unfriendly"
 for encodings that use repeated variable names in name-value pairs. JADN uses Compact and Verbose respectively
-to refer to those styles. (The name "Verbose" is intended to be descriptive rather than judgemental;
-it is in any case less pejorative than "Unfriendly".)
+to refer to those styles. The name "Verbose" is intended to be descriptive rather than judgemental;
+it is in any case less pejorative than "Unfriendly".
+An information model allows designers to compare Verbose and Compact styles for readability, and allows
+data to be validated and successfully round-tripped between a readable JSON style and Concise-style
+CBOR data that lives up to its name.
 
-An information model allows data to be validated and successfully round-tripped between the typical verbose
-JSON style and CBOR data that actually reflects the "Concise" in its name. Information models can
-be reverse-engineered from existing XML and CBOR data models, allowing incompatibilities to be identified
-and harmonized, enabling successful data translation.
+Information models can be reverse-engineered from existing data models, allowing commonalities and incompatibilities
+to be identified to facilitate convergence.
 
 ## 2.3 Information Definitions
 
@@ -423,29 +425,29 @@ allowing developers to use either approach.
 -------
 
 # 3 JADN Types
-JADN predefined types are defined in terms of the characteristics they provide to applications.
-A programming mechanism (variable type, object class, etc.) is conforming if it exhibits the required behavior.
-A data format is usable if it carries the information needed to support the required behavior.
+An information modeling language's types are defined in terms of the characteristics they provide to applications.
+JADN's base types are:
 
-###### Table 3-1. JADN Predefined Types
+###### Table 3-1. JADN Base Types
 
-|      Type        |       Definition                                                |
-| :--------------  | :-------------------------------------------------------------- |
-|  **Primitive**   |                                                                 |
-| Binary           | A sequence of octets.  Length is the number of octets.          |
-| Boolean          | An element with one of two values: true or false.               |
-| Integer          | A positive or negative whole number.                            |
-| Number           | A real number.                                                  |
-| String           | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
-| **Enumeration**  |                                                                 |
-| Enumerated       | A vocabulary of items where each item has an id and a string value |
+|      Type          |       Definition                                                |
+| :----------------- | :-------------------------------------------------------------- |
+|  **Primitive**     |                                                                 |
+| Binary             | A sequence of octets.  Length is the number of octets.          |
+| Boolean            | An element with one of two values: true or false.               |
+| Integer            | A positive or negative whole number.                            |
+| Number             | A real number.                                                  |
+| String             | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters. |
+| **Enumeration**    |                                                                 |
+| Enumerated         | A vocabulary of items where each item has an id and a string value |
+| **Specialization** |                                                                 |
+| Choice             | A [discriminated union](#union): one type selected from a set of named or labeled types. |
 | **Structured**     |                                                               |
-| Array            | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
-| ArrayOf(*vtype*) | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
-| Choice           | A [discriminated union](#union): one type selected from a set of named or labeled types. |
-| Map              | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
+| Array              | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
+| ArrayOf(*vtype*)   | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
+| Map                | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
-| Record          | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
+| Record             | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
 
 * An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
@@ -523,10 +525,10 @@ The JSON serialization of each JADN type definition reflects the structure shown
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
 * If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
 * ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
+* If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
+in type options, the Fields array MUST be empty.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
-The [Derived Enumerations](#333-derived-enumerations) and [Pointers](#335-pointers) TypeOptions are extensions
-that supply field definitions and require Fields to be empty.
 
 ### 3.1.1 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
@@ -597,19 +599,19 @@ description values at any point during processing.
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
 structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options
-without modifying that structure.
+without modifying that structure. Type and Field options are classifiers that, along with the base type,
+determine whether data values are instances of the defined type.
 
 Each option is a text string that may be included in TypeOptions or FieldOptions, encoded as follows:
 * The first character is the option ID. Its Unicode codepoint is the numeric value (FieldID) shown in
 [Section 3.2.1](#321-type-options) and [Section 3.2.2](#322-field-options).
 * The remaining characters are the option value. Boolean options have no additional characters;
-if the option ID is present it's value is True, otherwise it's value is False.
+if the option ID is present the value of that option is True.
 
 ### 3.2.1 Type Options
-Type options apply to the type definition as a whole. Structural options are intrinsic elements of the types
-defined in ([Table 3-1](#table-3-1-jadn-types)). Validation options are optional; if present they constrain
-which data values are instances of the defined type.
-
+Type options apply to the type definition as a whole. The *id*, *vtype*, *ktype*, *enum*, and *pointer* options
+are intrinsic components of the types to which they apply. 
+Other options specify value constraints on the type.
 ```
 TypeOption = Choice
    61 id        Boolean    // '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
@@ -626,7 +628,7 @@ TypeOption = Choice
   113 unique    Boolean    // 'q' ArrayOf instance must not contain duplicate values (Section 3.2.1.8)
   115 set       Boolean    // 's' ArrayOf instance is unordered and unique (Section 3.2.1.9)
    98 unordered Boolean    // 'b' ArrayOf instance is unordered (Section 3.2.1.10)
-   88 extend    Boolean    // 'X' Type has an extension point where fields may be added (Section 3.2.1.11)
+   88 extend    Boolean    // 'X' Type is extensiple; new Items or Fields may be appended (Section 3.2.1.11)
    33 default   String     // '!' Default value (Section 3.2.1.12)
 ```
 
@@ -643,7 +645,6 @@ TypeOption = Choice
 | Boolean | |
 | Integer | minv, maxv, format |
 | Number | minf, maxf, format |
-| Null | |
 | String | minv, maxv, format, pattern |
 | Enumerated | id, enum, pointer, extend |
 | Choice | id, extend |
