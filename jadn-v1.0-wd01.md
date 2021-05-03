@@ -1674,7 +1674,7 @@ The following individuals have participated in the creation of this specificatio
 # Appendix D. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | 2021-04-20 | David Kemp | Initial working draft |
+| jadn-v1.0-wd01 | 2021-04-30 | David Kemp | Initial working draft |
 
 -------
 
