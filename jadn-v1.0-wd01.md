@@ -201,7 +201,7 @@ N/A
     defined by a type.  Types are defined by an information modeling language; JADN built-in types are:
     * **Primitive:** Boolean, Binary, Integer, Number, String
     * **Enumeration:** Enumerated
-    * **Specialization:*** Choice
+    * **Specialization:** Choice
     * **Structured:** Array, ArrayOf, Map, MapOf, Record
 
 * **Instance Equality**:
@@ -370,7 +370,7 @@ CBOR data that lives up to its name.
 Information models can be reverse-engineered from existing data models, allowing commonalities and incompatibilities
 to be identified to facilitate convergence.
 
-## 2.3 Information Definitions
+## 2.3 Information Definition Formats
 
 Google Protocol Buffers ([Protobuf](#proto)) is a typical data definition language. A Protobuf definition looks like:
 ```
@@ -458,20 +458,21 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include Null values after the last non-Null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing Nulls MUST compare as equal.
 
-[UML](#uml) Section 7.5 "Types and Multiplicity" defines two properties, isUnique and isOrdered, that constrain
-the kind and number of values contained in a collection.  The JADN types that hold homogeneous (single-type) and
-heterogeneous (defined-type) collections with these properties are:
+UML defines collection properties "isOrdered" and "isUnique".
+As described in Table 3-1, JADN structured types are based on these properties and also distinguish between
+homogeneous (ArrayOf, MapOf) and heterogeneous (Array, Map, Record) collections.  For the ArrayOf type JADN
+uses the "set", "unique" and "unordered" options ([Section 3.2.1](#321-type-options)) to express these
+properties, in lieu of defining additional built-in types "SetOf", "OrderedSetOf" and "BagOf".
 
-| isOrdered | isUnique | Name       | JADN Values         | JADN Typed Values  |
-| :-------: | :------: | :--------- | :------------------ | :----------------- |
-| false     | true     | Set        | ArrayOf + set       | Map, MapOf, Choice |
-| true      | false    | Sequence   | ArrayOf             | Array              |
-| true      | true     | OrderedSet | ArrayOf + unique    | Record             |
-| false     | false    | Bag        | ArrayOf + unordered | none               |
+| Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Types |
+| :-----: | :----: | :--------- | :----------------- | :------- |
+| false   | true   | Set        | ArrayOf+set, MapOf | Map      |
+| true    | false  | Sequence   | ArrayOf            | Array    |
+| true    | true   | OrderedSet | ArrayOf+unique     | Record   |
+| false   | false  | Bag        | ArrayOf+unordered  | none     |
 
-Note that a data instance of an unordered mapping type containing multiple elements with the same key is invalid
-because its values are neither unique nor ordered. In order to reference its values it must be converted into,
-for example, an array of maps or a map of arrays. 
+The result of referencing an element of a collection whose values or keys are neither ordered nor unique is
+unspecified; the only semantically meaningful operation is to return *an* element of the collection. 
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
