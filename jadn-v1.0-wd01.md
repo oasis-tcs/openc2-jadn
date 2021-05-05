@@ -122,7 +122,7 @@ now more closely aligned with information theory and machine learning.
 Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
 and informally calls information "descriptions inferred from data".
 JADN formalizes the relationship between information and data, creating a standardized
-technology-agnostic information model that lies between the traditional logical data model
+technology-agnostic information modeling layer that lies between the traditional logical data model
 and multiple technology-specific physical data models.
 
 UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
@@ -179,8 +179,8 @@ N/A
     relationships between types.
 
 * **Package**:
-    A container that defines a namespace for the set of types it contains. A type references types from another
-    package using its namespace.
+    A container that defines a namespace for the set of types it contains. A type can reference types from another
+    package using the referenced namespace.
 
 * **Document**:
     A series of octets described by a data format applied to an information model, or equivalently, by a data model.
@@ -272,8 +272,7 @@ The 13 extra bytes used to format a 4 byte IP address as a dotted quad are usefu
 but provide no information to the receiving application.  Field names and enumerated strings selected
 from a dozen possibliities contain less than four *bits* of information, while the strings themselves
 may be half a dozen to hundreds of *bytes* of data.
-Directly converting display-oriented JSON data to CBOR format does not achieve the conciseness
-for which CBOR was designed. Instead, information modeling is key to effectively using both
+By distinguishing information from data, information modeling is key to effectively using both
 binary data formats such as Protobuf and CBOR and text formats such as XML and JSON.
 
 \* *Note: all references to information assume independent uniformly-distributed values.
@@ -363,9 +362,9 @@ A data format is a serialization style applied to a data language: "Compact JSON
 for encodings that use repeated variable names in name-value pairs. JADN uses Compact and Verbose respectively
 to refer to those styles. The name "Verbose" is intended to be descriptive rather than judgemental;
 it is in any case less pejorative than "Unfriendly".
-An information model allows designers to compare Verbose and Compact styles for readability, and allows
-data to be validated and successfully round-tripped between a readable JSON style and Concise-style
-CBOR data that lives up to its name.
+An information model allows designers to compare Verbose and Compact styles for usability, and allows
+data to be validated and successfully converted between a readable JSON style and an actually concise
+CBOR style.
 
 Information models can be reverse-engineered from existing data models, allowing commonalities and incompatibilities
 to be identified to facilitate convergence.
@@ -472,7 +471,7 @@ properties, in lieu of defining additional built-in types "SetOf", "OrderedSetOf
 | false   | false  | Bag        | ArrayOf+unordered  | none     |
 
 The result of referencing an element of a collection whose values or keys are neither ordered nor unique is
-unspecified; the only semantically meaningful operation is to return *an* element of the collection. 
+unspecified; the only semantically meaningful access is to *an* element of the collection. 
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
@@ -544,8 +543,8 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
 ```
 ABNF:
-TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; e.g., Color-Values, length = 1-32 characters
-FieldName  = LC *31("_" / UC / LC / DIGIT)          ; e.g., color_values, length = 1-32 characters
+TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-32 characters
+FieldName  = LC *31("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-32 characters
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
 
 Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
@@ -900,12 +899,10 @@ Hashes2 Example:
 
 ## 3.3 JADN Extensions
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
-more compact or that support the [DRY](#dry) software design principle.
-Extensions can be replaced by core definitions without changing the meaning of the definition.
-In other words, extensions are a form of syntactic sugar.
-Simplifying ("de-sugaring") reduces the code needed to serialize and validate data
-and may make specifications easier to understand.  But it creates additional definitions that must
-be kept in sync, expanding the specification and increasing maintenance effort.
+more compact or support the [DRY](#dry) software design principle.
+Extensions are syntactic sugar that can be replaced by core definitions without changing their meaning.
+Unfolding definitions into core format simplifies the code needed to serialize and validate data
+and may clarify their meaning, but creates additional definitions that must be kept in sync.
 
 The following extensions can be converted to core definitions:
 * Anonymous type definition within a field
@@ -1264,19 +1261,21 @@ communication.  They produce JSON instances equivalent to the diagnostic notatio
 
 # 5 Definition Formats
 
-[Section 3.1](#31-type-definitions) defines the native JSON format of JADN type definitions.
-Although JSON data is unambiguous and supported in many programming languages, it is cumbersome
-to use as a documentation format. This section defines a formal text-based interface definition
-language and illustrates several alternative ways of documenting information models.
+[Section 3.1](#31-type-definitions) defines the normative JSON format of JADN type definitions.
+Although JSON data is unambiguous, it is not ideal as a documentation format. This section suggests
+several more readable ways of describing and documenting information models.
+
+*This section is informative*
 
 ## 5.1 JADN-IDL Format
-
-*This section is normative*
 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
 It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
 and its options into a single string formatted for readability.
-The conversion between JSON and JADN-IDL formats is lossless in both directions.
+The conversion between JSON and JADN-IDL formats is lossless in both directions, meaning that
+the IDL described here is unambiguous and complete.  But it is not intended to be immutable; syntactic
+details may be updated to accommodate new use cases or improve usability without affecting the JADN
+standard.
 
 The JADN-IDL definition formats are:
 
@@ -1341,10 +1340,9 @@ FIELDSTRING is the value of TYPESTRING combined with string representations of t
 An ABNF grammar for JADN-IDL is shown in [Appendix H](#appendix-h-abnf-grammar-for-jadn-idl).
 
 ## 5.2 Table Style
-*This section is informative*
 
 Some specifications present type definitions in property table form, using varied style conventions.
-This specification does not define a normative property table format, but this section is one example
+This specification does not define a normative property table format, but this section shows one example
 of how JADN definitions may be displayed as property tables.
 
 This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
@@ -1377,12 +1375,7 @@ or (for structured types with the *id* option):
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-**Example HTML Table:**
-
-![HTML Table](images/person-html.png)
-
 ## 5.3 Entity Relationship Diagrams
-*This section is informative*
 
 JADN type definitions have a graphical representation similar to ERDs used in database design.
 This document does not address the design of information models, but processes similar to those used
