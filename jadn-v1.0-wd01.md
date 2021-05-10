@@ -914,7 +914,7 @@ The following extensions can be converted to core definitions:
 
 ### 3.3.1 Type Definition Within Fields
 A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
-Simplifying converts all anonymous type definitions to explicit named types and excludes all TypeOption values
+Unfolding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
 ([Section 3.2.1](#321-type-options)) from FieldOptions.
 
 Example:
@@ -923,7 +923,7 @@ Example:
        1 name         String
        2 email        String /email
 
-Simplifying replaces this with:
+Unfolding replaces this with:
 
     Member = Record
        1 name         String
@@ -932,7 +932,7 @@ Simplifying replaces this with:
     Member$email = String /email           // Tool-generated type definition.
 
 ### 3.3.2 Field Multiplicity
-Fields may be defined to have multiple values of the same type. Simplifying converts each field that can
+Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
 FieldOptions ([Section 3.2.2](#322-field-options)) are moved from FieldOptions to the minimum and maximum
 size (minv and maxv) TypeOptions of the new ArrayOf type, except that if minc is 0
@@ -945,7 +945,7 @@ Example:
        1 org_name     String
        2 members      Member [0..*]         // Optional and repeated: minc=0, maxc=0
 
-Simplifying replaces this with:
+Unfolding replaces this with:
 
     Roster = Record
        1 org_name     String
@@ -966,7 +966,7 @@ field multiplicity extension:
 ### 3.3.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
-Simplifying removes *enum* from Type Options and adds fields containing
+Unfolding removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) the *enum* option is represented
@@ -974,7 +974,7 @@ as a function string: "Enum(\<referenced-type\>)".
 Within ArrayOf and MapOf types, the *ktype* and *vtype* options may contain an enum option.  As an
 example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN vtype option "*#Pixel".
 
-Simplifying references an explicit Enumerated type if it exists, otherwise it creates an explicit
+Unfolding references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
 Example:
@@ -988,7 +988,7 @@ Example:
     
     ChannelMask = ArrayOf(Enum[Pixel])      // ArrayOf(derived enumeration)
 
-Simplifying replaces the Channel and ChannelMask definitions with:
+Unfolding replaces the Channel and ChannelMask definitions with:
 
     Channel2 = Enumerated
        1 red
@@ -998,7 +998,7 @@ Simplifying replaces the Channel and ChannelMask definitions with:
     ChannelMask2 = ArrayOf(Channel)
 
 ### 3.3.4 MapOf With Enumerated Key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Simplifying replaces the MapOf type definition
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Unfolding replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
 enumeration. In order to use this extension, each ItemValue of the Enumerated type must be a valid FieldName.
 
@@ -1011,7 +1011,7 @@ Example:
     
     Pixel3 = MapOf(Channel3, Integer)
     
-Simplifying replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
+Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
 
 ### 3.3.5 Pointers
 Applications may need to model both individual types and collections of types, similar to the way filesystems
@@ -1021,7 +1021,7 @@ The dir option has no effect on the structure or serialization of information;
 its sole purpose is to support pathname generation using the Pointer extension.
 
 A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer extension
-([Section 3.2.1](#321-type-options)) generates a list of all type definitions in and under the specified type.  Simplifying
+([Section 3.2.1](#321-type-options)) generates a list of all type definitions in and under the specified type.  Unfolding
 replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
 type. If no fields in the specified type are marked with the "dir" option, the Pointer extension has the same fields
 as the [Derived Enumeration](#333-derived-enumerations) extension except that IDs are sequential rather than copied
@@ -1045,7 +1045,7 @@ Example:
 
 In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option (shown
 as "b/").
-Simplifying replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
+Unfolding replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
 
     Paths2 = Enumerated
        1 a                                  // Item 1
@@ -1072,7 +1072,7 @@ value is not considered an "Item":
     }
 
 Note that the *enum* and *pointer* extensions create shallow dependencies: the referenced
-types are needed in order to simplify them but types below the direct references are not.
+types are needed in order to unfold them but types below the direct references are not.
 
 ### 3.3.6 Links
 Types in an information model cannot reference themselves, either directly or indirectly through other types.
@@ -1099,7 +1099,7 @@ assumes that an Organization type is defined elsewhere with a Key field called '
         6 friends   Link(Person) [0..*]
         7 employer  Link(Organization) optional
 
-Simplifying creates an explicit key type and replaces links with that type, but discards the explicit indicator
+Unfolding creates an explicit key type and replaces links with that type, but discards the explicit indicator
 that a field is a primary key or relationship:
 
     Person = Record
@@ -1504,18 +1504,17 @@ and conforming implementations must support at least one data format.
     * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 4](#4-serialization)
 * JADN Extensions
     * Satisfy all Core requirements
-    * Translate JADN packages bi-directionally between JSON format and JADN IDL format defined in [Section 5.1](#51-jadn-idl-format)
-    * Perform all type simplification operations defined in [Section 3.3](#33-jadn-extensions)
+    * Perform all extension unfolding operations defined in [Section 3.3](#33-jadn-extensions)
 
 This document describes several schema support functions but defines no corresponding conformance requirements:
 
-* JADN Extensions
-    * Recognize and reverse type simplification operations, i.e., given a core schema package,
-     generate syntactic sugar where applicable.
 * JADN Schema Translator
-    * Translate JADN packages to informative documentation formats (table, diagram, tree) described in Section 5
+    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in Section 5
 * JADN Concrete Schema Generators
     * Generate format-specific concrete schemas per serialization rules in Section 4.x.
+* JADN Extensions
+    * Recognize opportunities to fold related types into extensions, i.e., given a core schema package,
+     generate syntactic sugar where possible.
 
 -------
 
