@@ -150,7 +150,7 @@ Modeling:     |   Model    |   |   Model    |   |    Model    |   | Data Models 
               +------------+   +------------+   +-------------+   +-------------+ |
                                                                     +-------------+
 ```
-**Figure 1**: Information Engineering Terminology
+###### Figure 1: Information Engineering Terminology
 
 ## 1.1 Changes from earlier versions
 
@@ -287,18 +287,18 @@ that defines it. Any graph with these properties can be either a view of or a st
 a JADN information model.
 
 A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) where
-each type has a TypeName, and each field within a structured type has a FieldType that is a predefined
-or model-defined type.  The latter represents a directed relationship from the defining type to the referenced type.
-The relationship is "contains" by default, but if the boolean "link" FieldOption is true the
-relationship is "references".
+each field within a structured type has a FieldType that is a predefined or model-defined type.
+The latter represents a directed relationship from the defining type to the referenced type.
+The relationship is "contain" by default, but if the boolean "link" FieldOption is true the
+relationship is "reference".
 
-The contain edges of an information model must form a directed acyclic graph in order to ensure that:
+The "contain" edges of an information model must form a directed acyclic graph in order to ensure that:
 1) every model has one or more roots,
 2) every path from a root to any leaf has finite length, and (equivalently)
 3) every instance has finite nesting depth.
 
-There is no restriction on reference edges, so if a model has contain cycles, they may be broken by converting
-one or more edges to references.
+There is no restriction on reference edges, so if a model's "contain" edges have cycles, they may be
+broken by converting one or more edges to references.
 
 A few results from graph theory are useful for determining equivalence of data models:
 * A tree is a connected acyclic undirected graph, where any pair of nodes is connected by exactly one path.
@@ -478,7 +478,7 @@ JADN type definitions have a fixed structure designed to be easily describable, 
 
 * Every definition has five elements:
     1. **TypeName:** the name of the type being defined
-    2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
+    2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-base-types)) of the type being defined
     3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to **BaseType**
     4. **TypeDescription:** a non-normative comment
     5. **Fields:** an array of **Item** or **Field** definitions
@@ -511,7 +511,7 @@ The layout of a JADN structured type definition is:
 | **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
 
 JSON serializations are:
-```json
+```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                        (primitive)
 
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (enumerated)
@@ -1127,7 +1127,7 @@ that a field is a primary key or relationship:
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in
-[Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using
+[Table 3-1](#table-3-1-jadn-base-types). Serialization rules define how to represent instances of each type using
 a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
 serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
@@ -1399,11 +1399,13 @@ diagrams using the following conventions:
 
 ![ERD-DB](images/logical-info-erd.jpg)
 
-**Figure 5-1. Logical and Information Entity Relationship Diagrams**
+###### Figure 5-1: Logical and Information Entity Relationship Diagrams
 
 The edge type and direction illustrate visually how instances are serialized, in this case using references
 from Class to Person.  An alternate information model derived from the same logical model might
 use references "teaches" and "enrolled_in" from Person to Class.
+
+Figure 5-2 is an example instance of type University:
 ```json
 {
   "name": "Faber College",
@@ -1441,11 +1443,12 @@ use references "teaches" and "enrolled_in" from Person to Class.
   ]
 }
 ```
+###### Figure 5-2: University instance serialized as JSON
 
 # 6 Schemas
 
 JADN schemas are organized into packages.  A package consists of an optional
-[information](#c1-package) section and a list of [type definitions](#c2-type-definitions):
+[information](#f1-package) section and a list of [type definitions](#f2-type-definitions):
 
 ```
     Schema = Record                            // Definition of a JADN package
@@ -1916,7 +1919,7 @@ TypeRef = String                             // Autogenerated ($NSID ':')? $Type
 # Appendix G. JADN Type Definitions From This Document
 This appendix contains the JADN type definitions corresponding to all JADN-IDL examples in this document.
 
-**[Section 2.3 Example Definitions](#23-example-definitions):**
+**[Section 2.3 Example Definitions](#23-information-definition-formats):**
 ```
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
