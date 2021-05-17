@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 30 April 2021
+## 17 May 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
@@ -81,7 +81,7 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 30 April 2021.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 17 May 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
@@ -161,7 +161,7 @@ N/A
 ### 1.2.1 Definitions of terms
 * **Information**:
     A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed
-    to represent the essential meaning of a message, excluding data that is known a-priori and data that does
+    to represent the essential meaning of a message, excluding data that is known *a priori* and data that does
     not affect meaning.
 
 * **Information Model**:
@@ -255,7 +255,7 @@ Information is *what* needs to be communicated between applications, and data is
 is represented when communicating.  More formally, information is the unexpected data, or entropy,
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known
-a priori. If the serialization is non-canonical, any additional entropy introduced during serialization
+*a priori*. If the serialization is non-canonical, any additional entropy introduced during serialization
 (e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization)
 is discarded on deserialization.
 
@@ -266,7 +266,7 @@ a 32 bit value*.  But different data may be used to represent that information:
 * IPv4 dotted-quad contained in a CBOR string: 0x6F3139322E3136382E3134312E323430 (16 bytes / 128 bits)
 * Hex value contained in a JSON string: "C0A88DF0" (10 bytes / 80 bits)
 * CBOR byte string: 0x44c0a88df0 (5 bytes / 40 bits).
-* IPv4 packet: 0xc0a88df0 (4 bytes / 32 bits).
+* IPv4 packet (unadorned RFC791-style serialization): 0xc0a88df0 (4 bytes / 32 bits).
 
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application.  Field names and enumerated strings selected
@@ -476,44 +476,53 @@ unspecified; the only semantically meaningful access is to *an* element of the c
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
 
-| **TypeName** | **BaseType** | **TypeOptions** | **TypeDescription** |      |
-| -----------: | -----------: | --------------: | ------------------: | :--- |
-| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
-| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
-| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
-
 * Every definition has five elements:
     1. **TypeName:** the name of the type being defined
     2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
-    3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to the type being defined
+    3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to **BaseType**
     4. **TypeDescription:** a non-normative comment
     5. **Fields:** an array of **Item** or **Field** definitions
 
 
-* If BaseType is a Primitive type, ArrayOf, or MapOf, the Fields array MUST be empty:
+* If BaseType is a Primitive type, ArrayOf, or MapOf, the **Fields** array MUST be empty:
 
 
-* If BaseType is Enumerated, each item definition MUST have three elements:
+* If BaseType is Enumerated, each item definition in the **Fields** array MUST have three elements:
 
     1. **ItemID:** the integer identifier of the item
     2. **ItemValue:** the string value of the item
     3. **ItemDescription:** a non-normative comment
 
 
-* If BaseType is Array, Choice, Map, or Record, each field definition MUST have five elements:
+* If BaseType is Array, Choice, Map, or Record, each field definition in the **Fields** array MUST have five elements:
     1. **FieldID:** the integer identifier of the field
     2. **FieldName:** the name or label of the field
-    3. **FieldType:** the type of the field, TypeName with optional Namespace ID prefix **NSID:TypeName**
+    3. **FieldType:** the type of the field, a predefined type or a TypeName with optional Namespace ID prefix **NSID:TypeName**
     4. **FieldOptions:** an array of zero or more **FieldOption** ([Section 3.2.2](#322-field-options)) or **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to the field
     5. **FieldDescription:** a non-normative comment
 
 
-The JSON serialization of each JADN type definition reflects the structure shown above:
-```
-        [TypeName, BaseType, [TypeOption, ...], TypeDescription, [
-            [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
-            ...
-        ]]
+The layout of a JADN structured type definition is:
+
+| **TypeName** | **BaseType** | **TypeOptions** | **TypeDescription** |      |
+| -----------: | -----------: | --------------: | ------------------: | :--- |
+| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
+| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
+| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
+
+JSON serializations are:
+```json
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                        (primitive)
+
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (enumerated)
+    [ItemId, ItemValue, ItemDescription],
+    ...
+]]
+
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (structured)
+    [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
+    ...
+]]
 ```
 
 ### 3.1.1 Requirements
@@ -628,7 +637,7 @@ TypeOption = Choice
   113 unique    Boolean    // 'q' ArrayOf instance must not contain duplicate values (Section 3.2.1.8)
   115 set       Boolean    // 's' ArrayOf instance is unordered and unique (Section 3.2.1.9)
    98 unordered Boolean    // 'b' ArrayOf instance is unordered (Section 3.2.1.10)
-   88 extend    Boolean    // 'X' Type is extensiple; new Items or Fields may be appended (Section 3.2.1.11)
+   88 extend    Boolean    // 'X' Type is extensible; new Items or Fields may be appended (Section 3.2.1.11)
    33 default   String     // '!' Default value (Section 3.2.1.12)
 ```
 
@@ -788,11 +797,11 @@ of an Array, Choice, Map, or Record type:
 * if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 3.1.2](#312-upper-bounds).
 * if *maxc* is less than *minc*, the field definition MUST be considered invalid.
 
-If minc is 0, the field is optional, otherwise it is required.  
-If maxc is 1 the field is a single element, otherwise it is an array of elements
+If *minc* is 0, the field is optional, otherwise it is required.  
+If *maxc* is 1 the field is a single element, otherwise it is an array of elements
 as described in [Section 3.3.2](#332-field-multiplicity).  
 
-Within a Choice type minc values of 0 and 1 are equivalent because all fields are optional and exactly
+Within a Choice type *minc* values of 0 and 1 are equivalent because all fields are optional and exactly
 one must be present. Values greater than 1 specify an array of elements.
 
 #### 3.2.2.2 Discriminated Union with Explicit Tag
@@ -933,9 +942,9 @@ Unfolding replaces this with:
 
 ### 3.3.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
-have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (minc and maxc)
+have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
 FieldOptions ([Section 3.2.2](#322-field-options)) are moved from FieldOptions to the minimum and maximum
-size (minv and maxv) TypeOptions of the new ArrayOf type, except that if minc is 0
+size (*minv* and *maxv*) TypeOptions of the new ArrayOf type, except that if *minc* is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 size of 1.
 
