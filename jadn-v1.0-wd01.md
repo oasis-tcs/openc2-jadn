@@ -1377,85 +1377,61 @@ or (for structured types with the *id* option):
 
 ## 5.3 Entity Relationship Diagrams
 
-JADN type definitions have a graphical representation similar to ERDs used in database design.
-This document does not address the design of information models, but processes similar to those used
-for databases and software may be used.
+Information models extend the Conceptual/Logica/Physical design process. While UML defines a class
+diagram format that has been adopted for use in that process, it does not define a datatype
+diagram format suitable for representing information models. As noted in the
+[introduction](#1-introduction), logical/class models are undirected graphs with semantic
+relationships while information/datatype models are directed graphs with two relationship
+types: contain and reference. Information models may be represented as entity relationship
+diagrams using the following conventions:
 
-The differences between database and information ERDs are:
+1. Solid edges represent container relationships, dashed edges represent references.
+2. All edges are directed, from container to contained type or from referencing to referenced type.
 
-1. An information model is defined entirely by the entities (nodes) shown on an information ERD.  Edges
-are derived from the node content and are shown to visually illustrate the information model. Static relationships
-are directed arrows from containing to contained types and may include multiplicity information.
-Dynamic relationships (links) are directed from foreign key to primary key, the reverse direction from container
-relationships.
-Links may be illustrated as undirected edges, or as directed edges visually distinguishable from static edges.
+![ERD-DB](images/logical-info-erd.jpg)
 
-2. In an information ERD attributes have both an ID and a name, each of which must be unique within the node.
+**Figure 5-1. Logical and Information Entity Relationship Diagrams**
 
-3. All entities in a relational database ERD are tables, while entities in an information ERD are type definitions.
-A type definition contains both the name of the type being defined and its base type, for example "Person : Record" or
-"EmailAddr : String".
-
-As an example, Figure 5-1 is a database ERD from a diagramming tool's template collection.
-
-![ERD-DB](images/erd-db.jpg)
-
-**Figure 5-1. Database Entity Relationship Diagram**
-
-An Information ERD can be derived from that example by selecting an appropriate entity as root, assigning the structured
-type Record to each entity, and showing connectors from containing to contained types.
-
-![ERD-IM](images/erd-im.png)
-
-**Figure 5-2. Information Model Entity Relationship Diagram**
-
-Different information models can be derived from the same database schema depending on which types are designated as roots.
-In this example the logical choice for root is "Course", resulting in data values like:
+The edge type and direction illustrate visually how instances are serialized, in this case using references
+from Class to Person.  An alternate information model derived from the same logical model might
+use references "teaches" and "enrolled_in" from Person to Class.
 ```json
-{ "course": {
-    "number": 7241,
-    "name": "Algebra 2",
-    "department": "Math",
-    "sections": [{
-      "number": 2,
-      "enrollment": "foo",
-      "exam": {
-        "id": 8231,
-        "time": "3/19/20 14:00",
-        "room": {
-          "number": 107,
-          "capacity": 42,
-          "building": "Stewart"
-}}}]}}
+{
+  "name": "Faber College",
+  "classes": [
+    {
+      "name": "ECE1010",
+      "room": "DRGN 105",
+      "teachers": ["U-004932"],
+      "students": ["U-194325", "U-029437"]
+    }, {
+      "name": "ECE1750",
+      "room": "FLRS 102",
+      "teachers": ["U-004932"],
+      "students": ["U-127439", "U-194325", "U-029437"]
+    }
+  ],
+  "people": [
+    {
+      "name": "Damien Braun",
+      "univ_id": "U-004932",
+      "email": "d.braun@faber.edu"
+    }, {
+      "name": "Ellie Osborne",
+      "univ_id": "U-194325",
+      "email": "ellie.osborne@faber.edu"
+    }, {
+      "name": "Pierre Cox",
+      "univ_id": "U-029437",
+      "email": "pc9000@outlook.com"
+    }, {
+      "name": "Alden Cantrel",
+      "univ_id": "U-127439",
+      "email": "alden.cantrel@faber.edu"
+    }
+  ]
+}
 ```
-"Exam" may be less desirable as a root for an information model: it either duplicates course information in
-each section of a course or relies on a separate course index (Map):
-```json
-{ "exam": {
-    "id": 8231,
-    "time": "3/19/20 14:00",
-    "room": {
-      "number": 107,
-      "capacity": 42,
-      "building": "Stewart"
-    },
-    "sections": [{
-      "number": 2,
-      "enrollment": "foo",
-      "course": {
-        "number": 7241,
-        "name": "Algebra 2",
-        "department": "Math"
-}}]}}
-```
-
-## 5.4 Tree Diagrams
-*This section is informative*
-
-Tree diagrams provide a simplified graphical overview of an information model.  The structure of a JADN IM
-can be displayed as a [YANG tree diagram](#rfc8340) using the following conventions:
-
-*TBSL*
 
 # 6 Schemas
 
