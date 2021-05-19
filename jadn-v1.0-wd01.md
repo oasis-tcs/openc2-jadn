@@ -128,10 +128,10 @@ and multiple technology-specific physical data models.
 UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
 Associations and Collaborations. The defining characteristic of a DataType is that instances are distinguished
 only by their value, whereas Class instances also have behavior, inheritance, roles, and other complex characteristics.
-UML class models and diagrams are commonly referred to as "Data Models", but they model "the real world" using
+UML class models and diagrams are commonly referred to as "Data Models", but they model real-world entities using
 classes while information models model data itself using datatypes. A practical distinction is that class models
 are undirected graphs representing an unlimited variety of semantic relationships, while information models
-are directed graphs with only two kinds of relationship: "contains" and "references".
+are directed graphs with only two kinds of relationship: "contain" and "reference".
 Converting a class model to an information model is largely a matter of assigning the type and direction of
 each relationship and establishing identifiers for all referenceable types.
 ```code
@@ -222,6 +222,7 @@ N/A
 
 ### 1.2.2 Acronyms and abbreviations
 
+* **DAG**: Directed Acyclic Graph
 * **DM**: Data Model
 * **IM**: Information Model
 * **UML**: Unified Modeling Language
@@ -231,23 +232,6 @@ N/A
 - Naming conventions
 - Font colors and styles
 - Typographic conventions
-
-<!--
-## 1.3 Background
-*Clean up, move into Introduction*
-As with any FDT this approach is intended to be formal, descriptive, and technically useful.
-Tools with no specific JADN knowledge are able to treat an information model as a generic graph,
-allowing reuse of existing design processes and tooling for software objects, interfaces, services and
-systems.
-
-**Graph theory** - 
-
-**Information theory** - each node defines a DataType ([UML](#uml) Section 10.2) in terms of the characteristics
-it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
-and JADN DataTypes define the information conveyed by an instance separately from the data used to serialize it.
-Separating significant information from insignificant data allows a single information model to define
-data models ranging from nearly pure-information specifications such as RFC 791 to highly-verbose XML.
--->
 
 # 2 Information vs. Data
 
@@ -270,7 +254,7 @@ a 32 bit value*.  But different data may be used to represent that information:
 
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application.  Field names and enumerated strings selected
-from a dozen possibliities contain less than four *bits* of information, while the strings themselves
+from a dozen possibliities convey less than four *bits* of information, while the strings themselves
 may be half a dozen to hundreds of *bytes* of data.
 By distinguishing information from data, information modeling is key to effectively using both
 binary data formats such as Protobuf and CBOR and text formats such as XML and JSON.
@@ -281,26 +265,21 @@ but source coding is beyond the scope of this specification.*
 
 ## 2.1 Graph Modeling
 
-A JADN information model is a graph that defines pairwise relations between nodes.
-Each node has a name that is unique across the model. Each edge has a name that is unique within the node
-that defines it. Any graph with these properties can be either a view of or a structural template for
-a JADN information model.
+A JADN information model is a set of type definitions ([Section 3.1](#31-type-definitions)).
+Each field in a structured type may be associated with another model-defined type, and the set of
+associations between types forms a directed graph.  Each association is either a container or a
+reference, and the direction of each edge is toward the contained or referenced type.
 
-A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) where
-each field within a structured type has a FieldType that is a predefined or model-defined type.
-The latter represents a directed relationship from the defining type to the referenced type.
-The relationship is "contain" by default, but if the boolean "link" FieldOption is true the
-relationship is "reference".
-
-The "contain" edges of an information model must form a directed acyclic graph in order to ensure that:
+The container edges of an information model must be acyclic in order to ensure that:
 1) every model has one or more roots,
-2) every path from a root to any leaf has finite length, and (equivalently)
+2) every path from a root to any leaf has finite length, and equivalently
 3) every instance has finite nesting depth.
 
-There is no restriction on reference edges, so if a model's "contain" edges have cycles, they may be
-broken by converting one or more edges to references.
+There is no restriction on reference edges, so any container cycles in a model can be
+broken by converting container edges to references.
 
-A few results from graph theory are useful for determining equivalence of data models:
+Logical models are undirected graphs, and a few results from graph theory are useful when
+constructing information models from logical models:
 * A tree is a connected acyclic undirected graph, where any pair of nodes is connected by exactly one path.
 * A directed (or rooted) tree is a hierarchy. A directed tree is constructed from an (undirected) tree by
   selecting one node as root and assigning all edge directions either toward or away from the root.
@@ -308,27 +287,25 @@ A few results from graph theory are useful for determining equivalence of data m
   a topological ordering, a sequence of nodes such that every edge is directed from earlier to later in the sequence.
 * A DAG differs from a directed tree in that nodes may have more than one parent.
 
-A DAG can be refactored into another DAG having the same underlying undirected graph but with a different root,
-and the underlying graphs of two DAGs can be compared for equality. This equivalence expands the
-range of data models that can be derived from a single information model.
+A DAG can be refactored into another DAG having the same underlying undirected graph,
+and two information models with the same underlying graph correspond to the same logical model.
 
 A DAG can be converted to a directed
-tree by denormalizing (copying subtrees below multi-parent nodes), and a directed tree can be converted to a DAG by
-normalizing (combining identical subtrees).
-Reuse of common types is an important goal in both design of information models and analysis of data, and JADN's
-flat type structure facilitates and encourages reuse.
-However, it is often useful to have a [tree-structured representation](#graph) of a document's structure.
-Converting an information model into a directed tree supports applications such as model queries that are
+tree by denormalizing (copying subtrees below multi-parent nodes), and a directed tree can be converted
+to a DAG by normalizing (combining identical subtrees).
+Reuse of common types is an important goal in both design of information models and analysis of data.
+However, it is sometimes useful to have a [tree-structured representation](#graph) of a document's structure.
+Converting a DAG into a directed tree supports applications such as model queries that are
 otherwise difficult to implement, tree-structured content statistics, content transformations, and documentation.
 
 ## 2.2 Information Modeling
 Data modeling in the conceptual/logical/physical sense is a top-down process starting with goals and ending
-with a physical data model. But in practice "data modeling" is often a bottom-up process that begins with
+with a physical data model. But in practice "data modeling" is often a bottom-up exercise that begins with
 a collection of desired data instances and ends with a concrete schema.
 That process could be called data-centric design, in contrast with information-centric design which
 begins with a set of types that reflect purpose rather than syntax.
-Because an information model is a graph, information-centric design integrates easily with
-logical and conceptual models, enabling bottom-up and top-down approaches to meet in the middle.
+Because an information model is a graph, information-centric design integrates easily with 
+conceptual and logical models, allowing bottom-up and top-down approaches to meet in the middle.
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -379,8 +356,7 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to
-Protobuf:
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar:
 ```
 Person = Record
    1 name     String
@@ -405,7 +381,7 @@ The normative form of a JADN type definition ([Section 3](#3-jadn-types)) is JSO
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-IDL or property tables are preferred for use in documentation, but conformance is based on the normative JSON form.
+IDL or property tables are preferred for use in documentation, but conformance is based on normative JSON data.
 
 ## 2.4 Implementation
 
