@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 17 May 2021
+## 19 May 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
@@ -81,7 +81,7 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 17 May 2021.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 19 May 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
@@ -435,9 +435,9 @@ otherwise identical instance without that key.
 
 UML defines collection properties "isOrdered" and "isUnique".
 As described in Table 3-1, JADN structured types are based on these properties and also distinguish between
-homogeneous (ArrayOf, MapOf) and heterogeneous (Array, Map, Record) collections.  For the ArrayOf type JADN
-uses the "set", "unique" and "unordered" options ([Section 3.2.1](#321-type-options)) to express these
-properties, in lieu of defining additional built-in types "SetOf", "OrderedSetOf" and "BagOf".
+homogeneous (ArrayOf, MapOf) and heterogeneous (Array, Map, Record) collections.  For homogeneous collections
+JADN uses the ArrayOf type with "set", "unique" or "unordered" options ([Section 3.2.1](#321-type-options))
+in lieu of defining additional built-in types such as "SetOf", "OrderedSetOf" and "BagOf".
 
 | Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Types |
 | :-----: | :----: | :--------- | :----------------- | :------- |
@@ -446,8 +446,8 @@ properties, in lieu of defining additional built-in types "SetOf", "OrderedSetOf
 | true    | true   | OrderedSet | ArrayOf+unique     | Record   |
 | false   | false  | Bag        | ArrayOf+unordered  | none     |
 
-The result of referencing an element of a collection whose values or keys are neither ordered nor unique is
-unspecified; the only semantically meaningful access is to *an* element of the collection. 
+The result of referencing an element of a Bag collection whose values or keys are neither ordered nor unique is
+unspecified; the only semantically meaningful access is to some arbitrarily-chosen element of the collection. 
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
@@ -478,7 +478,7 @@ JADN type definitions have a fixed structure designed to be easily describable, 
     5. **FieldDescription:** a non-normative comment
 
 
-The layout of a JADN structured type definition is:
+The elements of a type definition are layed out as:
 
 | **TypeName** | **BaseType** | **TypeOptions** | **TypeDescription** |      |
 | -----------: | -----------: | --------------: | ------------------: | :--- |
@@ -486,16 +486,16 @@ The layout of a JADN structured type definition is:
 | **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
 | **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
 
-JSON serializations are:
+The elements are serialized in JSON format as:
 ```
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                        (primitive)
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                            (primitive)
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (enumerated)
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (enumerated)
     [ItemId, ItemValue, ItemDescription],
     ...
 ]]
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (structured)
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (structured)
     [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
     ...
 ]]
@@ -521,8 +521,8 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * JADN specifications MAY override the default name formats by defining one or more of:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A "System" character used in tool-generated or specially-processed type names
     * The permitted format for the Namespace Identifier (NSID) used in type references
+    * A "System" character used in tool-generated or specially-processed type names
 * Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
@@ -548,22 +548,21 @@ Specifications MAY use the same syntax for TypeName and FieldName. Using distinc
 does not affect the meaning of type definitions.
 
 ### 3.1.2 Upper Bounds
-Type definitions based on variable-length types may include maximum size limits. If an individual type does not
-define an explicit limit, it uses the default limit defined by the specification.
-If the specification does not define a default, the definition uses the limits shown here, which are
+Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
+in [Section 3.2.1](#321-type-options).
+If an individual type does not define an explicit limit, it uses the limit shown in the package's
+$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 6](#6-schema-packages)).
+If the specification does not define a limit, the definition defaults to the values shown here, which are
 deliberately conservative to encourage specification authors to define limits based on application requirements.
-* JADN specifications SHOULD define size limits on the variable-length values shown in Figure 3-2.
-* Specifications that do not define alternate size limits MUST use the values shown in Figure 3-2.
-* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition,
-or the default limit defined in the specification containing its type definition, or if the specification does
-not define a default, the limit shown in Figure 3-2.
+* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
+* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
 
 ```
-Type                Name         Limit   Description
------               -----        -----   -----------
-Binary              MaxBinary    255     Maximum number of octets
-String              MaxString    255     Maximum number of characters
-Array, ArrayOf,     MaxElements  100     Maximum number of items/properties
+Type                Name           Limit   Description
+-----               -----          -----   -----------
+Binary              $MaxBinary     255     Maximum number of octets
+String              $MaxString     255     Maximum number of characters
+Array, ArrayOf,     $MaxElements   100     Maximum number of items/properties
 Map, MapOf, Record
 ```
 ###### Figure 3-2: JADN Default Size Limits
@@ -1421,7 +1420,7 @@ Figure 5-2 is an example instance of type University:
 ```
 ###### Figure 5-2: University instance serialized as JSON
 
-# 6 Schemas
+# 6 Schema Packages
 
 JADN schemas are organized into packages.  A package consists of an optional
 [information](#f1-package) section and a list of [type definitions](#f2-type-definitions):
