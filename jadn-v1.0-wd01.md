@@ -120,7 +120,11 @@ Industry has multiple, often conflicting definitions of data modeling terms, inc
 "[Information Engineering](#ie)", which at one time referred to [data modeling](#datamod) but is
 now more closely aligned with information theory and machine learning.
 Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
-and informally calls information "descriptions inferred from data".
+and informally calls information "descriptions inferred from data". This specification uses the
+terminology shown in Figure 1: a data model represents the bits and bytes stored, processed and
+communicated by applications, while conceptual and logical models represent knowledge about
+real-world entities.
+
 JADN formalizes the relationship between information and data, creating a standardized
 technology-agnostic information modeling layer that lies between the traditional logical data model
 and multiple technology-specific physical data models.
@@ -128,12 +132,12 @@ and multiple technology-specific physical data models.
 UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
 Associations and Collaborations. The defining characteristic of a DataType is that instances are distinguished
 only by their value, whereas Class instances also have behavior, inheritance, roles, and other complex characteristics.
-UML class models and diagrams are commonly referred to as "Data Models", but they model real-world entities using
-classes while information models model data itself using datatypes. A practical distinction is that class models
-are undirected graphs representing an unlimited variety of semantic relationships, while information models
+UML class models and diagrams are commonly referred to as "Data Models", but they model physical or logical entities
+using classes while information models model data itself using datatypes. A practical distinction is that class models
+are undirected graphs with an unlimited variety of semantic relationships, while information models
 are directed graphs with only two kinds of relationship: "contain" and "reference".
 Converting a class model to an information model is largely a matter of assigning the type and direction of
-each relationship and establishing identifiers for all referenceable types.
+each relationship, establishing identifiers for all referenceable types, and selecting node types.
 ```code
 DIKW Pyramid:            Knowledge               Information          Data
 
@@ -240,7 +244,7 @@ is represented when communicating.  More formally, information is the unexpected
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known
 *a priori*. If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization)
+(e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization)
 is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
@@ -276,7 +280,7 @@ The container edges of an information model must be acyclic in order to ensure t
 3) every instance has finite nesting depth.
 
 There is no restriction on reference edges, so any container cycles in a model can be
-broken by converting container edges to references.
+broken by converting containers to references.
 
 Logical models are undirected graphs, and a few results from graph theory are useful when
 constructing information models from logical models:
@@ -1380,7 +1384,30 @@ The edge type and direction illustrate visually how instances are serialized, in
 from Class to Person.  An alternate information model derived from the same logical model might
 use references "teaches" and "enrolled_in" from Person to Class.
 
-Figure 5-2 is an example instance of type University:
+Figure 5-2 is a [GraphViz](#graphviz) "dot" file generated from the University information model
+showing a conceptual level of detail. Dot diagrams may be viewed at, for example, https://sketchviz.com.
+```
+# package: http://example.com/uni
+# exports: ['University']
+
+digraph G {
+  graph [fontname=Times, fontsize=12];
+  node [fontname=Arial, fontsize=8, shape=box, style=filled, fillcolor=lightskyblue1];
+  edge [fontname=Arial, fontsize=7, arrowsize=0.5, labelangle=45.0, labeldistance=0.9];
+  bgcolor="transparent";
+
+  n0 [label="University"]
+    n0 -> n1 [label="classes", headlabel="1..*", taillabel="1"]
+    n0 -> n2 [label="people", headlabel="1..*", taillabel="1"]
+  n1 [label="Class"]
+    n1 -> n2 [style="dashed", label="teachers", headlabel="1..*", taillabel="1"]
+    n1 -> n2 [style="dashed", label="students", headlabel="1..*", taillabel="1"]
+  n2 [label="Person"]
+}
+```
+###### Figure 5-2: GraphViz Source for University Conceptual ERD
+
+Figure 5-3 is an example instance of the University type serialized in verbose JSON data format:
 ```json
 {
   "name": "Faber College",
@@ -1418,12 +1445,12 @@ Figure 5-2 is an example instance of type University:
   ]
 }
 ```
-###### Figure 5-2: University instance serialized as JSON
+###### Figure 5-3: JSON instance of University
 
 # 6 Schema Packages
 
-JADN schemas are organized into packages.  A package consists of an optional
-[information](#f1-package) section and a list of [type definitions](#f2-type-definitions):
+JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
+information section and a list of [type definitions](#f2-type-definitions):
 
 ```
     Schema = Record                            // Definition of a JADN package
@@ -1431,15 +1458,16 @@ JADN schemas are organized into packages.  A package consists of an optional
        2 types        Types                    // Types defined in this package
 ```
 
-If the information section is present the *package* field is required; all others are optional.
+If the info section is present the *package* field is required to establish the package's namespace;
+other fields are optional.
 
-* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced from other
-packages. This is an identifier but not necessarily a locator for accessible resources.
-The namespace may include major or major.minor versioning information, such as http://example.com/acme2
-or http://example.com/acme/v1.3.
+* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
+  from other packages. This is an identifier but not necessarily a locator for accessible resources.
+  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
+  or http://example.com/acme/v1.3.
 * **version:** Incremental version of this package, a string that compares lexicographically higher
-than previous versions. The *namespaces* field references only package namespaces. Version may be used to determine
-the most recent definition of a namespace.
+  than previous versions. The *namespaces* field references only package namespaces. Version may be used
+  to determine the most recent definition of a namespace.
 * **title:** A short name for this package.
 * **description:** A brief description of purpose or capabilities of this package
 * **comment:** Any other information applicable to the package.
@@ -1447,9 +1475,11 @@ the most recent definition of a namespace.
 * **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
 * **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
 defined in other packages.
-* **exports:** Root types. All types defined in a package can be referenced under the package's namespace.
-Exports may be used by schema tools to detect unused types or prune when copying definitions between files.
-* **config:** Values such as name formats and size limits that are customized for this package.
+* **exports:** Root types. There are no private type definitions in a package; all types can be referenced
+  using the package's namespace. Exports allows authors to designate public types and allows schema tools
+  to detect unused types.
+* **config:** Values such as name formats and size limits that are customized for this package.  See
+  [package](#f1-package) for the list of configuration variables.
 
 -------
 
@@ -1462,17 +1492,18 @@ and conforming implementations must support at least one data format.
 
 * Core JADN
     * Validate schema packages according to [Section 3.1](#31-type-definitions), [Section 3.2](#32-options)
-    and [section 6](#6-schemas)
+    and [section 6](#6-schema-packages)
     * Validate API values against a schema package
     * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 4](#4-serialization)
 * JADN Extensions
     * Satisfy all Core requirements
     * Perform all extension unfolding operations defined in [Section 3.3](#33-jadn-extensions)
 
-This document describes several schema support functions but defines no corresponding conformance requirements:
+This document describes information modeling functions but defines no corresponding conformance requirements:
 
 * JADN Schema Translator
-    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in Section 5
+    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in
+      [Section 5](#5-definition-formats).
 * JADN Concrete Schema Generators
     * Generate format-specific concrete schemas per serialization rules in Section 4.x.
 * JADN Extensions
@@ -1542,6 +1573,8 @@ Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
+###### [GRAPHVIZ]
+*"Graph Visualization Software"*, https://graphviz.gitlab.io/
 ###### [IE]
 Wikipedia, "Information Engineering", https://en.wikipedia.org/wiki/Information_engineering_(field)
 ###### [PROTO]
@@ -1892,10 +1925,10 @@ TypeRef = String                             // Autogenerated ($NSID ':')? $Type
 -------
 
 # Appendix G. JADN Type Definitions From This Document
-This appendix contains the JADN type definitions corresponding to all JADN-IDL examples in this document.
+This appendix contains the JADN type definitions corresponding to all examples in this document.
 
 **[Section 2.3 Example Definitions](#23-information-definition-formats):**
-```
+```json
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "id", "Integer", [], ""],
@@ -1904,7 +1937,8 @@ This appendix contains the JADN type definitions corresponding to all JADN-IDL e
 ```
 
 **[Section 3.2.2.2 Discriminated Union with Explicit Tag](#3222-discriminated-union-with-explicit-tag):**
-```
+```json
+[
   ["Product", "Choice", [], "Discriminated union", [
     [1, "furniture", "Furniture", [], ""],
     [2, "appliance", "Appliance", [], ""],
@@ -1940,89 +1974,101 @@ This appendix contains the JADN type definitions corresponding to all JADN-IDL e
     [2, "sha1", "Binary", ["/x", "{20", "}20"], ""],
     [3, "sha256", "Binary", ["/x", "{32", "}32"], ""]
   ]]
+]
 ```
 
 **[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
-```
-["Member", "Record", [], "", [
+```json
+[
+  ["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "email", "String", ["/email"], ""]
-]],
-["Member2", "Record", [], "", [
+  ]],
+  ["Member2", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "email", "Member2$email", [], ""]
-]],
-["Member2$email", "String", ["/email"], "Tool-generated type definition.", []]
+  ]],
+  ["Member2$email", "String", ["/email"], "Tool-generated type definition.", []]
+]
 ```
 
 **[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
-```
-["Roster", "Record", [], "", [
+```json
+[
+  ["Roster", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Member", ["[0", "]0"], "Optional and repeated: minc=0, maxc=0"]
-]],
-["Roster2", "Record", [], "", [
+  ]],
+  ["Roster2", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Roster2$members", ["[0"], "Optional: minc=0, maxc=1"]
-]],
-["Roster2$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0", []],
-["Roster3", "Record", [], "", [
+  ]],
+  ["Roster2$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0", []],
+  ["Roster3", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Members", [], "members field is required: default minc = 1, maxc = 1"]
-]],
-["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0", []]
+  ]],
+  ["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0", []]
+]
 ```
 
 **[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
-```
-["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type", []],
-["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)", []],
-["Channel2", "Enumerated", [], "", [
+```json
+[
+  ["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type", []],
+  ["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)", []],
+  ["Channel2", "Enumerated", [], "", [
     [1, "red", ""],
     [2, "green", ""],
     [3, "blue", ""]
-]],
-["ChannelMask2", "ArrayOf", ["*Channel"], "", []]
+  ]],
+  ["ChannelMask2", "ArrayOf", ["*Channel"], "", []]
+]
 ```
 
 **[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
 
 Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
-```
-["Channel3", "Enumerated", [], "", [
+```json
+[
+  ["Channel3", "Enumerated", [], "", [
     [1, "red", ""],
     [2, "green", ""],
     [3, "blue", ""]
-]],
-["Pixel3", "MapOf", ["+Channel3", "*Integer"], "", []]
+  ]],
+  ["Pixel3", "MapOf", ["+Channel3", "*Integer"], "", []]
+]
 ```
 
 **[Section 3.3.5 Pointers](#335-pointers):**
 
-```
-["Catalog", "Record", [], "", [
+```json
+[
+  ["Catalog", "Record", [], "", [
     [1, "a", "TypeA", [], ""],
     [2, "b", "TypeB", ["<"], ""]
-]],
-["TypeA", "Record", [], "", [
+  ]],
+  ["TypeA", "Record", [], "", [
     [1, "x", "Number", [], ""],
     [2, "y", "Number", [], ""]
-]],
-["TypeB", "Record", [], "", [
+  ]],
+  ["TypeB", "Record", [], "", [
     [1, "foo", "String", [], ""],
     [2, "bar", "Integer", [], ""]
-]],
-["Paths", "Enumerated", [">Catalog"], "", []],
-["Paths2", "Enumerated", [], "", [
+  ]],
+  ["Paths", "Enumerated", [">Catalog"], "", []],
+  ["Paths2", "Enumerated", [], "", [
     [1, "a", "Item 1"],
     [2, "b/foo", "Item 2"],
     [3, "b/bar", "Item 3"]
-]]
+  ]]
+]
 ```
 
 **[Section 3.3.6 Links](#336-links):**
 
-```
+```json
+[
   ["Person", "Record", [], "", [
     [1, "id", "Integer", ["K"], ""],
     [2, "name", "String", [], ""],
@@ -2036,17 +2082,51 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "id", "Person$id", [], ""],
     [2, "name", "String", [], ""],
     [3, "mother", "Person$id", [], ""],
-    [4, "father", "Person$id", ["], ""],
+    [4, "father", "Person$id", [], ""],
     [5, "siblings", "Person$id", ["[0", "]0"], ""],
     [6, "friends", "Person$id", ["[0", "]0"], ""],
     [7, "employer", "Organization$ein", ["[0"], ""]
   ]],
   ["Person$id", "Integer", [], "", []],
   ["Organization$ein", "String", ["{10", "}10"], "", []]
+]
+```
+
+**[Section 5.3. Entity Relationship Diagrams](#53-entity-relationship-diagrams):**
+```json
+{
+ "info": {
+  "package": "http://example.com/uni",
+  "exports": ["University"]
+ },
+
+ "types": [
+  ["University", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "classes", "Class", ["]0"], ""],
+    [3, "people", "Person", ["]0"], ""]
+  ]],
+
+  ["Class", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "room", "String", [], ""],
+    [3, "teachers", "Person", ["L", "]0"], ""],
+    [4, "students", "Person", ["L", "]0"], ""]
+  ]],
+
+  ["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "univ_id", "UnivId", ["K"], ""],
+    [3, "email", "String", ["/email"], ""]
+  ]],
+
+  ["UnivId", "String", ["%^U-\\d{6}$"], "", []]
+ ]
+}
 ```
 
 **[Appendix F. JADN Meta-schema](#appendix-f-jadn-meta-schema-for-jadn-documents):**
-```
+```json
 {
  "info": {
   "title": "JADN Metaschema",
