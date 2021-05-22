@@ -1063,20 +1063,17 @@ Note that the *enum* and *pointer* extensions create shallow dependencies: the r
 types are needed in order to unfold them but types below the direct references are not.
 
 ### 3.3.6 Links
-Types in an information model cannot reference themselves, either directly or indirectly through other types.
-In other words, a type graph cannot have cycles.
-But an information model can represent arbitrarily-connected *instance* graphs using links.
-Links can have any syntax including integers, UUIDs, addresses, format-specific strings such as URIs,
-or unrestricted strings. The only information modeling requirement is that the
-identifier of an instance (its primary key) must have the same syntax as any links that reference it (foreign keys).
+The container graph of an information model cannot have cycles, meaning that an instance of a type
+cannot recursively contain other instances of that type either directly or indirectly through other types.
+But a type can contain references to itself or to other types without restriction, as long as the
+referenced type contains a primary key that identifies instances of that type.
 
-The link extension automates that requirement: the *key* option within a structured type designates
-a field as a primary key, and the *link* option designates a reference to an instance of a specified type.
-The *key* and *link* options do not affect the serialization or validation of data, but they MAY
-be used by applications to perform relationship-aware operations such as checking or enforcing referential integrity.
+The link extension supports references: the *key* option designates a field as a primary key,
+and the *link* option designates a field as a foreign key that references an instance of the specified type.
+The *key* and *link* options do not affect serialization or validation of data, but they MAY
+be used by applications to perform relationship-aware operations such as checking referential integrity.
 
-As an example, a Person type might be used to represent friends, family and employment relationships. This example
-assumes that an Organization type is defined elsewhere with a Key field called 'ein':
+As an example, a Person type might include family, friend, and employment relationships:
 
     Person = Record
         1 id        Key(Integer)
@@ -1087,8 +1084,13 @@ assumes that an Organization type is defined elsewhere with a Key field called '
         6 friends   Link(Person) [0..*]
         7 employer  Link(Organization) optional
 
-Unfolding creates an explicit key type and replaces links with that type, but discards the explicit indicator
-that a field is a primary key or relationship:
+    Organization = Record
+        1 name      String
+        2 ein       Key(String{10..10})
+
+Unfolding creates an explicit type for each key and replaces links with that type. Unfolded types support
+syntactic validation of individual instances but do not include an explicit indication of identifier uniqueness
+or reference relationships between instances:
 
     Person = Record
         1 id        Person$id
@@ -1098,6 +1100,10 @@ that a field is a primary key or relationship:
         5 siblings  Person$id [0..*]
         6 friends   Person$id [0..*]
         7 employer  Organization$ein optional
+
+    Organization = Record
+        1 name      String
+        2 ein       Organization$ein
  
     Person$id = Integer
     Organization$ein = String{10..10}
