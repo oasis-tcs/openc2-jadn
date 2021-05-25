@@ -423,7 +423,7 @@ JADN's base types are:
 | Choice             | A [discriminated union](#union): one type selected from a set of named or labeled types. |
 | **Structured**     |                                                               |
 | Array              | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
-| ArrayOf(*vtype*)   | An ordered list of fields with the same semantics. Each field has a position and type *vtype*. |
+| ArrayOf(*vtype*)   | A collection of fields with the same semantics. Each field has type *vtype*. Ordering and uniqueness are specified by a collection option. |
 | Map                | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*. |
 | Record             | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
@@ -437,21 +437,22 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include Null values after the last non-Null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing Nulls MUST compare as equal.
 
-UML defines collection properties "isOrdered" and "isUnique".
-As described in Table 3-1, JADN structured types are based on these properties and also distinguish between
-homogeneous (ArrayOf, MapOf) and heterogeneous (Array, Map, Record) collections.  For homogeneous collections
-JADN uses the ArrayOf type with "set", "unique" or "unordered" options ([Section 3.2.1](#321-type-options))
-in lieu of defining additional built-in types such as "SetOf", "OrderedSetOf" and "BagOf".
+As described in Table 3-1, JADN structured types define if their members are *Ordered* and/or *Unique*.
+They also distinguish between homogeneous collections where all members have the same type
+and heterogeneous collections where each member has a specified type.
+For homogeneous collections JADN uses the single "ArrayOf" type with a "set", "unique" or "unordered"
+option ([Section 3.2.1](#321-type-options)) rather than defining separate names for each collection type.
 
-| Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Types |
+| Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Type |
 | :-----: | :----: | :--------- | :----------------- | :------- |
 | false   | true   | Set        | ArrayOf+set, MapOf | Map      |
 | true    | false  | Sequence   | ArrayOf            | Array    |
 | true    | true   | OrderedSet | ArrayOf+unique     | Record   |
 | false   | false  | Bag        | ArrayOf+unordered  | none     |
 
-The result of referencing an element of a Bag collection whose values or keys are neither ordered nor unique is
-unspecified; the only semantically meaningful access is to some arbitrarily-chosen element of the collection. 
+Accessing an element of a collection whose values are neither ordered nor unique
+returns an arbitrarily-chosen member of the collection. Elements of other collection types are
+deterministically accessed by position, value, or in the case of the Record type, either position or value.
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
@@ -622,7 +623,7 @@ TypeOption = Choice
 
 * TypeOptions MUST contain zero or one instance of each TypeOption.
 * TypeOptions MUST contain only TypeOption instances allowed for BaseType as shown in Table 3-3, plus a default value.
-* If BaseType is ArrayOf, TypeOptions MUST include the *vtype* option.
+* If BaseType is ArrayOf, TypeOptions MUST include the *vtype* option and MUST NOT include more than one collection option (*set*, *unique*, or *unordered*).
 * If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
 ###### Table 3-3. Allowed Options
@@ -1090,7 +1091,7 @@ As an example, a Person type might include family, friend, and employment relati
 
 Unfolding creates an explicit type for each key and replaces links with that type. Unfolded types support
 syntactic validation of individual instances but do not include an explicit indication of identifier uniqueness
-or reference relationships between instances:
+or relationships between instances:
 
     Person = Record
         1 id        Person$id
@@ -1119,14 +1120,9 @@ serialization formats defined elsewhere must:
 * Specify how each option applicable to a type affects serialized values
 * Specify any validation requirements defined for that format
 
-Data formats are either "schemaless" or "schema-required". Serialization rules for schemaless formats such as
-JSON, CBOR, and XML should maintain independence of serialization and validation. As an example, the rules for
-converting XML elements and attributes into an API instance should not depend on the information model.
-Rules for schema-required data formats such as RFC 791-style field layouts, Protobuf, and Avro should facilitate
-separation of serialization and validation to the extent practical.
-
-## 4.1 JSON Serialization
-The following serialization rules are used to represent JADN data types in a human-friendly JSON format.
+## 4.1 Verbose JSON Serialization
+The following serialization rules represent JADN data types in a human-readable JSON format using
+name-value encoding for tabular data.
 
 * When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
@@ -1136,7 +1132,6 @@ The following serialization rules are used to represent JADN data types in a hum
 | **Boolean** | JSON **true** or **false** |
 | **Integer** | JSON **number** |
 | **Number** | JSON **number** |
-| **Null** | JSON **null** |
 | **String** | JSON **string** |
 | **Enumerated** | JSON **string** ItemValue |
 | **Enumerated** with "id" | JSON **integer** ItemID |
@@ -1147,7 +1142,7 @@ The following serialization rules are used to represent JADN data types in a hum
 | **Map** | JSON **object**. Property keys are FieldNames. |
 | **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
 | **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** | Same as **Map**. |
+| **Record** | JSON **object**. Property keys are FieldNames. |
 
 **Format options that affect JSON serialization**
 * When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
@@ -1159,6 +1154,35 @@ The following serialization rules are used to represent JADN data types in a hum
 | **ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2. |
 | **ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1. |
 | **ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3. |
+
+Specifications MAY define additional format options for textual representation of Binary, Integer, Number or Array data.
+
+## 4.2 Compact JSON Serialization:
+The following serialization rules represent JADN types in a human-readable JSON format using
+positional encoding for tabular data.
+
+* When using Compact JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
+
+| JADN Type | Concise JSON Serialization Requirement |
+| :--- | :--- |
+| **Record** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
+
+## 4.2 Concise JSON Serialization:
+Concise JSON serialization rules represent JADN data types in a format optimized for minimum size.
+JSON data in this format may be used directly for communication or to visualize the content of CBOR-serialized
+data.
+
+* When using Concise JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
+
+| JADN Type | Concise JSON Serialization Requirement |
+| :--- | :--- |
+| **Enumerated** | JSON **integer** ItemID |
+| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
+| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record** |  JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
+
+All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
 
 ## 4.2 CBOR Serialization
 The following serialization rules are used to represent JADN data types in Concise Binary
@@ -1175,7 +1199,6 @@ be serialized as:
 | **Boolean** | **bool**: a Boolean value (False = #7.20, True = #7.21). |
 | **Integer** | **int**: an unsigned integer (#0) or negative integer (#1) |
 | **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
-| **Null** | **null**: (#7.22) |
 | **String** | **tstr**: a text string (#3). |
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID. |
 | **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
@@ -1194,30 +1217,8 @@ serialized as:
 | **f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). |
 | **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
-## 4.3 M-JSON Serialization:
-Minimized JSON serialization rules represent JADN data types in a compact format suitable for machine-to-machine
-communication.  They produce JSON instances equivalent to the diagnostic notation of CBOR instances.
-
-* When using M-JSON serialization, instances of JADN types MUST be serialized as:
-
-| JADN Type | M-JSON Serialization Requirement |
-| :--- | :--- |
-| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of RFC 4648. |
-| **Boolean** | JSON **true** or **false** |
-| **Integer** | JSON **number** |
-| **Number** | JSON **number** |
-| **Null** | JSON **null** |
-| **String** | JSON **string** |
-| **Enumerated** | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
-| **Array** | JSON **array** of values with types specified by FieldType. Unspecified values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
-| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** | Same as **Array**. |
-
 ## 4.4 XML Serialization:
-*This section is informative. Normative XML serialization rules will be defined in a future version of this specification.*
+* XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
 
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
@@ -1227,7 +1228,6 @@ communication.  They produce JSON instances equivalent to the diagnostic notatio
 | **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
 | **Integer** | <xs:element name="FieldName" type="xs:integer"/> |
 | **Number**  | <xs:element name="FieldName" type="xs:decimal"/> |
-| **Null**    | <xs:attribute name="FieldName" xsi:nil="true"/> |
 | **String**  | <xs:element name="FieldName" type="xs:string"/> |
 | **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item |
 | **Choice**  | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
@@ -1562,6 +1562,8 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
 ###### [RFC8259]
 Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
+###### [XMLDATA]
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 ## A.2 Informative References
 
