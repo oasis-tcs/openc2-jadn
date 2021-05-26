@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 19 May 2021
+## 26 May 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
@@ -81,7 +81,7 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 19 May 2021.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 26 May 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
@@ -431,16 +431,16 @@ JADN's base types are:
 * An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
 Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
 * An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
-* An instance of a Map, MapOf, or Record type MUST NOT have a key of the Null type.
-* An instance of a Map, MapOf, or Record type with a key mapped to a Null value MUST compare as equal to an
+* An instance of a Map, MapOf, or Record type MUST NOT have a key of the null type.
+* An instance of a Map, MapOf, or Record type with a key mapped to a null value MUST compare as equal to an
 otherwise identical instance without that key.
-* The length of an Array, ArrayOf or Record instance MUST not include Null values after the last non-Null value.
-* Two Array, ArrayOf or Record instances that differ only in the number of trailing Nulls MUST compare as equal.
+* The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
+* Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
 As described in Table 3-1, JADN structured types define if their members are *Ordered* and/or *Unique*.
 They also distinguish between homogeneous collections where all members have the same type
 and heterogeneous collections where each member has a specified type.
-For homogeneous collections JADN uses the single "ArrayOf" type with a "set", "unique" or "unordered"
+For homogeneous collections JADN uses the single "ArrayOf" type with a *set*, *unique* or *unordered*
 option ([Section 3.2.1](#321-type-options)) rather than defining separate names for each collection type.
 
 | Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Type |
@@ -451,8 +451,8 @@ option ([Section 3.2.1](#321-type-options)) rather than defining separate names 
 | false   | false  | Bag        | ArrayOf+unordered  | none     |
 
 Accessing an element of a collection whose values are neither ordered nor unique
-returns an arbitrarily-chosen member of the collection. Elements of other collection types are
-deterministically accessed by position, value, or in the case of the Record type, either position or value.
+returns an arbitrarily-chosen element. Elements of other collections are
+deterministically accessed by position, value, or for the Record type either position or value.
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
@@ -1138,10 +1138,10 @@ name-value encoding for tabular data.
 | **Choice** | JSON **object** with one property.  Property key is FieldName. |
 | **Choice** with "id" | JSON **object** with one property. Property key is FieldID converted to string. |
 | **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is Null. |
+| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null. |
 | **Map** | JSON **object**. Property keys are FieldNames. |
 | **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is Null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record** | JSON **object**. Property keys are FieldNames. |
 
 **Format options that affect JSON serialization**
@@ -1203,9 +1203,9 @@ be serialized as:
 | **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID. |
 | **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
 | **Array** | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
-| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is Null. |
+| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is null. |
 | **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
-| **MapOf** | **table**: a map (#5) of pairs, or **null** if *vtype* is Null. In each pair the first item has type *ktype*, the second item has type *vtype*. |
+| **MapOf** | **table**: a map (#5) of pairs, or **null** if *vtype* is null. In each pair the first item has type *ktype*, the second item has type *vtype*. |
 | **Record** | Same as **Array**. |
 
 **Format options that affect CBOR Serialization**
@@ -1217,8 +1217,9 @@ serialized as:
 | **f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). |
 | **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
+<!---
 ## 4.4 XML Serialization:
-* XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
+*XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
 
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
@@ -1250,6 +1251,7 @@ serialized as:
 | **u9..u16** | Integer | <xs:element name="FieldName" type="xs:unsignedShort"/> |
 | **u17..u32** | Integer | <xs:element name="FieldName" type="xs:unsignedInt"/> |
 | **u33..u*** | Integer | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
+--->
 
 -------
 
@@ -1793,7 +1795,7 @@ A JADN package has the following structure:
     },
     "BaseType": {
       "type": "string",
-      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
+      "enum": ["Binary", "Boolean", "Integer", "Number", "String",
                "Enumerated", "Choice",
                "Array", "ArrayOf", "Map", "MapOf", "Record"]
     },
@@ -1879,30 +1881,28 @@ BaseType = Enumerated
    2 Boolean
    3 Integer
    4 Number
-   5 Null
-   6 String
-   7 Enumerated
-   8 Choice
-   9 Array
-  10 ArrayOf
-  11 Map
-  12 MapOf
-  13 Record
+   5 String
+   6 Enumerated
+   7 Choice
+   8 Array
+   9 ArrayOf
+  10 Map
+  11 MapOf
+  12 Record
 
 JADN-Type = Choice
    1 Binary       Empty
    2 Boolean      Empty
    3 Integer      Empty
    4 Number       Empty
-   5 Null         Empty
-   6 String       Empty
-   7 Enumerated   Items
-   8 Choice       Fields
-   9 Array        Fields
-  10 ArrayOf      Empty
-  11 Map          Fields
-  12 MapOf        Empty
-  13 Record       Fields
+   5 String       Empty
+   6 Enumerated   Items
+   7 Choice       Fields
+   8 Array        Fields
+   9 ArrayOf      Empty
+  10 Map          Fields
+  11 MapOf        Empty
+  12 Record       Fields
 
 Empty = Array{0..0}
 Items = ArrayOf(Item)
@@ -2187,30 +2187,28 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [2, "Boolean", ""],
     [3, "Integer", ""],
     [4, "Number", ""],
-    [5, "Null", ""],
-    [6, "String", ""],
-    [7, "Enumerated", ""],
-    [8, "Choice", ""],
-    [9, "Array", ""],
-    [10, "ArrayOf", ""],
-    [11, "Map", ""],
-    [12, "MapOf", ""],
-    [13, "Record", ""]
+    [5, "String", ""],
+    [6, "Enumerated", ""],
+    [7, "Choice", ""],
+    [8, "Array", ""],
+    [9, "ArrayOf", ""],
+    [10, "Map", ""],
+    [11, "MapOf", ""],
+    [12, "Record", ""]
   ]],
   ["JADN-Type", "Choice", [], "", [
     [1, "Binary", "Empty", [], ""],
     [2, "Boolean", "Empty", [], ""],
     [3, "Integer", "Empty", [], ""],
     [4, "Number", "Empty", [], ""],
-    [5, "Null", "Empty", [], ""],
-    [6, "String", "Empty", [], ""],
-    [7, "Enumerated", "Items", [], ""],
-    [8, "Choice", "Fields", [], ""],
-    [9, "Array", "Fields", [], ""],
-    [10, "ArrayOf", "Empty", [], ""],
-    [11, "Map", "Fields", [], ""],
-    [12, "MapOf", "Empty", [], ""],
-    [13, "Record", "Fields", [], ""]
+    [5, "String", "Empty", [], ""],
+    [6, "Enumerated", "Items", [], ""],
+    [7, "Choice", "Fields", [], ""],
+    [8, "Array", "Fields", [], ""],
+    [9, "ArrayOf", "Empty", [], ""],
+    [10, "Map", "Fields", [], ""],
+    [11, "MapOf", "Empty", [], ""],
+    [12, "Record", "Fields", [], ""]
   ]],
   ["Empty", "Array", ["}0"], "", []],
   ["Items", "ArrayOf", ["*Item"], "", []],
