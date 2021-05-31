@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 17 May 2021
+## 19 May 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
@@ -81,7 +81,7 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 17 May 2021.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 19 May 2021.
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
@@ -120,7 +120,11 @@ Industry has multiple, often conflicting definitions of data modeling terms, inc
 "[Information Engineering](#ie)", which at one time referred to [data modeling](#datamod) but is
 now more closely aligned with information theory and machine learning.
 Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
-and informally calls information "descriptions inferred from data".
+and informally calls information "descriptions inferred from data". This specification uses the
+terminology shown in Figure 1: a data model represents the bits and bytes stored, processed and
+communicated by applications, while conceptual and logical models represent knowledge about
+real-world entities.
+
 JADN formalizes the relationship between information and data, creating a standardized
 technology-agnostic information modeling layer that lies between the traditional logical data model
 and multiple technology-specific physical data models.
@@ -128,12 +132,12 @@ and multiple technology-specific physical data models.
 UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
 Associations and Collaborations. The defining characteristic of a DataType is that instances are distinguished
 only by their value, whereas Class instances also have behavior, inheritance, roles, and other complex characteristics.
-UML class models and diagrams are commonly referred to as "Data Models", but they model "the real world" using
-classes while information models model data itself using datatypes. A practical distinction is that class models
-are undirected graphs representing an unlimited variety of semantic relationships, while information models
-are directed graphs with only two kinds of relationship: "contains" and "references".
+UML class models and diagrams are commonly referred to as "Data Models", but they model physical or logical entities
+using classes while information models model data itself using datatypes. A practical distinction is that class models
+are undirected graphs with an unlimited variety of semantic relationships, while information models
+are directed graphs with only two kinds of relationship: "contain" and "reference".
 Converting a class model to an information model is largely a matter of assigning the type and direction of
-each relationship and establishing identifiers for all referenceable types.
+each relationship, establishing identifiers for all referenceable types, and selecting node types.
 ```code
 DIKW Pyramid:            Knowledge               Information          Data
 
@@ -150,7 +154,7 @@ Modeling:     |   Model    |   |   Model    |   |    Model    |   | Data Models 
               +------------+   +------------+   +-------------+   +-------------+ |
                                                                     +-------------+
 ```
-**Figure 1**: Information Engineering Terminology
+###### Figure 1: Information Engineering Terminology
 
 ## 1.1 Changes from earlier versions
 
@@ -222,6 +226,7 @@ N/A
 
 ### 1.2.2 Acronyms and abbreviations
 
+* **DAG**: Directed Acyclic Graph
 * **DM**: Data Model
 * **IM**: Information Model
 * **UML**: Unified Modeling Language
@@ -232,23 +237,6 @@ N/A
 - Font colors and styles
 - Typographic conventions
 
-<!--
-## 1.3 Background
-*Clean up, move into Introduction*
-As with any FDT this approach is intended to be formal, descriptive, and technically useful.
-Tools with no specific JADN knowledge are able to treat an information model as a generic graph,
-allowing reuse of existing design processes and tooling for software objects, interfaces, services and
-systems.
-
-**Graph theory** - 
-
-**Information theory** - each node defines a DataType ([UML](#uml) Section 10.2) in terms of the characteristics
-it provides to applications. Information theory quantifies the novelty (news value, or "entropy") of data,
-and JADN DataTypes define the information conveyed by an instance separately from the data used to serialize it.
-Separating significant information from insignificant data allows a single information model to define
-data models ranging from nearly pure-information specifications such as RFC 791 to highly-verbose XML.
--->
-
 # 2 Information vs. Data
 
 Information is *what* needs to be communicated between applications, and data is *how* that information
@@ -256,7 +244,7 @@ is represented when communicating.  More formally, information is the unexpected
 contained in a document.  When information is serialized for transmission in a canonical format, the additional
 data used for purposes such as text conversion, delimiting, and framing contains no information because it is known
 *a priori*. If the serialization is non-canonical, any additional entropy introduced during serialization
-(e.g., variable whitespace, leading zeroes, field reordering, case-insensitive capitalization)
+(e.g., whitespace, leading zeroes, field reordering, case-insensitive capitalization)
 is discarded on deserialization.
 
 A variable that can take on 2^N different values conveys at most N bits of information.
@@ -270,7 +258,7 @@ a 32 bit value*.  But different data may be used to represent that information:
 
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application.  Field names and enumerated strings selected
-from a dozen possibliities contain less than four *bits* of information, while the strings themselves
+from a dozen possibliities convey less than four *bits* of information, while the strings themselves
 may be half a dozen to hundreds of *bytes* of data.
 By distinguishing information from data, information modeling is key to effectively using both
 binary data formats such as Protobuf and CBOR and text formats such as XML and JSON.
@@ -281,26 +269,21 @@ but source coding is beyond the scope of this specification.*
 
 ## 2.1 Graph Modeling
 
-A JADN information model is a graph that defines pairwise relations between nodes.
-Each node has a name that is unique across the model. Each edge has a name that is unique within the node
-that defines it. Any graph with these properties can be either a view of or a structural template for
-a JADN information model.
+A JADN information model is a set of type definitions ([Section 3.1](#31-type-definitions)).
+Each field in a structured type may be associated with another model-defined type, and the set of
+associations between types forms a directed graph.  Each association is either a container or a
+reference, and the direction of each edge is toward the contained or referenced type.
 
-A JADN information model is a list of type definitions ([Section 3.1](#31-type-definitions)) where
-each type has a TypeName, and each field within a structured type has a FieldType that is a predefined
-or model-defined type.  The latter represents a directed relationship from the defining type to the referenced type.
-The relationship is "contains" by default, but if the boolean "link" FieldOption is true the
-relationship is "references".
-
-The contain edges of an information model must form a directed acyclic graph in order to ensure that:
+The container edges of an information model must be acyclic in order to ensure that:
 1) every model has one or more roots,
-2) every path from a root to any leaf has finite length, and (equivalently)
+2) every path from a root to any leaf has finite length, and equivalently
 3) every instance has finite nesting depth.
 
-There is no restriction on reference edges, so if a model has contain cycles, they may be broken by converting
-one or more edges to references.
+There is no restriction on reference edges, so any container cycles in a model can be
+broken by converting containers to references.
 
-A few results from graph theory are useful for determining equivalence of data models:
+Logical models are undirected graphs, and a few results from graph theory are useful when
+constructing information models from logical models:
 * A tree is a connected acyclic undirected graph, where any pair of nodes is connected by exactly one path.
 * A directed (or rooted) tree is a hierarchy. A directed tree is constructed from an (undirected) tree by
   selecting one node as root and assigning all edge directions either toward or away from the root.
@@ -308,27 +291,25 @@ A few results from graph theory are useful for determining equivalence of data m
   a topological ordering, a sequence of nodes such that every edge is directed from earlier to later in the sequence.
 * A DAG differs from a directed tree in that nodes may have more than one parent.
 
-A DAG can be refactored into another DAG having the same underlying undirected graph but with a different root,
-and the underlying graphs of two DAGs can be compared for equality. This equivalence expands the
-range of data models that can be derived from a single information model.
+A DAG can be refactored into another DAG having the same underlying undirected graph,
+and two information models with the same underlying graph correspond to the same logical model.
 
 A DAG can be converted to a directed
-tree by denormalizing (copying subtrees below multi-parent nodes), and a directed tree can be converted to a DAG by
-normalizing (combining identical subtrees).
-Reuse of common types is an important goal in both design of information models and analysis of data, and JADN's
-flat type structure facilitates and encourages reuse.
-However, it is often useful to have a [tree-structured representation](#graph) of a document's structure.
-Converting an information model into a directed tree supports applications such as model queries that are
+tree by denormalizing (copying subtrees below multi-parent nodes), and a directed tree can be converted
+to a DAG by normalizing (combining identical subtrees).
+Reuse of common types is an important goal in both design of information models and analysis of data.
+However, it is sometimes useful to have a [tree-structured representation](#graph) of a document's structure.
+Converting a DAG into a directed tree supports applications such as model queries that are
 otherwise difficult to implement, tree-structured content statistics, content transformations, and documentation.
 
 ## 2.2 Information Modeling
 Data modeling in the conceptual/logical/physical sense is a top-down process starting with goals and ending
-with a physical data model. But in practice "data modeling" is often a bottom-up process that begins with
+with a physical data model. But in practice "data modeling" is often a bottom-up exercise that begins with
 a collection of desired data instances and ends with a concrete schema.
 That process could be called data-centric design, in contrast with information-centric design which
 begins with a set of types that reflect purpose rather than syntax.
-Because an information model is a graph, information-centric design integrates easily with
-logical and conceptual models, enabling bottom-up and top-down approaches to meet in the middle.
+Because an information model is a graph, information-centric design integrates easily with 
+conceptual and logical models, allowing bottom-up and top-down approaches to meet in the middle.
 
 | Data-centric | Information-centric |
 | --- | --- |
@@ -379,8 +360,7 @@ message Person {
   optional string email = 3;
 }
 ```
-The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar to
-Protobuf:
+The corresponding JADN definiton in IDL format ([Section 5](#5-definition-formats)) is structurally similar:
 ```
 Person = Record
    1 name     String
@@ -405,7 +385,7 @@ The normative form of a JADN type definition ([Section 3](#3-jadn-types)) is JSO
     [3, "email", "String", ["[0"], ""]
 ]]
 ```
-IDL or property tables are preferred for use in documentation, but conformance is based on the normative JSON form.
+IDL or property tables are preferred for use in documentation, but conformance is based on normative JSON data.
 
 ## 2.4 Implementation
 
@@ -459,9 +439,9 @@ otherwise identical instance without that key.
 
 UML defines collection properties "isOrdered" and "isUnique".
 As described in Table 3-1, JADN structured types are based on these properties and also distinguish between
-homogeneous (ArrayOf, MapOf) and heterogeneous (Array, Map, Record) collections.  For the ArrayOf type JADN
-uses the "set", "unique" and "unordered" options ([Section 3.2.1](#321-type-options)) to express these
-properties, in lieu of defining additional built-in types "SetOf", "OrderedSetOf" and "BagOf".
+homogeneous (ArrayOf, MapOf) and heterogeneous (Array, Map, Record) collections.  For homogeneous collections
+JADN uses the ArrayOf type with "set", "unique" or "unordered" options ([Section 3.2.1](#321-type-options))
+in lieu of defining additional built-in types such as "SetOf", "OrderedSetOf" and "BagOf".
 
 | Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Types |
 | :-----: | :----: | :--------- | :----------------- | :------- |
@@ -470,15 +450,15 @@ properties, in lieu of defining additional built-in types "SetOf", "OrderedSetOf
 | true    | true   | OrderedSet | ArrayOf+unique     | Record   |
 | false   | false  | Bag        | ArrayOf+unordered  | none     |
 
-The result of referencing an element of a collection whose values or keys are neither ordered nor unique is
-unspecified; the only semantically meaningful access is to *an* element of the collection. 
+The result of referencing an element of a Bag collection whose values or keys are neither ordered nor unique is
+unspecified; the only semantically meaningful access is to some arbitrarily-chosen element of the collection. 
 
 ## 3.1 Type Definitions
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
 
 * Every definition has five elements:
     1. **TypeName:** the name of the type being defined
-    2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-types)) of the type being defined
+    2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-base-types)) of the type being defined
     3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to **BaseType**
     4. **TypeDescription:** a non-normative comment
     5. **Fields:** an array of **Item** or **Field** definitions
@@ -502,7 +482,7 @@ JADN type definitions have a fixed structure designed to be easily describable, 
     5. **FieldDescription:** a non-normative comment
 
 
-The layout of a JADN structured type definition is:
+The elements of a type definition are layed out as:
 
 | **TypeName** | **BaseType** | **TypeOptions** | **TypeDescription** |      |
 | -----------: | -----------: | --------------: | ------------------: | :--- |
@@ -510,16 +490,16 @@ The layout of a JADN structured type definition is:
 | **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
 | **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
 
-JSON serializations are:
-```json
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                        (primitive)
+The elements are serialized in JSON format as:
+```
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                            (primitive)
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (enumerated)
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (enumerated)
     [ItemId, ItemValue, ItemDescription],
     ...
 ]]
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                          (structured)
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (structured)
     [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
     ...
 ]]
@@ -545,8 +525,8 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * JADN specifications MAY override the default name formats by defining one or more of:
     * The permitted format for TypeName
     * The permitted format for FieldName
-    * A "System" character used in tool-generated or specially-processed type names
     * The permitted format for the Namespace Identifier (NSID) used in type references
+    * A "System" character used in tool-generated or specially-processed type names
 * Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
@@ -572,22 +552,21 @@ Specifications MAY use the same syntax for TypeName and FieldName. Using distinc
 does not affect the meaning of type definitions.
 
 ### 3.1.2 Upper Bounds
-Type definitions based on variable-length types may include maximum size limits. If an individual type does not
-define an explicit limit, it uses the default limit defined by the specification.
-If the specification does not define a default, the definition uses the limits shown here, which are
+Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
+in [Section 3.2.1](#321-type-options).
+If an individual type does not define an explicit limit, it uses the limit shown in the package's
+$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 6](#6-schema-packages)).
+If the specification does not define a limit, the definition defaults to the values shown here, which are
 deliberately conservative to encourage specification authors to define limits based on application requirements.
-* JADN specifications SHOULD define size limits on the variable-length values shown in Figure 3-2.
-* Specifications that do not define alternate size limits MUST use the values shown in Figure 3-2.
-* An instance MUST be considered invalid if its size exceeds the limit specified in its type definition,
-or the default limit defined in the specification containing its type definition, or if the specification does
-not define a default, the limit shown in Figure 3-2.
+* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
+* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
 
 ```
-Type                Name         Limit   Description
------               -----        -----   -----------
-Binary              MaxBinary    255     Maximum number of octets
-String              MaxString    255     Maximum number of characters
-Array, ArrayOf,     MaxElements  100     Maximum number of items/properties
+Type                Name           Limit   Description
+-----               -----          -----   -----------
+Binary              $MaxBinary     255     Maximum number of octets
+String              $MaxString     255     Maximum number of characters
+Array, ArrayOf,     $MaxElements   100     Maximum number of items/properties
 Map, MapOf, Record
 ```
 ###### Figure 3-2: JADN Default Size Limits
@@ -1084,20 +1063,17 @@ Note that the *enum* and *pointer* extensions create shallow dependencies: the r
 types are needed in order to unfold them but types below the direct references are not.
 
 ### 3.3.6 Links
-Types in an information model cannot reference themselves, either directly or indirectly through other types.
-In other words, a type graph cannot have cycles.
-But an information model can represent arbitrarily-connected *instance* graphs using links.
-Links can have any syntax including integers, UUIDs, addresses, format-specific strings such as URIs,
-or unrestricted strings. The only information modeling requirement is that the
-identifier of an instance (its primary key) must have the same syntax as any links that reference it (foreign keys).
+The container graph of an information model cannot have cycles, meaning that an instance of a type
+cannot recursively contain other instances of that type either directly or indirectly through other types.
+But a type can contain references to itself or to other types without restriction, as long as the
+referenced type contains a primary key that identifies instances of that type.
 
-The link extension automates that requirement: the *key* option within a structured type designates
-a field as a primary key, and the *link* option designates a reference to an instance of a specified type.
-The *key* and *link* options do not affect the serialization or validation of data, but they MAY
-be used by applications to perform relationship-aware operations such as checking or enforcing referential integrity.
+The link extension supports references: the *key* option designates a field as a primary key,
+and the *link* option designates a field as a foreign key that references an instance of the specified type.
+The *key* and *link* options do not affect serialization or validation of data, but they MAY
+be used by applications to perform relationship-aware operations such as checking referential integrity.
 
-As an example, a Person type might be used to represent friends, family and employment relationships. This example
-assumes that an Organization type is defined elsewhere with a Key field called 'ein':
+As an example, a Person type might include family, friend, and employment relationships:
 
     Person = Record
         1 id        Key(Integer)
@@ -1108,8 +1084,13 @@ assumes that an Organization type is defined elsewhere with a Key field called '
         6 friends   Link(Person) [0..*]
         7 employer  Link(Organization) optional
 
-Unfolding creates an explicit key type and replaces links with that type, but discards the explicit indicator
-that a field is a primary key or relationship:
+    Organization = Record
+        1 name      String
+        2 ein       Key(String{10..10})
+
+Unfolding creates an explicit type for each key and replaces links with that type. Unfolded types support
+syntactic validation of individual instances but do not include an explicit indication of identifier uniqueness
+or reference relationships between instances:
 
     Person = Record
         1 id        Person$id
@@ -1119,6 +1100,10 @@ that a field is a primary key or relationship:
         5 siblings  Person$id [0..*]
         6 friends   Person$id [0..*]
         7 employer  Organization$ein optional
+
+    Organization = Record
+        1 name      String
+        2 ein       Organization$ein
  
     Person$id = Integer
     Organization$ein = String{10..10}
@@ -1127,7 +1112,7 @@ that a field is a primary key or relationship:
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in
-[Table 3-1](#table-3-1-jadn-types). Serialization rules define how to represent instances of each type using
+[Table 3-1](#table-3-1-jadn-base-types). Serialization rules define how to represent instances of each type using
 a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
 serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
@@ -1399,11 +1384,36 @@ diagrams using the following conventions:
 
 ![ERD-DB](images/logical-info-erd.jpg)
 
-**Figure 5-1. Logical and Information Entity Relationship Diagrams**
+###### Figure 5-1: Logical and Information Entity Relationship Diagrams
 
 The edge type and direction illustrate visually how instances are serialized, in this case using references
 from Class to Person.  An alternate information model derived from the same logical model might
 use references "teaches" and "enrolled_in" from Person to Class.
+
+Figure 5-2 is a [GraphViz](#graphviz) "dot" file generated from the University information model
+showing a conceptual level of detail. Dot diagrams may be viewed at, for example, https://sketchviz.com.
+```
+# package: http://example.com/uni
+# exports: ['University']
+
+digraph G {
+  graph [fontname=Times, fontsize=12];
+  node [fontname=Arial, fontsize=8, shape=box, style=filled, fillcolor=lightskyblue1];
+  edge [fontname=Arial, fontsize=7, arrowsize=0.5, labelangle=45.0, labeldistance=0.9];
+  bgcolor="transparent";
+
+  n0 [label="University"]
+    n0 -> n1 [label="classes", headlabel="1..*", taillabel="1"]
+    n0 -> n2 [label="people", headlabel="1..*", taillabel="1"]
+  n1 [label="Class"]
+    n1 -> n2 [style="dashed", label="teachers", headlabel="1..*", taillabel="1"]
+    n1 -> n2 [style="dashed", label="students", headlabel="1..*", taillabel="1"]
+  n2 [label="Person"]
+}
+```
+###### Figure 5-2: GraphViz Source for University Conceptual ERD
+
+Figure 5-3 is an example instance of the University type serialized in verbose JSON data format:
 ```json
 {
   "name": "Faber College",
@@ -1441,11 +1451,12 @@ use references "teaches" and "enrolled_in" from Person to Class.
   ]
 }
 ```
+###### Figure 5-3: JSON instance of University
 
-# 6 Schemas
+# 6 Schema Packages
 
-JADN schemas are organized into packages.  A package consists of an optional
-[information](#c1-package) section and a list of [type definitions](#c2-type-definitions):
+JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
+information section and a list of [type definitions](#f2-type-definitions):
 
 ```
     Schema = Record                            // Definition of a JADN package
@@ -1453,15 +1464,16 @@ JADN schemas are organized into packages.  A package consists of an optional
        2 types        Types                    // Types defined in this package
 ```
 
-If the information section is present the *package* field is required; all others are optional.
+If the info section is present the *package* field is required to establish the package's namespace;
+other fields are optional.
 
-* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced from other
-packages. This is an identifier but not necessarily a locator for accessible resources.
-The namespace may include major or major.minor versioning information, such as http://example.com/acme2
-or http://example.com/acme/v1.3.
+* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
+  from other packages. This is an identifier but not necessarily a locator for accessible resources.
+  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
+  or http://example.com/acme/v1.3.
 * **version:** Incremental version of this package, a string that compares lexicographically higher
-than previous versions. The *namespaces* field references only package namespaces. Version may be used to determine
-the most recent definition of a namespace.
+  than previous versions. The *namespaces* field references only package namespaces. Version may be used
+  to determine the most recent definition of a namespace.
 * **title:** A short name for this package.
 * **description:** A brief description of purpose or capabilities of this package
 * **comment:** Any other information applicable to the package.
@@ -1469,9 +1481,11 @@ the most recent definition of a namespace.
 * **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
 * **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
 defined in other packages.
-* **exports:** Root types. All types defined in a package can be referenced under the package's namespace.
-Exports may be used by schema tools to detect unused types or prune when copying definitions between files.
-* **config:** Values such as name formats and size limits that are customized for this package.
+* **exports:** Root types. There are no private type definitions in a package; all types can be referenced
+  using the package's namespace. Exports allows authors to designate public types and allows schema tools
+  to detect unused types.
+* **config:** Values such as name formats and size limits that are customized for this package.  See
+  [package](#f1-package) for the list of configuration variables.
 
 -------
 
@@ -1484,17 +1498,18 @@ and conforming implementations must support at least one data format.
 
 * Core JADN
     * Validate schema packages according to [Section 3.1](#31-type-definitions), [Section 3.2](#32-options)
-    and [section 6](#6-schemas)
+    and [section 6](#6-schema-packages)
     * Validate API values against a schema package
     * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 4](#4-serialization)
 * JADN Extensions
     * Satisfy all Core requirements
     * Perform all extension unfolding operations defined in [Section 3.3](#33-jadn-extensions)
 
-This document describes several schema support functions but defines no corresponding conformance requirements:
+This document describes information modeling functions but defines no corresponding conformance requirements:
 
 * JADN Schema Translator
-    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in Section 5
+    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in
+      [Section 5](#5-definition-formats).
 * JADN Concrete Schema Generators
     * Generate format-specific concrete schemas per serialization rules in Section 4.x.
 * JADN Extensions
@@ -1564,6 +1579,8 @@ Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
+###### [GRAPHVIZ]
+*"Graph Visualization Software"*, https://graphviz.gitlab.io/
 ###### [IE]
 Wikipedia, "Information Engineering", https://en.wikipedia.org/wiki/Information_engineering_(field)
 ###### [PROTO]
@@ -1914,10 +1931,10 @@ TypeRef = String                             // Autogenerated ($NSID ':')? $Type
 -------
 
 # Appendix G. JADN Type Definitions From This Document
-This appendix contains the JADN type definitions corresponding to all JADN-IDL examples in this document.
+This appendix contains the JADN type definitions corresponding to all examples in this document.
 
-**[Section 2.3 Example Definitions](#23-example-definitions):**
-```
+**[Section 2.3 Example Definitions](#23-information-definition-formats):**
+```json
 ["Person", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "id", "Integer", [], ""],
@@ -1926,7 +1943,8 @@ This appendix contains the JADN type definitions corresponding to all JADN-IDL e
 ```
 
 **[Section 3.2.2.2 Discriminated Union with Explicit Tag](#3222-discriminated-union-with-explicit-tag):**
-```
+```json
+[
   ["Product", "Choice", [], "Discriminated union", [
     [1, "furniture", "Furniture", [], ""],
     [2, "appliance", "Appliance", [], ""],
@@ -1962,89 +1980,101 @@ This appendix contains the JADN type definitions corresponding to all JADN-IDL e
     [2, "sha1", "Binary", ["/x", "{20", "}20"], ""],
     [3, "sha256", "Binary", ["/x", "{32", "}32"], ""]
   ]]
+]
 ```
 
 **[Section 3.3.1 Type Definition Within Fields](#331-type-definition-within-fields):**
-```
-["Member", "Record", [], "", [
+```json
+[
+  ["Member", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "email", "String", ["/email"], ""]
-]],
-["Member2", "Record", [], "", [
+  ]],
+  ["Member2", "Record", [], "", [
     [1, "name", "String", [], ""],
     [2, "email", "Member2$email", [], ""]
-]],
-["Member2$email", "String", ["/email"], "Tool-generated type definition.", []]
+  ]],
+  ["Member2$email", "String", ["/email"], "Tool-generated type definition.", []]
+]
 ```
 
 **[Section 3.3.2 Field Multiplicity](#332-field-multiplicity):**
-```
-["Roster", "Record", [], "", [
+```json
+[
+  ["Roster", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Member", ["[0", "]0"], "Optional and repeated: minc=0, maxc=0"]
-]],
-["Roster2", "Record", [], "", [
+  ]],
+  ["Roster2", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Roster2$members", ["[0"], "Optional: minc=0, maxc=1"]
-]],
-["Roster2$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0", []],
-["Roster3", "Record", [], "", [
+  ]],
+  ["Roster2$members", "ArrayOf", ["*Member", "{1"], "Tool-generated array: minv=1, maxv=0", []],
+  ["Roster3", "Record", [], "", [
     [1, "org_name", "String", [], ""],
     [2, "members", "Members", [], "members field is required: default minc = 1, maxc = 1"]
-]],
-["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0", []]
+  ]],
+  ["Members", "ArrayOf", ["*Member"], "Explicitly-defined array: default minv = 0, maxv = 0", []]
+]
 ```
 
 **[Section 3.3.3 Derived Enumerations](#333-derived-enumerations):**
-```
-["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type", []],
-["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)", []],
-["Channel2", "Enumerated", [], "", [
+```json
+[
+  ["Channel", "Enumerated", ["#Pixel"], "Derived Enumerated type", []],
+  ["ChannelMask", "ArrayOf", ["*#Pixel"], "ArrayOf(derived enumeration)", []],
+  ["Channel2", "Enumerated", [], "", [
     [1, "red", ""],
     [2, "green", ""],
     [3, "blue", ""]
-]],
-["ChannelMask2", "ArrayOf", ["*Channel"], "", []]
+  ]],
+  ["ChannelMask2", "ArrayOf", ["*Channel"], "", []]
+]
 ```
 
 **[Section 3.3.4 MapOf with Enumerated Key](#334-mapof-with-enumerated-key):**
 
 Note that the order of elements in **TypeOptions** and **FieldOptions** is not significant.
-```
-["Channel3", "Enumerated", [], "", [
+```json
+[
+  ["Channel3", "Enumerated", [], "", [
     [1, "red", ""],
     [2, "green", ""],
     [3, "blue", ""]
-]],
-["Pixel3", "MapOf", ["+Channel3", "*Integer"], "", []]
+  ]],
+  ["Pixel3", "MapOf", ["+Channel3", "*Integer"], "", []]
+]
 ```
 
 **[Section 3.3.5 Pointers](#335-pointers):**
 
-```
-["Catalog", "Record", [], "", [
+```json
+[
+  ["Catalog", "Record", [], "", [
     [1, "a", "TypeA", [], ""],
     [2, "b", "TypeB", ["<"], ""]
-]],
-["TypeA", "Record", [], "", [
+  ]],
+  ["TypeA", "Record", [], "", [
     [1, "x", "Number", [], ""],
     [2, "y", "Number", [], ""]
-]],
-["TypeB", "Record", [], "", [
+  ]],
+  ["TypeB", "Record", [], "", [
     [1, "foo", "String", [], ""],
     [2, "bar", "Integer", [], ""]
-]],
-["Paths", "Enumerated", [">Catalog"], "", []],
-["Paths2", "Enumerated", [], "", [
+  ]],
+  ["Paths", "Enumerated", [">Catalog"], "", []],
+  ["Paths2", "Enumerated", [], "", [
     [1, "a", "Item 1"],
     [2, "b/foo", "Item 2"],
     [3, "b/bar", "Item 3"]
-]]
+  ]]
+]
 ```
 
 **[Section 3.3.6 Links](#336-links):**
 
-```
+```json
+[
   ["Person", "Record", [], "", [
     [1, "id", "Integer", ["K"], ""],
     [2, "name", "String", [], ""],
@@ -2058,17 +2088,51 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     [1, "id", "Person$id", [], ""],
     [2, "name", "String", [], ""],
     [3, "mother", "Person$id", [], ""],
-    [4, "father", "Person$id", ["], ""],
+    [4, "father", "Person$id", [], ""],
     [5, "siblings", "Person$id", ["[0", "]0"], ""],
     [6, "friends", "Person$id", ["[0", "]0"], ""],
     [7, "employer", "Organization$ein", ["[0"], ""]
   ]],
   ["Person$id", "Integer", [], "", []],
   ["Organization$ein", "String", ["{10", "}10"], "", []]
+]
+```
+
+**[Section 5.3. Entity Relationship Diagrams](#53-entity-relationship-diagrams):**
+```json
+{
+ "info": {
+  "package": "http://example.com/uni",
+  "exports": ["University"]
+ },
+
+ "types": [
+  ["University", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "classes", "Class", ["]0"], ""],
+    [3, "people", "Person", ["]0"], ""]
+  ]],
+
+  ["Class", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "room", "String", [], ""],
+    [3, "teachers", "Person", ["L", "]0"], ""],
+    [4, "students", "Person", ["L", "]0"], ""]
+  ]],
+
+  ["Person", "Record", [], "", [
+    [1, "name", "String", [], ""],
+    [2, "univ_id", "UnivId", ["K"], ""],
+    [3, "email", "String", ["/email"], ""]
+  ]],
+
+  ["UnivId", "String", ["%^U-\\d{6}$"], "", []]
+ ]
+}
 ```
 
 **[Appendix F. JADN Meta-schema](#appendix-f-jadn-meta-schema-for-jadn-documents):**
-```
+```json
 {
  "info": {
   "title": "JADN Metaschema",
