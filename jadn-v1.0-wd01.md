@@ -82,7 +82,8 @@ When referencing this specification the following citation format should be used
 
 **[JADN-v1.0]**
 
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 26 May 2021.
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 16 June 2021.
+
 OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
