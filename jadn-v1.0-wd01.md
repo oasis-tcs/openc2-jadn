@@ -3,7 +3,8 @@
 
 # Specification for JSON Abstract Data Notation (JADN) Version 1.0
 
-## Committee Specification Draft 01
+## Working Draft 02
+<!-- ## Committee Specification Draft 01 -->
 
 ## 26 May 2021
 
@@ -116,28 +117,21 @@ This document defines an information modeling language intended to address that 
 [UML](#uml) with data abstraction based on information theory and structural organization using results
 from graph theory.
 
-Industry has multiple, often conflicting definitions of data modeling terms, including the term
-"[Information Engineering](#ie)", which at one time referred to [data modeling](#datamod) but is
-now more closely aligned with information theory and machine learning.
-Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
-and informally calls information "descriptions inferred from data". This specification uses the
-terminology shown in Figure 1: a data model represents the bits and bytes stored, processed and
-communicated by applications, while conceptual and logical models represent knowledge about
-real-world entities.
+As shown in Figure 1, industry has multiple, often conflicting definitions of data modeling terms,
+including the term "[Information Engineering](#ie)", which at one time referred to
+[data modeling](#datamod) but is now more closely aligned with information theory and machine learning.
 
-JADN formalizes the relationship between information and data, creating a standardized
-technology-agnostic information modeling layer that lies between the traditional logical data model
-and multiple technology-specific physical data models.
+* Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
+  and informally calls information "descriptions inferred from data".
+* UML defines DataTypes (simple classifiers where instances are distinguished only by value) and
+  Classes (structured classifiers where instances have behavior, inheritance, roles, and other
+  complex characteristics).
+* Traditional data modeling defines conceptual, logical and physical data models without considering
+  information at all.
+* Information modeling formalizes the relationship between information and data, defining a
+  technology-agnostic information layer that lies between the logical data model and
+  multiple technology-specific physical data models.
 
-UML defines "Simple Classifiers" that include DataTypes, and "Structured Classifiers" that include Classes, Components,
-Associations and Collaborations. The defining characteristic of a DataType is that instances are distinguished
-only by their value, whereas Class instances also have behavior, inheritance, roles, and other complex characteristics.
-UML class models and diagrams are commonly referred to as "Data Models", but they model physical or logical entities
-using classes while information models model data itself using datatypes. A practical distinction is that class models
-are undirected graphs with an unlimited variety of semantic relationships, while information models
-are directed graphs with only two kinds of relationship: "contain" and "reference".
-Converting a class model to an information model is largely a matter of assigning the type and direction of
-each relationship, establishing identifiers for all referenceable types, and selecting node types.
 ```code
 DIKW Pyramid:            Knowledge               Information          Data
 
@@ -155,6 +149,17 @@ Modeling:     |   Model    |   |   Model    |   |    Model    |   | Data Models 
                                                                     +-------------+
 ```
 ###### Figure 1: Information Engineering Terminology
+
+UML class models and diagrams are commonly referred to as "Data Models", but they model knowledge
+of real-world entities using classes while information models model data itself using datatypes.
+A practical distinction is that class models are undirected graphs with an unlimited variety of
+classes and semantic relationships, while information models are directed graphs with a predefined
+set of base datatypes and only two kinds of relationship: "contain" and "reference".
+Converting a class/logical model to an information model is largely a matter of assigning the kind and
+direction of each relationship, establishing identifiers for all referenceable datatypes, and
+selecting the kind of each datatype from among the base types defined by an information modeling
+language. Converting an information model to a data model involves defining serialization rules
+for each base type that produce physical data in the desired format.
 
 ## 1.1 Changes from earlier versions
 
@@ -231,11 +236,13 @@ N/A
 * **IM**: Information Model
 * **UML**: Unified Modeling Language
 
+<!--
 ### 1.2.3 Document conventions
 
 - Naming conventions
 - Font colors and styles
 - Typographic conventions
+-->
 
 # 2 Information vs. Data
 
@@ -280,7 +287,7 @@ The container edges of an information model must be acyclic in order to ensure t
 3) every instance has finite nesting depth.
 
 There is no restriction on reference edges, so any container cycles in a model can be
-broken by converting containers to references.
+broken by converting one or more containers to references.
 
 Logical models are undirected graphs, and a few results from graph theory are useful when
 constructing information models from logical models:
@@ -341,14 +348,14 @@ A data format is a serialization style applied to a data language: "Compact JSON
 "Concise JSON", "Compact XML", "Verbose CBOR", etc.  [JSON and XML Transformations](#transform) uses the terms
 "Friendly" for XML and JSON encodings that associate data types directly with variables and "Unfriendly"
 for encodings that use repeated variable names in name-value pairs. JADN uses Compact and Verbose respectively
-to refer to those styles. The name "Verbose" is intended to be descriptive rather than judgemental;
-it is in any case less pejorative than "Unfriendly".
+to refer to those styles. The name "Verbose" is intended to be descriptive rather than pejorative,
+as opposed to "Unfriendly".
 An information model allows designers to compare Verbose and Compact styles for usability, and allows
-data to be validated and successfully converted between a readable JSON style and an actually concise
+data to be validated and successfully round tripped between a readable JSON style and an actually concise
 CBOR style.
 
-Information models can be reverse-engineered from existing data models, allowing commonalities and incompatibilities
-to be identified to facilitate convergence.
+Reverse-engineering an information model from existing data models allows commonalities and incompatibilities
+to be identified, facilitating convergence across multiple specifications with similar goals.
 
 ## 2.3 Information Definition Formats
 
@@ -520,7 +527,7 @@ in type options, the Fields array MUST be empty.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
-### 3.1.1 Name Formats
+### 3.1.2 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
 
 * JADN specifications MAY override the default name formats by defining one or more of:
@@ -536,6 +543,7 @@ ABNF:
 TypeName   = UC *31("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-32 characters
 FieldName  = LC *31("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-32 characters
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
+TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
 
 Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
 UC         = %x41-5A  ; A-Z
@@ -552,7 +560,7 @@ NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
 Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
 does not affect the meaning of type definitions.
 
-### 3.1.2 Upper Bounds
+### 3.1.3 Upper Bounds
 Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
 in [Section 3.2.1](#321-type-options).
 If an individual type does not define an explicit limit, it uses the limit shown in the package's
@@ -572,7 +580,7 @@ Map, MapOf, Record
 ```
 ###### Figure 3-2: JADN Default Size Limits
 
-### 3.1.3 Descriptions
+### 3.1.4 Descriptions
 Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from
 schema authors to readers or maintainers of the schema.
 * The description value MUST be a string, which MAY be empty.
@@ -646,8 +654,8 @@ TypeOption = Choice
 #### 3.2.1.1 Field Identifiers
 
 The *id* option used with Enumerated, Choice, and Map types determines how fields are specified in API instances of these types.
-If the *id* option is absent, API instances use FieldName and the type is referred to as "named".
-If the *id* option is present, API instances use FieldID and the type is referred to as "labeled".
+If the *id* option is absent, API instances use the FieldName string and the type is referred to as "named".
+If the *id* option is present, API instances use the FieldID tag and the type is referred to as "labeled".
 The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
 * In named types, FieldName is a defined name that is included in the semantics of the type, must be
 populated in the type definition, and may appear in serialized data depending on serialization format.
@@ -661,7 +669,6 @@ the FieldID 403. The label "Forbidden" may be displayed in messages or user inte
 such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 3.2.1.2 Value Type
-
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
 * An ArrayOf or MapOf instance MUST be considered invalid if any of its elements is not an instance of *vtype*.
 
@@ -671,8 +678,8 @@ The *ktype* option specifies the type of each key in a MapOf type.
 * A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
 #### 3.2.1.4 Derived Enumeration
-The *enum* option is an extension that creates an Enumerated type derived from a referenced
-Array, Choice, Map or Record type. (See [Section 3.3.3](#333-derived-enumerations)).
+The *enum* ([Section 3.3.3](#333-derived-enumerations)) and *pointer* ([Section 3.3.5](#335-pointers)) options
+are extensions that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
 
 #### 3.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
@@ -704,7 +711,7 @@ The *minf* and *maxf* options specify real number value limits.
 
 * For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
     * if *minv* is not present, it defaults to zero.
-    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.2](#312-upper-bounds).
+    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.3](#313-upper-bounds).
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -737,7 +744,7 @@ the validity of data with respect to a specific schema, it is an indicator that 
 a newer version of the same package for which the data is valid. Types without this option assert that
 the package identifier will be changed if any field is added, modified, or deleted.
 
-#### 3.2.2.3 Default Value
+#### 3.2.1.12 Default Value
 The *default* option specifies the initial or default value of a field. Applications deserializing
 a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
@@ -747,12 +754,12 @@ Field options may be specified for each field within a structured type definitio
 
 ```
 FieldOption = Choice
-   91 minc      Integer    // '[' Minimum cardinality (Section 3.2.2.1)
-   93 maxc      Integer    // ']' Maximum cardinality
+   91 minc      Integer    // '[' Minimum cardinality, default = 1, 0 = optional (Section 3.2.2.1)
+   93 maxc      Integer    // ']' Maximum cardinality, default = 1, 0 = default max, >1 = array
    38 tagid     Enumerated // '&' Field containing an explicit tag for this Choice type (Section 3.2.2.2)
-   60 dir       Boolean    // '<' Use FieldName as a path prefix for fields in FieldType (Extension: Section 3.3.5)
+   60 dir       Boolean    // '<' Pointer enumeration treats field as a group of items (Extension: Section 3.3.5)
    75 key       Boolean    // 'K' Field is a primary key for this type (Extension: Section 3.3.6)
-   76 link      Boolean    // 'L' Field is a relationship link to a type instance (Extension: Section 3.3.6)
+   76 link      Boolean    // 'L' Field is a foreign key reference to a type instance (Extension: Section 3.3.6)
 ```
 
 * FieldOptions MUST NOT include more than one of each option.
@@ -774,7 +781,7 @@ of an Array, Choice, Map, or Record type:
 
 * if *minc* is not present, it defaults to 1.
 * if *maxc* is not present, it defaults to the greater of 1 or *minc*.
-* if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 3.1.2](#312-upper-bounds).
+* if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 3.1.3](#313-upper-bounds).
 * if *maxc* is less than *minc*, the field definition MUST be considered invalid.
 
 If *minc* is 0, the field is optional, otherwise it is required.  
@@ -1167,7 +1174,7 @@ positional encoding for tabular data.
 | :--- | :--- |
 | **Record** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 
-## 4.2 Concise JSON Serialization:
+## 4.3 Concise JSON Serialization:
 Concise JSON serialization rules represent JADN data types in a format optimized for minimum size.
 JSON data in this format may be used directly for communication or to visualize the content of CBOR-serialized
 data.
@@ -1184,7 +1191,7 @@ data.
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
 
-## 4.2 CBOR Serialization
+## 4.4 CBOR Serialization
 The following serialization rules are used to represent JADN data types in Concise Binary
 Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major type x, Additional information y.
 
@@ -1218,7 +1225,7 @@ serialized as:
 | **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 
 <!---
-## 4.4 XML Serialization:
+## 4.5 XML Serialization:
 *XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
 
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
@@ -1293,7 +1300,7 @@ Structured types without the *id* option:
         FieldID FieldName[/] FIELDSTRING      // FieldDescription
         ...
 ```
-If a field includes the [*dir*](#322-field-options) FieldOption, the SOLIDUS character (/)
+If a field includes the [*dir*](#335-pointers) FieldOption, the SOLIDUS character (/)
 as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
 Structured types with the *id* option treat the item/field name as an informative label
@@ -1314,26 +1321,37 @@ followed by a label terminator ("::"):
 
 TYPESTRING is the value of BaseType or FieldType, followed by string representations of the type options,
 if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
+* TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.2](#312-name-formats).
+* FMTNAME is the name of a semantic validation function as specified in [Section 3.2.1.5](#3215-semantic-validation).
 
-    TYPESTRING    = TYPE [".ID"] [S1] [VRANGE] [FORMAT]   ; TYPE is the value of BaseType or FieldType
-    S1            = "(" *ktype* "," *vtype* ")"           ; if TYPE is MapOf
-                  | "(" *vtype* ")"                       ; if TYPE is ArrayOf
-                  | "(Enum[" *enum* "])"                  ; if TYPE is Enumerated
-                  | "(Pointer[" *enum* "])"               ; if TYPE is Enumerated
-                  | "(%" *pattern* "%)"                   ; if TYPE is String
-    VRANGE        = "{" *minv* ".." *maxv* "}"
-    FORMAT        = " /" *format*
+
+    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is BaseType or FieldType
+    ID          = ".ID"
+    FUNC        = "(" TYPEREF ["," TYPEREF] ")"         ; if TYPE is MapOf, ArrayOf
+                | "(" FUNCNAME "[" TYPEREF "])"         ; if TYPE is Enumerated
+    RANGEPAT    = "{" NUM [".." NUM] "}"
+                | "{pattern=" DQUOTE 1*STR DQUOTE "}"   ; if TYPE is String. *STR should be a valid regular expression
+    FORMAT      = " /" FMTNAME
+    FUNCNAME    = "Enum" | "Pointer"
+    KW          = "unique" | "set" | "unordered"        ; if TYPE is ArrayOf
+    DQUOTE      = %x22                                  ; Double-quote character (")
+    STR         = %x20-%x7e                             ; Visible characters plus space
 
 **Field Options:**
 
-FIELDSTRING is the value of TYPESTRING combined with string representations of two mutually-exclusive field options:
+Type and Field options affect the entire line of a field's IDL text:
 
-    FIELDSTRING   = TYPESTRING [MULTIPLICITY | TAGID]
-    MULTIPLICITY  = "[" *minc* ".." *maxc* "]"
-                  | " optional"
-    TAGID        = "(TagId[" *tagid* "])"
 
-An ABNF grammar for JADN-IDL is shown in [Appendix H](#appendix-h-abnf-grammar-for-jadn-idl).
+    FIELDLINE   = INT FIELDSTRING
+    FIELDSTRING = [FIELDNAME] [DIR] TYPE [MULT | TAGID] [FIELDDESC]
+    INT         = 1*DIGIT
+    DIR         = "/"
+    TYPE        = TYPESTRING
+                | "Key(" TYPESTRING ")"
+                | "Link(" TYPESTRING ")"
+    MULT        = "[" INT [".." INT] "]"
+    TAGID       = "(TagId[" (INT | FIELDNAME) "])"
+    FIELDDESC   = "//" [FIELDNAME "::"] STR
 
 ## 5.2 Table Style
 
@@ -1342,7 +1360,7 @@ This specification does not define a normative property table format, but this s
 of how JADN definitions may be displayed as property tables.
 
 This style is structurally similar to JADN-IDL and uses its TYPESTRING syntax, but
-breaks out the MULTIPLICITY field option into a separate column:
+breaks out the MULTIPLICITY field options into a separate column:
 
 ```
 +----------+------------+-----------------+
@@ -1415,7 +1433,8 @@ digraph G {
 ```
 ###### Figure 5-2: GraphViz Source for University Conceptual ERD
 
-Figure 5-3 is an example instance of the University type serialized in verbose JSON data format:
+Figure 5-3 is an example instance of the University type serialized in
+[verbose](#41-verbose-json-serialization) and [compact](#42-compact-json-serialization) JSON data formats:
 ```json
 {
   "name": "Faber College",
@@ -1425,7 +1444,8 @@ Figure 5-3 is an example instance of the University type serialized in verbose J
       "room": "DRGN 105",
       "teachers": ["U-004932"],
       "students": ["U-194325", "U-029437"]
-    }, {
+    },
+    {
       "name": "ECE1750",
       "room": "FLRS 102",
       "teachers": ["U-004932"],
@@ -1437,21 +1457,39 @@ Figure 5-3 is an example instance of the University type serialized in verbose J
       "name": "Damien Braun",
       "univ_id": "U-004932",
       "email": "d.braun@faber.edu"
-    }, {
+    },
+    {
       "name": "Ellie Osborne",
       "univ_id": "U-194325",
       "email": "ellie.osborne@faber.edu"
-    }, {
+    },
+    {
       "name": "Pierre Cox",
       "univ_id": "U-029437",
       "email": "pc9000@outlook.com"
-    }, {
+    },
+    {
       "name": "Alden Cantrel",
       "univ_id": "U-127439",
       "email": "alden.cantrel@faber.edu"
     }
   ]
 }
+```
+```json
+[
+  "Faber College",
+  [
+    ["ECE1010", "DRGN 105", ["U-004932"], ["U-194325", "U-029437"]],
+    ["ECE1750", "FLRS 102", ["U-004932"], ["U-127439", "U-194325", "U-029437"]]
+  ],
+  [
+    ["Damien Braun", "U-004932", "d.braun@faber.edu"],
+    ["Ellie Osborne", "U-194325", "ellie.osborne@faber.edu"],
+    ["Pierre Cox", "U-029437", "pc9000@outlook.com"],
+    ["Alden Cantrel", "U-127439", "alden.cantrel@faber.edu"]
+  ]
+]
 ```
 ###### Figure 5-3: JSON instance of University
 
@@ -1673,14 +1711,15 @@ The following individuals have participated in the creation of this specificatio
 # Appendix D. Revision History
 | Revision | Date | Editor | Changes Made |
 | :--- | :--- | :--- | :--- |
-| jadn-v1.0-wd01 | 2021-04-30 | David Kemp | Initial working draft |
+| WD-01 | 2020-10-18 | David Kemp | Initial working draft |
+| WD-02 | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
 
 -------
 
 # Appendix E. JSON Schema for JADN Documents
 
 A JADN package has the following structure:
-```
+```json
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "$id": "https://oasis-open.org/openc2/jadn/v1.0",
@@ -1713,7 +1752,7 @@ A JADN package has the following structure:
         "minItems": 2,
         "maxItems": 5,
         "items": [
-          {"$ref": "#/definitions/TypeRef"},
+          {"$ref": "#/definitions/TypeName"},
           {"$ref": "#/definitions/BaseType"},
           {"$ref": "#/definitions/Options"},
           {"$ref": "#/definitions/Description"},
@@ -1816,7 +1855,7 @@ A JADN package has the following structure:
 
 A meta-schema is a schema against which other schemas can be validated. The JADN meta-schema validates
 itself and other JADN schemas. In order to validate itself, the meta-schema requires a name format change
-from the JADN default ([Section 3.1.1](#311-name-formats)):
+from the JADN default ([Section 3.1.2](#312-name-formats)):
 * FieldName needs to allow configuration variables beginning with '$' and capitalized JADN types  
 ```
   "config": {
@@ -1870,7 +1909,7 @@ with options providing extensibility.
 ```
 Types = ArrayOf(Type)
 Type = Array
-   1  TypeRef                                // type_name::
+   1  TypeName                               // type_name::
    2  BaseType                               // base_type::
    3  Options                                // type_options::
    4  Description                            // type_description::
@@ -1927,7 +1966,7 @@ Namespace = String /uri                      // Unique name of a package
 NSID = String{pattern="$NSID"}               // Default = ^[A-Za-z][A-Za-z0-9]{0,7}$
 TypeName = String{pattern="$TypeName"}       // Default = ^[A-Z][-$A-Za-z0-9]{0,31}$
 FieldName = String{pattern="$FieldName"}     // Default = ^[a-z][_A-Za-z0-9]{0,31}$
-TypeRef = String                             // Autogenerated ($NSID ':')? $TypeName
+TypeRef = String                             // Autogenerated pattern ($NSID ':')? $TypeName
 ```
 
 -------
@@ -2176,7 +2215,7 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ]],
   ["Types", "ArrayOf", ["*Type"], "", []],
   ["Type", "Array", [], "", [
-    [1, "type_name", "TypeRef", [], ""],
+    [1, "type_name", "TypeName", [], ""],
     [2, "base_type", "BaseType", [], ""],
     [3, "type_options", "Options", [], ""],
     [4, "type_description", "Description", [], ""],
@@ -2233,22 +2272,14 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
   ["NSID", "String", ["%$NSID"], "Default = ^[A-Za-z][A-Za-z0-9]{0,7}$", []],
   ["TypeName", "String", ["%$TypeName"], "Default = ^[A-Z][-$A-Za-z0-9]{0,31}$", []],
   ["FieldName", "String", ["%$FieldName"], "Default = ^[a-z][_A-Za-z0-9]{0,31}$", []],
-  ["TypeRef", "String", [], "Autogenerated ($NSID ':')? $TypeName", []]
+  ["TypeRef", "String", [], "Autogenerated pattern ($NSID ':')? $TypeName", []]
  ]
 }
 ```
 
 -------
 
-# Appendix H. ABNF Grammar for JADN IDL
-
-[Case-sensitive](#rfc7405) [ABNF](#rfc5234) grammar for JADN Interface Definition Language ([Section 5.1](#51-jadn-idl-format)).
-
-*TBSL*
-
--------
-
-# Appendix I. Notices
+# Appendix H. Notices
 
 Copyright © OASIS Open 2021. All Rights Reserved.
 
