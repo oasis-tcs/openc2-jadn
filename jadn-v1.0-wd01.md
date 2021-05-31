@@ -6,7 +6,7 @@
 ## Working Draft 02
 <!-- ## Committee Specification Draft 01 -->
 
-## 26 May 2021
+## 16 June 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
@@ -1323,8 +1323,7 @@ TYPESTRING is the value of BaseType or FieldType, followed by string representat
 if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 * TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.2](#312-name-formats).
 * FMTNAME is the name of a semantic validation function as specified in [Section 3.2.1.5](#3215-semantic-validation).
-
-
+```
     TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is BaseType or FieldType
     ID          = ".ID"
     FUNC        = "(" TYPEREF ["," TYPEREF] ")"         ; if TYPE is MapOf, ArrayOf
@@ -1336,12 +1335,11 @@ if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
     KW          = "unique" | "set" | "unordered"        ; if TYPE is ArrayOf
     DQUOTE      = %x22                                  ; Double-quote character (")
     STR         = %x20-%x7e                             ; Visible characters plus space
-
+```
 **Field Options:**
 
 Type and Field options affect the entire line of a field's IDL text:
-
-
+```
     FIELDLINE   = INT FIELDSTRING
     FIELDSTRING = [FIELDNAME] [DIR] TYPE [MULT | TAGID] [FIELDDESC]
     INT         = 1*DIGIT
@@ -1352,6 +1350,7 @@ Type and Field options affect the entire line of a field's IDL text:
     MULT        = "[" INT [".." INT] "]"
     TAGID       = "(TagId[" (INT | FIELDNAME) "])"
     FIELDDESC   = "//" [FIELDNAME "::"] STR
+```
 
 ## 5.2 Table Style
 
