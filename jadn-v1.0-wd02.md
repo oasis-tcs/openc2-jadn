@@ -102,7 +102,57 @@ For complete copyright information please see the Notices section in the Appendi
 -------
 
 # Table of Contents
-[[TOC will be inserted here]]
+- [1 Introduction](#1-introduction)
+  - [1.1 Changes from earlier versions](#11-changes-from-earlier-versions)
+  - [1.2 Glossary](#12-glossary)
+    - [1.2.1 Definitions of terms](#121-definitions-of-terms)
+    - [1.2.2 Acronyms and abbreviations](#122-acronyms-and-abbreviations)
+- [2 Information vs. Data](#2-information-vs-data)
+  - [2.1 Graph Modeling](#21-graph-modeling)
+  - [2.2 Information Modeling](#22-information-modeling)
+  - [2.3 Information Definition Formats](#23-information-definition-formats)
+  - [2.4 Implementation](#24-implementation)
+- [3 JADN Types](#3-jadn-types)
+  - [3.1 Type Definitions](#31-type-definitions)
+    - [3.1.1 Requirements](#311-requirements)
+    - [3.1.2 Name Formats](#312-name-formats)
+    - [3.1.3 Upper Bounds](#313-upper-bounds)
+    - [3.1.4 Descriptions](#314-descriptions)
+  - [3.2 Options](#32-options)
+    - [3.2.1 Type Options](#321-type-options)
+    - [3.2.2 Field Options](#322-field-options)
+  - [3.3 JADN Extensions](#33-jadn-extensions)
+    - [3.3.1 Type Definition Within Fields](#331-type-definition-within-fields)
+    - [3.3.2 Field Multiplicity](#332-field-multiplicity)
+    - [3.3.3 Derived Enumerations](#333-derived-enumerations)
+    - [3.3.4 MapOf With Enumerated Key](#334-mapof-with-enumerated-key)
+    - [3.3.5 Pointers](#335-pointers)
+    - [3.3.6 Links](#336-links)
+- [4 Serialization](#4-serialization)
+  - [4.1 Verbose JSON Serialization](#41-verbose-json-serialization)
+  - [4.2 Compact JSON Serialization:](#42-compact-json-serialization)
+  - [4.3 Concise JSON Serialization:](#43-concise-json-serialization)
+  - [4.4 CBOR Serialization](#44-cbor-serialization)
+- [5 Definition Formats](#5-definition-formats)
+  - [5.1 JADN-IDL Format](#51-jadn-idl-format)
+  - [5.2 Table Style](#52-table-style)
+  - [5.3 Entity Relationship Diagrams](#53-entity-relationship-diagrams)
+- [6 Schema Packages](#6-schema-packages)
+- [7 Conformance](#7-conformance)
+- [Appendix A. References](#appendix-a-references)
+  - [A.1 Normative References](#a1-normative-references)
+  - [A.2 Informative References](#a2-informative-references)
+- [Appendix B. Safety, Security and Privacy Considerations](#appendix-b-safety-security-and-privacy-considerations)
+- [Appendix C. Acknowledgments](#appendix-c-acknowledgments)
+  - [C.1 Special Thanks](#c1-special-thanks)
+  - [C.2 Participants](#c2-participants)
+- [Appendix D. Revision History](#appendix-d-revision-history)
+- [Appendix E. JSON Schema for JADN Documents](#appendix-e-json-schema-for-jadn-documents)
+- [Appendix F. JADN Meta-schema for JADN Documents](#appendix-f-jadn-meta-schema-for-jadn-documents)
+  - [F.1 Package](#f1-package)
+  - [F.2 Type Definitions](#f2-type-definitions)
+- [Appendix G. JADN Type Definitions From This Document](#appendix-g-jadn-type-definitions-from-this-document)
+- [Appendix H. Notices](#appendix-h-notices)
 
 -------
 
@@ -493,11 +543,12 @@ JADN type definitions have a fixed structure designed to be easily describable, 
 
 The elements of a type definition are layed out as:
 
-| **TypeName** | **BaseType** | **TypeOptions** | **TypeDescription** |      |
-| -----------: | -----------: | --------------: | ------------------: | :--- |
-| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
-| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
-| **FieldID** | **FieldName** | **FieldType** | **FieldOptions** | **FieldDescription** |
+```
+ TypeName BaseType TypeOptions TypeDescription
+    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
+    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
+    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
+```
 
 The elements are serialized in JSON format as:
 ```
@@ -525,6 +576,10 @@ The elements are serialized in JSON format as:
 * ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
 * If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
 in type options, the Fields array MUST be empty.
+* The default value of TypeOptions, Fields, and FieldOptions is the empty Array.
+  The default value of TypeDescription and FieldDescription is the empty String.
+  When serializing, default values MAY be included or omitted in the serialized document.
+  When deserializing, default values MUST be available from the API instance if not present in the document.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
@@ -1402,7 +1457,10 @@ diagrams using the following conventions:
 1. Solid edges represent container relationships, dashed edges represent references.
 2. All edges are directed, from container to contained type or from referencing to referenced type.
 
+<!--
 ![ERD-DB](images/logical-info-erd.jpg)
+-->
+<p><img src="images/logical-info-erd.jpg" width=640px /></p>
 
 ###### Figure 5-1: Logical and Information Entity Relationship Diagrams
 
