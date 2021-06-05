@@ -30,7 +30,7 @@
         "minItems": 2,
         "maxItems": 5,
         "items": [
-          {"$ref": "#/definitions/TypeRef"},
+          {"$ref": "#/definitions/TypeName"},
           {"$ref": "#/definitions/BaseType"},
           {"$ref": "#/definitions/Options"},
           {"$ref": "#/definitions/Description"},
@@ -112,7 +112,7 @@
     },
     "BaseType": {
       "type": "string",
-      "enum": ["Binary", "Boolean", "Integer", "Number", "Null", "String",
+      "enum": ["Binary", "Boolean", "Integer", "Number", "String",
                "Enumerated", "Choice",
                "Array", "ArrayOf", "Map", "MapOf", "Record"]
     },
