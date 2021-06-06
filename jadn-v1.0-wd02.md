@@ -82,11 +82,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 #### Citation format:
 When referencing this specification the following citation format should be used:
 
-**[JADN-v1.0]**
-
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 16 June 2021.
-
-OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
+**[JADN-v1.0]**  
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 16 June 2021.  
+OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.  
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
@@ -202,9 +200,10 @@ for each base type that produce physical data in the desired format.
 
 ## 1.1 Changes from CSD 01
 
-1. The Null base type was removed from [Table 3.1](#table-3-1-jadn-base-types).
-2. Default values for omitted definition elements were added to [Section 3.1.1](#311-requirements)
-3. The default maximum length for type and field names was raised from 32 to 64 characters
+* Added serialization style description to [Section 2.2](#22-information-modeling).
+* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
+* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
+* Raised the default maximum length for type and field names from 32 to 64 characters
    ([Section 3.1.2](#312-name-formats)).
 
 ## 1.2 Glossary
@@ -285,6 +284,8 @@ for each base type that produce physical data in the desired format.
 - Font colors and styles
 - Typographic conventions
 -->
+
+-------
 
 # 2 Information vs. Data
 
@@ -1535,6 +1536,8 @@ Figure 5-3 is an example instance of the University type serialized in
 ]
 ```
 ###### Figure 5-3: JSON instance of University
+
+-------
 
 # 6 Schema Packages
 
