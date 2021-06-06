@@ -584,8 +584,8 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
 ```
 ABNF:
-TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-32 characters
-FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-32 characters
+TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
+FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
 TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
 
@@ -1445,14 +1445,11 @@ diagrams using the following conventions:
 1. Solid edges represent container relationships, dashed edges represent references.
 2. All edges are directed, from container to contained type or from referencing to referenced type.
 
-<!--
 ![ERD-DB](images/logical-info-erd.jpg)
--->
-<p><img src="images/logical-info-erd.jpg" width=640px /></p>
 
 ###### Figure 5-1: Logical and Information Entity Relationship Diagrams
 
-The edge type and direction illustrate visually how instances are serialized, in this case using references
+The edge type and direction show how instances are serialized, in this case using references
 from Class to Person.  An alternate information model derived from the same logical model might
 use references "teaches" and "enrolled_in" from Person to Class.
 
