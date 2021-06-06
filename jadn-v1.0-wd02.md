@@ -185,7 +185,7 @@ including the term "[Information Engineering](#ie)", which at one time referred 
   technology-agnostic information layer that lies between the logical data model and
   multiple technology-specific physical data models.
 
-![Information Engineering](images/InfoEngineering.jpg)
+![Information Engineering](images/info-engineering.jpg)
 
 ###### Figure 1: Information Engineering Terminology
 
