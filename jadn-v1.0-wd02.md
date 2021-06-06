@@ -4,19 +4,21 @@
 # Specification for JSON Abstract Data Notation (JADN) Version 1.0
 
 ## Working Draft 02
-<!-- ## Committee Specification Draft 01 -->
+<!-- ## Committee Specification 01 -->
 
 ## 16 June 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
 #### This version:
+https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.html \
+https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.pdf
+
+#### Previous version:
 https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.md (Authoritative) \
 https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html \
 https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.pdf
-
-#### Previous version:
-N/A
 
 #### Latest version:
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md (Authoritative) \
@@ -80,11 +82,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 #### Citation format:
 When referencing this specification the following citation format should be used:
 
-**[JADN-v1.0]**
-
-JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 16 June 2021.
-
-OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.
+**[JADN-v1.0]**  
+JSON Abstract Data Notation Version 1.0. Edited by David Kemp. 16 June 2021.  
+OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html.  
 Latest version: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 
 -------
@@ -183,38 +183,28 @@ including the term "[Information Engineering](#ie)", which at one time referred 
   technology-agnostic information layer that lies between the logical data model and
   multiple technology-specific physical data models.
 
-```code
-DIKW Pyramid:            Knowledge               Information          Data
+![Information Engineering](images/info-engineering.jpg)
 
-UML:                      Classes                 DataTypes
-
-              +------------+   +------------+                     +------------+
-Data          | Conceptual |   |  Logical   |                     |  Physical  |
-Modeling:     | Data Model |   | Data Model |                     | Data Model |
-              +------------+   +------------+                     +------------+
-
-              +------------+   +------------+   +-------------+   +-------------+
-Information   | Conceptual |   |  Logical   |   | Information |   |   Physical  |-+
-Modeling:     |   Model    |   |   Model    |   |    Model    |   | Data Models | |
-              +------------+   +------------+   +-------------+   +-------------+ |
-                                                                    +-------------+
-```
 ###### Figure 1: Information Engineering Terminology
 
 UML class models and diagrams are commonly referred to as "Data Models", but they model knowledge
-of real-world entities using classes while information models model data itself using datatypes.
+of real-world entities using classes. In contrast, information models model data itself using datatypes.
 A practical distinction is that class models are undirected graphs with an unlimited variety of
-classes and semantic relationships, while information models are directed graphs with a predefined
+classes and semantic relationships, while information models are directed graphs with a small predefined
 set of base datatypes and only two kinds of relationship: "contain" and "reference".
-Converting a class/logical model to an information model is largely a matter of assigning the kind and
+Designing an information model from a class/logical model is largely a matter of assigning the kind and
 direction of each relationship, establishing identifiers for all referenceable datatypes, and
 selecting the kind of each datatype from among the base types defined by an information modeling
-language. Converting an information model to a data model involves defining serialization rules
+language. Converting an information model to a data model means applying serialization rules
 for each base type that produce physical data in the desired format.
 
-## 1.1 Changes from earlier versions
+## 1.1 Changes from CSD 01
 
-N/A
+* Added serialization style description to [Section 2.2](#22-information-modeling).
+* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
+* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
+* Raised the default maximum length for type and field names from 32 to 64 characters
+   ([Section 3.1.2](#312-name-formats)).
 
 ## 1.2 Glossary
 
@@ -294,6 +284,8 @@ N/A
 - Font colors and styles
 - Typographic conventions
 -->
+
+-------
 
 # 2 Information vs. Data
 
@@ -502,7 +494,7 @@ For homogeneous collections JADN uses the single "ArrayOf" type with a *set*, *u
 option ([Section 3.2.1](#321-type-options)) rather than defining separate names for each collection type.
 
 | Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Type |
-| :-----: | :----: | :--------- | :----------------- | :------- |
+| ------- | ------ | ---------- | ------------------ | -------- |
 | false   | true   | Set        | ArrayOf+set, MapOf | Map      |
 | true    | false  | Sequence   | ArrayOf            | Array    |
 | true    | true   | OrderedSet | ArrayOf+unique     | Record   |
@@ -541,15 +533,6 @@ JADN type definitions have a fixed structure designed to be easily describable, 
     5. **FieldDescription:** a non-normative comment
 
 
-The elements of a type definition are layed out as:
-
-```
- TypeName BaseType TypeOptions TypeDescription
-    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
-    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
-    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
-```
-
 The elements are serialized in JSON format as:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                            (primitive)
@@ -564,6 +547,12 @@ The elements are serialized in JSON format as:
     ...
 ]]
 ```
+The same type definition structure can be populated with various levels of detail.
+At the conceptual level, only TypeName is present, along with FieldType for attributes
+that reference other model-defined types. At the logical level FieldName is populated for both
+base and reference attribute types. In a full information model, all Type and Options elements are defined: 
+
+![JADN Type Definitions](images/jadn-defs.jpg)
 
 ### 3.1.1 Requirements
 * TypeName MUST NOT be a JADN predefined type  
@@ -596,8 +585,9 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
 ```
 ABNF:
-TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-32 characters
-FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-32 characters
+TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
+FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
+
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
 TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
 
@@ -1464,7 +1454,7 @@ diagrams using the following conventions:
 
 ###### Figure 5-1: Logical and Information Entity Relationship Diagrams
 
-The edge type and direction illustrate visually how instances are serialized, in this case using references
+The edge type and direction show how instances are serialized, in this case using references
 from Class to Person.  An alternate information model derived from the same logical model might
 use references "teaches" and "enrolled_in" from Person to Class.
 
@@ -1550,6 +1540,8 @@ Figure 5-3 is an example instance of the University type serialized in
 ]
 ```
 ###### Figure 5-3: JSON instance of University
+
+-------
 
 # 6 Schema Packages
 
