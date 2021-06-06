@@ -4,19 +4,21 @@
 # Specification for JSON Abstract Data Notation (JADN) Version 1.0
 
 ## Working Draft 02
-<!-- ## Committee Specification Draft 01 -->
+<!-- ## Committee Specification 01 -->
 
 ## 16 June 2021
 
 <!-- URI list start (commented out except during publication by OASIS TC Admin)
 
 #### This version:
+https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.html \
+https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.pdf
+
+#### Previous version:
 https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.md (Authoritative) \
 https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html \
 https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.pdf
-
-#### Previous version:
-N/A
 
 #### Latest version:
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md (Authoritative) \
@@ -183,38 +185,27 @@ including the term "[Information Engineering](#ie)", which at one time referred 
   technology-agnostic information layer that lies between the logical data model and
   multiple technology-specific physical data models.
 
-```code
-DIKW Pyramid:            Knowledge               Information          Data
+![Information Engineering](images/InfoEngineering.jpg)
 
-UML:                      Classes                 DataTypes
-
-              +------------+   +------------+                     +------------+
-Data          | Conceptual |   |  Logical   |                     |  Physical  |
-Modeling:     | Data Model |   | Data Model |                     | Data Model |
-              +------------+   +------------+                     +------------+
-
-              +------------+   +------------+   +-------------+   +-------------+
-Information   | Conceptual |   |  Logical   |   | Information |   |   Physical  |-+
-Modeling:     |   Model    |   |   Model    |   |    Model    |   | Data Models | |
-              +------------+   +------------+   +-------------+   +-------------+ |
-                                                                    +-------------+
-```
 ###### Figure 1: Information Engineering Terminology
 
 UML class models and diagrams are commonly referred to as "Data Models", but they model knowledge
-of real-world entities using classes while information models model data itself using datatypes.
+of real-world entities using classes. In contrast, information models model data itself using datatypes.
 A practical distinction is that class models are undirected graphs with an unlimited variety of
-classes and semantic relationships, while information models are directed graphs with a predefined
+classes and semantic relationships, while information models are directed graphs with a small predefined
 set of base datatypes and only two kinds of relationship: "contain" and "reference".
-Converting a class/logical model to an information model is largely a matter of assigning the kind and
+Designing an information model from a class/logical model is largely a matter of assigning the kind and
 direction of each relationship, establishing identifiers for all referenceable datatypes, and
 selecting the kind of each datatype from among the base types defined by an information modeling
-language. Converting an information model to a data model involves defining serialization rules
+language. Converting an information model to a data model means applying serialization rules
 for each base type that produce physical data in the desired format.
 
-## 1.1 Changes from earlier versions
+## 1.1 Changes from CSD 01
 
-N/A
+1. The Null base type was removed from [Table 3.1](#table-3-1-jadn-base-types).
+2. Default values for omitted definition elements were added to [Section 3.1.1](#311-requirements)
+3. The default maximum length for type and field names was raised from 32 to 64 characters
+   ([Section 3.1.2](#312-name-formats)).
 
 ## 1.2 Glossary
 
@@ -502,7 +493,7 @@ For homogeneous collections JADN uses the single "ArrayOf" type with a *set*, *u
 option ([Section 3.2.1](#321-type-options)) rather than defining separate names for each collection type.
 
 | Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Type |
-| :-----: | :----: | :--------- | :----------------- | :------- |
+| ------- | ------ | ---------- | ------------------ | -------- |
 | false   | true   | Set        | ArrayOf+set, MapOf | Map      |
 | true    | false  | Sequence   | ArrayOf            | Array    |
 | true    | true   | OrderedSet | ArrayOf+unique     | Record   |
@@ -541,15 +532,6 @@ JADN type definitions have a fixed structure designed to be easily describable, 
     5. **FieldDescription:** a non-normative comment
 
 
-The elements of a type definition are layed out as:
-
-```
- TypeName BaseType TypeOptions TypeDescription
-    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
-    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
-    FieldID  FieldName  FieldType  FieldOptions  FieldDescription
-```
-
 The elements are serialized in JSON format as:
 ```
 [TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                            (primitive)
@@ -564,6 +546,12 @@ The elements are serialized in JSON format as:
     ...
 ]]
 ```
+The same type definition structure can be populated with various levels of detail.
+At the conceptual level, only TypeName is present, along with FieldType for attributes
+that reference other model-defined types. At the logical level FieldName is populated for both
+base and reference attribute types. In a full information model, all Type and Options elements are defined: 
+
+![JADN Type Definitions](images/jadn-defs.jpg)
 
 ### 3.1.1 Requirements
 * TypeName MUST NOT be a JADN predefined type  
