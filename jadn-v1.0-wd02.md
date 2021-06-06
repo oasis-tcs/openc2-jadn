@@ -587,6 +587,7 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
 ABNF:
 TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
 FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
+
 NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
 TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
 
@@ -1446,7 +1447,10 @@ diagrams using the following conventions:
 1. Solid edges represent container relationships, dashed edges represent references.
 2. All edges are directed, from container to contained type or from referencing to referenced type.
 
+<!--
 ![ERD-DB](images/logical-info-erd.jpg)
+-->
+<p><img src="images/logical-info-erd.jpg" width=640px /></p>
 
 ###### Figure 5-1: Logical and Information Entity Relationship Diagrams
 
