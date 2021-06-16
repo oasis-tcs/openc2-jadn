@@ -3,7 +3,7 @@
 
 # Specification for JSON Abstract Data Notation (JADN) Version 1.0
 
-## Working Draft 02
+## Working Draft 03
 <!-- ## Committee Specification 01 -->
 
 ## 16 June 2021
@@ -53,6 +53,12 @@ The model is documented using a compact and expressive interface definition lang
 entity relationship diagrams, easing integration with existing design processes and architecture tools.
 
 #### Status:
+This Working Draft reorganizes the JADN specification in accordance with the new OASIS template,
+includes a substantial re-write of the expository text, and makes minor technical updates to the JADN language
+(adds a third JSON serialization style, removes the unused Null base type, adds definition element defaults,
+and increases default maximum name length from 32 to 64 characters). A diff file would not be helpful due
+to the large number of changes from Working Draft 01, and is not included in this package.
+
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
 The level of approval is also listed above. Check the "Latest version" location noted above for possible later
 revisions of this document. Any other numbered Versions and other technical work produced by the Technical Committee
