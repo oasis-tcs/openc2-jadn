@@ -489,12 +489,12 @@ and heterogeneous collections where each member has a specified type.
 For homogeneous collections JADN uses the single "ArrayOf" type with a *set*, *unique* or *unordered*
 option ([Section 3.2.1](#321-type-options)) rather than defining separate names for each collection type.
 
-| Ordered | Unique | Traditional<br>Name | JADN<br>Same Type | JADN<br>Specified Type |
-| ------- | ------ | ---------- | ------------------ | -------- |
-| false   | true   | Set        | ArrayOf+set, MapOf | Map      |
-| true    | false  | Sequence   | ArrayOf            | Array    |
-| true    | true   | OrderedSet | ArrayOf+unique     | Record   |
-| false   | false  | Bag        | ArrayOf+unordered  | none     |
+| Ordered | Unique | Traditional<br>Name | JADN<br>Same Type  | JADN<br>Specified Type |
+|---------|--------|---------------------|--------------------|------------------------|
+| false   | true   | Set                 | ArrayOf+set, MapOf | Map                    |
+| true    | false  | Sequence            | ArrayOf            | Array                  |
+| true    | true   | OrderedSet          | ArrayOf+unique     | Record                 |
+| false   | false  | Bag                 | ArrayOf+unordered  | none                   |
 
 Accessing an element of a collection whose values are neither ordered nor unique
 returns an arbitrarily-chosen element. Elements of other collections are
@@ -677,20 +677,20 @@ TypeOption = Choice
 
 ###### Table 3-3. Allowed Options
 
-| BaseType | Allowed Options |
-| :--- | :--- |
-| Binary | minv, maxv, format |
-| Boolean | |
-| Integer | minv, maxv, format |
-| Number | minf, maxf, format |
-| String | minv, maxv, format, pattern |
-| Enumerated | id, enum, pointer, extend |
-| Choice | id, extend |
-| Array | extend, format, minv, maxv |
-| ArrayOf | vtype, minv, maxv, unique, set, unordered |
-| Map | id, extend, minv, maxv |
-| MapOf | vtype, ktype, minv, maxv |
-| Record | extend, minv, maxv |
+| BaseType   | Allowed Options                           |
+|:-----------|:------------------------------------------|
+| Binary     | minv, maxv, format                        |
+| Boolean    |                                           |
+| Integer    | minv, maxv, format                        |
+| Number     | minf, maxf, format                        |
+| String     | minv, maxv, format, pattern               |
+| Enumerated | id, enum, pointer, extend                 |
+| Choice     | id, extend                                |
+| Array      | extend, format, minv, maxv                |
+| ArrayOf    | vtype, minv, maxv, unique, set, unordered |
+| Map        | id, extend, minv, maxv                    |
+| MapOf      | vtype, ktype, minv, maxv                  |
+| Record     | extend, minv, maxv                        |
 
 #### 3.2.1.1 Field Identifiers
 
@@ -728,18 +728,21 @@ a fixed subset of values that are accurately described by authoritative resource
 affect how values are serialized, see [Section 4](#4-serialization).
 
 ###### Table 3-4. Semantic Validation Keywords
-| Keyword      | Type   | Requirement |
-| ------------ | ------ | ------------|
-| JSON Schema formats | String | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema). |
-| eui          | Binary | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui) |
-| ipv4-addr    | Binary | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1 |
-| ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
-| ipv4-net     | Array  | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
-| ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| i8           | Integer | Signed 8 bit integer, value must be between -128 and 127.
-| i16          | Integer | Signed 16 bit integer, value must be between -32768 and 32767.
-| i32          | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.
-| u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
+| Keyword             | Type    | Requirement                                                                                    |
+|---------------------|---------|------------------------------------------------------------------------------------------------|
+| JSON Schema formats | String  | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema)          |
+| eui                 | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
+| f16                 | Number  | IEEE 754 Half-Precision Float                                                                  |
+| f32                 | Number  | IEEE 754 Single-Precision Float                                                                |
+| f64                 | Number  | IEEE 754 Double-Precision Float                                                                |
+| ipv4-addr           | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
+| ipv6-addr           | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
+| ipv4-net            | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
+| ipv6-net            | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| i8                  | Integer | Signed 8 bit integer, value must be between -128 and 127.                                      |
+| i16                 | Integer | Signed 16 bit integer, value must be between -32768 and 32767.                                 |
+| i32                 | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.                       |
+| u\<*n*\>            | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.      |
 
 #### 3.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
@@ -812,13 +815,13 @@ Cardinality is the number of elements in a group, and multiplicity is the range 
 for that group. The *minc* and *maxc* options specify the minimum and maximum cardinality in a field
 of an Array, Choice, Map, or Record type:
 
-| minc | maxc | Multiplicity | Description | Keywords |
-| ---: | ---: | -----------: | :---------- | :------- |
-|    0 |    1 | 0..1 | No instances or one instance | optional |
-|    1 |    1 |    1 | Exactly one instance | required |
-|    0 |    0 | 0..* | Zero or more instances | optional, repeated |
-|    1 |    0 | 1..* | At least one instance | required, repeated |
-|    m |    n | m..n | At least m but no more than n instances | required, repeated |
+| minc | maxc | Multiplicity | Description                             | Keywords           |
+|-----:|-----:|-------------:|:----------------------------------------|:-------------------|
+|    0 |    1 |         0..1 | No instances or one instance            | optional           |
+|    1 |    1 |            1 | Exactly one instance                    | required           |
+|    0 |    0 |         0..* | Zero or more instances                  | optional, repeated |
+|    1 |    0 |         1..* | At least one instance                   | required, repeated |
+|    m |    n |         m..n | At least m but no more than n instances | required, repeated |
 
 * if *minc* is not present, it defaults to 1.
 * if *maxc* is not present, it defaults to the greater of 1 or *minc*.
@@ -1174,34 +1177,34 @@ name-value encoding for tabular data.
 
 * When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-| JADN Type | JSON Serialization Requirement |
-| :--- | :--- |
-| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648). |
-| **Boolean** | JSON **true** or **false** |
-| **Integer** | JSON **number** |
-| **Number** | JSON **number** |
-| **String** | JSON **string** |
-| **Enumerated** | JSON **string** ItemValue |
-| **Enumerated** with "id" | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property.  Property key is FieldName. |
-| **Choice** with "id" | JSON **object** with one property. Property key is FieldID converted to string. |
-| **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null. |
-| **Map** | JSON **object**. Property keys are FieldNames. |
-| **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** | JSON **object**. Property keys are FieldNames. |
+| JADN Type                | JSON Serialization Requirement                                                                                                                                                                                                                                                                                                              |
+|:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Binary**               | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648).                                                                                                                                                                                                                          |
+| **Boolean**              | JSON **true** or **false**                                                                                                                                                                                                                                                                                                                  |
+| **Integer**              | JSON **number**                                                                                                                                                                                                                                                                                                                             |
+| **Number**               | JSON **number**                                                                                                                                                                                                                                                                                                                             |
+| **String**               | JSON **string**                                                                                                                                                                                                                                                                                                                             |
+| **Enumerated**           | JSON **string** ItemValue                                                                                                                                                                                                                                                                                                                   |
+| **Enumerated** with "id" | JSON **integer** ItemID                                                                                                                                                                                                                                                                                                                     |
+| **Choice**               | JSON **object** with one property.  Property key is FieldName.                                                                                                                                                                                                                                                                              |
+| **Choice** with "id"     | JSON **object** with one property. Property key is FieldID converted to string.                                                                                                                                                                                                                                                             |
+| **Array**                | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                                                                     |
+| **ArrayOf**              | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null.                                                                                                                                                                                                                                                            |
+| **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
+| **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                                                           |
+| **MapOf**                | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 
 **Format options that affect JSON serialization**
 * When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
-| Option | JADN Type | JSON Serialization Requirement |
-| :--- | :--- | :--- |
-| **x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
-| **ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2. |
-| **ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2. |
-| **ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1. |
-| **ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3. |
+| Option        | JADN Type | JSON Serialization Requirement                                                                                                                                                      |
+|:--------------|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **x**         | Binary    | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
+| **ipv4-addr** | Binary    | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2.                                                                                        |
+| **ipv6-addr** | Binary    | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2.                                                             |
+| **ipv4-net**  | Array     | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1.                                                       |
+| **ipv6-net**  | Array     | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3.                                                       |
 
 Specifications MAY define additional format options for textual representation of Binary, Integer, Number or Array data.
 
@@ -1222,13 +1225,13 @@ data.
 
 * When using Concise JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
 
-| JADN Type | Concise JSON Serialization Requirement |
-| :--- | :--- |
-| **Enumerated** | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
-| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** |  JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
+| JADN Type      | Concise JSON Serialization Requirement                                                                                                                                                                                                                                                              |
+|:---------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enumerated** | JSON **integer** ItemID                                                                                                                                                                                                                                                                             |
+| **Choice**     | JSON **object** with one property. Property key is the FieldID converted to string.                                                                                                                                                                                                                 |
+| **Map**        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                   |
+| **MapOf**      | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record**     | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                             |
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
 
@@ -1241,30 +1244,30 @@ CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are sho
 * When using CBOR serialization, instances of JADN types without a format option listed in this section MUST
 be serialized as:
 
-| JADN Type | CBOR Serialization Requirement |
-| :--- | :--- |
-| **Binary** | **bstr**: a byte string (#2). |
-| **Boolean** | **bool**: a Boolean value (False = #7.20, True = #7.21). |
-| **Integer** | **int**: an unsigned integer (#0) or negative integer (#1) |
-| **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
-| **String** | **tstr**: a text string (#3). |
-| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID. |
-| **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
-| **Array** | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
-| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is null. |
-| **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
-| **MapOf** | **table**: a map (#5) of pairs, or **null** if *vtype* is null. In each pair the first item has type *ktype*, the second item has type *vtype*. |
-| **Record** | Same as **Array**. |
+| JADN Type      | CBOR Serialization Requirement                                                                                                                                             |
+|:---------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Binary**     | **bstr**: a byte string (#2).                                                                                                                                              |
+| **Boolean**    | **bool**: a Boolean value (False = #7.20, True = #7.21).                                                                                                                   |
+| **Integer**    | **int**: an unsigned integer (#0) or negative integer (#1)                                                                                                                 |
+| **Number**     | **float64**: IEEE 754 Double-Precision Float (#7.27).                                                                                                                      |
+| **String**     | **tstr**: a text string (#3).                                                                                                                                              |
+| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID.                                                                                                         |
+| **Choice**     | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType.                                                  |
+| **Array**      | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
+| **ArrayOf**    | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is null.                                                                                 |
+| **Map**        | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType.                                                |
+| **MapOf**      | **table**: a map (#5) of pairs, or **null** if *vtype* is null. In each pair the first item has type *ktype*, the second item has type *vtype*.                            |
+| **Record**     | Same as **Array**.                                                                                                                                                         |
 
 **Format options that affect CBOR Serialization**
 * When using CBOR serialization, instances of JADN types with one of the following format options MUST be
 serialized as:
 
-| Option | JADN Type | CBOR Serialization Requirement |
-| :--- | :--- | :--- |
-| **f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). |
-| **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
-
+| Option  | JADN Type | CBOR Serialization Requirement                        |
+|:--------|:----------|:------------------------------------------------------|
+| **f16** | Number    | **float16**: IEEE 754 Half-Precision Float (#7.25).   |
+| **f32** | Number    | **float32**: IEEE 754 Single-Precision Float (#7.26). |
+| **f64** | Number    | **float64**: IEEE 754 Double-Precision Float (#7.26). |
 <!---
 ## 4.5 XML Serialization:
 *XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
@@ -1272,7 +1275,7 @@ serialized as:
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
 | JADN Type | XML Serialization Requirement |
-| :--- | :--- |
+| :-------- | :---------------------------- |
 | **Binary**  | <xs:element name="FieldName" type="xs:base64Binary"/> |
 | **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
 | **Integer** | <xs:element name="FieldName" type="xs:integer"/> |
@@ -1731,30 +1734,29 @@ essential to satisfying operational requirements is itself a security concern.
 
 The following individuals shared their expertise during creation of this specification and are gratefully acknowledged:
 
-| First Name | Last Name | Company |
-| :--- | :--- | :--- |
-| Carsten | Bormann | Universität Bremen |
-| Hans-Jürgen | Rennau | parsQube GmbH |
+| First Name  | Last Name | Company            |
+|:------------|:----------|:-------------------|
+| Carsten     | Bormann   | Universität Bremen |
+| Hans-Jürgen | Rennau    | parsQube GmbH      |
 
 ## C.2 Participants
 
 The following individuals have participated in the creation of this specification and are gratefully acknowledged:
 
-| First Name | Last Name | Company |
-| :--- | :--- | :--- |
-| Brian | Berliner | Symantec |
-| Joseph | Brule | National Security Agency |
-| Toby | Considine | University of North Carolina |
-| Jason | Romano | General Dynamics |
-| Duncan | Sparrell | sFractal Consulting |
+| First Name | Last Name | Company                      |
+|:-----------|:----------|:-----------------------------|
+| Brian      | Berliner  | Symantec                     |
+| Joseph     | Brule     | National Security Agency     |
+| Toby       | Considine | University of North Carolina |
+| Jason      | Romano    | General Dynamics             |
+| Duncan     | Sparrell  | sFractal Consulting          |
 
 -------
 
 # Appendix D. Revision History
-| Revision | Date | Editor | Changes Made |
-| :--- | :--- | :--- | :--- |
-| WD-01 | 2020-10-18 | David Kemp | Initial working draft |
-| WD-02 | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
+| Revision | Date       | Editor     | Changes Made                                                             |
+|:---------|:-----------|:-----------|:-------------------------------------------------------------------------|
+| WD-01    | 2024-06-12 | David Kemp | Change structure to compound types, add floating point precision options |
 
 -------
 
