@@ -248,7 +248,7 @@ for each base type that produce physical data in the desired format.
     * **Primitive:** Boolean, Binary, Integer, Number, String
     * **Enumeration:** Enumerated
     * **Specialization:** Choice
-    * **Structured:** Array, ArrayOf, Map, MapOf, Record
+    * **Compound:** Array, ArrayOf, Map, MapOf, Record
 
 * **Instance Equality**:
     Two instances are equal if and only if they are of the same type and have the same information value.
@@ -316,7 +316,7 @@ but source coding is beyond the scope of this specification.*
 ## 2.1 Graph Modeling
 
 A JADN information model is a set of type definitions ([Section 3.1](#31-type-definitions)).
-Each field in a structured type may be associated with another model-defined type, and the set of
+Each field in a compound type may be associated with another model-defined type, and the set of
 associations between types forms a directed graph.  Each association is either a container or a
 reference, and the direction of each edge is toward the contained or referenced type.
 
@@ -362,7 +362,7 @@ conceptual and logical models, allowing bottom-up and top-down approaches to mee
 | A data definition language defines a specific data storage and exchange format. | An information modeling language expresses application needs in terms of desired effects. |
 | Serialization-specific details are built into applications. | Serialization is a communication function like compression and encryption, provided to applications. |
 | JSON Schema defines integer as a value constraint on the JSON number type. | Distinct Integer and Number types reflect mathematical properties regardless of data representation. |
-| CDDL types: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | The five structured types are defined unambiguously in terms of composition characteristics.  Each type can be represented in multiple data formats. |
+| CDDL types: "While arrays and maps are only two representation formats, they are used to specify four loosely-distinguishable styles of composition". | The five compound types are defined unambiguously in terms of composition characteristics.  Each type can be represented in multiple data formats. |
 | No table composition style exists. | Tables are a fundamental way of organizing information. The Record type holds tabular information that can be represented as either arrays or maps in multiple data formats. |
 | Instance equality is defined at the data level. | Instance equality is defined in ways meaningful to applications. For example "Optional" and "Nullable" are different at the data level but applications make no logical distinction between "not present" and "present with null value". Record data values in array and map formats are different at the data level but their information instances can be compared for equality. |
 | Data-centric design is often Anglocentric, embedding English-language identifiers in protocol data. | Information-centric design encourages definition of natural-language-agnostic protocols while supporting localized text identifiers within applications. |
@@ -467,7 +467,7 @@ JADN's base types are:
 | Enumerated         | A vocabulary of items where each item has an id and a string value |
 | **Specialization** |                                                                 |
 | Choice             | A [discriminated union](#union): one type selected from a set of named or labeled types. |
-| **Structured**     |                                                               |
+| **Compound**     |                                                               |
 | Array              | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type. |
 | ArrayOf(*vtype*)   | A collection of fields with the same semantics. Each field has type *vtype*. Ordering and uniqueness are specified by a collection option. |
 | Map                | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type. |
@@ -483,7 +483,7 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
-As described in Table 3-1, JADN structured types define if their members are *Ordered* and/or *Unique*.
+As described in Table 3-1, JADN compound types define if their members are *Ordered* and/or *Unique*.
 They also distinguish between homogeneous collections where all members have the same type
 and heterogeneous collections where each member has a specified type.
 For homogeneous collections JADN uses the single "ArrayOf" type with a *set*, *unique* or *unordered*
@@ -538,7 +538,7 @@ The elements are serialized in JSON format as:
     ...
 ]]
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (structured)
+[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (compound)
     [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
     ...
 ]]
@@ -791,7 +791,7 @@ a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
 
 ### 3.2.2 Field Options
-Field options may be specified for each field within a structured type definition.
+Field options may be specified for each field within a compound type definition.
 
 ```
 FieldOption = Choice
@@ -1335,7 +1335,7 @@ Enumerated type:
         ...
 ```
 
-Structured types without the *id* option:
+Compound types without the *id* option:
 ```
     TypeName = TYPESTRING                     // TypeDescription
         FieldID FieldName[/] FIELDSTRING      // FieldDescription
@@ -1344,7 +1344,7 @@ Structured types without the *id* option:
 If a field includes the [*dir*](#335-pointers) FieldOption, the SOLIDUS character (/)
 as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
-Structured types with the *id* option treat the item/field name as an informative label
+Compound types with the *id* option treat the item/field name as an informative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
 followed by a label terminator ("::"):
 ```
@@ -1407,13 +1407,13 @@ breaks out the MULTIPLICITY field options into a separate column:
 | TypeName | TYPESTRING | TypeDescription |
 +----------+------------+-----------------+
 ```
-followed by (for structured types without the *id* option):
+followed by (for compound types without the *id* option):
 ```
 +---------+---------------+-------------+--------+------------------+
 | FieldID | FieldName[/]  | FIELDSTRING | [m..n] | FieldDescription |
 +---------+---------------+-------------+--------+------------------+
 ```
-or (for structured types with the *id* option):
+or (for compound types with the *id* option):
 ```
 +---------+-------------+--------+----------------------------------+
 | FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
