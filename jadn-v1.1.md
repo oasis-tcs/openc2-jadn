@@ -728,18 +728,21 @@ a fixed subset of values that are accurately described by authoritative resource
 affect how values are serialized, see [Section 4](#4-serialization).
 
 ###### Table 3-4. Semantic Validation Keywords
-| Keyword      | Type   | Requirement |
-| ------------ | ------ | ------------|
-| JSON Schema formats | String | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema). |
-| eui          | Binary | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui) |
-| ipv4-addr    | Binary | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1 |
-| ipv6-addr    | Binary | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3 |
-| ipv4-net     | Array  | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
-| ipv6-net     | Array  | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| i8           | Integer | Signed 8 bit integer, value must be between -128 and 127.
-| i16          | Integer | Signed 16 bit integer, value must be between -32768 and 32767.
-| i32          | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.
-| u\<*n*\>     | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.
+| Keyword             | Type    | Requirement                                                                                    |
+|---------------------|---------|------------------------------------------------------------------------------------------------|
+| JSON Schema formats | String  | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema).         |
+| eui                 | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
+| f16                 | Number  | IEEE 754 Half-Precision Float                                                                  |
+| f32                 | Number  | IEEE 754 Single-Precision Float                                                                |
+| f64                 | Number  | IEEE 754 Double-Precision Float                                                                |
+| ipv4-addr           | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
+| ipv6-addr           | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
+| ipv4-net            | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
+| ipv6-net            | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| i8                  | Integer | Signed 8 bit integer, value must be between -128 and 127.                                      |
+| i16                 | Integer | Signed 16 bit integer, value must be between -32768 and 32767.                                 |
+| i32                 | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.                       |
+| u\<*n*\>            | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.      |
 
 #### 3.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
@@ -1234,36 +1237,40 @@ All formats specifying a textual representation for Binary, Integer, Number, or 
 
 ## 4.4 CBOR Serialization
 The following serialization rules are used to represent JADN data types in Concise Binary
-Object Representation ([CBOR](#rfc7049)) format, where CBOR type #x.y = Major type x, Additional information y.
+Object Representation ([CBOR](#rfc8949)) format.
+The initial byte of each encoded data item contains both information about the major type (the high-order 3 bits)
+and additional information (the low-order 5 bits).
+In this section CBOR type #x.y = Major type x, Additional information y.
 
 CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are shown for reference.
 
 * When using CBOR serialization, instances of JADN types without a format option listed in this section MUST
 be serialized as:
 
-| JADN Type | CBOR Serialization Requirement |
-| :--- | :--- |
-| **Binary** | **bstr**: a byte string (#2). |
-| **Boolean** | **bool**: a Boolean value (False = #7.20, True = #7.21). |
-| **Integer** | **int**: an unsigned integer (#0) or negative integer (#1) |
-| **Number** |  **float64**: IEEE 754 Double-Precision Float (#7.27). |
-| **String** | **tstr**: a text string (#3). |
-| **Enumerated** | **int**: an unsigned integer (#0) or negative integer (#1) ItemID. |
-| **Choice** | **struct**: a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType. |
-| **Array** | **record**: an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
-| **ArrayOf** | **vector**: an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is null. |
-| **Map** | **struct**: a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType. |
-| **MapOf** | **table**: a map (#5) of pairs, or **null** if *vtype* is null. In each pair the first item has type *ktype*, the second item has type *vtype*. |
-| **Record** | Same as **Array**. |
+| JADN Type      | CDDL    | CBOR Serialization Requirement                                                                                                                                 |
+|:---------------|---------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Binary**     | bstr    | a byte string (#2).                                                                                                                                            |
+| **Boolean**    | bool    | a Boolean value (False = #7.20, True = #7.21).                                                                                                                 |
+| **Integer**    | int     | an unsigned integer (#0) or negative integer (#1)                                                                                                              |
+| **Number**     | float64 | IEEE 754 Double-Precision Float (#7.27).                                                                                                                       |
+| **String**     | tstr    | a text string (#3).                                                                                                                                            |
+| **Enumerated** | int     | an unsigned integer (#0) or negative integer (#1) ItemID.                                                                                                      |
+| **Choice**     | struct  | a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType.                                                  |
+| **Array**      | record  | an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
+| **ArrayOf**    | vector  | an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is null.                                                                                 |
+| **Map**        | struct  | a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType.                                                |
+| **MapOf**      | table   | a map (#5) of pairs, or **null** if *vtype* is null. In each pair the first item has type *ktype*, the second item has type *vtype*.                           |
+| **Record**     | record  | same as **Array**.                                                                                                                                             |
 
 **Format options that affect CBOR Serialization**
 * When using CBOR serialization, instances of JADN types with one of the following format options MUST be
 serialized as:
 
-| Option | JADN Type | CBOR Serialization Requirement |
-| :--- | :--- | :--- |
-| **f16** | Number | **float16**: IEEE 754 Half-Precision Float (#7.25). |
-| **f32** | Number | **float32**: IEEE 754 Single-Precision Float (#7.26). |
+| Option  | JADN Type | CBOR Serialization Requirement                        |
+|:--------|:----------|:------------------------------------------------------|
+| **f16** | Number    | **float16**: IEEE 754 Half-Precision Float (#7.25).   |
+| **f32** | Number    | **float32**: IEEE 754 Single-Precision Float (#7.26). |
+| **f64** | Number    | **float64**: IEEE 754 Double-Precision Float (#7.27). |
 
 <!---
 ## 4.5 XML Serialization:
@@ -1634,8 +1641,8 @@ Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Octobe
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
 ###### [RFC6901]
 Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
-###### [RFC7049]
-Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 7049, October 2013, https://tools.ietf.org/html/rfc7049.
+###### [RFC8949]
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://tools.ietf.org/html/rfc8949.
 ###### [RFC7405]
 Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
 ###### [RFC8174]
