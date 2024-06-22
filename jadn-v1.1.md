@@ -1916,40 +1916,50 @@ from the JADN default ([Section 3.1.2](#312-name-formats)):
 A package is a collection of type definitions along with information about the package.
 ```
        title: "JADN Metaschema"
-     package: "http://oasis-open.org/jadn/v1.0/schema"
+     package: "http://oasis-open.org/jadn/v1.1/schema"
  description: "Syntax of a JSON Abstract Data Notation (JADN) package."
      license: "CC0-1.0"
      exports: ["Schema"]
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 
-Schema = Record                              // Definition of a JADN package
-   1 info         Information optional       // Information about this package
-   2 types        Types                      // Types defined in this package
+Schema = Record                                    // Definition of a JADN package
+   1 info             Information optional         // Information about this package
+   2 types            Types                        // Types defined in this package
 
-Information = Map                            // Information about this package
-   1 package      Namespace                  // Unique name/version of this package
-   2 version      String{1..*} optional      // Incrementing version within package
-   3 title        String{1..*} optional      // Title
-   4 description  String{1..*} optional      // Description
-   5 comment      String{1..*} optional      // Comment
-   6 copyright    String{1..*} optional      // Copyright notice
-   7 license      String{1..*} optional      // SPDX licenseId (e.g., 'CC0-1.0')
-   8 namespaces   Namespaces optional        // Referenced packages
-   9 exports      Exports optional           // Type defs exported by this package
-  10 config       Config optional            // Configuration variables
+Information = Map                                  // Information about this package
+   1 package          Namespace                    // Unique name/version of this package
+   2 version          String{1..*} optional        // Incrementing version within package
+   3 title            String{1..*} optional        // Title
+   4 description      String{1..*} optional        // Description
+   5 comment          String{1..*} optional        // Comment
+   6 copyright        String{1..*} optional        // Copyright notice
+   7 license          String{1..*} optional        // SPDX licenseId (e.g., 'CC0-1.0')
+   8 namespaces       Namespaces optional          // Referenced packages
+   9 exports          Exports optional             // Type defs exported by this package
+  10 config           Config optional              // Configuration variables
 
-Namespaces = MapOf(NSID, Namespace){1..*}    // Packages with referenced type defs
+Namespaces = Choice(anyOf)                         // anyOf v1.1 or v1.0, in priority order
+   1  NsArr                                        // ns_arr:: [prefix, namespace] syntax - v1.1
+   2  NsObj                                        // ns_obj:: {prefix: namespace} syntax - v1.0
 
-Exports = ArrayOf(TypeName){1..*}            // Type defs intended to be referenced
+NsArr = ArrayOf(PrefixNs){1..*}                    // Type references to other packages - v1.1
 
-Config = Map{1..*}                           // Config vars override JADN defaults
-   1 $MaxBinary   Integer{1..*} optional     // Schema default max octets
-   2 $MaxString   Integer{1..*} optional     // Schema default max characters
-   3 $MaxElements Integer{1..*} optional     // Schema default max items/properties
-   4 $Sys         String{1..1} optional      // System character for TypeName
-   5 $TypeName    String{1..127} optional    // TypeName regex
-   6 $FieldName   String{1..127} optional    // FieldName regex
-   7 $NSID        String{1..127} optional    // Namespace Identifier regex
+PrefixNs = Array                                   // Prefix corresponding to a namespace IRI
+   1  NSID                                         // prefix::
+   2  Namespace                                    // namespace::
+
+NsObj = MapOf(NSID, Namespace){1..*}               // Type references to other packages - v1.0
+
+Exports = ArrayOf(TypeName){1..*}                  // Type defs intended to be referenced
+
+Config = Map{1..*}                                 // Config vars override JADN defaults
+   1 $MaxBinary       Integer{1..*} optional       // Schema default max octets
+   2 $MaxString       Integer{1..*} optional       // Schema default max characters
+   3 $MaxElements     Integer{1..*} optional       // Schema default max items/properties
+   4 $Sys             String{1..1} optional        // System character for TypeName
+   5 $TypeName        String{1..127} optional      // TypeName regex
+   6 $FieldName       String{1..127} optional      // FieldName regex
+   7 $NSID            String{1..127} optional      // Namespace Identifier regex
 ```
 ## F.2 Type Definitions
 
@@ -2224,105 +2234,115 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
 **[Appendix F. JADN Meta-schema](#appendix-f-jadn-meta-schema-for-jadn-documents):**
 ```json
 {
- "info": {
-  "title": "JADN Metaschema",
-  "package": "http://oasis-open.org/jadn/v1.0/schema",
-  "description": "Syntax of a JSON Abstract Data Notation (JADN) package.",
-  "license": "CC0-1.0",
-  "exports": ["Schema"],
-  "config": {
-   "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"
-  }
- },
- "types": [
-  ["Schema", "Record", [], "Definition of a JADN package", [
-    [1, "info", "Information", ["[0"], "Information about this package"],
-    [2, "types", "Types", [], "Types defined in this package"]
-  ]],
-  ["Information", "Map", [], "Information about this package", [
-    [1, "package", "Namespace", [], "Unique name/version of this package"],
-    [2, "version", "String", ["{1", "[0"], "Incrementing version within package"],
-    [3, "title", "String", ["{1", "[0"], "Title"],
-    [4, "description", "String", ["{1", "[0"], "Description"],
-    [5, "comment", "String", ["{1", "[0"], "Comment"],
-    [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
-    [7, "license", "String", ["{1", "[0"], "SPDX licenseId (e.g., 'CC0-1.0')"],
-    [8, "namespaces", "Namespaces", ["[0"], "Referenced packages"],
-    [9, "exports", "Exports", ["[0"], "Type defs exported by this package"],
-    [10, "config", "Config", ["[0"], "Configuration variables"]
-  ]],
-  ["Namespaces", "MapOf", ["*Namespace", "+NSID", "{1"], "Packages with referenced type defs", []],
-  ["Exports", "ArrayOf", ["*TypeName", "{1"], "Type defs intended to be referenced", []],
-  ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
-    [1, "$MaxBinary", "Integer", ["{1", "[0"], "Schema default max octets"],
-    [2, "$MaxString", "Integer", ["{1", "[0"], "Schema default max characters"],
-    [3, "$MaxElements", "Integer", ["{1", "[0"], "Schema default max items/properties"],
-    [4, "$Sys", "String", ["{1", "}1", "[0"], "System character for TypeName"],
-    [5, "$TypeName", "String", ["{1", "}127", "[0"], "TypeName regex"],
-    [6, "$FieldName", "String", ["{1", "}127", "[0"], "FieldName regex"],
-    [7, "$NSID", "String", ["{1", "}127", "[0"], "Namespace Identifier regex"]
-  ]],
-  ["Types", "ArrayOf", ["*Type"], "", []],
-  ["Type", "Array", [], "", [
-    [1, "type_name", "TypeName", [], ""],
-    [2, "base_type", "BaseType", [], ""],
-    [3, "type_options", "Options", [], ""],
-    [4, "type_description", "Description", [], ""],
-    [5, "fields", "JADN-Type", ["&2"], ""]
-  ]],
-  ["BaseType", "Enumerated", [], "", [
-    [1, "Binary", ""],
-    [2, "Boolean", ""],
-    [3, "Integer", ""],
-    [4, "Number", ""],
-    [5, "String", ""],
-    [6, "Enumerated", ""],
-    [7, "Choice", ""],
-    [8, "Array", ""],
-    [9, "ArrayOf", ""],
-    [10, "Map", ""],
-    [11, "MapOf", ""],
-    [12, "Record", ""]
-  ]],
-  ["JADN-Type", "Choice", [], "", [
-    [1, "Binary", "Empty", [], ""],
-    [2, "Boolean", "Empty", [], ""],
-    [3, "Integer", "Empty", [], ""],
-    [4, "Number", "Empty", [], ""],
-    [5, "String", "Empty", [], ""],
-    [6, "Enumerated", "Items", [], ""],
-    [7, "Choice", "Fields", [], ""],
-    [8, "Array", "Fields", [], ""],
-    [9, "ArrayOf", "Empty", [], ""],
-    [10, "Map", "Fields", [], ""],
-    [11, "MapOf", "Empty", [], ""],
-    [12, "Record", "Fields", [], ""]
-  ]],
-  ["Empty", "Array", ["}0"], "", []],
-  ["Items", "ArrayOf", ["*Item"], "", []],
-  ["Item", "Array", [], "", [
-    [1, "item_id", "FieldID", [], ""],
-    [2, "item_value", "String", [], ""],
-    [3, "item_description", "Description", [], ""]
-  ]],
-  ["Fields", "ArrayOf", ["*Field"], "", []],
-  ["Field", "Array", [], "", [
-    [1, "field_id", "FieldID", [], ""],
-    [2, "field_name", "FieldName", [], ""],
-    [3, "field_type", "TypeRef", [], ""],
-    [4, "field_options", "Options", [], ""],
-    [5, "field_description", "Description", [], ""]
-  ]],
-  ["FieldID", "Integer", ["{0"], "", []],
-  ["Options", "ArrayOf", ["*Option", "}10"], "", []],
-  ["Option", "String", ["{1"], "", []],
-  ["Description", "String", [], "", []],
-  ["Namespace", "String", ["/uri"], "Unique name of a package", []],
-  ["NSID", "String", ["%$NSID"], "Default = ^[A-Za-z][A-Za-z0-9]{0,7}$", []],
-  ["TypeName", "String", ["%$TypeName"], "Default = ^[A-Z][-$A-Za-z0-9]{0,63}$", []],
-  ["FieldName", "String", ["%$FieldName"], "Default = ^[a-z][_A-Za-z0-9]{0,63}$", []],
-  ["TypeRef", "String", [], "Autogenerated pattern ($NSID ':')? $TypeName", []]
- ]
+  "info": {
+    "title": "JADN Metaschema",
+    "package": "http://oasis-open.org/jadn/v1.1/schema",
+    "description": "Syntax of a JSON Abstract Data Notation (JADN) package.",
+    "license": "CC0-1.0",
+    "exports": ["Schema"],
+    "config": {
+      "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"
+    }
+  },
+
+  "types": [
+    ["Schema", "Record", [], "Definition of a JADN package", [
+      [1, "info", "Information", ["[0"], "Information about this package"],
+      [2, "types", "Types", [], "Types defined in this package"]
+    ]],
+    ["Information", "Map", [], "Information about this package", [
+      [1, "package", "Namespace", [], "Unique name/version of this package"],
+      [2, "version", "String", ["{1", "[0"], "Incrementing version within package"],
+      [3, "title", "String", ["{1", "[0"], "Title"],
+      [4, "description", "String", ["{1", "[0"], "Description"],
+      [5, "comment", "String", ["{1", "[0"], "Comment"],
+      [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
+      [7, "license", "String", ["{1", "[0"], "SPDX licenseId (e.g., 'CC0-1.0')"],
+      [8, "namespaces", "Namespaces", ["[0"], "Referenced packages"],
+      [9, "exports", "Exports", ["[0"], "Type defs exported by this package"],
+      [10, "config", "Config", ["[0"], "Configuration variables"]
+    ]],
+    ["Namespaces", "Choice", ["CO"], "anyOf v1.1 or v1.0, in priority order", [
+      [1, "ns_arr", "NsArr", [], "[prefix, namespace] syntax - v1.1"],
+      [2, "ns_obj", "NsObj", [], "{prefix: namespace} syntax - v1.0"]
+    ]],
+    ["NsArr", "ArrayOf", ["*PrefixNs", "{1"], "Type references to other packages - v1.1", []],
+    ["PrefixNs", "Array", [], "Prefix corresponding to a namespace IRI", [
+      [1, "prefix", "NSID", [], ""],
+      [2, "namespace", "Namespace", [], ""]
+    ]],
+    ["NsObj", "MapOf", ["*Namespace", "+NSID", "{1"], "Type references to other packages - v1.0", []],
+    ["Exports", "ArrayOf", ["*TypeName", "{1"], "Type defs intended to be referenced", []],
+    ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
+      [1, "$MaxBinary", "Integer", ["{1", "[0"], "Schema default max octets"],
+      [2, "$MaxString", "Integer", ["{1", "[0"], "Schema default max characters"],
+      [3, "$MaxElements", "Integer", ["{1", "[0"], "Schema default max items/properties"],
+      [4, "$Sys", "String", ["{1", "}1", "[0"], "System character for TypeName"],
+      [5, "$TypeName", "String", ["{1", "}127", "[0"], "TypeName regex"],
+      [6, "$FieldName", "String", ["{1", "}127", "[0"], "FieldName regex"],
+      [7, "$NSID", "String", ["{1", "}127", "[0"], "Namespace Identifier regex"]
+    ]],
+    ["Types", "ArrayOf", ["*Type"], "", []],
+    ["Type", "Array", [], "", [
+      [1, "type_name", "TypeName", [], ""],
+      [2, "base_type", "BaseType", [], ""],
+      [3, "type_options", "Options", [], ""],
+      [4, "type_description", "Description", [], ""],
+      [5, "fields", "JADN-Type", ["&2"], ""]
+    ]],
+    ["BaseType", "Enumerated", [], "", [
+      [1, "Binary", ""],
+      [2, "Boolean", ""],
+      [3, "Integer", ""],
+      [4, "Number", ""],
+      [5, "String", ""],
+      [6, "Enumerated", ""],
+      [7, "Choice", ""],
+      [8, "Array", ""],
+      [9, "ArrayOf", ""],
+      [10, "Map", ""],
+      [11, "MapOf", ""],
+      [12, "Record", ""]
+    ]],
+    ["JADN-Type", "Choice", [], "", [
+      [1, "Binary", "Empty", [], ""],
+      [2, "Boolean", "Empty", [], ""],
+      [3, "Integer", "Empty", [], ""],
+      [4, "Number", "Empty", [], ""],
+      [5, "String", "Empty", [], ""],
+      [6, "Enumerated", "Items", [], ""],
+      [7, "Choice", "Fields", [], ""],
+      [8, "Array", "Fields", [], ""],
+      [9, "ArrayOf", "Empty", [], ""],
+      [10, "Map", "Fields", [], ""],
+      [11, "MapOf", "Empty", [], ""],
+      [12, "Record", "Fields", [], ""]
+    ]],
+    ["Empty", "Array", ["}0"], "", []],
+    ["Items", "ArrayOf", ["*Item"], "", []],
+    ["Item", "Array", [], "", [
+      [1, "item_id", "FieldID", [], ""],
+      [2, "item_value", "String", [], ""],
+      [3, "item_description", "Description", [], ""]
+    ]],
+    ["Fields", "ArrayOf", ["*Field"], "", []],
+    ["Field", "Array", [], "", [
+      [1, "field_id", "FieldID", [], ""],
+      [2, "field_name", "FieldName", [], ""],
+      [3, "field_type", "TypeRef", [], ""],
+      [4, "field_options", "Options", [], ""],
+      [5, "field_description", "Description", [], ""]
+    ]],
+    ["FieldID", "Integer", ["{0"], "", []],
+    ["Options", "ArrayOf", ["*Option", "}10"], "", []],
+    ["Option", "String", ["{1"], "", []],
+    ["Description", "String", ["}2048"], "", []],
+    ["Namespace", "String", ["/uri"], "Unique name of a package", []],
+    ["NSID", "String", ["%$NSID"], "Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$", []],
+    ["TypeName", "String", ["%$TypeName"], "Default = ^[A-Z][-$A-Za-z0-9]{0,63}$", []],
+    ["FieldName", "String", ["%$FieldName"], "Default = ^[a-z][_A-Za-z0-9]{0,63}$", []],
+    ["TypeRef", "String", [], "Autogenerated pattern ($NSID ':')? $TypeName", []]
+  ]
 }
 ```
 
