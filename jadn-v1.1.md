@@ -29,14 +29,15 @@ https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf
 
 #### Chair:
 Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
+Michael Rosa (mjrosa@nsa.gov), [National Security Agency](https://www.nsa.gov/)
 
 #### Editor:
 David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.gov/)
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.0.json
-* JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.0.jadn
+* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.1.json
+* JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.1.jadn
 
 #### Abstract:
 JSON Abstract Data Notation (JADN) is a UML-based information modeling language that defines data structure
