@@ -450,7 +450,11 @@ allowing developers to use either approach.
 
 # 3 JADN Types
 An information modeling language's types are defined in terms of the characteristics they provide to applications.
-JADN's base types are:
+JADN defines a small set of built-in abstract data types in the following categories:
+
+* **Primitive**: atomic data types from which all other data types are constructed
+* **Compound**: patterns for constructing composite types from a collection of types 
+* **Union**: patterns for validating an instance against a set of possible values or types
 
 ###### Table 3-1. JADN Base Types
 
@@ -462,24 +466,19 @@ JADN's base types are:
 | Integer                 | A positive or negative whole number.                                                                                                                                                                                   |
 | Number                  | A real number.                                                                                                                                                                                                         |
 | String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                                                                  |
-| **Union**               |                                                                                                                                                                                                                        |
-| Enumerated              | A vocabulary: one item (id/string pair) selected from a set of items.                                                                                                                                                  |
-| Choice                  | A tagged (discriminated) or untagged union: a type or logical combination of types.                                                                                                                                    |
 | **Compound**            |                                                                                                                                                                                                                        |
 | Array                   | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type.                                                                                                     |
 | ArrayOf(*vtype*)        | A collection of fields with the same semantics. Each field has type *vtype*. Ordering and uniqueness are specified by a collection option.                                                                             |
 | Map                     | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type.                                                         |
 | MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*.                                                            |
 | Record                  | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
+| **Union**               |                                                                                                                                                                                                                        |
+| Enumerated              | A vocabulary, a set of item (id/string pair) values. An instance must be a member of the set.                                                                                                                          |
+| Choice                  | A tagged or untagged union, a set of types or a logical combination of types. An instance must match the type designated by the tag or match the specified logical combination.                                        |
 
-* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
-Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
-* An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
-* An instance of a Map, MapOf, or Record type MUST NOT have a key of the null type.
-* An instance of a Map, MapOf, or Record type with a key mapped to a null value MUST compare as equal to an
-otherwise identical instance without that key.
-* The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
-* Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
+**Primitive Types**:
+
+**Compound Types**:
 
 JADN Compound types define logical collections and express both semantic characteristics and abstract syntax.
 
@@ -512,7 +511,21 @@ The notation X+y indicates that the definition of type X includes type option y 
 Elements of Sequence and OrderedSet collections are selected by position.
 The elements of a Bag collection cannot be selected; accessing returns an arbitrary member.
 
+**Union Types**:
+
+**Conformance**:
+
+* An application that uses JADN types MUST exhibit the behavior specified in Table 3-1.
+Applications MAY use any programming language data types or mechanisms that exhibit the required behavior.
+* An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
+* An instance of a Map, MapOf, or Record type MUST NOT have a key of the null type.
+* An instance of a Map, MapOf, or Record type with a key mapped to a null value MUST compare as equal to an
+otherwise identical instance without that key.
+* The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
+* Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
+
 ## 3.1 Type Definitions
+
 JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
 
 * Every definition has five elements:
