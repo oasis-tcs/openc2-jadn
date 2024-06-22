@@ -1770,8 +1770,8 @@ The following individuals have participated in the creation of this specificatio
 A JADN package has the following structure:
 ```json
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oasis-open.org/openc2/jadn/v1.1",
   "description": "Validates structure of a JADN schema, does not check values",
   "type": "object",
   "required": ["types"],
@@ -1812,13 +1812,27 @@ A JADN package has the following structure:
   },
   "definitions": {
     "Namespaces": {
+      "anyOf": [
+        {"$ref": "#/definitions/NsArr"},
+        {"$ref": "#/definitions/NsObj"}
+      ]
+    },
+    "NsArr": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/PrefixNs"}
+    },
+    "PrefixNs": {
+      "type": "array",
+      "items": [
+        {"$ref": "#/definitions/NSID"},
+        {"$ref": "#/definitions/Uri"}
+      ]
+    },
+    "NsObj": {
       "type": "object",
       "propertyNames": {"$ref": "#/definitions/NSID"},
       "patternProperties": {
-        "": {
-          "type": "string",
-          "format": "uri"
-        }
+        "": {"$ref": "#/definitions/Uri"}
       }
     },
     "Exports": {
@@ -1870,6 +1884,9 @@ A JADN package has the following structure:
       ]
     },
     "NSID": {
+      "type": "string"
+    },
+    "Uri": {
       "type": "string"
     },
     "TypeName": {
