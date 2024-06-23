@@ -458,45 +458,50 @@ JADN defines a small set of built-in abstract data types in the following catego
 
 ###### Table 3-1. JADN Base Types
 
-| Type                    | Definition                                                                                                                                                                                                             |
-|:------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Primitive**           |                                                                                                                                                                                                                        |
-| Binary                  | A sequence of octets.  Length is the number of octets.                                                                                                                                                                 |
-| Boolean                 | An element with one of two values: true or false.                                                                                                                                                                      |
-| Integer                 | A positive or negative whole number.                                                                                                                                                                                   |
-| Number                  | A real number.                                                                                                                                                                                                         |
-| String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                                                                  |
-| **Compound**            |                                                                                                                                                                                                                        |
-| Array                   | An ordered list of labeled fields with positionally-defined semantics. Each field has a position, label, and type.                                                                                                     |
-| ArrayOf(*vtype*)        | A collection of fields with the same semantics. Each field has type *vtype*. Ordering and uniqueness are specified by a collection option.                                                                             |
-| Map                     | An unordered map from a set of specified keys to values with semantics bound to each key. Each key has an id and name or label, and is mapped to a value type.                                                         |
-| MapOf(*ktype*, *vtype*) | An unordered map from a set of keys of the same type to values with the same semantics. Each key has key type *ktype*, and is mapped to value type *vtype*.                                                            |
-| Record                  | An ordered map from a list of keys with positions to values with positionally-defined semantics. Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table. |
-| **Union**               |                                                                                                                                                                                                                        |
-| Enumerated              | A vocabulary, a set of item (id/string pair) values. An instance must be a member of the set.                                                                                                                          |
-| Choice                  | A tagged or untagged union, a set of types or a logical combination of types. An instance must match the type designated by the tag or match the specified logical combination.                                        |
+| Type                    | Definition                                                                                                                                                                     |
+|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Primitive**           |                                                                                                                                                                                |
+| Binary                  | A sequence of octets.  Length is the number of octets.                                                                                                                         |
+| Boolean                 | An element with one of two values: true or false.                                                                                                                              |
+| Integer                 | A positive or negative whole number.                                                                                                                                           |
+| Number                  | A real number.                                                                                                                                                                 |
+| String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                          |
+| **Compound**            |                                                                                                                                                                                |
+| Array                   | An ordered list of labeled fields with positionally-defined types. Each field has a position, label, and type.                                                                 |
+| ArrayOf(*vtype*)        | A collection of fields with the same type *vtype*. Ordering and uniqueness are specified by a collection option.                                                               |
+| Map                     | A map from a set of specified keys to values with a value type bound to each key. Each key has an id and a name or label.                                                      |
+| MapOf(*ktype*, *vtype*) | A map from a set of keys of the same type *ktype* to values with the same type *vtype*.                                                                                        |
+| Record                  | A map from a list of keys to values with a value type bound to each key. Each key has a position and a name.                                                                   |
+| **Union**               |                                                                                                                                                                                |
+| Enumerated              | A vocabulary, a set of item (id/string pair) values. An instance is a single member of the set.                                                                                |
+| Choice                  | A tagged or untagged union, a set of types or a logical combination of types. An instance matches the single type designated by the tag or the specified combination of types. |
 
 **Primitive Types**:
 
+A primitive type specifies a space of possible values without regard to programming language
+constructs or hardware limits. Restrictions such as range, precision, size, patterns and formats
+are specified using the type-specific options defined in [Section 3.2.1](#321-type-options).
+
 **Compound Types**:
 
-JADN Compound types define logical collections and express both semantic characteristics and abstract syntax.
+A compound type specifies a collection of values, defining both collection semantics and the abstract syntax
+of its members.
 
 Collection semantics defines:
 * if order is significant when comparing instances (Ordered)
-* if duplicate values are prohibited when validating instances (Unique)
+* if duplicate values are allowed when validating an instance (Unique)
 
 Collection abstract syntax defines:
 * whether all members have the same type (Type Syntax) or each member's type is specified
-individually (Field Syntax)
-* whether members are unnamed (Array, ArrayOf) or named (Map, MapOf, Record) -- field names 
-must be unique and so can exist only for unique collection types
+individually (Field Syntax).
+* whether members are unnamed (Array, ArrayOf) or named (Map, MapOf, Record). Field names 
+must be unique and so can exist only for unique collection types.
 * whether serialized members are identified by position (Array), name (Map, MapOf),
-or either position or name (Record) -- positional encoding can be used only with
-data formats that preserve order
+or either position or name (Record). Positional encoding can be used only with data constructs
+that preserve order.
 
 Table 3-2 summarizes the relationship between Compound types and collection behavior.
-The notation X+y indicates that the definition of type X includes type option y defined in
+The notation `X+y` indicates that the definition of type `X` includes type option `y` defined in
 [Section 3.2.1](#321-type-options).
 
 ###### Table 3-2. Mapping Logical Collections to Compound Types
@@ -508,10 +513,13 @@ The notation X+y indicates that the definition of type X includes type option y 
 | true    | true   | OrderedSet              | ArrayOf+unique    | Map+seq<br>MapOf+seq<br>Record+seq |
 | false   | false  | Bag                     | ArrayOf+unordered | none                               |
 
-Elements of Sequence and OrderedSet collections are selected by position.
-The elements of a Bag collection cannot be selected; accessing returns an arbitrary member.
+Members of an ArrayOf or Array type are selected by ordinal position.
+Members of a Record type are selected by either position or name depending on data format.
+The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
 
 **Union Types**:
+
+A union type specifies a set of alternatives against which instances are matched. See [Section 3.2.2.2](#3222)
 
 **Conformance**:
 
@@ -641,8 +649,7 @@ Type                Name           Limit   Description
 -----               -----          -----   -----------
 Binary              $MaxBinary     255     Maximum number of octets
 String              $MaxString     255     Maximum number of characters
-Array, ArrayOf,     $MaxElements   100     Maximum number of items/properties
-Map, MapOf, Record
+ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
 ```
 ###### Figure 3-2: JADN Default Size Limits
 
@@ -704,24 +711,24 @@ TypeOption = Choice
 
 ###### Table 3-3. Allowed Options
 
-| BaseType | Allowed Options |
-| :--- | :--- |
-| Binary | minv, maxv, format |
-| Boolean | |
-| Integer | minv, maxv, format |
-| Number | minf, maxf, format |
-| String | minv, maxv, format, pattern |
-| Enumerated | id, enum, pointer, extend |
-| Choice | id, extend |
-| Array | extend, format, minv, maxv |
-| ArrayOf | vtype, minv, maxv, unique, set, unordered |
-| Map | id, extend, minv, maxv |
-| MapOf | vtype, ktype, minv, maxv |
-| Record | extend, minv, maxv |
+| BaseType   | Allowed Options                           |
+|:-----------|:------------------------------------------|
+| Binary     | minv, maxv, format                        |
+| Boolean    |                                           |
+| Integer    | minv, maxv, format                        |
+| Number     | minf, maxf, format                        |
+| String     | minv, maxv, format, pattern               |
+| Array      | minv, maxv, format, extend                |
+| ArrayOf    | vtype, minv, maxv, unique, set, unordered |
+| Map        | id, minv, maxv, seq, extend               |
+| MapOf      | vtype, ktype, minv, maxv, seq             |
+| Record     | minv, maxv, seq, extend                   |
+| Enumerated | id, enum, pointer, extend                 |
+| Choice     | id, combine, extend                       |
 
 #### 3.2.1.1 Field Identifiers
 
-The *id* option used with Enumerated, Choice, and Map types determines how fields are specified in API instances of these types.
+The *id* option used with Map, Enumerated, and Choice types determines how fields are specified in API instances of these types.
 If the *id* option is absent, API instances use the FieldName string and the type is referred to as "named".
 If the *id* option is present, API instances use the FieldID tag and the type is referred to as "labeled".
 The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
@@ -816,7 +823,7 @@ The *combine* option specifies that a [Choice](#3222-tagged-and-untagged-unions)
 against a logical combination of types. The single-character value indicates the combination type:
 * A = AND: data must be an instance of `allOf` the Choice types
 * O = OR: data must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
-* X = XOR: data must be an instance of exactly `oneOf` the Choice types and no others
+* X = XOR: data must be an instance of exactly `oneOf` the Choice types
 
 #### 3.2.1.13 Extension Point
 The *extend* option is an assertion that an Enumerated, Choice, Array, Map or Record type MAY be incomplete and that
@@ -877,18 +884,18 @@ The Choice type selects one type or a logical combination of types from a set. B
 a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
 indicating which FieldType from the Choice to evaluate.
 
-If the Choice has a logical combination option, data instances must match`anyOf` (OR), `allOf` (AND),
-or exactly `oneOf` (XOR) the FieldTypes in the Choice.
-This option is an untagged [union](#union): data instances do not contain a tag indicating which types
+If a Choice type has a [combine](#32112-combine) type option, data instances match a logical combination
+of types (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR)) the field types in the Choice.
+The combine option specifies an untagged [union](#union): data instances do not contain a tag indicating which types
 apply; instead the Choice's FieldTypes are evaluated to determine which, if any, validate the data.
 The `anyOf` option performs short-circuit evaluation; the first FieldType to match, in field order, indicates the
 instance type. The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
 
 ##### 3.2.2.2.1 Tagged Union
-The Choice type represents a [Discriminated Union](#union), a data structure that could take on several different, but fixed, types.
-By default a Choice is a Map with exactly one key-value pair, where the key determines the value type.
-But if the *tagid* option is present on a Choice field in an Array or Record container,
-it indicates that a separate Tag field within that container determines the value type.
+The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
+one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
+value. But if the *tagid* option is present on a Choice field in an Array or Record container,
+a separate field within that container contains the tag separagely from the instance value.
 
 * The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
 
