@@ -879,19 +879,24 @@ as described in [Section 3.3.2](#332-field-multiplicity).
 Within a Choice type *minc* values of 0 and 1 are equivalent because all fields are optional and exactly
 one must be present. Values greater than 1 specify an array of elements.
 
-#### 3.2.2.2 Tagged and Untagged Unions
+#### 3.2.2.2 Union Types
+The Enumerated type matches one value (an Item ID or Name) from the set of ID/Name pairs defined by the type.
+
 The Choice type selects one type or a logical combination of types from a set. By default Choice is
 a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
-indicating which FieldType from the Choice to evaluate.
+indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#32112-combine)
+type option it is an [untagged](#union) union where values that match a logical combination of types
+are instances of the Choice type.
 
-If a Choice type has a [combine](#32112-combine) type option, data instances match a logical combination
-of types (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR)) the field types in the Choice.
-The combine option specifies an untagged [union](#union): data instances do not contain a tag indicating which types
-apply; instead the Choice's FieldTypes are evaluated to determine which, if any, validate the data.
-The `anyOf` option performs short-circuit evaluation; the first FieldType to match, in field order, indicates the
-instance type. The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
+##### 3.2.2.2.1 Enumerated
 
-##### 3.2.2.2.1 Tagged Union
+##### 3.2.2.2.2 Choice - Untagged Union
+The `combine` option specifies the logical function (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR))
+of the Choice's field types apply to the value. The `anyOf` option performs short-circuit evaluation where
+the first FieldType to match, in field order, indicates the instance type.
+The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
+
+##### 3.2.2.2.3 Choice - Tagged Union
 The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
 one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
 value. But if the *tagid* option is present on a Choice field in an Array or Record container,
