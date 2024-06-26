@@ -508,15 +508,16 @@ The notation `X+y` indicates that the definition of type `X` includes type optio
 
 | Ordered | Unique | Collection<br>Semantics | Type<br>Syntax    | Field<br>Syntax                             |
 |---------|--------|-------------------------|-------------------|---------------------------------------------|
-| false   | true   | Set                     | ArrayOf+set       | Map<br>MapOf<br>Record<br>Array+set         |
-| true    | false  | Sequence                | ArrayOf           | Map+seq<br>MapOf+seq<br>Record+seq<br>Array |
-| true    | true   | OrderedSet              | ArrayOf+unique    | none                                        |
+| false   | true   | Set                     | ArrayOf+set       | Array+set<br>Map<br>MapOf<br>Record         |
+| true    | false  | Sequence                | ArrayOf           | none                                        |
+| true    | true   | OrderedSet              | ArrayOf+unique    | Array<br>Map+seq<br>MapOf+seq<br>Record+seq |
 | false   | false  | Bag                     | ArrayOf+unordered | none                                        |
 
-Members of an ArrayOf or Array type are selected by ordinal position.
-Members of a Record type are selected by either position or name depending on data format.
-If a use case for OrderedSet Field Syntax is identified, a new compound type option can be defined to support it. 
-The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
+* Members of an ArrayOf or Array type are selected by ordinal position.
+* Members of a Record type are selected by either position or name depending on data format.
+* Field positions are unique and by default Array has OrderedSet, not Sequence (non-unique) semantics.
+* Map, MapOf and Record keys are unique and with `seq` option have OrderedSet, not Sequence semantics.
+* The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
 
 **Union Types**:
 
