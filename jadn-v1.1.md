@@ -506,15 +506,16 @@ The notation `X+y` indicates that the definition of type `X` includes type optio
 
 ###### Table 3-2. Mapping Logical Collections to Compound Types
 
-| Ordered | Unique | Collection<br>Semantics | Type<br>Syntax    | Field<br>Syntax                    |
-|---------|--------|-------------------------|-------------------|------------------------------------|
-| false   | true   | Set                     | ArrayOf+set       | Map<br>MapOf<br>Record             |
-| true    | false  | Sequence                | ArrayOf           | Array                              |
-| true    | true   | OrderedSet              | ArrayOf+unique    | Map+seq<br>MapOf+seq<br>Record+seq |
-| false   | false  | Bag                     | ArrayOf+unordered | none                               |
+| Ordered | Unique | Collection<br>Semantics | Type<br>Syntax    | Field<br>Syntax                             |
+|---------|--------|-------------------------|-------------------|---------------------------------------------|
+| false   | true   | Set                     | ArrayOf+set       | Map<br>MapOf<br>Record<br>Array+set         |
+| true    | false  | Sequence                | ArrayOf           | Map+seq<br>MapOf+seq<br>Record+seq<br>Array |
+| true    | true   | OrderedSet              | ArrayOf+unique    | none                                        |
+| false   | false  | Bag                     | ArrayOf+unordered | none                                        |
 
 Members of an ArrayOf or Array type are selected by ordinal position.
 Members of a Record type are selected by either position or name depending on data format.
+If a use case for OrderedSet Field Syntax is identified, a new compound type option can be defined to support it. 
 The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
 
 **Union Types**:
