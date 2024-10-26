@@ -158,22 +158,6 @@ For complete copyright information please see the Notices section in the Appendi
 
 -------
 
-
-*Editor's Note: content from abstract to intro:  
-JSON Abstract Data Notation (JADN) is an information modeling language that formally defines essential
-content using a minimal set of core datatypes, plus encoding rules that losslessly translate between
-internal and external representations of each type. JADN's core requirement is to define
-information equivalence across external representations ranging from the most compact (e.g., IP packets,
-FIX-SBE transactions) to concise binary languages such as Protobuf and CBOR to text-based languages such as
-JSON and XML. JADN information models are themselves information values that can be serialized in any
-data format, edited as human-friendly information definition language (IDL) text files, and displayed
-as property tables or entity relationship diagrams to facilitate use with existing design processes
-and architecture tools.*
-
-*UML DataTypes vs. Classes and Properties  \
-Purpose vs. tooling support  \
-RDF lexical value*
-
 # 1 Introduction
 > *An information model is a representation of concepts, relationships, constraints, rules,
 and operations to specify data semantics for a chosen domain of discourse. An information modeling
@@ -197,60 +181,59 @@ business and similar processes.*
 
 The UML specification is organized around classification, and among its many kinds of classifiers
 are DataType and Class.
-DataType differs from Class in that instances of a DataType are identified only by their value.
-All instances of a DataType with the same value are considered to be equal instances.
-All DataType instances are constants (immutable literal values), values can be compared
-for equality, and different values are different instances. A given value may be classified as
-an instance of multiple DataTypes, but equality requires both type and value to be equal.
+DataType differs from Class in that instances of a DataType are identified only by their value,
+and all instances of a DataType with the same value are considered to be equal instances.
+DataType instances are constants (immutable values), different values are different instances,
+and an information model defines equivalence among different literals having the same value.
+A value may be classified as an instance of multiple DataTypes, but instance equality means equal
+values of the same type.
 
 In software-based systems a class is a template that defines the properties and behaviors of objects,
 and an object is a specific instance of a class that has specific values for its properties and methods.
 Instances of a Class are never equal. Two objects instantiated from the same class with identical data
-values remain distinct: an object does not have a literal value, and equality comparison of two objects
-always returns false.
+remain distinct: an object does not have a literal value, and equality comparison of two objects
+always returns false. Although Class instances are not values, DataType can model object features that
+are values, such as public fields and API (getter/setter) views of private state.
+Additional differences between DataType and Class include:
+* Collection DataTypes specify if value order is significant. Class public fields and API values
+do not have an order.
+* DataType distinguishes between values and references, Class does not. Software function arguments
+passed by value cannot be modified while those passed by reference can. Values contained in a document
+are passed to the receiver and can be validated for integrity; values referenced in a document are
+not passed or validated.
+
+Misusing Class to model data often results in confusion and contradiction, such as treating a
+one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
+(latitude, longitude) as a Class.
+
+The **Resource Description Framework** [[RDF](#rdf)] explicitly includes DataTypes:
+
+*"RDF defines an abstract syntax (a data model) which serves to link all RDF-based languages and
+specifications. RDF graphs are sets of subject-predicate-object triples, where the elements may be
+IRIs, blank nodes, or **datatyped literals**. They are used to express descriptions of resources."*
+
+RDF defines DataType as having a "lexical-to-value (L2V) mapping", and while an RDF graph describes
+physical and digital resources, an RDF DataType is the definition of a digital resource with a lexical
+(literal) representation mapped to a (logical) value. But while RDF defines HTML, XML and JSON DataTypes,
+an information model is based on universal UML DataTypes. For example, the RDF JSON value space includes
+"maps" *"(mapping strings to values in the value space where the order of map entries is not significant)"*.
+IM mappings are modeled by the UML multiplicityElement with an isOrdered property indicating whether the
+order of map entries is significant. The value space of an RDF number is an IEEE 754 64-bit floating point
+number, while the value space of an IM Number is the infinite set of real numbers modeled by the UML Real
+primitive DataType. In an IM precision is a settable property of the Number type, not its definition,
+and instances are not limited to 53 bits of precision.
 
 <!--
-with the same properties are not equal instances.
-* DataTypes specify if order is significant: in a "Directions" type ("preheat", "bake") it is;
-in an "Ingredients" type ("sugar", "flour") it is not. Class properties are not ordered.
-* DataTypes distinguish between values and references, Classes do not.
-A "Collection of X" class does not specify whether it contains complete values of type X or just
-ID properties of X.
--->
-
-Using classes to model data often leads to absurdities like modeling one-dimensional coordinates
-(latitude) as DataTypes but multi-dimensional coordinates (e.g., latitude, longitude) as Classes.
-
-The **Resource Description Framework** [[RDF](#rdf)] *"defines an abstract syntax (a data model) which
-serves to link all RDF-based languages and specifications. RDF graphs are sets of subject-predicate-object
-triples, where the elements may be IRIs, blank nodes, or datatyped literals.
-They are used to express **descriptions** of resources."*
-
-RDF has an unambiguous vocabulary for DataTypes that JADN adopts: a DataType defines a
-"lexical-to-value (L2V) mapping", where a lexical value is a discrete data item used in computing
-and a logical value is the information represented by that data item. RDF *describes* both physical
-resources (e.g., people, devices) and digital resources (data items such as documents, images, messages)
-while an information model *defines* the logical and lexical values of digital resources. Classes do
-not have a lexical-to-value mapping, which is why JADN information models are based exclusively on
-DataTypes.
-
-<!--
-*Note that UML applications generally do not perform semantic modeling, they create drawings with boxes
-and lines and text following UML conventions. Class diagrams may be used as a substitute for DataType
-diagrams if the application does not explicitly support the latter, but this does not indicate that DataTypes
-are Classes.*
-
-
-UML class models and diagrams are commonly referred to as "Data Models", but they model knowledge
-of real-world entities using classes. In contrast, information models model data itself using datatypes.
-A practical distinction is that class models are undirected graphs with an unlimited variety of
-classes and semantic relationships, while information models are directed graphs with a small predefined
-set of base datatypes and only two kinds of relationship: "contain" and "reference".
-Designing an information model from a class/logical model is largely a matter of assigning the kind and
-direction of each relationship, establishing identifiers for all referenceable datatypes, and
-selecting the kind of each datatype from among the base types defined by an information modeling
-language. Converting an information model to a data model means applying serialization rules
-for each base type that produce physical data in the desired format.
+*Editor's Note: content from old abstract moved to intro:  
+JSON Abstract Data Notation (JADN) is an information modeling language that formally defines essential
+content using a minimal set of core datatypes, plus encoding rules that losslessly translate between
+internal and external representations of each type. JADN's core requirement is to define
+information equivalence across external representations ranging from the most compact (e.g., IP packets,
+FIX-SBE transactions) to concise binary languages such as Protobuf and CBOR to text-based languages such as
+JSON and XML. JADN information models are themselves information values that can be serialized in any
+data format, edited as human-friendly information definition language (IDL) text files, and displayed
+as property tables or entity relationship diagrams to facilitate use with existing design processes
+and architecture tools.*
 -->
 
 ## 1.1 Changes from CSD 01
