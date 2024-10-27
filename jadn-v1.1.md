@@ -202,7 +202,7 @@ passed by value cannot be modified while those passed by reference can. Values c
 are passed to the receiver and can be validated for integrity; values referenced in a document are
 not passed or validated.
 
-Misusing Class to model data often results in confusion and contradiction, such as treating a
+Misusing Class to model data often results in contradictions such as treating a
 one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
 (latitude, longitude) as a Class.
 
@@ -218,10 +218,21 @@ physical and digital resources, an RDF DataType is the definition of a digital r
 an information model is based on universal UML DataTypes. For example, the RDF JSON value space includes
 "maps" *"(mapping strings to values in the value space where the order of map entries is not significant)"*.
 IM mappings are modeled by the UML multiplicityElement with an isOrdered property indicating whether the
-order of map entries is significant. The value space of an RDF number is an IEEE 754 64-bit floating point
-number, while the value space of an IM Number is the infinite set of real numbers modeled by the UML Real
-primitive DataType. In an IM precision is a settable property of the Number type, not its definition,
-and instances are not limited to 53 bits of precision.
+order of map entries is significant. The value space of an RDF number is the set of IEEE 754 64-bit floating
+point values, while the value space of an IM number is the infinite set of real numbers modeled by the
+UML Real DataType.
+A model with a value space of 64 bit IEEE 754 doubles is not an information model because it is not
+independent of representation and cannot represent real values of arbitrary range and precision.
+An information model's number DataType supports comparison real values independent of lexical and
+computational representations, including IEEE 754 half- single- and double-precision, integer ratio,
+scaled integer, and bigfloat.
+
+Equality comparison is the critical distinction between information modeling and other data
+modeling approaches. Because values are instances of DataType and equality requires both type and value
+to be the same, the DataTypes defined by a modeling language determine its level of abstraction.
+Information is "essential content" independent of representation, and representations in an IM
+are restrictions on value spaces of the smallest possible set of core types, not separate types
+that preclude value comparison without type coercion.
 
 <!--
 *Editor's Note: content from old abstract moved to intro:  
