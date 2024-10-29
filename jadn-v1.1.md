@@ -182,9 +182,9 @@ business and similar processes.*
 The UML specification is organized around the concept of classification, and among its many
 classifiers are DataType and Class. Instances of a DataType are identified only by their value,
 and all instances of a DataType with the same value are considered to be equal instances. DataType
-instances are constants because a different value is by definition a different instance.
-A given value may be classified as an instance of multiple DataTypes, but values can be compared
-for equality only if they are instances of the same type.
+instances are immutable (constant) because different values are by definition different instances.
+A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
+only among instances of the same type.
 
 Instances of a Class are objects. Objects are not identified by value because two objects
 instantiated from the same Class, even with the same properties, remain distinct: two objects
@@ -196,7 +196,7 @@ do not have an order.
 * DataType distinguishes between values and references, Class does not.
 For example, software function arguments passed by value cannot be modified while those passed by reference can.
 Validating a document for correctness or integrity validates the values it contains but not the values it references.
-A document DataType can distinguish between local and external references and ensure that local references
+A document DataType can distinguish between local and external references and validate that local references
 identify values contained within that instance.
 * Misusing Class to model data often results in contradictions such as treating a
 one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
@@ -210,13 +210,13 @@ IRIs, blank nodes, or **datatyped literals**. They are used to express descripti
 
 RDF defines DataType as having a "lexical-to-value (L2V) mapping", and while an RDF graph defines
 relationships among physical and digital resources, DataType is the only RDF element that defines
-a digital resource in terms of both a lexical (literal) representation and its mapping to a
-representation-independent logical value.
+a digital resource in terms of both a lexical (literal) representation and its representation-independent
+logical value.
 
-Defining equivalence is the critical distinction between information modeling and other modeling approaches.
+Defining equivalence is the primary distinction between information modeling and other modeling approaches.
 A JADN information model is constructed from DataTypes, not Classes, because its purpose is to compare
-values for equivalence based on their information content, and only DataType instances are immutable values
-that can be compared.
+literal values for equivalence based on their logical information content, and only DataTypes have
+instances that can be compared.
 
 ## 1.1 Changes from CSD 01
 
@@ -327,7 +327,7 @@ a 32 bit value*.  But different data may be used to represent that information:
 
 The 13 extra bytes used to format a 4 byte IP address as a dotted quad are useful for display purposes,
 but provide no information to the receiving application.  Field names and enumerated strings selected
-from a dozen possibliities convey less than four *bits* of information, while the strings themselves
+from a dozen possibilities convey less than four *bits* of information, while the strings themselves
 may be half a dozen to hundreds of *bytes* of data.
 By distinguishing information from data, information modeling is key to effectively using both
 binary data formats such as Protobuf and CBOR and text formats such as XML and JSON.
