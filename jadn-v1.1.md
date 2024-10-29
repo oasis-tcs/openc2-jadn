@@ -174,7 +174,7 @@ information conveyed in a message is not directly related to the size or format 
 * **Data items** (messages, documents, function signatures, object state, protocol data units, etc.)
 are JADN's scope within a system's domain of discourse.
 
-JADN is based on the Unified Modeling Language [[UML](#uml)]:
+JADN is based on the **Unified Modeling Language** [[UML](#uml)]:
 > *The objective of UML is to provide system architects, software engineers, and software developers
 with tools for analysis, design, and implementation of software-based systems as well as for modeling
 business and similar processes.*
