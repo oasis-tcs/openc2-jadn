@@ -189,7 +189,7 @@ for equality only if they are instances of the same type.
 Instances of a Class are objects. Objects are not identified by value because two objects
 instantiated from the same Class, even with the same properties, remain distinct: two objects
 are never equal. Although objects are not values, DataTypes model object features that
-are values such as public fields and API (getter/setter) views of private state.
+are values, such as public fields and API (getter/setter) views of private state.
 Additional differences between DataType and Class include:
 * Collection DataTypes specify if value order is significant. Class public fields and API values
 do not have an order.
@@ -202,10 +202,6 @@ identify values contained within that instance.
 one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
 (latitude, longitude) as a Class.
 
-A JADN information model is constructed from UML DataTypes, not Classes, because its purpose is to
-compare values for equivalence based on their information content. Only DataType instances can be
-compared by value.
-
 The **Resource Description Framework** [[RDF](#rdf)] includes DataTypes:
 
 *"RDF defines an abstract syntax (a data model) which serves to link all RDF-based languages and
@@ -217,55 +213,10 @@ relationships among physical and digital resources, DataType is the only RDF ele
 a digital resource in terms of both a lexical (literal) representation and its mapping to a
 representation-independent logical value.
 
-Consider an image file, a static document (digital resource) with a literal value that can be hashed.
-An Image DataType models it as a collection of pixel values organized into a two-dimensional array,
-plus various items of functional and descriptive metadata. Current versions of RDF cannot model image
-files because "RDF-based languages" do not include binary data, but an enhanced version of RDF could
-support both byte sequence lexical values and a DataType mapping the Image literal to a logical value.
-There is little reason to model relationships between pixels in an image as a graph, though the image
-resource as a whole has relationships to other physical and digital resources. And an image document
-is not an instance of an Image Class even though a programming object instantiated with the literal
-value of that document is.
-
----
-
-Equality comparison is the critical distinction between information modeling and other data
-modeling approaches. Because values are instances of DataType and equality requires both type and value
-to be the same, the DataTypes defined by a modeling language determine its level of abstraction.
-Information is "essential content" independent of representation, and representations in an IM
-are restrictions on value spaces of the smallest possible set of core types, not separate types
-that preclude value comparison without type coercion.
-
-<!--
-*Note: content from old abstract potentially moved to intro:
-
-JSON Abstract Data Notation (JADN) is an information modeling language that formally defines essential
-content using a minimal set of core datatypes, plus encoding rules that losslessly translate between
-internal and external representations of each type. JADN's core requirement is to define
-information equivalence across external representations ranging from the most compact (e.g., IP packets,
-FIX-SBE transactions) to concise binary languages such as Protobuf and CBOR to text-based languages such as
-JSON and XML. JADN information models are themselves information values that can be serialized in any
-data format, edited as human-friendly information definition language (IDL) text files, and displayed
-as property tables or entity relationship diagrams to facilitate use with existing design processes
-and architecture tools.*
--->
-
-<!--
-*Note: move from intro to later section or to CN.*
-
-But while RDF defines HTML, XML and JSON DataTypes,
-an information model is based on universal UML DataTypes. For example, the RDF JSON value space includes
-"maps" *"(mapping strings to values in the value space where the order of map entries is not significant)"*.
-IM mappings are modeled by the UML multiplicityElement with an isOrdered property indicating whether the
-order of map entries is significant. The value space of an RDF number is the set of IEEE 754 64-bit floating
-point values, while the value space of an IM number is the infinite set of real numbers modeled by the
-UML Real DataType.
-A model with a value space of 64 bit IEEE 754 doubles is not an information model because it is not
-independent of representation and cannot represent real values of arbitrary range and precision.
-An information model's number DataType supports comparison real values independent of lexical and
-computational representations, including IEEE 754 half- single- and double-precision, integer ratio,
-scaled integer, and bigfloat.
--->
+Defining equivalence is the critical distinction between information modeling and other modeling approaches.
+A JADN information model is constructed from DataTypes, not Classes, because its purpose is to compare
+values for equivalence based on their information content, and only DataType instances are immutable values
+that can be compared.
 
 ## 1.1 Changes from CSD 01
 
