@@ -182,28 +182,29 @@ business and similar processes.*
 The UML specification is organized around the concept of classification, and among its many
 classifiers are DataType and Class. Instances of a DataType are identified only by their value,
 and all instances of a DataType with the same value are considered to be equal instances. DataType
-instances are typed constants because a different value is by definition a different instance.
-A given value may be classified as an instance of multiple DataTypes, but instance equality
-means equal values of the same type.
+instances are constants because a different value is by definition a different instance.
+A given value may be classified as an instance of multiple DataTypes, but values can be compared
+for equality only if they are instances of the same type.
 
-Instances of a Class are objects. Objects are not identified by value, because two objects
-instantiated from the same Class, even with the same properties, remain distinct: two objects are
-never equal. Although Class instances are not values, DataTypes model object features that
-are values, such as public fields and API (getter/setter) views of private state.
+Instances of a Class are objects. Objects are not identified by value because two objects
+instantiated from the same Class, even with the same properties, remain distinct: two objects
+are never equal. Although objects are not values, DataTypes model object features that
+are values such as public fields and API (getter/setter) views of private state.
 Additional differences between DataType and Class include:
 * Collection DataTypes specify if value order is significant. Class public fields and API values
 do not have an order.
-* DataType distinguishes between values and references. Class does not, and is not an effective
-model when the distinction matters. For example, software function arguments passed by
-value cannot be modified while those passed by reference can.
-Values contained in a document are passed to the receiver. Validating a document for correctness
-or integrity validates the values it contains but not the values it references. Designing a document
-DataType can ensure that local references identify values stored within that instance, and external
-references are recognized and handled appropriately.
-
-Misusing Class to model data often results in contradictions such as treating a
+* DataType distinguishes between values and references, Class does not.
+For example, software function arguments passed by value cannot be modified while those passed by reference can.
+Validating a document for correctness or integrity validates the values it contains but not the values it references.
+A document DataType can distinguish between local and external references and ensure that local references
+identify values contained within that instance.
+* Misusing Class to model data often results in contradictions such as treating a
 one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
 (latitude, longitude) as a Class.
+
+A JADN information model is constructed from UML DataTypes, not Classes, because its purpose is to
+compare values for equivalence based on their information content. Only DataType instances can be
+compared by value.
 
 The **Resource Description Framework** [[RDF](#rdf)] includes DataTypes:
 
