@@ -161,7 +161,7 @@ For complete copyright information please see the Notices section in the Appendi
 # 1 Introduction
 > *An information model is a representation of concepts, relationships, constraints, rules,
 and operations to specify data semantics for a chosen domain of discourse. An information modeling
-language is a formal syntax that allows users to capture data semantics and constraints."
+language is a formal syntax that allows users to capture data semantics and constraints.*
 
 -- [[Information Modeling](#information-modeling)], Y. Tina Lee, NIST
 
@@ -187,15 +187,15 @@ A value may be classified as an instance of multiple DataTypes, but value compar
 only among instances of the same type.
 
 Instances of a Class are objects. Objects are not identified by value because two objects
-instantiated from the same Class, even with the same properties, remain distinct and no two objects
-are ever equal. Although objects are not values, DataTypes model object features that
+instantiated from the same Class, even with the same property values, remain distinct and no two
+objects are ever equal. Although objects are not values, DataTypes model object features that
 are values, such as public fields and API (getter/setter) views of private state.
 Additional differences between DataType and Class include:
 * Collection DataTypes specify if value order is significant. Class public fields and API values
 do not have an order.
 * DataType distinguishes between values and references, Class does not.
-For example, software function arguments passed by value cannot be modified by the function while
-those passed by reference can. Validating a document for correctness or integrity validates the values
+For example, software functions cannot persistently modify arguments passed by value but can modify
+those passed by reference. Validating a document for correctness or integrity validates the values
 it contains but not the values it references. A document DataType can distinguish between local and
 external references and validate that local references identify values contained within that instance.
 * Misusing Class to model data values often results in contradictions such as treating a
@@ -204,9 +204,9 @@ one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional 
 
 The **Resource Description Framework** [[RDF](#rdf)] includes DataTypes:
 
-*"RDF defines an abstract syntax (a data model) which serves to link all RDF-based languages and
+> *RDF defines an abstract syntax (a data model) which serves to link all RDF-based languages and
 specifications. RDF graphs are sets of subject-predicate-object triples, where the elements may be
-IRIs, blank nodes, or **datatyped literals**. They are used to express descriptions of resources."*
+IRIs, blank nodes, or **datatyped literals**. They are used to express descriptions of resources.*
 
 RDF defines DataType as having a "lexical-to-value (L2V) mapping", and while an RDF graph defines
 relationships among physical and digital resources, DataType is the only RDF element that defines
