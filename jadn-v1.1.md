@@ -182,23 +182,23 @@ business and similar processes.*
 The UML specification is organized around the concept of classification, and among its many
 classifiers are DataType and Class. Instances of a DataType are identified only by their value,
 and all instances of a DataType with the same value are considered to be equal instances. DataType
-instances are immutable (constant) because different values are by definition different instances.
+instances are immutable (constant) values because different values are by definition different instances.
 A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
 only among instances of the same type.
 
 Instances of a Class are objects. Objects are not identified by value because two objects
-instantiated from the same Class, even with the same properties, remain distinct: two objects
-are never equal. Although objects are not values, DataTypes model object features that
+instantiated from the same Class, even with the same properties, remain distinct and no two objects
+are ever equal. Although objects are not values, DataTypes model object features that
 are values, such as public fields and API (getter/setter) views of private state.
 Additional differences between DataType and Class include:
 * Collection DataTypes specify if value order is significant. Class public fields and API values
 do not have an order.
 * DataType distinguishes between values and references, Class does not.
-For example, software function arguments passed by value cannot be modified while those passed by reference can.
-Validating a document for correctness or integrity validates the values it contains but not the values it references.
-A document DataType can distinguish between local and external references and validate that local references
-identify values contained within that instance.
-* Misusing Class to model data often results in contradictions such as treating a
+For example, software function arguments passed by value cannot be modified by the function while
+those passed by reference can. Validating a document for correctness or integrity validates the values
+it contains but not the values it references. A document DataType can distinguish between local and
+external references and validate that local references identify values contained within that instance.
+* Misusing Class to model data values often results in contradictions such as treating a
 one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
 (latitude, longitude) as a Class.
 
@@ -230,13 +230,12 @@ instances that can be compared.
 
 ### 1.2.1 Definitions of terms
 * **Information**:
-    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed
-    to represent the essential meaning of a message, excluding data that is known *a priori* and data that does
-    not affect meaning.
+    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed to
+    represent the essential content of a message, excluding insignificant data and data that is already known.
 
 * **Information Model**:
-    An abstract schema that defines the structure and value constraints of information used within and across
-    applications, irrespective of data format.
+    An abstract schema that defines the structure and value constraints of information used in computing systems
+    independently of representation, plus mechanisms to convert between information values and literal representations.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
@@ -246,7 +245,7 @@ instances that can be compared.
 * **Graph**:
     A mathematical structure used to model pairwise relationships between objects.
     An information model is a graph where nodes are information type definitions and edges are
-    relationships between types.
+    associations between types.
 
 * **Package**:
     A container that defines a namespace for the set of types it contains. A type can reference types from another
