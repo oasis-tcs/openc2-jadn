@@ -218,13 +218,6 @@ A JADN information model is constructed from DataTypes, not Classes, because its
 literal values for equivalence based on their logical information content, and only DataTypes have
 instances that can be compared.
 
-## 1.1 Changes from CSD 01
-
-* Added serialization style description to [Section 2.2](#22-information-modeling).
-* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
-* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
-* Raised the default maximum length for type and field names from 32 to 64 characters
-   ([Section 3.1.2](#312-name-formats)).
 
 ## 1.2 Glossary
 
@@ -1850,11 +1843,19 @@ The following individuals have participated in the creation of this specificatio
 -------
 
 # Appendix D. Revision History
-| Revision | Date | Editor | Changes Made |
-| :--- | :--- | :--- | :--- |
-| WD-01 | 2020-10-18 | David Kemp | Initial working draft |
-| WD-02 | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
+| Revision | Date       | Editor     | Changes Made                                                    |
+|:---------|:-----------|:-----------|:----------------------------------------------------------------|
+| WD-01    | 2020-10-18 | David Kemp | Initial working draft                                           |
+| WD-02    | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
 
+## 1.1 Changes from CSD 01
+*Note: Update to table*
+
+* Added serialization style description to [Section 2.2](#22-information-modeling).
+* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
+* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
+* Raised the default maximum length for type and field names from 32 to 64 characters
+   ([Section 3.1.2](#312-name-formats)).
 -------
 
 # Appendix E. JSON Schema for JADN Documents
