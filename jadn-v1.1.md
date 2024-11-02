@@ -5,7 +5,7 @@
 
 ## Working Draft 1 (Version 1.0 Committee Specification 01)
 
-## 26 June 2024
+## 4 November 2024
 
 &nbsp;
 
@@ -300,8 +300,9 @@ of its DataTypes.
 * Package is the top level data structure in an IM. DataTypes in one package may directly reference DataTypes
 defined in other packages, but JADN defines no "information model" structure that lists a set of packages.
 
-DataTypes are defined in [Section 3](#3-jadn-types). Packages are discussed further in [Section 4](#4).
-And defining lexical-to-value mappings using encoding rules is discussed in [Section 5)(#5)]
+DataTypes are defined in [Section 3](#3-jadn-types).  \
+Packages are discussed further in [Section 4](#4).  \
+And defining lexical-to-value mappings using encoding rules is discussed in [Section 5](#5)
 
 -------
 
