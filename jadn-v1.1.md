@@ -291,16 +291,16 @@ Information values are instances of abstract DataTypes, and as shown in Figure 2
 into abstract schema Packages which are included in the information model for a particular application domain.
 
 ![Information Model Structure](images/im-top.jpg)
-###### Figure 2-1 -- Information Model Structure
+###### Figure 2-1 -- Information Model Organization
 
 * A JADN information model consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
 * Every Package instance is an abstract schema with a globally-unique namespace used to qualify the names
 of its DataTypes.
-* Package is the top level data structure in an IM. DataTypes in one package may directly reference DataTypes
+* Package is the top level data structure in an IM. DataTypes in one package directly reference DataTypes
 defined in other packages by qualified name.
 * JADN defines no "information model" structure containing or naming a set of packages; IM-based applications
-load the package(s) they need to resolve all type references.
+load the package(s) needed to resolve all type references.
 
 DataTypes are defined in [Section 3](#3-jadn-types).  \
 Packages are discussed further in [Section 4](#4).  \
