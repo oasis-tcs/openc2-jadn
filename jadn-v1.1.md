@@ -285,12 +285,23 @@ for each base type that produce physical data in the desired format.
 
 # 2 Information Model
 
-As stated in the introduction, an information model 
+As stated in the introduction, a JADN information model defines the essential content of discrete data items
+used in computing independently of how that content is represented for processing, communication or storage.
+Information values are instances of abstract DataTypes, and as shown in Figure 2-1 DataTypes are organized
+into abstract schema Packages which are included in the information model for a particular application domain.
 
-* Model
-* Packages
-* Types
-* Transformations and Equivalence
+![Information Model Structure](images/im-top.jpg)
+###### Figure 2-1 -- Information Model Structure
+
+* A JADN information model consists of a set of abstract schemas that define essential content, and a set of
+encoding rules that define the lexical-to-value mapping in a particular data format for each JADN DataType.
+* Every Package instance is an abstract schema with a globally-unique namespace id used to qualify the names
+of its DataTypes.
+* Package is the top level data structure in an IM. DataTypes in one package may directly reference DataTypes
+defined in other packages, but JADN defines no "information model" structure that lists a set of packages.
+
+DataTypes are defined in [Section 3](#3-jadn-types). Packages are discussed further in [Section 4](#4).
+And defining lexical-to-value mappings using encoding rules is discussed in [Section 5)(#5)]
 
 -------
 
