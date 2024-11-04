@@ -221,12 +221,25 @@ instances that can be compared.
 
 ### 1.1.1 Definitions of terms
 * **Information**:
-    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed to
-    represent the essential content of a message, excluding insignificant data and data that is already known.
+    Essential content. Informally, essential means absolutely necessary: if data can be removed from a message 
+    without affecting its meaning, then it is not essential. Formally, information theory measures the entropy
+    (novelty, or news value) of a message in bits, excluding data that is insignificant (of no interest) or
+    redundant with what is known *a priori*.
+    The information in a message is no greater than the smallest data value that accurately represents it.
+
+* **Logical Value**:
+    Information value. The internal representation of an instance of a logical type that expresses its essential
+    content independently of program language or mechanism.
+
+* **Logical Type**:
+    Abstract DataType.
 
 * **Information Model**:
     An abstract schema that defines the structure and value constraints of information used in computing systems
     independently of representation, plus mechanisms to convert between information values and literal representations.
+
+* **Data Value (artifact, document, lexical value, literal value, message)**:
+    A sequence of octets (bytes) or characters that represents a logical value in a data format.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
