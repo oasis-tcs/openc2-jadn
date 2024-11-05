@@ -232,14 +232,13 @@ instances that can be compared.
     computing systems independently of representation, plus a set of application-independent mappings
     between external data values and internal logical values.
 
-* **Logical Type**:
-    An abstract DataType that defines the meaning and essential content of a discrete data item used
-    in computing independently of how it is represented for processing, communication or storage.
-    Logical types are defined by an information modeling language; JADN built-in types are:
-
-  * **Primitive:** Boolean, Binary, Integer, Number, String
-  * **Union:** Enumerated, Choice
-  * **Compound:** Array, ArrayOf, Map, MapOf, Record
+  * **Logical Type**:
+      An abstract DataType that defines the meaning and essential content of a discrete data item used
+      in computing independently of how it is represented for processing, communication or storage.
+      Logical types are defined by an information modeling language; JADN built-in types are:  \
+      **Primitive:** Boolean, Binary, Integer, Number, String  \
+      **Union:** Enumerated, Choice  \
+      **Compound:** Array, ArrayOf, Map, MapOf, Record
 
 * **Logical Value (information value)**:
     An instance of a logical type used for processing and comparison, specified by results
@@ -249,6 +248,10 @@ instances that can be compared.
     An instance of a logical type used for transmission or storage, consisting of a sequence of
     octets (bytes) or characters in an external data format. Or equivalently, the same sequence
     as specified by a data model.
+
+* **Equivalence**:
+    Two logical values are equal if and only if they have the same logical type and the same value.
+    Two data values are equivalent if and only if they map to the same logical value.
 
 * **Data Format**:
     A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
@@ -269,10 +272,6 @@ instances that can be compared.
 * **Valid**:
     A logical value is valid if it satisfies the constraints of its logical type.
     A data value is valid if it is well-formed and is classified as an instance of a logical type.
-
-* **Equivalence**:
-    Two logical values are equal if and only if they have the same logical type and the same value.
-    Two data values are equivalent if and only if they map to the same logical value.
 
 * **Serialization**:
     Serialization, or encoding, converts application information into a document.
