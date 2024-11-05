@@ -232,26 +232,28 @@ instances that can be compared.
     computing systems independently of representation, plus a set of application-independent mappings
     between external data values and internal logical values.
 
+* **Equivalence**:
+    The relation between the meaning represented by two data values such that each logically implies the other.
+    Two data values are equivalent if and only if they are classified as instances of the same logical type
+    and have the same logical value.
+
 * **Logical Type**:
     An abstract DataType that defines the meaning and essential content of a discrete data item used
     in computing independently of how it is represented for processing, communication or storage.
-    Logical types are defined by an information modeling language; JADN built-in types are:
-    - **Primitive:** Boolean, Binary, Integer, Number, String
+    Logical types are defined by and composed using an information modeling language.
+    JADN defines twelve built-in core types:
+    - **Primitive:** Binary, Boolean, Integer, Number, String
     - **Compound:** Array, ArrayOf, Map, MapOf, Record
     - **Union:** Enumerated, Choice
 
 * **Logical Value (information value)**:
-    An instance of a logical type used for processing and comparison, specified by results
+    An instance of a logical type used for processing and comparison, specified by result
     independently of programming languages and techniques.
 
 * **Data Value (artifact, document, lexical value, literal value, message)**:
     An instance of a logical type used for transmission or storage, consisting of a sequence of
     octets (bytes) or characters in an external data format. Or equivalently, the same sequence
-    as specified by a data model.
-
-* **Equivalence**:
-    Two logical values are equal if and only if they have the same logical type and the same value.
-    Two data values are equivalent if and only if they map to the same logical value.
+    as defined by a data model.
 
 * **Data Format**:
     A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
