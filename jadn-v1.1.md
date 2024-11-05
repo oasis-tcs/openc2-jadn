@@ -251,7 +251,7 @@ instances that can be compared.
     independently of programming languages and techniques.
 
 * **Data Value (artifact, document, lexical value, literal value, message)**:
-    An instance of a logical type used for transmission or storage, consisting of a sequence of
+    A fixed instance of a logical type used for transmission or storage, consisting of a sequence of
     octets (bytes) or characters in an external data format. Or equivalently, the same sequence
     as defined by a data model.
 
@@ -262,7 +262,7 @@ instances that can be compared.
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
     A single information model corresponds to multiple equivalent data models; two data models are equivalent if
-    they represent the same information.
+    they define data values representing the same information.
 
 * **Presentation Format**:
     A view of logical values that does not necessarily preserve all essential content, used for display
@@ -276,12 +276,12 @@ instances that can be compared.
     A data value is valid if it is well-formed and is classified as an instance of a logical type.
 
 * **Serialization**:
-    Serialization, or encoding, converts application information into a document.
-    De-serialization, or decoding, converts a document into information instances usable by applications.
+    Serialization, or encoding, converts a logical value into a data value.
+    De-serialization, or decoding, classifies a data value and converts it into an instance of a logical type.
 
 * **Description**:
-    Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
-    and are ignored by information modeling applications.
+    Description fields of an information model are reserved for comments from authors to readers
+    or maintainers of the model and are ignored by information modeling applications.
 
 ### 1.1.2 Acronyms and abbreviations
 
