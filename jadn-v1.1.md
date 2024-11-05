@@ -40,8 +40,8 @@ This prose specification is one component of a Work Product that also includes:
 * JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.1.jadn
 
 #### Abstract:
-An Information Model (IM) defines the essential content of data used in computing independently of
-how it is represented for processing, communication or storage.
+An Information Model (IM) defines the meaning and essential content of data used in computing independently
+of how it is represented for processing, communication or storage.
 JSON Abstract Data Notation (JADN) is an information modeling language based on Unified Modeling Language
 (UML) logical DataTypes, used to both express the meaning of data items at a conceptual level and
 formally define and validate instances of those types.
@@ -220,69 +220,58 @@ instances that can be compared.
 ## 1.1 Glossary
 
 ### 1.1.1 Definitions of terms
-* **Information**:
-    Essential content. Informally, essential means absolutely necessary: if data can be removed from a message 
-    without affecting its meaning, then it is not essential. Formally, information theory measures the entropy
-    (novelty, or news value) of a message in bits, excluding data that is insignificant (of no interest) or
-    redundant with what is known *a priori*.
-    The information in a message is no greater than the smallest data value that accurately represents it.
-
-* **Logical Value**:
-    Information value. The internal representation of an instance of a logical type that expresses its essential
-    content independently of program language or mechanism.
-
-* **Logical Type**:
-    Abstract DataType.
+* **Information (essential content)**:
+    Informally, essential means that if data can be removed from a message without affecting its meaning,
+    then it is not essential.
+    Formally, information theory quantifies the entropy (novelty, or news value) of a message in bits,
+    excluding data that is insignificant (of no interest) or redundant with what is known *a priori*.
+    The information content of a message is no greater than the smallest data value that accurately represents it.
 
 * **Information Model**:
-    An abstract schema that defines the structure and value constraints of information used in computing systems
-    independently of representation, plus mechanisms to convert between information values and literal representations.
+    An abstract schema that defines the meaning, structure and value constraints of information used in
+    computing systems independently of representation, plus a set of application-independent mappings
+    between external data values and internal logical values.
+
+* **Logical Type**:
+    An abstract DataType that defines the meaning and essential content of a discrete data item used
+    in computing independently of how it is represented for processing, communication or storage.
+    Logical types are defined by an information modeling language; JADN built-in types are:
+      * **Primitive:** Boolean, Binary, Integer, Number, String
+      * **Union:** Enumerated, Choice
+      * **Compound:** Array, ArrayOf, Map, MapOf, Record
+
+* **Logical Value (information value)**:
+    An instance of a logical type used for processing and comparison, specified by results
+    independently of programming languages and techniques.
 
 * **Data Value (artifact, document, lexical value, literal value, message)**:
-    A sequence of octets (bytes) or characters that represents a logical value in a data format.
+    An instance of a logical type used for transmission or storage, consisting of a sequence of
+    octets (bytes) or characters in an external data format. Or equivalently, the same sequence
+    as specified by a data model.
+
+* **Data Format**:
+    A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
+    design goals (human readability, efficiency), and style preferences for data values in that format.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
     A single information model corresponds to multiple equivalent data models; two data models are equivalent if
     they represent the same information.
 
-* **Graph**:
-    A mathematical structure used to model pairwise relationships between objects.
-    An information model is a graph where nodes are information type definitions and edges are
-    associations between types.
-
-* **Package**:
-    A container that defines a namespace for the set of types it contains. A type can reference types from another
-    package using the referenced namespace.
-
-* **Document**:
-    A series of octets described by a data format applied to an information model, or equivalently, by a data model.
+* **Presentation Format**:
+    A view of logical values that does not necessarily preserve all essential content, used for display
+    or documentation purposes.
 
 * **Well-formed**:
-    A well-formed document follows the syntactic structure of the document's media type.
+    A data value that follows the syntactic structure of its media type, if specified for its data format.
 
 * **Valid**:
-    An instance is valid if it satisfies the constraints defined in an information model.
-    A document is valid if it is well-formed and also corresponds to a valid instance.
+    A logical value is valid if it satisfies the constraints of its logical type.
+    A data value is valid if it is well-formed and is classified as an instance of a logical type.
 
-* **Data Format**:
-    A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
-    design goals (human readability, efficiency), and style preferences for documents in that format.
-
-* **Instance**:
-    An instance, or API value, is an item of information that satisfies the structure and value constraints
-    defined by a type.  Types are defined by an information modeling language; JADN built-in types are:
-    * **Primitive:** Boolean, Binary, Integer, Number, String
-    * **Union:** Enumerated, Choice
-    * **Compound:** Array, ArrayOf, Map, MapOf, Record
-
-* **Instance Equality**:
-    Two instances are equal if and only if they are of the same type and have the same information value.
-    Formatting differences, including a document's data format, are insignificant.
-    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR
-    byte string if and only if they have the same 32 bit value.
-    A Record instance serialized as an array is equal to a Record instance serialized as a map
-    if and only if they have the same keys and the same value for each key.
+* **Equivalence**:
+    Two logical values are equal if and only if they have the same logical type and the same value.
+    Two data values are equivalent if and only if they map to the same logical value.
 
 * **Serialization**:
     Serialization, or encoding, converts application information into a document.
