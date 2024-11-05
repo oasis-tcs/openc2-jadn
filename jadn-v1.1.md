@@ -295,15 +295,17 @@ into abstract schema Packages which are included in the information model for a 
 
 * A JADN information model consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
-* Every Package instance is an abstract schema with a globally-unique namespace used to qualify the names
-of its DataTypes.
-* Package is the top level data structure in an IM. DataTypes in one package directly reference DataTypes
-defined in other packages by qualified name.
-* JADN defines no "information model" structure containing or naming a set of packages; IM-based applications
-load the package(s) needed to resolve all type references.
+* Package is the top level JADN DataType. It has two fields:
+  * "info" of type "Information" containing descriptive and functional metadata about the package
+  * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType.
+* Every Package instance is an abstract schema value. Each schema has a globally-unique namespace used to
+qualify the names of its types.
+Types in a package reference types defined in other packages using qualified names.
+* There is no "information model" DataType containing or naming a set of abstract schemas.
+An IM-based application uses the application package(s) and any packages needed to resolve all type references.
 
-DataTypes are defined in [Section 3](#3-jadn-types).  \
-Packages are discussed further in [Section 4](#4).  \
+Type is defined in [Section 3](#3-jadn-types).  \
+Package is defined in [Section 4](#4).  \
 Using encoding rules to define concrete data formats is discussed in [Section 5](#5)
 
 -------
