@@ -232,10 +232,10 @@ instances that can be compared.
     computing systems independently of representation, plus a set of application-independent mappings
     between external data values and internal logical values.
 
-  * **Logical Type**:
-      An abstract DataType that defines the meaning and essential content of a discrete data item used
-      in computing independently of how it is represented for processing, communication or storage.
-      Logical types are defined by an information modeling language; JADN built-in types are:  \
+* **Logical Type**:
+    An abstract DataType that defines the meaning and essential content of a discrete data item used
+    in computing independently of how it is represented for processing, communication or storage.
+    Logical types are defined by an information modeling language; JADN built-in types are:  \
       **Primitive:** Boolean, Binary, Integer, Number, String  \
       **Union:** Enumerated, Choice  \
       **Compound:** Array, ArrayOf, Map, MapOf, Record
