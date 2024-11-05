@@ -235,10 +235,10 @@ instances that can be compared.
 * **Logical Type**:
     An abstract DataType that defines the meaning and essential content of a discrete data item used
     in computing independently of how it is represented for processing, communication or storage.
-    Logical types are defined by an information modeling language; JADN built-in types are:  \
-    . **Primitive:** Boolean, Binary, Integer, Number, String  \
-    . **Compound:** Array, ArrayOf, Map, MapOf, Record  \
-    . **Union:** Enumerated, Choice  \
+    Logical types are defined by an information modeling language; JADN built-in types are:
+    - **Primitive:** Boolean, Binary, Integer, Number, String
+    - **Compound:** Array, ArrayOf, Map, MapOf, Record
+    - **Union:** Enumerated, Choice
 
 * **Logical Value (information value)**:
     An instance of a logical type used for processing and comparison, specified by results
