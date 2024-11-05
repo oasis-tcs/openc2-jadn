@@ -279,7 +279,7 @@ instances that can be compared.
 
 * **Description**:
     Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
-    and are ignored by applications using the schema.
+    and are ignored by information modeling applications.
 
 ### 1.1.2 Acronyms and abbreviations
 
@@ -288,7 +288,7 @@ instances that can be compared.
 * **IM**: Information Model
 
 <!--
-### 1.2.3 Document conventions
+### 1.1.3 Document conventions
 
 - Naming conventions
 - Font colors and styles
