@@ -164,7 +164,9 @@ language is a formal syntax that allows users to capture data semantics and cons
 
 -- [[Information Modeling](#information-modeling)], Y. Tina Lee, NIST
 
-This specification defines the JADN information modeling language.
+This is the reference specification for the JADN information modeling language.
+See [Information Modeling With JADN](#jadn-cn) for a description of the information modeling
+process and how to construct and use JADN information models.
 While the term information modeling is used broadly and covers a range of applications, a JADN
 information model defines the essential content of discrete data items used in computing
 independently of how that content is represented for processing, communication or storage.
