@@ -311,18 +311,18 @@ Using encoding rules to define concrete data formats is discussed in [Section 5]
 
 ## 2.1 Notation
 
-The normative form of JADN type definitions is the abstract Type data structure defined in Section 3.
-They can be represented precisely as serialized JSON data as defined in Section 5, but can also be represented
-unambiguously in other formats more suited to human understanding. Several such representations are
-described in [Section 6](#6), including:
-* a text-based information definition language (IDL)
+The normative form of a JADN type definition is the abstract Type structure defined in Section 3.
+Each type definition can be represented as JSON data and validated by a concrete schema as defined in Section 5,
+but can also be represented unambiguously in other formats more suited to human understanding.
+Several such representations are described in [Section 6](#6), including:
+* a text-based information definition language (IDL) defined and validated by a language grammar
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
 
-This specification uses JSON data representation where the precise schema structure is paramount, as with
-information modeling applications, and uses JADN IDL where understanding purpose and meaning is the goal.
-These representations are equivalent, and the JSON versions of all IDL examples are listed in
-[Appendix G](#appendix-g-jadn-type-definitions-from-this-document).
+This specification uses JSON representation where data structure is paramount, as with information
+modeling applications, and uses JADN IDL where understanding purpose and meaning is the goal.
+These representations are equivalent, and the JSON definitions of all IDL examples are included
+as an accompanying artifact.
 
 -------
 
@@ -1611,8 +1611,8 @@ König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapt
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
 ###### [GRAPHVIZ]
 *"Graph Visualization Software"*, https://graphviz.gitlab.io/
-###### [IE]
-Wikipedia, "Information Engineering", https://en.wikipedia.org/wiki/Information_engineering_(field)
+###### [JADN-CN]
+OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RELAXNG]
