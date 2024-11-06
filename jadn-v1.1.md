@@ -285,28 +285,44 @@ for each base type that produce physical data in the desired format.
 
 # 2 Information Models
 
-As stated in the introduction, a JADN IM defines the essential content of discrete data items
-used in computing independently of how that content is represented for processing, communication or storage.
-Information values are instances of abstract DataTypes, and as shown in Figure 2-1 DataTypes are organized
-into abstract schema Packages which are included in the information model for a particular application domain.
+A JADN information model defines the essential content of discrete data items used in computing independently
+of how that content is represented for processing, communication or storage.
+Information values are instances of abstract UML DataTypes, and as shown in Figure 2-1 DataType definitions are
+organized into abstract schema Packages which are included in the information model for a particular application domain.
 
 ![Information Model Structure](images/im-top.jpg)
 ###### Figure 2-1 -- Information Model Organization
 
 * A JADN information model consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
-* Package is the top level JADN DataType. It has two fields:
+* Package is the top level JADN type. It has two fields:
   * "info" of type "Information" containing descriptive and functional metadata about the package
   * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType.
 * Every Package instance is an abstract schema value. Each schema has a globally-unique namespace used to
 qualify the names of its types.
 Types in a package reference types defined in other packages using qualified names.
-* There is no "information model" DataType containing or naming a set of abstract schemas.
-An IM-based application uses the application package(s) and any packages needed to resolve all type references.
+* There is no "information model" type containing or naming a set of abstract schemas.
+An IM-based application uses package(s) relevant to the application and any additional packages needed to
+resolve all type references.
 
 Type is defined in [Section 3](#3-jadn-types).  \
 Package is defined in [Section 4](#4).  \
 Using encoding rules to define concrete data formats is discussed in [Section 5](#5)
+
+## 2.1 Notation
+
+The normative form of JADN type definitions is the abstract Type data structure defined in Section 3.
+They can be represented precisely as serialized JSON data as defined in Section 5, but can also be represented
+unambiguously in other formats more suited to human understanding. Several such representations are
+described in [Section 6](#6), including:
+* a text-based information definition language (IDL)
+* property tables used in protocol or document format specifications
+* entity-relationship diagrams (ERDs) used for data modeling
+
+This specification uses JSON data representation where the precise schema structure is paramount, as with
+information modeling applications, and uses JADN IDL where understanding purpose and meaning is the goal.
+These representations are equivalent, and the JSON versions of all IDL examples are listed in
+[Appendix G](#appendix-g-jadn-type-definitions-from-this-document).
 
 -------
 
