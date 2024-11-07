@@ -243,28 +243,24 @@ instances that can be compared.
     An abstract DataType that defines the meaning and essential content of a discrete data item used
     in computing independently of how it is represented for processing, communication or storage.
     Logical types are defined by and composed using an information modeling language.
-    JADN defines twelve built-in core types:
-    - **Primitive:** Binary, Boolean, Integer, Number, String
-    - **Compound:** Array, ArrayOf, Map, MapOf, Record
-    - **Union:** Enumerated, Choice
 
 * **Logical Value (information value)**:
-    An instance of a logical type used for processing and comparison, specified by result
-    independently of programming languages and techniques.
+    An immutable instance of a logical type used for processing and comparison, specified by
+    behavioral effect independently of programming languages and techniques.
 
 * **Data Value (artifact, document, lexical value, literal value, message)**:
-    A fixed instance of a logical type used for transmission or storage, consisting of a sequence of
+    An immutable instance of a logical type used for transmission or storage, consisting of a sequence of
     octets (bytes) or characters in an external data format. Or equivalently, the same sequence
     as defined by a data model.
 
 * **Data Format**:
-    A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
+    Serialization rules that specify the media type (e.g., XML, JSON, CBOR, Protobuf),
     design goals (human readability, efficiency), and style preferences for data values in that format.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
-    A single information model corresponds to multiple equivalent data models; two data models are equivalent if
-    they define data values representing the same information.
+    A single information model corresponds to multiple equivalent data models; data models are equivalent
+    if they define data values representing the same information.
 
 * **Presentation Format**:
     A view of logical values that does not necessarily preserve all essential content, used for display
