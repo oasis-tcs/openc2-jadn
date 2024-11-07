@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 4 November 2024
+## 7 November 2024
 
 &nbsp;
 
@@ -165,7 +165,7 @@ language is a formal syntax that allows users to capture data semantics and cons
 -- [[Information Modeling](#information-modeling)], Y. Tina Lee, NIST
 
 This is the reference specification for the JADN information modeling language.
-See [Information Modeling With JADN](#jadn-cn) for a description of the information modeling
+See [[JADN-CN](#jadn-cn)] for additional detail on the information modeling
 process and how to construct and use JADN information models.
 While the term information modeling is used broadly and covers a range of applications, a JADN
 information model defines the essential content of discrete data items used in computing
@@ -180,10 +180,10 @@ JADN is based on the **Unified Modeling Language** [[UML](#uml)]:
 with tools for analysis, design, and implementation of software-based systems as well as for modeling
 business and similar processes.*
 
-The UML specification is organized around the concept of classification, and among its many
+The UML specification is organized around the concept of classification, and among its
 classifiers are DataType and Class. Instances of a DataType are identified only by their value,
 and all instances of a DataType with the same value are considered to be equal instances. DataType
-instances are immutable (constant) values because different values are by definition different instances.
+instances are immutable because different values are by definition different instances.
 A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
 only among instances of the same type.
 
@@ -199,7 +199,7 @@ For example, software functions cannot persistently modify arguments passed by v
 those passed by reference. Validating a document for correctness or integrity validates the values
 it contains but not the values it references. A document DataType can distinguish between local and
 external references and validate that local references identify values contained within that instance.
-* Misusing Class to model data values often results in contradictions such as treating a
+* Misusing Class to model data often results in contradictions such as treating a
 one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
 (latitude, longitude) as a Class.
 
@@ -211,12 +211,12 @@ IRIs, blank nodes, or **datatyped literals**. They are used to express descripti
 
 RDF defines DataType as having a "lexical-to-value (L2V) mapping", and while an RDF graph defines
 relationships among physical and digital resources, DataType is the only RDF element that defines
-a digital resource in terms of both a lexical (literal) representation and its representation-independent
+a digital resource in terms of both a literal representation and its representation-independent
 logical value.
 
 Defining equivalence is the primary distinction between information modeling and other modeling approaches.
-A JADN information model is constructed from DataTypes, not Classes, because its purpose is to compare
-literal values for equivalence based on their logical information content, and only DataTypes have
+An information model is constructed from DataTypes, not Classes, because its purpose is to compare
+literal values for equivalence based on their logical information content, and only DataTypes define
 instances that can be compared.
 
 ## 1.1 Glossary
@@ -226,8 +226,8 @@ instances that can be compared.
     Informally, essential means that if data can be removed from a message without affecting its meaning,
     then it is not essential.
     Formally, information theory quantifies the entropy (novelty, or news value) of a message in bits,
-    excluding data that is insignificant (of no interest) or redundant with what is known *a priori*.
-    The information content of a message is no greater than the smallest data value that accurately represents it.
+    excluding data that is insignificant or is redundant with what is known *a priori*.
+    The information content of a message can be no greater than the smallest data value that accurately represents it.
 
 * **Information Model**:
     An abstract schema that defines the meaning, structure and value constraints of information used in
@@ -250,8 +250,8 @@ instances that can be compared.
 
 * **Data Value (artifact, document, lexical value, literal value, message)**:
     An immutable instance of a logical type used for transmission or storage, consisting of a sequence of
-    octets (bytes) or characters in an external data format. Or equivalently, the same sequence
-    as defined by a data model.
+    octets or characters in an external data format.
+    Or equivalently, the same sequence as defined by a data model.
 
 * **Data Format**:
     Serialization rules that specify the media type (e.g., XML, JSON, CBOR, Protobuf),
@@ -333,10 +333,10 @@ Several such representations are described in [Section 6](#6), including:
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
 
-This specification uses JSON representation where data structure is paramount, as with information
-modeling applications, and uses JADN IDL where understanding purpose and meaning is the goal.
-These representations are equivalent, and the JSON definitions of all IDL examples are included
-as an accompanying artifact.
+This specification uses JSON representation to precisely define the structure of a JADN schema,
+and uses JADN IDL where understanding purpose and meaning is the primary goal.
+These representations are equivalent, and the JSON definition of all IDL content is included
+as an additional artifact.
 
 -------
 
