@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 28 October 2024
+## 4 November 2024
 
 &nbsp;
 
@@ -297,12 +297,46 @@ instances that can be compared.
 
 -------
 
-# 2 Information Model
+# 2 Information Models
 
-* Model
-* Packages
-* Types
-* Transformations and Equivalence
+A JADN information model defines the essential content of discrete data items used in computing independently
+of how that content is represented for processing, communication or storage.
+Information values are instances of abstract UML DataTypes, and as shown in Figure 2-1 DataType definitions are
+organized into abstract schema Packages which are included in the information model for a particular application domain.
+
+![Information Model Structure](images/im-toplevel.jpg)
+###### Figure 2-1 -- Information Model Organization
+
+* A JADN information model consists of a set of abstract schemas that define information content, and a set of
+encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
+* Package is the top level JADN type. It has two fields:
+  * "info" of type "Information" containing descriptive and functional metadata about the package
+  * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType.
+* Every Package instance is an abstract schema value. Each schema has a globally-unique namespace used to
+qualify the names of its types.
+Types in a package reference types defined in other packages using qualified names.
+* There is no "information model" type containing or naming a set of abstract schemas.
+An IM-based application uses package(s) relevant to the application and any additional packages needed to
+resolve all type references.
+
+Type is defined in [Section 3](#3-jadn-types).  \
+Package is defined in [Section 4](#4).  \
+Using encoding rules to define concrete data formats is discussed in [Section 5](#5)
+
+## 2.1 Notation
+
+The normative form of a JADN type definition is the abstract Type structure defined in Section 3.
+Each type definition can be represented as JSON data and validated by a concrete schema as defined in Section 5,
+but can also be represented unambiguously in other formats more suited to human understanding.
+Several such representations are described in [Section 6](#6), including:
+* a text-based information definition language (IDL) defined and validated by a language grammar
+* property tables used in protocol or document format specifications
+* entity-relationship diagrams (ERDs) used for data modeling
+
+This specification uses JSON representation where data structure is paramount, as with information
+modeling applications, and uses JADN IDL where understanding purpose and meaning is the goal.
+These representations are equivalent, and the JSON definitions of all IDL examples are included
+as an accompanying artifact.
 
 -------
 
@@ -1592,7 +1626,9 @@ FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
-*"Graph Visualization Software"*, https://graphviz.gitlab.io/.
+*"Graph Visualization Software"*, https://graphviz.gitlab.io/
+###### [JADN-CN]
+OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [PROTO]
