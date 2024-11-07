@@ -3,7 +3,7 @@
 
 # Specification for JSON Abstract Data Notation (JADN) Version 1.1
 
-## Working Draft 1 (Version 1.0 Committee Specification 01)
+## Committee Specification Draft 01
 
 ## 4 November 2024
 
@@ -28,7 +28,7 @@ https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf
 [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
 
 #### Chair:
-Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)
+Duncan Sparrell (duncan@sfractal.com), [sFractal Consulting LLC](http://www.sfractal.com/)  \
 Michael Rosa (mjrosa@nsa.gov), [National Security Agency](https://www.nsa.gov/)
 
 #### Editor:
@@ -40,14 +40,18 @@ This prose specification is one component of a Work Product that also includes:
 * JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.1.jadn
 
 #### Abstract:
-JSON Abstract Data Notation (JADN) is a UML-based information modeling language that defines data structure
-independently of data format. Information models are used to define and generate physical data models,
-validate information instances, and enable lossless translation across data formats.
-A JADN specification consists of two parts: type definitions that comprise the information model,
-and serialization rules that define how information instances are represented as data.
-The information model is itself an information instance that can be serialized and transferred between applications.
-The model is documented using a compact and expressive interface definition language, property tables, or
-entity relationship diagrams, easing integration with existing design processes and architecture tools.
+An Information Model (IM) defines the meaning and essential content of data used in computing independently
+of how it is represented for processing, communication or storage.
+JSON Abstract Data Notation (JADN) is an information modeling language based on Unified Modeling Language
+(UML) logical DataTypes, used to both express the meaning of data items at a conceptual level and
+formally define and validate instances of those types.
+JADN uses information theory to define logical equivalence, which enables representation of essential
+content in a wide range of formats and ensures translation among representations without loss.
+This document defines the normative DataTypes and data formats used to construct a JADN IM, and describes
+several equivalent non-normative model representations including a textual information definition
+language, a table format, and a diagram format. Because a JADN IM is a logical value, it can also
+be serialized in the same formats as the data it describes, allowing the model to accompany the data
+if desired and facilitating dynamic model updates.
 
 #### Status:
 This document was last revised or approved by the OASIS Open Command and Control (OpenC2) TC on the above date.
@@ -154,127 +158,137 @@ For complete copyright information please see the Notices section in the Appendi
 -------
 
 # 1 Introduction
-[RFC 3444](#rfc3444), "Information Models and Data Models", notes that the main purpose of
-an information model is to model objects at a conceptual level, independent of specific implementations
-or protocols used to transport the data.
-[RFC 8477](#rfc8477), "IoT Semantic Interoperability Workshop 2016", describes a lack of consistency across
-Standards Developing Organizations in defining application layer data, attributing it to the lack of an
-encoding-independent standardization of the information represented by that data.
-This document defines an information modeling language intended to address that gap. JADN is a
-[formal description technique](#fdt) that combines type constraints from the Unified Modeling Language
-[UML](#uml) with data abstraction based on information theory and structural organization using results
-from graph theory.
+> *An information model is a representation of concepts, relationships, constraints, rules,
+and operations to specify data semantics for a chosen domain of discourse. An information modeling
+language is a formal syntax that allows users to capture data semantics and constraints.*
 
-As shown in Figure 1, industry has multiple, often conflicting definitions of data modeling terms,
-including the term "[Information Engineering](#ie)", which at one time referred to
-[data modeling](#datamod) but is now more closely aligned with information theory and machine learning.
+-- [[Information Modeling](#information-modeling)], Y. Tina Lee, NIST
 
-* Ackoff's [Knowlege Hierarchy](#diek) defines data as "symbols that are properties of observables"
-  and informally calls information "descriptions inferred from data".
-* UML defines DataTypes (simple classifiers where instances are distinguished only by value) and
-  Classes (structured classifiers where instances have behavior, inheritance, roles, and other
-  complex characteristics).
-* Traditional data modeling defines conceptual, logical and physical data models without considering
-  information at all.
-* Information modeling formalizes the relationship between information and data, defining a
-  technology-agnostic information layer that lies between the logical data model and
-  multiple technology-specific physical data models.
+This is the reference specification for the JADN information modeling language.
+See [Information Modeling With JADN](#jadn-cn) for a description of the information modeling
+process and how to construct and use JADN information models.
+While the term information modeling is used broadly and covers a range of applications, a JADN
+information model defines the essential content of discrete data items used in computing
+independently of how that content is represented for processing, communication or storage.
+* **Essential content** (information, meaning) is defined by information theory, where the amount of
+information conveyed in a message is not directly related to the size or format of the message.
+* **Data items** (messages, documents, function signatures, object state, protocol data units, etc.)
+are JADN's scope within a system's domain of discourse.
 
-![Information Engineering](images/info-engineering.jpg)
+JADN is based on the **Unified Modeling Language** [[UML](#uml)]:
+> *The objective of UML is to provide system architects, software engineers, and software developers
+with tools for analysis, design, and implementation of software-based systems as well as for modeling
+business and similar processes.*
 
-###### Figure 1: Information Engineering Terminology
+The UML specification is organized around the concept of classification, and among its many
+classifiers are DataType and Class. Instances of a DataType are identified only by their value,
+and all instances of a DataType with the same value are considered to be equal instances. DataType
+instances are immutable (constant) values because different values are by definition different instances.
+A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
+only among instances of the same type.
 
-UML class models and diagrams are commonly referred to as "Data Models", but they model knowledge
-of real-world entities using classes. In contrast, information models model data itself using datatypes.
-A practical distinction is that class models are undirected graphs with an unlimited variety of
-classes and semantic relationships, while information models are directed graphs with a small predefined
-set of base datatypes and only two kinds of relationship: "contain" and "reference".
-Designing an information model from a class/logical model is largely a matter of assigning the kind and
-direction of each relationship, establishing identifiers for all referenceable datatypes, and
-selecting the kind of each datatype from among the base types defined by an information modeling
-language. Converting an information model to a data model means applying serialization rules
-for each base type that produce physical data in the desired format.
+Instances of a Class are objects. Objects are not identified by value because two objects
+instantiated from the same Class, even with the same property values, remain distinct and no two
+objects are ever equal. Although objects are not values, DataTypes model object features that
+are values, such as public fields and API (getter/setter) views of private state.
+Additional differences between DataType and Class include:
+* Collection DataTypes specify if value order is significant. Class public fields and API values
+do not have an order.
+* DataType distinguishes between values and references, Class does not.
+For example, software functions cannot persistently modify arguments passed by value but can modify
+those passed by reference. Validating a document for correctness or integrity validates the values
+it contains but not the values it references. A document DataType can distinguish between local and
+external references and validate that local references identify values contained within that instance.
+* Misusing Class to model data values often results in contradictions such as treating a
+one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
+(latitude, longitude) as a Class.
 
-## 1.1 Changes from CSD 01
+The **Resource Description Framework** [[RDF](#rdf)] includes DataTypes:
 
-* Added serialization style description to [Section 2.2](#22-information-modeling).
-* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
-* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
-* Raised the default maximum length for type and field names from 32 to 64 characters
-   ([Section 3.1.2](#312-name-formats)).
+> *RDF defines an abstract syntax (a data model) which serves to link all RDF-based languages and
+specifications. RDF graphs are sets of subject-predicate-object triples, where the elements may be
+IRIs, blank nodes, or **datatyped literals**. They are used to express descriptions of resources.*
 
-## 1.2 Glossary
+RDF defines DataType as having a "lexical-to-value (L2V) mapping", and while an RDF graph defines
+relationships among physical and digital resources, DataType is the only RDF element that defines
+a digital resource in terms of both a lexical (literal) representation and its representation-independent
+logical value.
 
-### 1.2.1 Definitions of terms
-* **Information**:
-    A measure of the entropy (novelty, or "news value") of a message. Information is the minimum data needed
-    to represent the essential meaning of a message, excluding data that is known *a priori* and data that does
-    not affect meaning.
+Defining equivalence is the primary distinction between information modeling and other modeling approaches.
+A JADN information model is constructed from DataTypes, not Classes, because its purpose is to compare
+literal values for equivalence based on their logical information content, and only DataTypes have
+instances that can be compared.
+
+## 1.1 Glossary
+
+### 1.1.1 Definitions of terms
+* **Information (essential content)**:
+    Informally, essential means that if data can be removed from a message without affecting its meaning,
+    then it is not essential.
+    Formally, information theory quantifies the entropy (novelty, or news value) of a message in bits,
+    excluding data that is insignificant (of no interest) or redundant with what is known *a priori*.
+    The information content of a message is no greater than the smallest data value that accurately represents it.
 
 * **Information Model**:
-    An abstract schema that defines the structure and value constraints of information used within and across
-    applications, irrespective of data format.
+    An abstract schema that defines the meaning, structure and value constraints of information used in
+    computing systems independently of representation, plus a set of application-independent mappings
+    between external data values and internal logical values.
+
+* **Equivalence**:
+    The relation between the meaning represented by two data values such that each logically implies the other.
+    Two data values are equivalent if and only if they are classified as instances of the same logical type
+    and have the same logical value.
+
+* **Logical Type**:
+    An abstract DataType that defines the meaning and essential content of a discrete data item used
+    in computing independently of how it is represented for processing, communication or storage.
+    Logical types are defined by and composed using an information modeling language.
+
+* **Logical Value (information value)**:
+    An immutable instance of a logical type used for processing and comparison, specified by
+    behavioral effect independently of programming languages and techniques.
+
+* **Data Value (artifact, document, lexical value, literal value, message)**:
+    An immutable instance of a logical type used for transmission or storage, consisting of a sequence of
+    octets (bytes) or characters in an external data format. Or equivalently, the same sequence
+    as defined by a data model.
+
+* **Data Format**:
+    Serialization rules that specify the media type (e.g., XML, JSON, CBOR, Protobuf),
+    design goals (human readability, efficiency), and style preferences for data values in that format.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
-    A single information model corresponds to multiple equivalent data models; two data models are equivalent if
-    they represent the same information.
+    A single information model corresponds to multiple equivalent data models; data models are equivalent
+    if they define data values representing the same information.
 
-* **Graph**:
-    A mathematical structure used to model pairwise relationships between objects.
-    An information model is a graph where nodes are information type definitions and edges are
-    relationships between types.
-
-* **Package**:
-    A container that defines a namespace for the set of types it contains. A type can reference types from another
-    package using the referenced namespace.
-
-* **Document**:
-    A series of octets described by a data format applied to an information model, or equivalently, by a data model.
+* **Presentation Format**:
+    A view of logical values that does not necessarily preserve all essential content, used for display
+    or documentation purposes.
 
 * **Well-formed**:
-    A well-formed document follows the syntactic structure of the document's media type.
+    A data value that follows the syntactic structure of its media type, if specified for its data format.
 
 * **Valid**:
-    An instance is valid if it satisfies the constraints defined in an information model.
-    A document is valid if it is well-formed and also corresponds to a valid instance.
-
-* **Data Format**:
-    A data format, defined by serialization rules, specifies the media type (XML, JSON, Protobuf, ...),
-    design goals (human readability, efficiency), and style preferences for documents in that format.
-
-* **Instance**:
-    An instance, or API value, is an item of information that satisfies the structure and value constraints
-    defined by a type.  Types are defined by an information modeling language; JADN built-in types are:
-    * **Primitive:** Boolean, Binary, Integer, Number, String
-    * **Union:** Enumerated, Choice
-    * **Compound:** Array, ArrayOf, Map, MapOf, Record
-
-* **Instance Equality**:
-    Two instances are equal if and only if they are of the same type and have the same information value.
-    Formatting differences, including a document's data format, are insignificant.
-    An IPv4 address serialized as a JSON dotted-quad is equal to an IPv4 address serialized as a CBOR
-    byte string if and only if they have the same 32 bit value.
-    A Record instance serialized as an array is equal to a Record instance serialized as a map
-    if and only if they have the same keys and the same value for each key.
+    A logical value is valid if it satisfies the constraints of its logical type.
+    A data value is valid if it is well-formed and is classified as an instance of a logical type.
 
 * **Serialization**:
-    Serialization, or encoding, converts application information into a document.
-    De-serialization, or decoding, converts a document into information instances usable by applications.
+    Serialization, or encoding, converts a logical value into a data value.
+    De-serialization, or decoding, classifies a data value and converts it into an instance of a logical type.
 
 * **Description**:
-    Description elements are reserved for comments from schema authors to readers or maintainers of the schema,
-    and are ignored by applications using the schema.
+    Description fields of an information model are reserved for comments from authors to readers
+    or maintainers of the model and are ignored by information modeling applications.
 
-### 1.2.2 Acronyms and abbreviations
+### 1.1.2 Acronyms and abbreviations
 
 * **DAG**: Directed Acyclic Graph
 * **DM**: Data Model
 * **IM**: Information Model
-* **UML**: Unified Modeling Language
 
 <!--
-### 1.2.3 Document conventions
+### 1.1.3 Document conventions
 
 - Naming conventions
 - Font colors and styles
@@ -399,7 +413,7 @@ The notation `X+y` indicates that the definition of type `X` includes type optio
 
 **Union Types**:
 
-A union type specifies a set of alternatives against which instances are matched. See [Section 3.2.2.2](#3222)
+A union type specifies a set of alternatives against which instances are matched. See [Section 3.2.2.2](#3222-union-types)
 
 **Conformance**:
 
@@ -491,7 +505,7 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
     * A "System" character used in tool-generated or specially-processed type names
 * Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
-* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#es9):
+* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
 ```
 ABNF:
 TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
@@ -699,7 +713,7 @@ from which elements are picked at random.
 The *seq* option specifies that a Map, MapOf or Record instance is an OrderedSet.
 
 #### 3.2.1.12 Combine
-The *combine* option specifies that a [Choice](#3222-tagged-and-untagged-unions) instance must be valid
+The *combine* option specifies that a [Choice](#32222-choice---untagged-union) instance must be valid
 against a logical combination of types. The single-character value indicates the combination type:
 * A = AND: data must be an instance of `allOf` the Choice types
 * O = OR: data must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
@@ -1581,11 +1595,11 @@ Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, Octobe
 ###### [RFC5234]
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
 ###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901.
 ###### [RFC8949]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://tools.ietf.org/html/rfc8949.
 ###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405.
 ###### [RFC8174]
 Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
 ###### [RFC8200]
@@ -1598,23 +1612,29 @@ Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 9
 ###### [AVRO]
 Apache Software Foundation, *"Apache Avro Documentation"*, https://avro.apache.org/docs/current/.
 ###### [BRIDGE]
-Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf
+Thaler, Dave, *"IoT Bridge Taxonomy"*, https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf.
 ###### [DATAMOD]
-InfoAdvisors, *"What are Conceptual, Logical, and Physical Data Models?"*, https://www.datamodel.com/index.php/articles/what-are-conceptual-logical-and-physical-data-models
+InfoAdvisors, *"What are Conceptual, Logical, and Physical Data Models?"*, https://www.datamodel.com/index.php/articles/what-are-conceptual-logical-and-physical-data-models.
 ###### [DIEK]
-Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf
+Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [FDT]
-König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8
+König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8.
+###### [FIX]
+FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/.
 ###### [GRAPH]
-Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf
+Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
 *"Graph Visualization Software"*, https://graphviz.gitlab.io/
 ###### [JADN-CN]
 OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
+###### [INFORMATION MODELING]
+Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
+###### [RDF]
+W3C, *"RDF 1.2 Concepts and Abstract Syntax"*, https://www.w3.org/TR/rdf12-concepts/.
 ###### [RELAXNG]
 OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
 ###### [RFC3444]
@@ -1633,11 +1653,11 @@ Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [TRANSFORM]
-Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf
+Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2011, https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf.
 ###### [UML]
-*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF
+*"Unified Modeling Language"*, Version 2.5.1, December 2017, https://www.omg.org/spec/UML/2.5.1/PDF.
 ###### [UNION]
-"Union Type", Wikipedia, https://en.wikipedia.org/wiki/Union_type
+"Union Type", Wikipedia, https://en.wikipedia.org/wiki/Union_type.
 ###### [TAGGEDUNION]
 "Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
 ###### [XSD]
@@ -1701,11 +1721,19 @@ The following individuals have participated in the creation of this specificatio
 -------
 
 # Appendix D. Revision History
-| Revision | Date | Editor | Changes Made |
-| :--- | :--- | :--- | :--- |
-| WD-01 | 2020-10-18 | David Kemp | Initial working draft |
-| WD-02 | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
+| Revision | Date       | Editor     | Changes Made                                                    |
+|:---------|:-----------|:-----------|:----------------------------------------------------------------|
+| WD-01    | 2020-10-18 | David Kemp | Initial working draft                                           |
+| WD-02    | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
 
+## 1.1 Changes from CSD 01
+*Note: Update to table*
+
+* Added serialization style description to [Section 2.2](#22-information-modeling).
+* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
+* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
+* Raised the default maximum length for type and field names from 32 to 64 characters
+   ([Section 3.1.2](#312-name-formats)).
 -------
 
 # Appendix E. JSON Schema for JADN Documents
@@ -2002,7 +2030,7 @@ This appendix contains the JADN type definitions corresponding to all examples i
 ]]
 ```
 
-**[Section 3.2.2.2 Discriminated Union with Explicit Tag](#3222-discriminated-union-with-explicit-tag):**
+**[Section 3.2.2.2 Discriminated Union with Explicit Tag](#32223-choice---tagged-union):**
 ```json
 [
   ["Product", "Choice", [], "Discriminated union", [
