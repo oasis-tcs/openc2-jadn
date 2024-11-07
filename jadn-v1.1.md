@@ -290,7 +290,7 @@ of how that content is represented for processing, communication or storage.
 Information values are instances of abstract UML DataTypes, and as shown in Figure 2-1 DataType definitions are
 organized into abstract schema Packages which are included in the information model for a particular application domain.
 
-![Information Model Structure](images/im-top.jpg)
+![Information Model Structure](images/im-toplevel.jpg)
 ###### Figure 2-1 -- Information Model Organization
 
 * A JADN information model consists of a set of abstract schemas that define information content, and a set of
