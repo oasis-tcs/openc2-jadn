@@ -341,12 +341,24 @@ as an additional artifact.
 -------
 
 # 3 JADN Types
-An information modeling language's types are defined in terms of the characteristics they provide to applications.
-JADN defines a small set of built-in abstract data types in the following categories:
+An information modeling language's abstract DataTypes are defined in terms of the meaning and behavior of
+applications using them.
+As shown in Figure 3-1, JADN's set of building blocks are twelve core types (shown in bold) in three categories:
 
-* **Primitive**: atomic data types from which all other data types are constructed
-* **Compound**: patterns for constructing composite types from a collection of types 
-* **Union**: patterns for validating an instance against a set of possible values or types
+* [Section 3.1](#31-primitive-types): **Primitive**: Types whose instances are atomic values not composed from
+any other type.
+* [Section 3.2](#32-compound-types): **Compound**: Types whose instances are collections
+(possibly empty or singleton) of instances of other types.
+* [Section 3.3](#33-union-types): **Union**: Types whose instances are selected from a set of possible values.
+
+![Core DataTypes](images/im-datatype.jpg)
+###### Figure 2-1 -- JADN Core DataTypes
+
+## 3.1 Primitive Types
+
+## 3.2 Compound Types
+
+## 3.3 Union Types
 
 ###### Table 3-1. JADN Core Types
 
