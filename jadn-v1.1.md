@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 7 November 2024
+## 12 November 2024
 
 &nbsp;
 
@@ -302,17 +302,17 @@ instances that can be compared.
 A JADN information model defines the essential content of discrete data items used in computing independently
 of how that content is represented for processing, communication or storage.
 Information values are instances of abstract UML DataTypes, and as shown in Figure 2-1 DataType definitions are
-organized into abstract schema Packages which are included in the information model for a particular application domain.
+organized into abstract schema packages which are included in the information model for a particular application domain.
 
 ![Information Model Structure](images/im-toplevel.jpg)
 ###### Figure 2-1 -- Information Model Organization
 
 * A JADN information model consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
-* Package is the top level JADN type. It has two fields:
-  * "info" of type "Information" containing descriptive and functional metadata about the package
-  * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType.
-* Every Package instance is an abstract schema value. Each schema has a globally-unique namespace used to
+* Schema is the top level JADN type. It has two fields:
+  * "info" of type "Information" containing descriptive and functional metadata
+  * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType
+* Every instance of the Schema type is a schema package identified by a globally-unique namespace used to
 qualify the names of its types.
 Types in a package reference types defined in other packages using qualified names.
 * There is no "information model" type containing or naming a set of abstract schemas.
@@ -320,7 +320,7 @@ An IM-based application uses package(s) relevant to the application and any addi
 resolve all type references.
 
 Type is defined in [Section 3](#3-jadn-types).  \
-Package is defined in [Section 4](#4).  \
+Schema is defined in [Section 4](#4).  \
 Using encoding rules to define concrete data formats is discussed in [Section 5](#5)
 
 ## 2.1 Notation
@@ -348,7 +348,7 @@ JADN defines a small set of built-in abstract data types in the following catego
 * **Compound**: patterns for constructing composite types from a collection of types 
 * **Union**: patterns for validating an instance against a set of possible values or types
 
-###### Table 3-1. JADN Base Types
+###### Table 3-1. JADN Core Types
 
 | Type                    | Definition                                                                                                                                                                     |
 |:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -432,23 +432,23 @@ JADN type definitions have a fixed structure designed to be easily describable, 
 
 * Every definition has five elements:
     1. **TypeName:** the name of the type being defined
-    2. **BaseType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-base-types)) of the type being defined
-    3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to **BaseType**
+    2. **CoreType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-core-types)) of the type being defined
+    3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to **CoreType**
     4. **TypeDescription:** a non-normative comment
     5. **Fields:** an array of **Item** or **Field** definitions
 
 
-* If BaseType is a Primitive type, ArrayOf, or MapOf, the **Fields** array MUST be empty:
+* If CoreType is a Primitive type, ArrayOf, or MapOf, the **Fields** array MUST be empty:
 
 
-* If BaseType is Enumerated, each item definition in the **Fields** array MUST have three elements:
+* If CoreType is Enumerated, each item definition in the **Fields** array MUST have three elements:
 
     1. **ItemID:** the integer identifier of the item
     2. **ItemValue:** the string value of the item
     3. **ItemDescription:** a non-normative comment
 
 
-* If BaseType is Array, Choice, Map, or Record, each field definition in the **Fields** array MUST have five elements:
+* If CoreType is Array, Choice, Map, or Record, each field definition in the **Fields** array MUST have five elements:
     1. **FieldID:** the integer identifier of the field
     2. **FieldName:** the name or label of the field
     3. **FieldType:** the type of the field, a predefined type or a TypeName with optional Namespace ID prefix **NSID:TypeName**
@@ -458,14 +458,14 @@ JADN type definitions have a fixed structure designed to be easily describable, 
 
 The elements are serialized in JSON format as:
 ```
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, []]                            (primitive)
+[TypeName, CoreType, [TypeOption, ...], TypeDescription, []]                            (primitive)
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (enumerated)
+[TypeName, CoreType, [TypeOption, ...], TypeDescription, [                              (enumerated)
     [ItemId, ItemValue, ItemDescription],
     ...
 ]]
 
-[TypeName, BaseType, [TypeOption, ...], TypeDescription, [                              (compound)
+[TypeName, CoreType, [TypeOption, ...], TypeDescription, [                              (compound)
     [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
     ...
 ]]
@@ -473,16 +473,16 @@ The elements are serialized in JSON format as:
 The same type definition structure can be populated with various levels of detail.
 At the conceptual level, only TypeName is present, along with FieldType for attributes
 that reference other model-defined types. At the logical level FieldName is populated for both
-base and reference attribute types. In a full information model, all Type and Options elements are defined: 
+core and reference attribute types. In a full information model, all Type and Options elements are defined: 
 
 ![JADN Type Definitions](images/jadn-defs.jpg)
 
 ### 3.1.1 Requirements
 * TypeName MUST NOT be a JADN predefined type  
-* BaseType MUST be a JADN predefined type
+* CoreType MUST be a JADN predefined type
 * FieldID and FieldName values MUST be unique within a type definition.
-* If BaseType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
-* If BaseType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
+* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
+* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
 * If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
 * ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
@@ -563,7 +563,7 @@ description values at any point during processing.
 ## 3.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
 structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options
-without modifying that structure. Type and Field options are classifiers that, along with the base type,
+without modifying that structure. Type and Field options are classifiers that, along with the core type,
 determine whether data values are instances of the defined type.
 
 Each option is a text string that may be included in TypeOptions or FieldOptions, encoded as follows:
@@ -599,13 +599,13 @@ TypeOption = Choice
 ```
 
 * TypeOptions MUST contain zero or one instance of each TypeOption.
-* TypeOptions MUST contain only TypeOption instances allowed for BaseType as shown in Table 3-3, plus a default value.
-* If BaseType is ArrayOf, TypeOptions MUST include the *vtype* option and MUST NOT include more than one collection option (*set*, *unique*, or *unordered*).
-* If BaseType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
+* TypeOptions MUST contain only TypeOption instances allowed for CoreType as shown in Table 3-3, plus a default value.
+* If CoreType is ArrayOf, TypeOptions MUST include the *vtype* option and MUST NOT include more than one collection option (*set*, *unique*, or *unordered*).
+* If CoreType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
 ###### Table 3-3. Allowed Options
 
-| BaseType   | Allowed Options                           |
+| CoreType   | Allowed Options                           |
 |:-----------|:------------------------------------------|
 | Binary     | minv, maxv, format                        |
 | Boolean    |                                           |
@@ -1119,7 +1119,7 @@ or relationships between instances:
 
 # 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in
-[Table 3-1](#table-3-1-jadn-base-types). Serialization rules define how to represent instances of each type using
+[Table 3-1](#table-3-1-jadn-core-types). Serialization rules define how to represent instances of each type using
 a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
 serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
@@ -1322,12 +1322,12 @@ followed by a label terminator ("::"):
 
 **Type Options:**
 
-TYPESTRING is the value of BaseType or FieldType, followed by string representations of the type options,
+TYPESTRING is the value of CoreType or FieldType, followed by string representations of the type options,
 if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
 * TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.2](#312-name-formats).
 * FMTNAME is the name of a semantic validation function as specified in [Section 3.2.1.5](#3215-semantic-validation).
 ```
-    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is BaseType or FieldType
+    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is CoreType or FieldType
     ID          = ".ID"
     FUNC        = "(" TYPEREF ["," TYPEREF] ")"         ; if TYPE is MapOf, ArrayOf
                 | "(" FUNCNAME "[" TYPEREF "])"         ; if TYPE is Enumerated
@@ -1701,22 +1701,22 @@ essential to satisfying operational requirements is itself a security concern.
 
 The following individuals shared their expertise during creation of this specification and are gratefully acknowledged:
 
-| First Name | Last Name | Company |
-| :--- | :--- | :--- |
-| Carsten | Bormann | Universität Bremen |
-| Hans-Jürgen | Rennau | parsQube GmbH |
+| First Name  | Last Name | Company            |
+|:------------|:----------|:-------------------|
+| Carsten     | Bormann   | Universität Bremen |
+| Hans-Jürgen | Rennau    | parsQube GmbH      |
 
 ## C.2 Participants
 
 The following individuals have participated in the creation of this specification and are gratefully acknowledged:
 
-| First Name | Last Name | Company |
-| :--- | :--- | :--- |
-| Brian | Berliner | Symantec |
-| Joseph | Brule | National Security Agency |
-| Toby | Considine | University of North Carolina |
-| Jason | Romano | General Dynamics |
-| Duncan | Sparrell | sFractal Consulting |
+| First Name | Last Name | Company                      |
+|:-----------|:----------|:-----------------------------|
+| Brian      | Berliner  | Symantec                     |
+| Joseph     | Brule     | National Security Agency     |
+| Toby       | Considine | University of North Carolina |
+| Jason      | Romano    | General Dynamics             |
+| Duncan     | Sparrell  | sFractal Consulting          |
 
 -------
 
@@ -1730,7 +1730,7 @@ The following individuals have participated in the creation of this specificatio
 *Note: Update to table*
 
 * Added serialization style description to [Section 2.2](#22-information-modeling).
-* Removed the Null base type from [Table 3.1](#table-3-1-jadn-base-types).
+* Removed the Null core type from [Table 3.1](#table-3-1-jadn-core-types).
 * Added default values for type definition elements to [Section 3.1.1](#311-requirements)
 * Raised the default maximum length for type and field names from 32 to 64 characters
    ([Section 3.1.2](#312-name-formats)).
@@ -1773,7 +1773,7 @@ A JADN package has the following structure:
         "maxItems": 5,
         "items": [
           {"$ref": "#/definitions/TypeName"},
-          {"$ref": "#/definitions/BaseType"},
+          {"$ref": "#/definitions/CoreType"},
           {"$ref": "#/definitions/Options"},
           {"$ref": "#/definitions/Description"},
           {"$ref": "#/definitions/Fields"}
@@ -1869,7 +1869,7 @@ A JADN package has the following structure:
     "FieldName": {
       "type": "string"
     },
-    "BaseType": {
+    "CoreType": {
       "type": "string",
       "enum": ["Binary", "Boolean", "Integer", "Number", "String",
                "Enumerated", "Choice",
@@ -1957,12 +1957,12 @@ with options providing extensibility.
 Types = ArrayOf(Type)
 Type = Array
    1  TypeName                               // type_name::
-   2  BaseType                               // base_type::
+   2  CoreType                               // core_type::
    3  Options                                // type_options::
    4  Description                            // type_description::
-   5  JADN-Type(TagId[base_type])            // fields::
+   5  JADN-Type(TagId[core_type])            // fields::
 
-BaseType = Enumerated
+CoreType = Enumerated
    1 Binary
    2 Boolean
    3 Integer
@@ -2273,12 +2273,12 @@ Note that the order of elements in **TypeOptions** and **FieldOptions** is not s
     ["Types", "ArrayOf", ["*Type"], "", []],
     ["Type", "Array", [], "", [
       [1, "type_name", "TypeName", [], ""],
-      [2, "base_type", "BaseType", [], ""],
+      [2, "core_type", "CoreType", [], ""],
       [3, "type_options", "Options", [], ""],
       [4, "type_description", "Description", [], ""],
       [5, "fields", "JADN-Type", ["&2"], ""]
     ]],
-    ["BaseType", "Enumerated", [], "", [
+    ["CoreType", "Enumerated", [], "", [
       [1, "Binary", ""],
       [2, "Boolean", ""],
       [3, "Integer", ""],
