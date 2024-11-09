@@ -341,52 +341,108 @@ as an additional artifact.
 -------
 
 # 3 JADN Types
-An information modeling language's abstract DataTypes are defined in terms of the meaning and behavior of
-applications using them.
-As shown in Figure 3-1, JADN's set of building blocks are twelve core types (shown in bold) in three categories:
 
-* [Section 3.1](#31-primitive-types): **Primitive**: Types whose instances are atomic values not composed from
-any other type.
-* [Section 3.2](#32-compound-types): **Compound**: Types whose instances are collections
-(possibly empty or singleton) of instances of other types.
-* [Section 3.3](#33-union-types): **Union**: Types whose instances are selected from a set of possible values.
+An information modeling language's abstract DataTypes define their meaning and application behavior.
+As shown in Figure 3-1, JADN defines twelve core types (bold) in three categories:
+
+* [Section 3.2.1](#321-primitive-types): **Primitive**: Types whose instances are atomic values not decomposable
+into instances of other types.
+* [Section 3.2.2](#322-compound-types): **Compound**: Types whose instances are collections of instances of other types.
+* [Section 3.2.3](#323-union-types): **Union**: Types whose instances are selected from a set of possible values.
 
 ![Core DataTypes](images/im-datatype.jpg)
-###### Figure 2-1 -- JADN Core DataTypes
+###### Figure 3-1 -- JADN Core DataTypes
 
-## 3.1 Primitive Types
+## 3.1 Type Definition Structure
 
-## 3.2 Compound Types
+All JADN type definitions have the same structure, designed to be easily describable, easily processed,
+stable, and extensible.
 
-## 3.3 Union Types
+Each type definition has five elements:
 
-###### Table 3-1. JADN Core Types
+    1. **TypeName:** the name of the type being defined
+    2. **CoreType:** the JADN built-in type of the type being defined
+    3. **TypeOptions:** an array of zero or more **TypeOption** values applicable to **CoreType**
+    4. **TypeDescription:** a non-normative comment
+    5. **Fields:** an array of **Item** or **Field** definitions
 
-| Type                    | Definition                                                                                                                                                                     |
-|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Primitive**           |                                                                                                                                                                                |
-| Binary                  | A sequence of octets.  Length is the number of octets.                                                                                                                         |
-| Boolean                 | An element with one of two values: true or false.                                                                                                                              |
-| Integer                 | A positive or negative whole number.                                                                                                                                           |
-| Number                  | A real number.                                                                                                                                                                 |
-| String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                          |
-| **Compound**            |                                                                                                                                                                                |
-| Array                   | An ordered list of labeled fields with positionally-defined types. Each field has a position, label, and type.                                                                 |
-| ArrayOf(*vtype*)        | A collection of fields with the same type *vtype*. Ordering and uniqueness are specified by a collection option.                                                               |
-| Map                     | A map from a set of specified keys to values with a value type bound to each key. Each key has an id and a name or label.                                                      |
-| MapOf(*ktype*, *vtype*) | A map from a set of keys of the same type *ktype* to values with the same type *vtype*.                                                                                        |
-| Record                  | A map from a list of keys to values with a value type bound to each key. Each key has a position and a name.                                                                   |
-| **Union**               |                                                                                                                                                                                |
-| Enumerated              | A vocabulary, a set of item (id/string pair) values. An instance is a single member of the set.                                                                                |
-| Choice                  | A tagged or untagged union, a set of types or a logical combination of types. An instance matches the single type designated by the tag or the specified combination of types. |
+If CoreType is a Primitive or unstructured Compound type, the **Fields** array MUST be empty.
 
-**Primitive Types**:
+If CoreType is the Enumerated Type, each item definition in the **Fields** array MUST have three elements:
+
+    1. **ItemID:** the integer identifier of the item
+    2. **ItemValue:** the string value of the item
+    3. **ItemDescription:** a non-normative comment
+
+If CoreType is a structured Compound or Choice type, each field definition in the **Fields** array MUST have five elements:
+
+    1. **FieldID:** the integer identifier of the field
+    2. **FieldName:** the name or label of the field
+    3. **FieldType:** the type of the field, a **TypeReference**
+    4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
+    5. **FieldDescription:** a non-normative comment
+
+JADN type definitions are serialized in JSON format as:
+```
+Primitive or unstructured Compound:
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
+
+Enumerated:
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
+        [ItemId, ItemValue, ItemDescription],
+        ...
+    ]]
+
+Structured Compound or Choice:
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
+        [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
+        ...
+    ]]
+```
+The same type definition structure can be populated with various levels of detail.
+At the conceptual level, only TypeName is present, along with FieldType for attributes
+that reference other model-defined types. At the logical level FieldName is populated for both
+core and reference attribute types. In a full information model, all Type and Options elements are defined: 
+
+![JADN Type Definitions](images/jadn-defs.jpg)
+
+### 3.1.1 Requirements
+* TypeName MUST NOT be a JADN core type  
+* CoreType MUST be a JADN core type
+* FieldID and FieldName values MUST be unique within a type definition.
+* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
+* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
+* If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
+* ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
+* If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
+in type options, the Fields array MUST be empty.
+* The default value of TypeOptions, Fields, and FieldOptions is the empty Array.
+  The default value of TypeDescription and FieldDescription is the empty String.
+  When serializing, default values MAY be included or omitted in the serialized document.
+  When deserializing, default values MUST be available from the API instance if not present in the document.
+
+Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
+
+## 3.2 DataTypes
+
+
+
+### 3.2.1 Primitive Types
 
 A primitive type specifies a space of possible values without regard to programming language
 constructs or hardware limits. Restrictions such as range, precision, size, patterns and formats
 are specified using the type-specific options defined in [Section 3.2.1](#321-type-options).
 
-**Compound Types**:
+| Type                    | Definition                                                                                                                                                                     |
+|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Binary                  | A sequence of octets.  Length is the number of octets.                                                                                                                         |
+| Boolean                 | An element with one of two values: true or false.                                                                                                                              |
+| Integer                 | A positive or negative whole number.                                                                                                                                           |
+| Number                  | A real number.                                                                                                                                                                 |
+| String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                          |
+
+### 3.2.2 Compound Types
 
 A compound type specifies a collection of values, defining both collection semantics and the abstract syntax
 of its members.
@@ -403,6 +459,14 @@ must be unique and so can exist only for unique collection types.
 * whether serialized members are identified by position (Array), name (Map, MapOf),
 or either position or name (Record). Positional encoding can be used only with data constructs
 that preserve order.
+
+| Type                    | Definition                                                                                                                                                                     |
+|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Array                   | An ordered list of labeled fields with positionally-defined types. Each field has a position, label, and type.                                                                 |
+| ArrayOf(*vtype*)        | A collection of fields with the same type *vtype*. Ordering and uniqueness are specified by a collection option.                                                               |
+| Map                     | A map from a set of specified keys to values with a value type bound to each key. Each key has an id and a name or label.                                                      |
+| MapOf(*ktype*, *vtype*) | A map from a set of keys of the same type *ktype* to values with the same type *vtype*.                                                                                        |
+| Record                  | A map from a list of keys to values with a value type bound to each key. Each key has a position and a name.                                                                   |
 
 Table 3-2 summarizes the relationship between Compound types and collection behavior.
 The notation `X+y` indicates that the definition of type `X` includes type option `y` defined in
@@ -423,9 +487,14 @@ The notation `X+y` indicates that the definition of type `X` includes type optio
 * Map, MapOf and Record keys are unique and with `seq` option have OrderedSet, not Sequence semantics.
 * The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
 
-**Union Types**:
+### 3.2.3 Union Types
 
 A union type specifies a set of alternatives against which instances are matched. See [Section 3.2.2.2](#3222-union-types)
+
+| Type                    | Definition                                                                                                                                                                     |
+|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Enumerated              | A vocabulary, a set of item (id/string pair) values. An instance is a single member of the set.                                                                                |
+| Choice                  | A tagged or untagged union, a set of types or a logical combination of types. An instance matches the single type designated by the tag or the specified combination of types. |
 
 **Conformance**:
 
@@ -438,74 +507,7 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
-## 3.1 Type Definitions
-
-JADN type definitions have a fixed structure designed to be easily describable, easily processed, stable, and extensible.
-
-* Every definition has five elements:
-    1. **TypeName:** the name of the type being defined
-    2. **CoreType:** the JADN predefined type ([Table 3-1](#table-3-1-jadn-core-types)) of the type being defined
-    3. **TypeOptions:** an array of zero or more **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to **CoreType**
-    4. **TypeDescription:** a non-normative comment
-    5. **Fields:** an array of **Item** or **Field** definitions
-
-
-* If CoreType is a Primitive type, ArrayOf, or MapOf, the **Fields** array MUST be empty:
-
-
-* If CoreType is Enumerated, each item definition in the **Fields** array MUST have three elements:
-
-    1. **ItemID:** the integer identifier of the item
-    2. **ItemValue:** the string value of the item
-    3. **ItemDescription:** a non-normative comment
-
-
-* If CoreType is Array, Choice, Map, or Record, each field definition in the **Fields** array MUST have five elements:
-    1. **FieldID:** the integer identifier of the field
-    2. **FieldName:** the name or label of the field
-    3. **FieldType:** the type of the field, a predefined type or a TypeName with optional Namespace ID prefix **NSID:TypeName**
-    4. **FieldOptions:** an array of zero or more **FieldOption** ([Section 3.2.2](#322-field-options)) or **TypeOption** ([Section 3.2.1](#321-type-options)) applicable to the field
-    5. **FieldDescription:** a non-normative comment
-
-
-The elements are serialized in JSON format as:
-```
-[TypeName, CoreType, [TypeOption, ...], TypeDescription, []]                            (primitive)
-
-[TypeName, CoreType, [TypeOption, ...], TypeDescription, [                              (enumerated)
-    [ItemId, ItemValue, ItemDescription],
-    ...
-]]
-
-[TypeName, CoreType, [TypeOption, ...], TypeDescription, [                              (compound)
-    [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
-    ...
-]]
-```
-The same type definition structure can be populated with various levels of detail.
-At the conceptual level, only TypeName is present, along with FieldType for attributes
-that reference other model-defined types. At the logical level FieldName is populated for both
-core and reference attribute types. In a full information model, all Type and Options elements are defined: 
-
-![JADN Type Definitions](images/jadn-defs.jpg)
-
-### 3.1.1 Requirements
-* TypeName MUST NOT be a JADN predefined type  
-* CoreType MUST be a JADN predefined type
-* FieldID and FieldName values MUST be unique within a type definition.
-* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
-* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
-* If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
-* ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
-* If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
-in type options, the Fields array MUST be empty.
-* The default value of TypeOptions, Fields, and FieldOptions is the empty Array.
-  The default value of TypeDescription and FieldDescription is the empty String.
-  When serializing, default values MAY be included or omitted in the serialized document.
-  When deserializing, default values MUST be available from the API instance if not present in the document.
-
-Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
+## 3.2 Type Definitions
 
 ### 3.1.2 Name Formats
 JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
