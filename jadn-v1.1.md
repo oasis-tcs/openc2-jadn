@@ -387,16 +387,13 @@ If CoreType is a structured Compound or Choice type, each field definition in th
 * CoreType MUST be a JADN core type
 * FieldID and FieldName values MUST be unique within a type definition.
 * If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
-* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any nonconflicting integer tag.
+* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any integer.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
 * If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
-* ItemValue MAY be any string or MAY be constrained to hold a valid FieldName.
 * If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
-in type options, the Fields array MUST be empty.
-* The default value of TypeOptions, Fields, and FieldOptions is the empty Array.
-  The default value of TypeDescription and FieldDescription is the empty String.
-  When serializing, default values MAY be included or omitted in the serialized document.
-  When deserializing, default values MUST be available from the API instance if not present in the document.
+in TypeOptions, the Fields array MUST be empty.
+* The default value of TypeOptions, Fields and FieldOptions is the empty Array.
+The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
@@ -442,6 +439,9 @@ Schema packages can be defined in [IDL](#61-idl) format. Example type definition
 ```
 * Structured Compound or Choice:
 ```
+    Coordinate = Record             // A GPS coordinate
+      1 latitude    Latitude        // A Number between -90 and 90 degrees
+      2 longitude   Longitude       // A Number between -180 and 180 degrees
 ```
 
 ## 3.2 DataTypes
