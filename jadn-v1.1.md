@@ -302,22 +302,22 @@ instances that can be compared.
 A JADN information model defines the essential content of discrete data items used in computing independently
 of how that content is represented for processing, communication or storage.
 Information values are instances of abstract UML DataTypes, and as shown in Figure 2-1 DataType definitions are
-organized into abstract schema packages which are included in the information model for a particular application domain.
+organized into abstract schema packages which are included in an application's information model.
 
 ![Information Model Structure](images/im-toplevel.jpg)
 ###### Figure 2-1 -- Information Model Organization
 
-* A JADN information model consists of a set of abstract schemas that define information content, and a set of
+* An IM consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
 * Schema is the top level JADN type. It has two fields:
   * "info" of type "Information" containing descriptive and functional metadata
   * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType
-* Every instance of the Schema type is a schema package identified by a globally-unique namespace used to
-qualify the names of its types.
-Types in a package reference types defined in other packages using qualified names.
-* There is no "information model" type containing or naming a set of abstract schemas.
-An IM-based application uses package(s) relevant to the application and any additional packages needed to
-resolve all type references.
+* Every instance of the Schema type is identified by a globally-unique "package" namespace.
+Types defined in a package have names qualified by its namespace, and reference types defined in other
+packages by their qualified names.
+* There is no "information model" type containing or naming a set of schema packages.
+Applications load the relevant package(s) plus any additional packages needed to
+resolve type references.
 
 Type is defined in [Section 3](#3-jadn-types).  \
 Schema is defined in [Section 4](#4).  \
@@ -355,58 +355,33 @@ into instances of other types.
 
 ## 3.1 Type Definition Structure
 
-All JADN type definitions have the same structure, designed to be easily describable, easily processed,
-stable, and extensible.
+All JADN type definitions have the identical structure, designed to be easily describable, easily processed,
+stable, and extensible. Each type definition has five elements:
 
-Each type definition has five elements:
+1. **TypeName:** the name of the type being defined
+2. **CoreType:** the JADN built-in type of the type being defined
+3. **TypeOptions:** an array of zero or more **TypeOption** values applicable to **CoreType**
+4. **TypeDescription:** a non-normative comment
+5. **Fields:** an array of **Item** or **Field** definitions
 
-    1. **TypeName:** the name of the type being defined
-    2. **CoreType:** the JADN built-in type of the type being defined
-    3. **TypeOptions:** an array of zero or more **TypeOption** values applicable to **CoreType**
-    4. **TypeDescription:** a non-normative comment
-    5. **Fields:** an array of **Item** or **Field** definitions
+If CoreType is a Primitive or unstructured Compound type, the **Fields** array is empty.
 
-If CoreType is a Primitive or unstructured Compound type, the **Fields** array MUST be empty.
+If CoreType is the Enumerated Type, each item definition in the **Fields** array has three elements:
 
-If CoreType is the Enumerated Type, each item definition in the **Fields** array MUST have three elements:
+1. **ItemID:** the integer identifier of the item
+2. **ItemValue:** the string value of the item
+3. **ItemDescription:** a non-normative comment
 
-    1. **ItemID:** the integer identifier of the item
-    2. **ItemValue:** the string value of the item
-    3. **ItemDescription:** a non-normative comment
+If CoreType is a structured Compound or Choice type, each field definition in the **Fields** array has five elements:
 
-If CoreType is a structured Compound or Choice type, each field definition in the **Fields** array MUST have five elements:
-
-    1. **FieldID:** the integer identifier of the field
-    2. **FieldName:** the name or label of the field
-    3. **FieldType:** the type of the field, a **TypeReference**
-    4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
-    5. **FieldDescription:** a non-normative comment
-
-JADN type definitions are serialized in JSON format as:
-```
-Primitive or unstructured Compound:
-    [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
-
-Enumerated:
-    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
-        [ItemId, ItemValue, ItemDescription],
-        ...
-    ]]
-
-Structured Compound or Choice:
-    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
-        [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
-        ...
-    ]]
-```
-The same type definition structure can be populated with various levels of detail.
-At the conceptual level, only TypeName is present, along with FieldType for attributes
-that reference other model-defined types. At the logical level FieldName is populated for both
-core and reference attribute types. In a full information model, all Type and Options elements are defined: 
-
-![JADN Type Definitions](images/jadn-defs.jpg)
+1. **FieldID:** the integer identifier of the field
+2. **FieldName:** the name or label of the field
+3. **FieldType:** the type of the field, a **TypeReference**
+4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
+5. **FieldDescription:** a non-normative comment
 
 ### 3.1.1 Requirements
+
 * TypeName MUST NOT be a JADN core type  
 * CoreType MUST be a JADN core type
 * FieldID and FieldName values MUST be unique within a type definition.
@@ -423,6 +398,50 @@ in type options, the Fields array MUST be empty.
   When deserializing, default values MUST be available from the API instance if not present in the document.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
+
+### 3.1.2 JSON Serialization
+
+JADN type definitions are serialized in JSON format as:
+
+* Primitive or unstructured Compound:
+```
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
+```
+* Enumerated:
+```
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
+        [ItemId, ItemValue, ItemDescription],
+        ...
+    ]]
+```
+* Structured Compound or Choice:
+```
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
+        [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
+        ...
+    ]]
+```
+
+### 3.1.3 JADN Information Definition Language Examples
+
+Schema packages can be defined in [IDL](#61-idl) format. Example type definitions include:
+
+* Primitive or unstructured Compound:
+```
+    Username = String {pattern="^[a-z][a-z0-9]{,11}$"}
+
+    Users = ArrayOf(Username)
+```
+* Enumerated:
+```
+    Color = Enumerated
+      1 red
+      2 green
+      3 blue
+```
+* Structured Compound or Choice:
+```
+```
 
 ## 3.2 DataTypes
 
@@ -441,6 +460,9 @@ are specified using the type-specific options defined in [Section 3.2.1](#321-ty
 | Integer                 | A positive or negative whole number.                                                                                                                                           |
 | Number                  | A real number.                                                                                                                                                                 |
 | String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                          |
+
+*Note: Primitive options go here*
+
 
 ### 3.2.2 Compound Types
 
@@ -507,40 +529,7 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
-## 3.2 Type Definitions
 
-### 3.1.2 Name Formats
-JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
-
-* JADN specifications MAY override the default name formats by defining one or more of:
-    * The permitted format for TypeName
-    * The permitted format for FieldName
-    * The permitted format for the Namespace Identifier (NSID) used in type references
-    * A "System" character used in tool-generated or specially-processed type names
-* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
-* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
-* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
-```
-ABNF:
-TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
-FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
-NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
-TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
-
-Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
-UC         = %x41-5A  ; A-Z
-LC         = %x61-7A  ; a-z
-DIGIT      = %x30-39  ; 0-9
-
-Regular Expression:
-TypeName:  ^[A-Z][-$A-Za-z0-9]{0,63}$
-FieldName: ^[a-z][_A-Za-z0-9]{0,63}$
-NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
-```
-###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
-
-Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
-does not affect the meaning of type definitions.
 
 ### 3.1.3 Upper Bounds
 Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
@@ -1128,6 +1117,44 @@ or relationships between instances:
  
     Person$id = Integer
     Organization$ein = String{10..10}
+
+-------
+# 4 Schema
+
+## 4.2 Type Definitions
+
+### 4.1.2 Name Formats
+JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
+
+* JADN specifications MAY override the default name formats by defining one or more of:
+    * The permitted format for TypeName
+    * The permitted format for FieldName
+    * The permitted format for the Namespace Identifier (NSID) used in type references
+    * A "System" character used in tool-generated or specially-processed type names
+* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
+* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
+* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
+```
+ABNF:
+TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
+FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
+NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
+TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
+
+Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
+UC         = %x41-5A  ; A-Z
+LC         = %x61-7A  ; a-z
+DIGIT      = %x30-39  ; 0-9
+
+Regular Expression:
+TypeName:  ^[A-Z][-$A-Za-z0-9]{0,63}$
+FieldName: ^[a-z][_A-Za-z0-9]{0,63}$
+NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
+```
+###### Figure 4-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
+
+Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
+does not affect the meaning of type definitions.
 
 -------
 
