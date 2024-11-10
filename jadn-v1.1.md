@@ -277,7 +277,7 @@ instances that can be compared.
     Serialization, or encoding, converts a logical value into a data value.
     De-serialization, or decoding, classifies a data value and converts it into an instance of a logical type.
 
-* **Description**:
+* **Description (annotation)**:
     Description fields of an information model are reserved for comments from authors to readers
     or maintainers of the model and are ignored by information modeling applications.
 
@@ -310,11 +310,12 @@ organized into abstract schema packages which are included in an application's i
 * An IM consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
 * Schema is the top level JADN type. It has two fields:
-  * "info" of type "Information" containing descriptive and functional metadata
+  * "meta" of type "Metadata" containing descriptive and functional information about the schema package as a whole.
   * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType
-* Every instance of the Schema type is identified by a globally-unique "package" namespace.
+* Every instance of the Schema type is identified by a globally-unique package namespace.
 Types defined in a package have names qualified by its namespace, and reference types defined in other
-packages by their qualified names.
+packages by their qualified names. An individual Schema instance is called a "package" to distinguish it
+from the set of instances in an information model.
 * There is no "information model" type containing or naming a set of schema packages.
 Applications load the relevant package(s) plus any additional packages needed to
 resolve type references.
