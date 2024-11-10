@@ -388,12 +388,12 @@ If CoreType is a structured Compound or Choice type, each field definition in th
 * FieldID and FieldName values MUST be unique within a type definition.
 * If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
 * If CoreType is Enumerated, Choice, or Map, FieldID MAY be any integer.
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined type.
-* If FieldType is a model-defined type, FieldOptions MUST NOT contain any TypeOption.
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
+* If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
 * If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
 in TypeOptions, the Fields array MUST be empty.
 * The default value of TypeOptions, Fields and FieldOptions is the empty Array.
-The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
+* The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
 
 Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
@@ -530,7 +530,22 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
+# 4 Schema Packages
 
+# 5 Serialization and Data Formats
+
+# 6 Alternate Representations
+
+## 6.1 Information Definition Language
+
+## 6.2 Property Tables
+
+## 6.3 Entity Relationship Diagrams
+
+
+===============================================
+*Move content to above sections*
+===============================================
 
 ### 3.1.3 Upper Bounds
 Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
