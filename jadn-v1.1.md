@@ -385,23 +385,7 @@ If CoreType is a structured Compound or Choice type, each field definition in th
 4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
 5. **FieldDescription:** a non-normative comment
 
-### 3.1.1 Requirements
-
-* TypeName MUST NOT be a JADN core type  
-* CoreType MUST be a JADN core type
-* FieldID and FieldName values MUST be unique within a type definition.
-* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
-* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any integer.
-* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
-* If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
-* If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
-in TypeOptions, the Fields array MUST be empty.
-* The default value of TypeOptions, Fields and FieldOptions is the empty Array.
-* The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
-
-Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
-
-### 3.1.2 JSON Serialization
+### 3.1.1 JSON Format
 
 JADN type definitions are serialized in JSON format as:
 
@@ -424,9 +408,11 @@ JADN type definitions are serialized in JSON format as:
     ]]
 ```
 
-### 3.1.3 JADN Information Definition Language Examples
+### 3.1.2 IDL Format
 
-Schema packages can be defined in [IDL](#61-idl) format. Example type definitions include:
+Schema packages can be defined in the non-normative Section 7 [IDL](#71-information-definition-language) format
+for readability.
+Example IDL definitions include:
 
 * Primitive or unstructured Compound:
 ```
@@ -447,6 +433,22 @@ Schema packages can be defined in [IDL](#61-idl) format. Example type definition
       1 latitude    Latitude        // A Number between -90 and 90 degrees
       2 longitude   Longitude       // A Number between -180 and 180 degrees
 ```
+
+### 3.1.3 Requirements
+
+* TypeName MUST NOT be a JADN core type  
+* CoreType MUST be a JADN core type
+* FieldID and FieldName values MUST be unique within a type definition.
+* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
+* If CoreType is Enumerated, Choice, or Map, FieldID MAY be any integer.
+* FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
+* If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
+* If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
+in TypeOptions, the Fields array MUST be empty.
+* The default value of TypeOptions, Fields and FieldOptions is the empty Array.
+* The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
+
+Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
 
 ## 3.2 DataTypes
 
@@ -1356,7 +1358,7 @@ serialized as:
 
 -------
 
-# 7 Alternate Representations
+# 7 Alternate Schema Representations
 
 [Section 3.1](#31-type-definitions) defines the normative JSON format of JADN type definitions.
 Although JSON data is unambiguous, it is not ideal as a documentation format. This section suggests
@@ -1725,7 +1727,7 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 ###### [TAGGEDUNION]
 "Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
 ###### [XSD]
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
 W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 -------
 
