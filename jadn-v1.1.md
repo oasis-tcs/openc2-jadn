@@ -321,15 +321,19 @@ Applications load the relevant package(s) plus any additional packages needed to
 resolve type references.
 
 Type is defined in [Section 3](#3-jadn-types).  \
-Schema is defined in [Section 4](#4).  \
-Using encoding rules to define concrete data formats is discussed in [Section 5](#5)
+Schema is defined in [Section 4](#4-schema-packages).  \
+Using encoding rules to define concrete data formats is discussed in [Section 5](#5-serialization-and-data-formats)
 
-## 2.1 Notation
+## 2.1 Extensions
+
+... extensions are syntax conveniences ... extensions are described in [Section 6](#6-extensions) ...
+
+## 2.2 Notation
 
 The normative form of a JADN type definition is the abstract Type structure defined in Section 3.
 Each type definition can be represented as JSON data and validated by a concrete schema as defined in Section 5,
 but can also be represented unambiguously in other formats more suited to human understanding.
-Several such representations are described in [Section 6](#6), including:
+Several such representations are described in [Section 7](#7-alternate-representations), including:
 * a text-based information definition language (IDL) defined and validated by a language grammar
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
@@ -447,7 +451,6 @@ Schema packages can be defined in [IDL](#61-idl) format. Example type definition
 ## 3.2 DataTypes
 
 
-
 ### 3.2.1 Primitive Types
 
 A primitive type specifies a space of possible values without regard to programming language
@@ -529,42 +532,6 @@ Applications MAY use any programming language data types or mechanisms that exhi
 otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
-
-# 4 Schema Packages
-
-# 5 Serialization and Data Formats
-
-# 6 Alternate Representations
-
-## 6.1 Information Definition Language
-
-## 6.2 Property Tables
-
-## 6.3 Entity Relationship Diagrams
-
-
-===============================================
-*Move content to above sections*
-===============================================
-
-### 3.1.3 Upper Bounds
-Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
-in [Section 3.2.1](#321-type-options).
-If an individual type does not define an explicit limit, it uses the limit shown in the package's
-$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 6](#6-schema-packages)).
-If the specification does not define a limit, the definition defaults to the values shown here, which are
-deliberately conservative to encourage specification authors to define limits based on application requirements.
-* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
-* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
-
-```
-Type                Name           Limit   Description
------               -----          -----   -----------
-Binary              $MaxBinary     255     Maximum number of octets
-String              $MaxString     255     Maximum number of characters
-ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
-```
-###### Figure 3-2: JADN Default Size Limits
 
 ### 3.1.4 Descriptions
 Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from
@@ -911,7 +878,107 @@ Hashes2 Example:
 ]
 ```
 
-## 3.3 JADN Extensions
+-------
+
+# 4 Schema Packages
+
+JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
+information section and a list of [type definitions](#f2-type-definitions):
+
+```
+    Schema = Record                            // Definition of a JADN package
+       1 meta         Metadata optional        // Information about this package
+       2 types        Types                    // Types defined in this package
+
+    Metadata = Map
+       1
+```
+
+If the info section is present the *package* field is required to establish the package's namespace;
+other fields are optional.
+
+* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
+  from other packages. This is an identifier but not necessarily a locator for accessible resources.
+  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
+  or http://example.com/acme/v1.3.
+* **version:** Incremental version of this package, a string that compares lexicographically higher
+  than previous versions. The *namespaces* field references only package namespaces. Version may be used
+  to determine the most recent definition of a namespace.
+* **title:** A short name for this package.
+* **description:** A brief description of purpose or capabilities of this package
+* **comment:** Any other information applicable to the package.
+* **copyright:** A copyright notice.
+* **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
+* **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
+defined in other packages.
+* **exports:** Root types. There are no private type definitions in a package; all types can be referenced
+  using the package's namespace. Exports allows authors to designate public types and allows schema tools
+  to detect unused types.
+* **config:** Values such as name formats and size limits that are customized for this package.  See
+  [package](#f1-package) for the list of configuration variables.
+
+
+## 4.2 Type Definitions
+
+### 4.1.2 Name Formats
+JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
+
+* JADN specifications MAY override the default name formats by defining one or more of:
+    * The permitted format for TypeName
+    * The permitted format for FieldName
+    * The permitted format for the Namespace Identifier (NSID) used in type references
+    * A "System" character used in tool-generated or specially-processed type names
+* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
+* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
+* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
+```
+ABNF:
+TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
+FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
+NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
+TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
+
+Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
+UC         = %x41-5A  ; A-Z
+LC         = %x61-7A  ; a-z
+DIGIT      = %x30-39  ; 0-9
+
+Regular Expression:
+TypeName:  ^[A-Z][-$A-Za-z0-9]{0,63}$
+FieldName: ^[a-z][_A-Za-z0-9]{0,63}$
+NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
+```
+###### Figure 4-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
+
+Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
+does not affect the meaning of type definitions.
+
+
+## 4.1 Config Options
+
+### 4.1.1 Upper Bounds
+Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
+in [Section 3.2.1](#321-type-options).
+If an individual type does not define an explicit limit, it uses the limit shown in the package's
+$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 6](#6-schema-packages)).
+If the specification does not define a limit, the definition defaults to the values shown here, which are
+deliberately conservative to encourage specification authors to define limits based on application requirements.
+* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
+* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
+
+```
+Type                Name           Limit   Description
+-----               -----          -----   -----------
+Binary              $MaxBinary     255     Maximum number of octets
+String              $MaxString     255     Maximum number of characters
+ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
+```
+###### Figure 4-1: JADN Default Size Limits
+
+-------
+
+# 5 Extensions
+
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
 more compact or support the [DRY](#dry) software design principle.
 Extensions are syntactic sugar that can be replaced by core definitions without changing their meaning.
@@ -926,7 +993,8 @@ The following extensions can be converted to core definitions:
 * Pointers
 * Links
 
-### 3.3.1 Type Definition Within Fields
+## 5.1 Type Definition Within Fields
+
 A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
 Unfolding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
 ([Section 3.2.1](#321-type-options)) from FieldOptions.
@@ -945,7 +1013,7 @@ Unfolding replaces this with:
     
     Member$email = String /email           // Tool-generated type definition.
 
-### 3.3.2 Field Multiplicity
+## 5.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
 FieldOptions ([Section 3.2.2](#322-field-options)) are moved from FieldOptions to the minimum and maximum
@@ -977,7 +1045,7 @@ field multiplicity extension:
     
     Members = ArrayOf(Member)       // Explicitly-defined array: default minv = 0, maxv = 0
 
-### 3.3.3 Derived Enumerations
+## 5.3 Derived Enumerations
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
 Unfolding removes *enum* from Type Options and adds fields containing
@@ -1011,7 +1079,7 @@ Unfolding replaces the Channel and ChannelMask definitions with:
     
     ChannelMask2 = ArrayOf(Channel)
 
-### 3.3.4 MapOf With Enumerated Key
+## 5.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Unfolding replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
 enumeration. In order to use this extension, each ItemValue of the Enumerated type must be a valid FieldName.
@@ -1027,7 +1095,7 @@ Example:
     
 Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
 
-### 3.3.5 Pointers
+## 5.5 Pointers
 Applications may need to model both individual types and collections of types, similar to the way filesystems
 have files and directories.
 The "dir" option ([Section 3.2.2](#322-field-options)) marks a field as a collection of types.
@@ -1088,7 +1156,10 @@ value is not considered an "Item":
 Note that the *enum* and *pointer* extensions create shallow dependencies: the referenced
 types are needed in order to unfold them but types below the direct references are not.
 
-### 3.3.6 Links
+## 5.6 Links
+
+*Note: move to Types - Key/Link references are semantic*
+
 The container graph of an information model cannot have cycles, meaning that an instance of a type
 cannot recursively contain other instances of that type either directly or indirectly through other types.
 But a type can contain references to itself or to other types without restriction, as long as the
@@ -1135,46 +1206,9 @@ or relationships between instances:
     Organization$ein = String{10..10}
 
 -------
-# 4 Schema
 
-## 4.2 Type Definitions
+# 6 Serialization and Data Formats
 
-### 4.1.2 Name Formats
-JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
-
-* JADN specifications MAY override the default name formats by defining one or more of:
-    * The permitted format for TypeName
-    * The permitted format for FieldName
-    * The permitted format for the Namespace Identifier (NSID) used in type references
-    * A "System" character used in tool-generated or specially-processed type names
-* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
-* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
-* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
-```
-ABNF:
-TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
-FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
-NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
-TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
-
-Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
-UC         = %x41-5A  ; A-Z
-LC         = %x61-7A  ; a-z
-DIGIT      = %x30-39  ; 0-9
-
-Regular Expression:
-TypeName:  ^[A-Z][-$A-Za-z0-9]{0,63}$
-FieldName: ^[a-z][_A-Za-z0-9]{0,63}$
-NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
-```
-###### Figure 4-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
-
-Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
-does not affect the meaning of type definitions.
-
--------
-
-# 4 Serialization
 Applications may use any internal information representation that exhibits the characteristics defined in
 [Table 3-1](#table-3-1-jadn-core-types). Serialization rules define how to represent instances of each type using
 a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
@@ -1183,7 +1217,7 @@ serialization formats defined elsewhere must:
 * Specify how each option applicable to a type affects serialized values
 * Specify any validation requirements defined for that format
 
-## 4.1 Verbose JSON Serialization
+## 6.1 Verbose JSON Serialization
 The following serialization rules represent JADN data types in a human-readable JSON format using
 name-value encoding for tabular data.
 
@@ -1220,7 +1254,7 @@ name-value encoding for tabular data.
 
 Specifications MAY define additional format options for textual representation of Binary, Integer, Number or Array data.
 
-## 4.2 Compact JSON Serialization:
+## 6.2 Compact JSON Serialization:
 The following serialization rules represent JADN types in a human-readable JSON format using
 positional encoding for tabular data.
 
@@ -1230,7 +1264,7 @@ positional encoding for tabular data.
 | :--- | :--- |
 | **Record** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 
-## 4.3 Concise JSON Serialization:
+## 6.3 Concise JSON Serialization:
 Concise JSON serialization rules represent JADN data types in a format optimized for minimum size.
 JSON data in this format may be used directly for communication or to visualize the content of CBOR-serialized
 data.
@@ -1247,7 +1281,7 @@ data.
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
 
-## 4.4 CBOR Serialization
+## 6.4 CBOR Serialization
 The following serialization rules are used to represent JADN data types in Concise Binary
 Object Representation ([CBOR](#rfc8949)) format.
 The initial byte of each encoded data item contains both information about the major type (the high-order 3 bits)
@@ -1285,7 +1319,7 @@ serialized as:
 | **f64** | Number    | **float64**: IEEE 754 Double-Precision Float (#7.27). |
 
 <!---
-## 4.5 XML Serialization:
+## 6.5 XML Serialization:
 *XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
 
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
@@ -1322,7 +1356,7 @@ serialized as:
 
 -------
 
-# 5 Definition Formats
+# 7 Alternate Representations
 
 [Section 3.1](#31-type-definitions) defines the normative JSON format of JADN type definitions.
 Although JSON data is unambiguous, it is not ideal as a documentation format. This section suggests
@@ -1330,7 +1364,7 @@ several more readable ways of describing and documenting information models.
 
 *This section is informative*
 
-## 5.1 JADN-IDL Format
+## 7.1 Information Definition Language
 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
 It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
@@ -1412,7 +1446,7 @@ Type and Field options affect the entire line of a field's IDL text:
     FIELDDESC   = "//" [FIELDNAME "::"] STR
 ```
 
-## 5.2 Table Style
+## 7.2 Property Tables
 
 Some specifications present type definitions in property table form, using varied style conventions.
 This specification does not define a normative property table format, but this section shows one example
@@ -1448,7 +1482,15 @@ or (for compound types with the *id* option):
 |   2  | **id**    | Integer |    1 |             |
 |   3  | **email** | String  | 0..1 |             |
 
-## 5.3 Entity Relationship Diagrams
+
+## 7.3 Entity Relationship Diagrams
+
+The same type definition structure can be populated with various levels of detail.
+At the conceptual level, only TypeName is present, along with FieldType for attributes
+that reference other model-defined types. At the logical level FieldName is populated for both
+core and reference attribute types. In a full information model, all Type and Options elements are defined: 
+
+![JADN Type Definitions](images/jadn-defs.jpg)
 
 Information models extend the Conceptual/Logica/Physical design process. While UML defines a class
 diagram format that has been adopted for use in that process, it does not define a datatype
@@ -1463,7 +1505,7 @@ diagrams using the following conventions:
 
 ![ERD-DB](images/logical-info-erd.jpg)
 
-###### Figure 5-1: Logical and Information Entity Relationship Diagrams
+###### Figure 7-1: Logical and Information Entity Relationship Diagrams
 
 The edge type and direction show how instances are serialized, in this case using references
 from Class to Person.  An alternate information model derived from the same logical model might
@@ -1490,9 +1532,9 @@ digraph G {
   n2 [label="Person"]
 }
 ```
-###### Figure 5-2: GraphViz Source for University Conceptual ERD
+###### Figure 7-2: GraphViz Source for University Conceptual ERD
 
-Figure 5-3 is an example instance of the University type serialized in
+Figure 7-3 is an example instance of the University type serialized in
 [verbose](#41-verbose-json-serialization) and [compact](#42-compact-json-serialization) JSON data formats:
 ```json
 {
@@ -1550,47 +1592,12 @@ Figure 5-3 is an example instance of the University type serialized in
   ]
 ]
 ```
-###### Figure 5-3: JSON instance of University
+###### Figure 7-3: JSON instance of University
 
 -------
 
-# 6 Schema Packages
+# 8 Conformance
 
-JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
-information section and a list of [type definitions](#f2-type-definitions):
-
-```
-    Schema = Record                            // Definition of a JADN package
-       1 info         Information optional     // Information about this package
-       2 types        Types                    // Types defined in this package
-```
-
-If the info section is present the *package* field is required to establish the package's namespace;
-other fields are optional.
-
-* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
-  from other packages. This is an identifier but not necessarily a locator for accessible resources.
-  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
-  or http://example.com/acme/v1.3.
-* **version:** Incremental version of this package, a string that compares lexicographically higher
-  than previous versions. The *namespaces* field references only package namespaces. Version may be used
-  to determine the most recent definition of a namespace.
-* **title:** A short name for this package.
-* **description:** A brief description of purpose or capabilities of this package
-* **comment:** Any other information applicable to the package.
-* **copyright:** A copyright notice.
-* **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
-* **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
-defined in other packages.
-* **exports:** Root types. There are no private type definitions in a package; all types can be referenced
-  using the package's namespace. Exports allows authors to designate public types and allows schema tools
-  to detect unused types.
-* **config:** Values such as name formats and size limits that are customized for this package.  See
-  [package](#f1-package) for the list of configuration variables.
-
--------
-
-# 7 Conformance
 Conformance targets:
 This document defines two conformance levels for JADN implementations: Core and Extensions.
 
@@ -1778,13 +1785,18 @@ The following individuals have participated in the creation of this specificatio
 -------
 
 # Appendix D. Revision History
-| Revision | Date       | Editor     | Changes Made                                                    |
-|:---------|:-----------|:-----------|:----------------------------------------------------------------|
-| WD-01    | 2020-10-18 | David Kemp | Initial working draft                                           |
-| WD-02    | 2021-06-16 | David Kemp | Re-written description, serialization and documentation formats |
 
-## 1.1 Changes from CSD 01
-*Note: Update to table*
+### Changes from v1.0 to v2.0
+
+* Change "unlimited" maxOccurs sentinel value from 0 to -1.
+  *This minor but incompatible change required a new major version.*
+* Add Choice untagged unions.
+* Add type inheritance.
+* Change "namespaces" prefix list from mappings to pairings.
+* Rename package "Information" to "Metadata" to avoid conflation with information modeling.
+* Rename package "exports" to "roots" to better describe purpose and effect.
+
+### Changes from v1.0 CSD 01 to v1.0
 
 * Added serialization style description to [Section 2.2](#22-information-modeling).
 * Removed the Null core type from [Table 3.1](#table-3-1-jadn-core-types).

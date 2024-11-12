@@ -12,11 +12,11 @@
 
   "types": [
     ["Schema", "Record", [], "Definition of a JADN package", [
-      [1, "info", "Information", ["[0"], "Information about this package"],
+      [1, "meta", "Metadata", ["[0"], "Information about this package"],
       [2, "types", "Types", [], "Types defined in this package"]
     ]],
 
-    ["Information", "Map", [], "Information about this package", [
+    ["Metadata", "Map", [], "Information about this package", [
       [1, "package", "Namespace", [], "Unique name/version of this package"],
       [2, "version", "String", ["{1", "[0"], "Incrementing version within package"],
       [3, "title", "String", ["{1", "[0"], "Title"],
