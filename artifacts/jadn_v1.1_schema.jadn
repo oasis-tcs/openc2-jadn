@@ -1,7 +1,7 @@
 {
   "info": {
     "title": "JADN Metaschema",
-    "package": "http://oasis-open.org/jadn/v1.1/schema",
+    "package": "http://oasis-open.org/jadn/v2.0/schema",
     "description": "Syntax of a JSON Abstract Data Notation (JADN) package.",
     "license": "CC0-1.0",
     "roots": ["Schema"],
@@ -25,26 +25,24 @@
       [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
       [7, "license", "String", ["{1", "[0"], "SPDX licenseId (e.g., 'CC0-1.0')"],
       [8, "namespaces", "Namespaces", ["[0"], "Referenced packages"],
-      [9, "exports", "Exports", ["[0"], "Type defs exported by this package (deprecated, use Roots)"],
+      [9, "roots", "Roots", ["[0"], "Roots of the type hierarchy defined by this package"],
       [10, "config", "Config", ["[0"], "Configuration variables"],
-      [11, "roots", "Roots", ["[0"], "Roots of the type hierarchy defined by this package"]
+      [11, "jadn_version", "String", ["{1", "[0"], "JADN specification version"]
     ]],
 
     ["Namespaces", "Choice", ["CO"], "anyOf v1.1 or v1.0, in priority order", [
-      [1, "ns_arr", "NsArr", [], "[prefix, namespace] syntax - v1.1"],
+      [1, "ns_arr", "NsArr", [], "[prefix, namespace] syntax - v2.0"],
       [2, "ns_obj", "NsObj", [], "{prefix: Namespace} syntax - v1.0"]
     ]],
 
     ["NsArr", "ArrayOf", ["*PrefixNs", "{1"], "Type references to other packages - v1.1", []],
 
     ["PrefixNs", "Array", [], "Prefix corresponding to a namespace IRI", [
-      [1, "prefix", "NSID", [], ""],
-      [2, "namespace", "Namespace", [], ""]
+      [1, "prefix", "NSID", [], "Namespace prefix string"],
+      [2, "namespace", "Namespace", [], "Namespace IRI"]
     ]],
 
     ["NsObj", "MapOf", ["*Namespace", "+NSID", "{1"], "Type references to other packages - v1.0", []],
-
-    ["Exports", "ArrayOf", ["*TypeName", "{1"], "Type defs intended to be referenced (deprecated, use Roots)", []],
 
     ["Roots", "ArrayOf", ["*TypeName", "{1"], "Type defs at the root of a type hierarchy", []],
 
