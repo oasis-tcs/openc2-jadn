@@ -267,7 +267,8 @@ instances that can be compared.
     or documentation purposes.
 
 * **Well-formed**:
-    A data value that follows the syntactic structure of its media type, if specified for its data format.
+    A data value that is valid according to a structured syntax (e.g., "+json", "+der"),
+    if one is specified by the data format.
 
 * **Valid**:
     A logical value is valid if it satisfies the constraints of its logical type.
@@ -308,34 +309,31 @@ organized into abstract schema packages which are included in an application's i
 ###### Figure 2-1 -- Information Model Organization
 
 * An IM consists of a set of abstract schemas that define information content, and a set of
-encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core DataType.
+encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core type.
 * Schema is the top level JADN type. It has two fields:
-  * "meta" of type "Metadata" containing descriptive and functional information about the schema package as a whole.
-  * "types" list of type "Type" containing JADN type definitions. Every type definition is a UML DataType
+  * "Metadata" containing descriptive and functional information about the schema package as a whole.
+  * List of "Type" containing JADN type definitions. Every type definition is a UML DataType
 * Every instance of the Schema type is identified by a globally-unique package namespace.
 Types defined in a package have names qualified by its namespace, and reference types defined in other
-packages by their qualified names. An individual Schema instance is called a "package" to distinguish it
-from an application "schema" as the complete set of instances in an information model.
+packages by their qualified names. An individual Schema instance is called a "package" because it is an
+instance, not a Type, and to distinguish it from an "application schema" that is the set of packages
+in an information model.
 * There is no "information model" type containing or naming a set of schema packages.
 Applications load relevant package(s) plus any additional packages needed to resolve type references.
 
 [Section 3](#3-schema-packages) defines schema packages and metadata.  \
 [Section 4](#4-jadn-types) defines the JADN core types.  \
 [Section 5](#5-extensions) defines shortcuts that make type definitions more convenient without affecting meaning.  \
-[Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.
-
-## 2.1 Schema Notation
-
-The normative form of a JADN type definition is the abstract Type structure defined in Section 3.
-Each type definition can be represented as JSON data and validated by a concrete schema as defined in Section 5,
-but can also be represented unambiguously in other formats more suited to human understanding.
-Several such representations are described in [Section 7](#7-alternate-schema-representations), including:
+[Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.  \
+[Section 7](#7-alternate-schema-representations) describes several alternative JADN schema formats:
 * a text-based information definition language (IDL) defined and validated by a language grammar
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
 
-This specification uses JSON representation to precisely define the structure of a JADN schema,
-and uses JADN IDL where understanding purpose and meaning is the primary goal.
+The normative format of a Schema package, as defined in Sections 3 and 4, is JSON data that can be validated
+by a concrete schema, but can also be represented unambiguously in other formats more suited to human understanding.
+This specification uses JSON to precisely define the structure of a JADN schema,
+but uses IDL where understanding purpose and meaning is the primary goal.
 These representations are equivalent, and the JSON definition of all IDL content is included
 as an additional artifact.
 
