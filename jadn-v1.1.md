@@ -315,25 +315,21 @@ encoding rules that define the lexical-to-value mapping in a specific data forma
 * Every instance of the Schema type is identified by a globally-unique package namespace.
 Types defined in a package have names qualified by its namespace, and reference types defined in other
 packages by their qualified names. An individual Schema instance is called a "package" to distinguish it
-from the set of instances in an information model.
+from an application "schema" as the complete set of instances in an information model.
 * There is no "information model" type containing or naming a set of schema packages.
-Applications load the relevant package(s) plus any additional packages needed to
-resolve type references.
+Applications load relevant package(s) plus any additional packages needed to resolve type references.
 
-Type is defined in [Section 3](#3-jadn-types).  \
-Schema is defined in [Section 4](#4-schema-packages).  \
-Using encoding rules to define concrete data formats is discussed in [Section 5](#5-serialization-and-data-formats)
+[Section 3](#3-schema-packages) defines schema packages and metadata.  \
+[Section 4](#4-jadn-types) defines the JADN core types.  \
+[Section 5](#5-extensions) defines shortcuts that make type definitions more convenient without affecting meaning.  \
+[Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.
 
-## 2.1 Extensions
-
-... extensions are syntax conveniences ... extensions are described in [Section 6](#6-extensions) ...
-
-## 2.2 Notation
+## 2.1 Schema Notation
 
 The normative form of a JADN type definition is the abstract Type structure defined in Section 3.
 Each type definition can be represented as JSON data and validated by a concrete schema as defined in Section 5,
 but can also be represented unambiguously in other formats more suited to human understanding.
-Several such representations are described in [Section 7](#7-alternate-representations), including:
+Several such representations are described in [Section 7](#7-alternate-schema-representations), including:
 * a text-based information definition language (IDL) defined and validated by a language grammar
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
@@ -345,20 +341,117 @@ as an additional artifact.
 
 -------
 
-# 3 JADN Types
+# 3 Schema Packages
+
+JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
+information section and a list of [type definitions](#f2-type-definitions):
+
+```
+    Schema = Record                            // Definition of a JADN package
+       1 meta         Metadata optional        // Information about this package
+       2 types        Types                    // Types defined in this package
+
+    Metadata = Map
+       1
+```
+
+If the info section is present the *package* field is required to establish the package's namespace;
+other fields are optional.
+
+* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
+  from other packages. This is an identifier but not necessarily a locator for accessible resources.
+  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
+  or http://example.com/acme/v1.3.
+* **version:** Incremental version of this package, a string that compares lexicographically higher
+  than previous versions. The *namespaces* field references only package namespaces. Version may be used
+  to determine the most recent definition of a namespace.
+* **title:** A short name for this package.
+* **description:** A brief description of purpose or capabilities of this package
+* **comment:** Any other information applicable to the package.
+* **copyright:** A copyright notice.
+* **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
+* **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
+defined in other packages.
+* **exports:** Root types. There are no private type definitions in a package; all types can be referenced
+  using the package's namespace. Exports allows authors to designate public types and allows schema tools
+  to detect unused types.
+* **config:** Values such as name formats and size limits that are customized for this package.  See
+  [package](#f1-package) for the list of configuration variables.
+
+
+## 3.2 Type Definitions
+
+### 3.1.2 Name Formats
+JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
+
+* JADN specifications MAY override the default name formats by defining one or more of:
+    * The permitted format for TypeName
+    * The permitted format for FieldName
+    * The permitted format for the Namespace Identifier (NSID) used in type references
+    * A "System" character used in tool-generated or specially-processed type names
+* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
+* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
+* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
+```
+ABNF:
+TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
+FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
+NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
+TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
+
+Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
+UC         = %x41-5A  ; A-Z
+LC         = %x61-7A  ; a-z
+DIGIT      = %x30-39  ; 0-9
+
+Regular Expression:
+TypeName:  ^[A-Z][-$A-Za-z0-9]{0,63}$
+FieldName: ^[a-z][_A-Za-z0-9]{0,63}$
+NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
+```
+###### Figure 3-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
+
+Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
+does not affect the meaning of type definitions.
+
+
+## 3.1 Config Options
+
+### 3.1.1 Upper Bounds
+Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
+in [Section 4.2.1](#421-type-options).
+If an individual type does not define an explicit limit, it uses the limit shown in the package's
+$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 3](#3-schema-packages)).
+If the specification does not define a limit, the definition defaults to the values shown here, which are
+deliberately conservative to encourage specification authors to define limits based on application requirements.
+* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
+* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
+
+```
+Type                Name           Limit   Description
+-----               -----          -----   -----------
+Binary              $MaxBinary     255     Maximum number of octets
+String              $MaxString     255     Maximum number of characters
+ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
+```
+###### Figure 3-1: JADN Default Size Limits
+
+-------
+
+# 4 JADN Types
 
 An information modeling language's abstract DataTypes define their meaning and application behavior.
 As shown in Figure 3-1, JADN defines twelve core types (bold) in three categories:
 
-* [Section 3.2.1](#321-primitive-types): **Primitive**: Types whose instances are atomic values not decomposable
+* [Section 4.2.1](#421-primitive-types): **Primitive**: Types whose instances are atomic values not decomposable
 into instances of other types.
-* [Section 3.2.2](#322-compound-types): **Compound**: Types whose instances are collections of instances of other types.
-* [Section 3.2.3](#323-union-types): **Union**: Types whose instances are selected from a set of possible values.
+* [Section 4.2.2](#422-compound-types): **Compound**: Types whose instances are collections of instances of other types.
+* [Section 4.2.3](#423-union-types): **Union**: Types whose instances are selected from a set of possible values.
 
 ![Core DataTypes](images/im-datatype.jpg)
-###### Figure 3-1 -- JADN Core DataTypes
+###### Figure 4-1 -- JADN Core DataTypes
 
-## 3.1 Type Definition Structure
+## 4.1 Type Definition Structure
 
 All JADN type definitions have the identical structure, designed to be easily describable, easily processed,
 stable, and extensible. Each type definition has five elements:
@@ -385,7 +478,7 @@ If CoreType is a structured Compound or Choice type, each field definition in th
 4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
 5. **FieldDescription:** a non-normative comment
 
-### 3.1.1 JSON Format
+### 4.1.1 JSON Format
 
 JADN type definitions are serialized in JSON format as:
 
@@ -408,7 +501,7 @@ JADN type definitions are serialized in JSON format as:
     ]]
 ```
 
-### 3.1.2 IDL Format
+### 4.1.2 IDL Format
 
 Schema packages can be defined in the non-normative Section 7 [IDL](#71-information-definition-language) format
 for readability.
@@ -434,7 +527,7 @@ Example IDL definitions include:
       2 longitude   Longitude       // A Number between -180 and 180 degrees
 ```
 
-### 3.1.3 Requirements
+### 4.1.3 Requirements
 
 * TypeName MUST NOT be a JADN core type  
 * CoreType MUST be a JADN core type
@@ -443,21 +536,21 @@ Example IDL definitions include:
 * If CoreType is Enumerated, Choice, or Map, FieldID MAY be any integer.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
 * If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
-* If the [Derived Enumerations](#333-derived-enumerations) or [Pointers](#335-pointers) extensions are present
+* If the [Derived Enumerations](#53-derived-enumerations) or [Pointers](#55-pointers) extensions are present
 in TypeOptions, the Fields array MUST be empty.
 * The default value of TypeOptions, Fields and FieldOptions is the empty Array.
 * The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
 
-Including TypeOption values within FieldOptions is an extension ([Section 3.3.1](#331-type-definition-within-fields)).
+Including TypeOption values within FieldOptions is an extension ([Section 5.1](#51-type-definition-within-fields)).
 
-## 3.2 DataTypes
+## 4.2 DataTypes
 
 
-### 3.2.1 Primitive Types
+### 4.2.1 Primitive Types
 
 A primitive type specifies a space of possible values without regard to programming language
 constructs or hardware limits. Restrictions such as range, precision, size, patterns and formats
-are specified using the type-specific options defined in [Section 3.2.1](#321-type-options).
+are specified using the type-specific options defined in [Section 4.2.1](#421-type-options).
 
 | Type                    | Definition                                                                                                                                                                     |
 |:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -470,7 +563,7 @@ are specified using the type-specific options defined in [Section 3.2.1](#321-ty
 *Note: Primitive options go here*
 
 
-### 3.2.2 Compound Types
+### 4.2.2 Compound Types
 
 A compound type specifies a collection of values, defining both collection semantics and the abstract syntax
 of its members.
@@ -496,11 +589,11 @@ that preserve order.
 | MapOf(*ktype*, *vtype*) | A map from a set of keys of the same type *ktype* to values with the same type *vtype*.                                                                                        |
 | Record                  | A map from a list of keys to values with a value type bound to each key. Each key has a position and a name.                                                                   |
 
-Table 3-2 summarizes the relationship between Compound types and collection behavior.
+Table 4-2 summarizes the relationship between Compound types and collection behavior.
 The notation `X+y` indicates that the definition of type `X` includes type option `y` defined in
-[Section 3.2.1](#321-type-options).
+[Section 4.2.1](#421-type-options).
 
-###### Table 3-2. Mapping Logical Collections to Compound Types
+###### Table 4-2. Mapping Logical Collections to Compound Types
 
 | Ordered | Unique | Collection<br>Semantics | Type<br>Syntax    | Field<br>Syntax                             |
 |---------|--------|-------------------------|-------------------|---------------------------------------------|
@@ -515,9 +608,9 @@ The notation `X+y` indicates that the definition of type `X` includes type optio
 * Map, MapOf and Record keys are unique and with `seq` option have OrderedSet, not Sequence semantics.
 * The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
 
-### 3.2.3 Union Types
+### 4.2.3 Union Types
 
-A union type specifies a set of alternatives against which instances are matched. See [Section 3.2.2.2](#3222-union-types)
+A union type specifies a set of alternatives against which instances are matched. See [Section 4.2.2.2](#4222-union-types)
 
 | Type                    | Definition                                                                                                                                                                     |
 |:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -535,7 +628,7 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
-### 3.1.4 Descriptions
+### 4.1.4 Descriptions
 Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from
 schema authors to readers or maintainers of the schema.
 * The description value MUST be a string, which MAY be empty.
@@ -548,19 +641,19 @@ Tools that translate other media types or programming languages to and from a JA
 that media type or programming language's native comments to or from description values. Implementations MAY strip
 description values at any point during processing.
 
-## 3.2 Options
+## 4.2 Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
-structure of [Section 3.1](#31-type-definitions). New requirements can be accommodated by defining new options
+structure of [Section 4.1](#41-type-definition-structure). New requirements can be accommodated by defining new options
 without modifying that structure. Type and Field options are classifiers that, along with the core type,
 determine whether data values are instances of the defined type.
 
 Each option is a text string that may be included in TypeOptions or FieldOptions, encoded as follows:
 * The first character is the option ID. Its Unicode codepoint is the numeric value (FieldID) shown in
-[Section 3.2.1](#321-type-options) and [Section 3.2.2](#322-field-options).
+[Section 4.2.1](#421-type-options) and [Section 4.2.2](#422-field-options).
 * The remaining characters are the option value. Boolean options have no additional characters;
 if the option ID is present the value of that option is True.
 
-### 3.2.1 Type Options
+### 4.2.1 Type Options
 Type options apply to the type definition as a whole. The *id*, *vtype*, *ktype*, *enum*, and *pointer* options
 are intrinsic components of the types to which they apply. 
 Other options specify value constraints on the type.
@@ -591,7 +684,7 @@ TypeOption = Choice
 * If CoreType is ArrayOf, TypeOptions MUST include the *vtype* option and MUST NOT include more than one collection option (*set*, *unique*, or *unordered*).
 * If CoreType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
 
-###### Table 3-3. Allowed Options
+###### Table 4-3. Allowed Options
 
 | CoreType   | Allowed Options                           |
 |:-----------|:------------------------------------------|
@@ -608,7 +701,7 @@ TypeOption = Choice
 | Enumerated | id, enum, pointer, extend                 |
 | Choice     | id, combine, extend                       |
 
-#### 3.2.1.1 Field Identifiers
+#### 4.2.1.1 Field Identifiers
 
 The *id* option used with Map, Enumerated, and Choice types determines how fields are specified in API instances of these types.
 If the *id* option is absent, API instances use the FieldName string and the type is referred to as "named".
@@ -625,25 +718,25 @@ whether FieldID or FieldName is used in serialized data. With the *id* option th
 the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
 such as "NotAllowed", "Verboten", or "Interdit".
 
-#### 3.2.1.2 Value Type
+#### 4.2.1.2 Value Type
 The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
 * An ArrayOf or MapOf instance MUST be considered invalid if any of its elements is not an instance of *vtype*.
 
-#### 3.2.1.3 Key Type
+#### 4.2.1.3 Key Type
 The *ktype* option specifies the type of each key in a MapOf type. 
 * *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints such as a pattern or semantic valuation keyword that specify a fixed subset of values that belong to a category.
 * A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
 
-#### 3.2.1.4 Derived Enumeration
-The *enum* ([Section 3.3.3](#333-derived-enumerations)) and *pointer* ([Section 3.3.5](#335-pointers)) options
+#### 4.2.1.4 Derived Enumeration
+The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
 are extensions that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
 
-#### 3.2.1.5 Semantic Validation
+#### 4.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
 a fixed subset of values that are accurately described by authoritative resources.  The *format* option may also
-affect how values are serialized, see [Section 4](#4-serialization).
+affect how values are serialized, see [Section 6](#6-serialization-and-data-formats).
 
-###### Table 3-4. Semantic Validation Keywords
+###### Table 4-4. Semantic Validation Keywords
 | Keyword             | Type    | Requirement                                                                                    |
 |---------------------|---------|------------------------------------------------------------------------------------------------|
 | JSON Schema formats | String  | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema).         |
@@ -660,18 +753,18 @@ affect how values are serialized, see [Section 4](#4-serialization).
 | i32                 | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.                       |
 | u\<*n*\>            | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.      |
 
-#### 3.2.1.6 Pattern
+#### 4.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
 * The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#ecmascript) Section 22.2.
 * A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
 
-#### 3.2.1.7 Size and Value Constraints
+#### 4.2.1.7 Size and Value Constraints
 The *minv* and *maxv* options specify size or integer value limits.
 The *minf* and *maxf* options specify real number value limits.
 
 * For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
     * if *minv* is not present, it defaults to zero.
-    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 3.1.3](#313-upper-bounds).
+    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 4.2.1](#421-type-options).
     * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
     * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
     * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
@@ -682,44 +775,44 @@ The *minf* and *maxf* options specify real number value limits.
     * if *minf* is present, an instance MUST be considered invalid if its value is less than *minf*.
     * if *maxf* is present, an instance MUST be considered invalid if its value is greater than *maxf*.
 
-#### 3.2.1.8 Unique Values
+#### 4.2.1.8 Unique Values
 The *unique* option specifies that values in an array must not be repeated.
 
 * For the ArrayOf type, if *unique* is present an instance MUST be considered invalid if it contains duplicate values.
 
-#### 3.2.1.9 Set
+#### 4.2.1.9 Set
 The *set* option specifies that an ArrayOf type is unordered and unique.
 
 * For the ArrayOf type, if *set* is present an instance MUST be considered invalid if it contains duplicate values.
 
-#### 3.2.1.10 Unordered
+#### 4.2.1.10 Unordered
 The *unordered* option specifies that an ArrayOf type may contain duplicate values and that its values have no
 defined order.  Because values cannot be selected by value or position, it has the semantics of a "bag" or "urn"
 from which elements are picked at random.
 
-#### 3.2.1.11 Seq
+#### 4.2.1.11 Seq
 The *seq* option specifies that a Map, MapOf or Record instance is an OrderedSet.
 
-#### 3.2.1.12 Combine
-The *combine* option specifies that a [Choice](#32222-choice---untagged-union) instance must be valid
+#### 4.2.1.12 Combine
+The *combine* option specifies that a [Choice](#42222-choice---untagged-union) instance must be valid
 against a logical combination of types. The single-character value indicates the combination type:
 * A = AND: data must be an instance of `allOf` the Choice types
 * O = OR: data must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
 * X = XOR: data must be an instance of exactly `oneOf` the Choice types
 
-#### 3.2.1.13 Extension Point
+#### 4.2.1.13 Extension Point
 The *extend* option is an assertion that an Enumerated, Choice, Array, Map or Record type MAY be incomplete and that
 future versions MAY add new fields that do not change the definitions of existing fields.  This option does not affect
 the validity of data with respect to a specific schema, it is an indicator that applications may be able to obtain
 a newer version of the same package for which the data is valid. Types without this option assert that
 the package identifier will be changed if any field is added, modified, or deleted.
 
-#### 3.2.1.14 Default Value
+#### 4.2.1.14 Default Value
 The *default* option specifies the initial or default value of a field. Applications deserializing
 a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
 
-### 3.2.2 Field Options
+### 4.2.2 Field Options
 Field options may be specified for each field within a compound type definition.
 
 ```
@@ -733,10 +826,10 @@ FieldOption = Choice
 ```
 
 * FieldOptions MUST NOT include more than one of each option.
-* All TypeOption values ([Section 3.2.1](#321-type-options)) included in FieldOptions are extensions. Each TypeOption
-MUST apply to FieldType as defined in [Table 3-3](#table-3-3-allowed-options). 
+* All TypeOption values ([Section 4.2.1](#421-type-options)) included in FieldOptions are extensions. Each TypeOption
+MUST apply to FieldType as defined in [Table 4-3](#table-4-3-allowed-options). 
 
-#### 3.2.2.1 Multiplicity
+#### 4.2.2.1 Multiplicity
 Cardinality is the number of elements in a group, and multiplicity is the range of allowed cardinalities
 for that group. The *minc* and *maxc* options specify the minimum and maximum cardinality in a field
 of an Array, Choice, Map, or Record type:
@@ -751,34 +844,34 @@ of an Array, Choice, Map, or Record type:
 
 * if *minc* is not present, it defaults to 1.
 * if *maxc* is not present, it defaults to the greater of 1 or *minc*.
-* if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 3.1.3](#313-upper-bounds).
+* if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 4.1.3](#413-upper-bounds).
 * if *maxc* is less than *minc*, the field definition MUST be considered invalid.
 
 If *minc* is 0, the field is optional, otherwise it is required.  
 If *maxc* is 1 the field is a single element, otherwise it is an array of elements
-as described in [Section 3.3.2](#332-field-multiplicity).  
+as described in [Section 4.3.2](#432-field-multiplicity).  
 
 Within a Choice type *minc* values of 0 and 1 are equivalent because all fields are optional and exactly
 one must be present. Values greater than 1 specify an array of elements.
 
-#### 3.2.2.2 Union Types
+#### 4.2.2.2 Union Types
 The Enumerated type matches one value (an Item ID or Name) from the set of ID/Name pairs defined by the type.
 
 The Choice type selects one type or a logical combination of types from a set. By default Choice is
 a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
-indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#32112-combine)
+indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#42112-combine)
 type option it is an [untagged](#union) union where values that match a logical combination of types
 are instances of the Choice type.
 
-##### 3.2.2.2.1 Enumerated
+##### 4.2.2.2.1 Enumerated
 
-##### 3.2.2.2.2 Choice - Untagged Union
+##### 4.2.2.2.2 Choice - Untagged Union
 The `combine` option specifies the logical function (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR))
 of the Choice's field types apply to the value. The `anyOf` option performs short-circuit evaluation where
 the first FieldType to match, in field order, indicates the instance type.
 The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
 
-##### 3.2.2.2.3 Choice - Tagged Union
+##### 4.2.2.2.3 Choice - Tagged Union
 The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
 one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
 value. But if the *tagid* option is present on a Choice field in an Array or Record container,
@@ -882,103 +975,6 @@ Hashes2 Example:
 
 -------
 
-# 4 Schema Packages
-
-JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
-information section and a list of [type definitions](#f2-type-definitions):
-
-```
-    Schema = Record                            // Definition of a JADN package
-       1 meta         Metadata optional        // Information about this package
-       2 types        Types                    // Types defined in this package
-
-    Metadata = Map
-       1
-```
-
-If the info section is present the *package* field is required to establish the package's namespace;
-other fields are optional.
-
-* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
-  from other packages. This is an identifier but not necessarily a locator for accessible resources.
-  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
-  or http://example.com/acme/v1.3.
-* **version:** Incremental version of this package, a string that compares lexicographically higher
-  than previous versions. The *namespaces* field references only package namespaces. Version may be used
-  to determine the most recent definition of a namespace.
-* **title:** A short name for this package.
-* **description:** A brief description of purpose or capabilities of this package
-* **comment:** Any other information applicable to the package.
-* **copyright:** A copyright notice.
-* **license:** License for this package. Value is an SPDX licenseId, CC0-1.0 is recommended.
-* **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
-defined in other packages.
-* **exports:** Root types. There are no private type definitions in a package; all types can be referenced
-  using the package's namespace. Exports allows authors to designate public types and allows schema tools
-  to detect unused types.
-* **config:** Values such as name formats and size limits that are customized for this package.  See
-  [package](#f1-package) for the list of configuration variables.
-
-
-## 4.2 Type Definitions
-
-### 4.1.2 Name Formats
-JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
-
-* JADN specifications MAY override the default name formats by defining one or more of:
-    * The permitted format for TypeName
-    * The permitted format for FieldName
-    * The permitted format for the Namespace Identifier (NSID) used in type references
-    * A "System" character used in tool-generated or specially-processed type names
-* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
-* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
-* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
-```
-ABNF:
-TypeName   = UC *63("-" / Sys / UC / LC / DIGIT)    ; PascalCase / Train-Case, 1-64 characters
-FieldName  = LC *63("_" / UC / LC / DIGIT)          ; camelCase / snake_case, 1-64 characters
-NSID       = (UC / LC) *7(UC / LC / DIGIT)          ; Namespace ID, length = 1-8 characters
-TypeRef    = [NSID ":"] TypeName                    ; Reference to a defined type with optional namespace prefix
-
-Sys        = "$"      ; 'DOLLAR SIGN', Used in tool-generated type names, e.g., Color$values.
-UC         = %x41-5A  ; A-Z
-LC         = %x61-7A  ; a-z
-DIGIT      = %x30-39  ; 0-9
-
-Regular Expression:
-TypeName:  ^[A-Z][-$A-Za-z0-9]{0,63}$
-FieldName: ^[a-z][_A-Za-z0-9]{0,63}$
-NSID:      ^[A-Za-z][A-Za-z0-9]{0,7}$
-```
-###### Figure 4-1: JADN Default Name Syntax in ABNF and Regular Expression Formats
-
-Specifications MAY use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
-does not affect the meaning of type definitions.
-
-
-## 4.1 Config Options
-
-### 4.1.1 Upper Bounds
-Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
-in [Section 3.2.1](#321-type-options).
-If an individual type does not define an explicit limit, it uses the limit shown in the package's
-$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 6](#6-schema-packages)).
-If the specification does not define a limit, the definition defaults to the values shown here, which are
-deliberately conservative to encourage specification authors to define limits based on application requirements.
-* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
-* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
-
-```
-Type                Name           Limit   Description
------               -----          -----   -----------
-Binary              $MaxBinary     255     Maximum number of octets
-String              $MaxString     255     Maximum number of characters
-ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
-```
-###### Figure 4-1: JADN Default Size Limits
-
--------
-
 # 5 Extensions
 
 JADN consists of a set of core definition elements, plus several extensions that make type definitions
@@ -999,7 +995,7 @@ The following extensions can be converted to core definitions:
 
 A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
 Unfolding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
-([Section 3.2.1](#321-type-options)) from FieldOptions.
+([Section 4.2.1](#421-type-options)) from FieldOptions.
 
 Example:
 
@@ -1018,7 +1014,7 @@ Unfolding replaces this with:
 ## 5.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
-FieldOptions ([Section 3.2.2](#322-field-options)) are moved from FieldOptions to the minimum and maximum
+FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
 size (*minv* and *maxv*) TypeOptions of the new ArrayOf type, except that if *minc* is 0
 (field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
 size of 1.
