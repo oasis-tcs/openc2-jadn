@@ -1,11 +1,11 @@
 ![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v3.0.png)
 -------
 
-# Specification for JSON Abstract Data Notation (JADN) Version 1.1
+# Specification for JSON Abstract Data Notation (JADN) Version 2.0
 
 ## Committee Specification Draft 01
 
-## 12 November 2024
+## 13 November 2024
 
 &nbsp;
 
