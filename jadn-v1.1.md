@@ -462,38 +462,50 @@ stable, and extensible. Each type definition has five elements:
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of **Item** or **Field** definitions
 
+### 4.1.1 Primitive
 If CoreType is a Primitive or unstructured Compound type, the **Fields** array is empty.
 
-If CoreType is the Enumerated Type, each item definition in the **Fields** array has three elements:
+JSON Format:
+```
+    [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
+```
+IDL Example:
+```
+    Username = String {pattern="^[a-z][a-z0-9]{,11}$"}
 
+    Users = ArrayOf(Username)
+```
+### 4.1.2 Enumerated
+
+If CoreType is the Enumerated Type, each item definition in the **Fields** array has three elements:
 1. **ItemID:** the integer identifier of the item
 2. **ItemValue:** the string value of the item
 3. **ItemDescription:** a non-normative comment
 
-If CoreType is a structured Compound or Choice type, each field definition in the **Fields** array has five elements:
-
-1. **FieldID:** the integer identifier of the field
-2. **FieldName:** the name or label of the field
-3. **FieldType:** the type of the field, a **TypeReference**
-4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
-5. **FieldDescription:** a non-normative comment
-
-### 4.1.1 JSON Format
-
-JADN type definitions are serialized in JSON format as:
-
-* Primitive or unstructured Compound:
-```
-    [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
-```
-* Enumerated:
+JSON Format:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [ItemId, ItemValue, ItemDescription],
         ...
     ]]
 ```
-* Structured Compound or Choice:
+IDL Example:
+```
+    Color = Enumerated
+      1 red
+      2 green
+      3 blue
+```
+### 4.1.3 Compound
+
+If CoreType is a structured Compound or Choice type, each field definition in the **Fields** array has five elements:
+1. **FieldID:** the integer identifier of the field
+2. **FieldName:** the name or label of the field
+3. **FieldType:** the type of the field, a **TypeReference**
+4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
+5. **FieldDescription:** a non-normative comment
+
+JSON Format:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
@@ -501,33 +513,14 @@ JADN type definitions are serialized in JSON format as:
     ]]
 ```
 
-### 4.1.2 IDL Format
-
-Schema packages can be defined in the non-normative Section 7 [IDL](#71-information-definition-language) format
-for readability.
-Example IDL definitions include:
-
-* Primitive or unstructured Compound:
-```
-    Username = String {pattern="^[a-z][a-z0-9]{,11}$"}
-
-    Users = ArrayOf(Username)
-```
-* Enumerated:
-```
-    Color = Enumerated
-      1 red
-      2 green
-      3 blue
-```
-* Structured Compound or Choice:
+IDL Example:
 ```
     Coordinate = Record             // A GPS coordinate
       1 latitude    Latitude        // A Number between -90 and 90 degrees
       2 longitude   Longitude       // A Number between -180 and 180 degrees
 ```
 
-### 4.1.3 Requirements
+### 4.1.4 Requirements
 
 * TypeName MUST NOT be a JADN core type  
 * CoreType MUST be a JADN core type
@@ -543,8 +536,7 @@ in TypeOptions, the Fields array MUST be empty.
 
 Including TypeOption values within FieldOptions is an extension ([Section 5.1](#51-type-definition-within-fields)).
 
-## 4.2 DataTypes
-
+## 4.2 Core Types
 
 ### 4.2.1 Primitive Types
 
