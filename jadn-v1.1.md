@@ -313,7 +313,7 @@ encoding rules that define the lexical-to-value mapping in a specific data forma
 * Schema is the top level JADN type. It has two fields:
   * "Metadata" containing descriptive and functional information about the schema package as a whole.
   * List of "Type" containing JADN type definitions. Every type definition is a UML DataType
-* Every instance of the Schema type is identified by a globally-unique package namespace.
+* An instance of the Schema type is identified by a globally-unique package namespace.
 Types defined in a package have names qualified by its namespace, and reference types defined in other
 packages by their qualified names. An individual Schema instance is called a "package" because it is an
 instance, not a Type, and to distinguish it from an "application schema" that is the set of packages
@@ -330,8 +330,8 @@ Applications load relevant package(s) plus any additional packages needed to res
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
 
-The normative format of a Schema package, as defined in Sections 3 and 4, is JSON data that can be validated
-by a concrete schema, but can also be represented unambiguously in other formats more suited to human understanding.
+The normative format of a Schema package, as defined in Sections 3 and 4, is JSON data that can be validated by a
+concrete schema, but it can also be represented unambiguously in other formats more suited to human understanding.
 This specification uses JSON to precisely define the structure of a JADN schema,
 but uses IDL where understanding purpose and meaning is the primary goal.
 These representations are equivalent, and the JSON definition of all IDL content is included
