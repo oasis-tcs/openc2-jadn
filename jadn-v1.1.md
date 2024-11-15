@@ -518,12 +518,28 @@ IDL Example:
       2 longitude   Longitude       // A Number between -180 and 180 degrees
 ```
 
-### 4.1.4 Requirements
+### 4.1.4 Type and Field Options
+Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
+to which it applies, similar in effect to an [[XSD](#xsd)] *facet*. Each option has an ID and value,
+and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
+ID and the remaining characters are its value.
+
+An option may go by different names in different sources: UML calls the minimum cardinality of a
+collection "/lower", XSD calls it "minOccurs", and JSON Schema calls it "minItems". JADN defines
+the minimum length option ID to be `0x7b` (Left Curly Bracket), so the TypeOption string "{0"
+indicates a minimum length of 0 for compound types ([Section 4.2.2](#422-compound-types)),
+as well as for the Binary and String primitive types ([Section 4.2.1](#421-primitive-types)).
+For convenience this specification re-uses XSD names, if any, for TypeOption and FieldOption IDs,
+so the minimum length option is referred to as "minLength" or "minOccurs" when used with primitive
+or compound CoreTypes respectively.
+
+### 4.1.5 Requirements
 
 * TypeName MUST NOT be a JADN core type  
 * CoreType MUST be a JADN core type
 * FieldID and FieldName values MUST be unique within a type definition.
-* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type, numbered consecutively starting at 1.
+* If CoreType is Array or Record, FieldID MUST be the ordinal position of the field within the type,
+numbered consecutively starting at 1.
 * If CoreType is Enumerated, Choice, or Map, FieldID MAY be any integer.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
 * If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
