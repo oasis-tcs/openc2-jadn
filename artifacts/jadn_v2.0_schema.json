@@ -1,7 +1,7 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://oasis-open.org/openc2/jadn/v2.0",
-  "description": "Validates the structure of a JADN schema, does not check values",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
+  "description": "Validates structure of a JADN schema, does not check values",
   "type": "object",
   "required": ["types"],
   "additionalProperties": false,
@@ -11,7 +11,7 @@
       "required": ["package"],
       "additionalProperties": false,
       "properties": {
-        "package": {"$ref": "#/definitions/Uri"},
+        "package": {"type": "string"},
         "version": {"type": "string"},
         "title": {"type": "string"},
         "description": {"type": "string"},
@@ -19,9 +19,8 @@
         "copyright": {"type": "string"},
         "license": {"type": "string"},
         "namespaces": {"$ref": "#/definitions/Namespaces"},
-        "roots": {"$ref": "#/definitions/Roots"},
-        "config": {"$ref": "#/definitions/Config"},
-        "jadn_version": {"type": "string"}
+        "exports": {"$ref": "#/definitions/Exports"},
+        "config": {"$ref": "#/definitions/Config"}
       }
     },
     "types": {
@@ -42,32 +41,18 @@
   },
   "definitions": {
     "Namespaces": {
-      "anyOf": [
-        {"$ref": "#/definitions/NsArr"},
-        {"$ref": "#/definitions/NsObj"}
-      ]
-    },
-    "NsArr": {
-      "type": "array",
-      "items": {"$ref": "#/definitions/PrefixNs"}
-    },
-    "PrefixNs": {
-      "type": "array",
-      "items": [
-        {"$ref": "#/definitions/NSID"},
-        {"$ref": "#/definitions/Uri"}
-      ]
-    },
-    "NsObj": {
       "type": "object",
       "propertyNames": {"$ref": "#/definitions/NSID"},
       "patternProperties": {
-        "": {"$ref": "#/definitions/Uri"}
+        "": {
+          "type": "string",
+          "format": "uri"
+        }
       }
     },
-    "Roots": {
+    "Exports": {
       "type": "array",
-      "items": {"$ref": "#/definitions/TypeName"}
+      "items": {"type": "string"}
     },
     "Config": {
       "type": "object",
@@ -79,8 +64,7 @@
         "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
         "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
         "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$MaxDesc": {"type": "integer", "minValue":  1}
+        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
     "Fields": {
@@ -115,9 +99,6 @@
       ]
     },
     "NSID": {
-      "type": "string"
-    },
-    "Uri": {
       "type": "string"
     },
     "TypeName": {

@@ -1,9 +1,9 @@
 {
-  "info": {
+  "meta": {
     "title": "JADN Metaschema",
     "package": "http://oasis-open.org/jadn/v2.0/schema",
     "description": "Syntax of a JSON Abstract Data Notation (JADN) package.",
-    "license": "CC0-1.0",
+    "license": "CC-BY-4.0",
     "roots": ["Schema"],
     "config": {
       "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"
@@ -13,7 +13,7 @@
   "types": [
     ["Schema", "Record", [], "Definition of a JADN package", [
       [1, "meta", "Metadata", ["[0"], "Information about this package"],
-      [2, "types", "Types", [], "Types defined in this package"]
+      [2, "types", "Type", ["[1", "]-1", "q"], "Types defined in this package"]
     ]],
 
     ["Metadata", "Map", [], "Information about this package", [
@@ -23,28 +23,16 @@
       [4, "description", "String", ["{1", "[0"], "Description"],
       [5, "comment", "String", ["{1", "[0"], "Comment"],
       [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
-      [7, "license", "String", ["{1", "[0"], "SPDX licenseId (e.g., 'CC0-1.0')"],
-      [8, "namespaces", "Namespaces", ["[0"], "Referenced packages"],
-      [9, "roots", "Roots", ["[0"], "Roots of the type hierarchy defined by this package"],
-      [10, "config", "Config", ["[0"], "Configuration variables"],
-      [11, "jadn_version", "String", ["{1", "[0"], "JADN specification version"]
+      [7, "license", "String", ["{1", "[0"], "SPDX licenseId of this package"],
+      [8, "namespaces", "PrefixNs", ["[0", "]-1", "q"], "Referenced packages"],
+      [9, "roots", "TypeName", ["[0", "]-1", "q"], "Roots of the type hierarchy defined by this package"],
+      [10, "config", "Config", ["[0"], "Configuration variables"]
     ]],
-
-    ["Namespaces", "Choice", ["CO"], "anyOf v1.1 or v1.0, in priority order", [
-      [1, "ns_arr", "NsArr", [], "[prefix, namespace] syntax - v2.0"],
-      [2, "ns_obj", "NsObj", [], "{prefix: Namespace} syntax - v1.0"]
-    ]],
-
-    ["NsArr", "ArrayOf", ["*PrefixNs", "{1"], "Type references to other packages - v1.1", []],
 
     ["PrefixNs", "Array", [], "Prefix corresponding to a namespace IRI", [
       [1, "prefix", "NSID", [], "Namespace prefix string"],
       [2, "namespace", "Namespace", [], "Namespace IRI"]
     ]],
-
-    ["NsObj", "MapOf", ["*Namespace", "+NSID", "{1"], "Type references to other packages - v1.0", []],
-
-    ["Roots", "ArrayOf", ["*TypeName", "{1"], "Type defs at the root of a type hierarchy", []],
 
     ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
       [1, "$MaxBinary", "Integer", ["{1", "[0"], "Schema default max octets"],
@@ -56,29 +44,12 @@
       [7, "$NSID", "String", ["{1", "}127", "[0"], "Namespace Identifier regex"]
     ]],
 
-    ["Types", "ArrayOf", ["*Type", "}1000", "q"], "", []],
-
     ["Type", "Array", [], "", [
       [1, "type_name", "TypeName", [], ""],
-      [2, "base_type", "BaseType", [], ""],
+      [2, "base_type", "Enumerated", ["#JADN-Type"], ""],
       [3, "type_options", "Options", [], ""],
       [4, "type_description", "Description", [], ""],
       [5, "fields", "JADN-Type", ["&2"], ""]
-    ]],
-
-    ["BaseType", "Enumerated", [], "", [
-      [1, "Binary", ""],
-      [2, "Boolean", ""],
-      [3, "Integer", ""],
-      [4, "Number", ""],
-      [5, "String", ""],
-      [6, "Enumerated", ""],
-      [7, "Choice", ""],
-      [8, "Array", ""],
-      [9, "ArrayOf", ""],
-      [10, "Map", ""],
-      [11, "MapOf", ""],
-      [12, "Record", ""]
     ]],
 
     ["JADN-Type", "Choice", [], "", [
@@ -118,11 +89,11 @@
 
     ["FieldID", "Integer", ["{0"], "", []],
 
-    ["Options", "ArrayOf", ["*Option", "}10"], "", []],
+    ["Options", "ArrayOf", ["*Option", "q"], "", []],
 
     ["Option", "String", ["{1"], "", []],
 
-    ["Description", "String", ["}2048"], "", []],
+    ["Description", "String", [], "", []],
 
     ["Namespace", "String", ["/uri"], "Unique name of a package", []],
 

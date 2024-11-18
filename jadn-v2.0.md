@@ -103,57 +103,7 @@ For complete copyright information please see the Notices section in the Appendi
 -------
 
 # Table of Contents
-- [1 Introduction](#1-introduction)
-  - [1.1 Changes from earlier versions](#11-changes-from-csd-01)
-  - [1.2 Glossary](#12-glossary)
-    - [1.2.1 Definitions of terms](#121-definitions-of-terms)
-    - [1.2.2 Acronyms and abbreviations](#122-acronyms-and-abbreviations)
-- [2 Information vs. Data](#2-information-vs-data)
-  - [2.1 Graph Modeling](#21-graph-modeling)
-  - [2.2 Information Modeling](#22-information-modeling)
-  - [2.3 Information Definition Formats](#23-information-definition-formats)
-  - [2.4 Implementation](#24-implementation)
-- [3 JADN Types](#3-jadn-types)
-  - [3.1 Type Definitions](#31-type-definitions)
-    - [3.1.1 Requirements](#311-requirements)
-    - [3.1.2 Name Formats](#312-name-formats)
-    - [3.1.3 Upper Bounds](#313-upper-bounds)
-    - [3.1.4 Descriptions](#314-descriptions)
-  - [3.2 Options](#32-options)
-    - [3.2.1 Type Options](#321-type-options)
-    - [3.2.2 Field Options](#322-field-options)
-  - [3.3 JADN Extensions](#33-jadn-extensions)
-    - [3.3.1 Type Definition Within Fields](#331-type-definition-within-fields)
-    - [3.3.2 Field Multiplicity](#332-field-multiplicity)
-    - [3.3.3 Derived Enumerations](#333-derived-enumerations)
-    - [3.3.4 MapOf With Enumerated Key](#334-mapof-with-enumerated-key)
-    - [3.3.5 Pointers](#335-pointers)
-    - [3.3.6 Links](#336-links)
-- [4 Serialization](#4-serialization)
-  - [4.1 Verbose JSON Serialization](#41-verbose-json-serialization)
-  - [4.2 Compact JSON Serialization:](#42-compact-json-serialization)
-  - [4.3 Concise JSON Serialization:](#43-concise-json-serialization)
-  - [4.4 CBOR Serialization](#44-cbor-serialization)
-- [5 Definition Formats](#5-definition-formats)
-  - [5.1 JADN-IDL Format](#51-jadn-idl-format)
-  - [5.2 Table Style](#52-table-style)
-  - [5.3 Entity Relationship Diagrams](#53-entity-relationship-diagrams)
-- [6 Schema Packages](#6-schema-packages)
-- [7 Conformance](#7-conformance)
-- [Appendix A. References](#appendix-a-references)
-  - [A.1 Normative References](#a1-normative-references)
-  - [A.2 Informative References](#a2-informative-references)
-- [Appendix B. Safety, Security and Privacy Considerations](#appendix-b-safety-security-and-privacy-considerations)
-- [Appendix C. Acknowledgments](#appendix-c-acknowledgments)
-  - [C.1 Special Thanks](#c1-special-thanks)
-  - [C.2 Participants](#c2-participants)
-- [Appendix D. Revision History](#appendix-d-revision-history)
-- [Appendix E. JSON Schema for JADN Documents](#appendix-e-json-schema-for-jadn-documents)
-- [Appendix F. JADN Meta-schema for JADN Documents](#appendix-f-jadn-meta-schema-for-jadn-documents)
-  - [F.1 Package](#f1-package)
-  - [F.2 Type Definitions](#f2-type-definitions)
-- [Appendix G. JADN Type Definitions From This Document](#appendix-g-jadn-type-definitions-from-this-document)
-- [Appendix H. Notices](#appendix-h-notices)
+
 
 -------
 
@@ -333,9 +283,8 @@ Applications load relevant package(s) plus any additional packages needed to res
 The normative format of a Schema package, as defined in Sections 3 and 4, is JSON data that can be validated by a
 concrete schema, but it can also be represented unambiguously in other formats more suited to human understanding.
 This specification uses JSON to precisely define the structure of a JADN schema,
-but uses IDL where understanding purpose and meaning is the primary goal.
-These representations are equivalent, and the JSON definition of all IDL content is included
-as an additional artifact.
+but uses the IDL format described in Section 7 where understanding purpose and meaning is the primary goal.
+These representations are equivalent, and the JSON definition of all IDL content is included in this specification.
 
 -------
 
@@ -345,12 +294,47 @@ JADN schemas are organized into packages.  A [package](#f1-package) consists of 
 information section and a list of [type definitions](#f2-type-definitions):
 
 ```
-    Schema = Record                            // Definition of a JADN package
-       1 meta         Metadata optional        // Information about this package
-       2 types        Types                    // Types defined in this package
+       title: "JADN Metaschema"
+     package: "http://oasis-open.org/jadn/v2.0/schema"
+ description: "Syntax of a JSON Abstract Data Notation (JADN) package."
+     license: "CC-BY-4.0"
+      config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
+       roots: ["Schema"]
 
-    Metadata = Map
-       1
+Schema = Record                                              // Definition of a JADN package
+   1 meta                     Metadata optional              // Information about this package
+   2 types                    Type unique [1..*]             // Types defined in this package
+
+Metadata = Map                                               // Information about this package
+   1 package                  Namespace                      // Unique name/version of this package
+   2 version                  String{1..*} optional          // Incrementing version within package
+   3 title                    String{1..*} optional          // Title
+   4 description              String{1..*} optional          // Description
+   5 comment                  String{1..*} optional          // Comment
+   6 copyright                String{1..*} optional          // Copyright notice
+   7 license                  String{1..*} optional          // SPDX licenseId of this package
+   8 namespaces               PrefixNs unique [0..*]         // Referenced packages
+   9 roots                    TypeName unique [0..*]         // Roots of the type hierarchy defined by this package
+  10 config                   Config optional                // Configuration variables
+
+PrefixNs = Array                                             // Prefix corresponding to a namespace IRI
+   1  NSID                                                   // prefix:: Namespace prefix string
+   2  Namespace                                              // namespace:: Namespace IRI
+
+Config = Map{1..*}                                           // Config vars override JADN defaults
+   1 $MaxBinary               Integer{1..*} optional         // Schema default max octets
+   2 $MaxString               Integer{1..*} optional         // Schema default max characters
+   3 $MaxElements             Integer{1..*} optional         // Schema default max items/properties
+   4 $Sys                     String{1..1} optional          // System character for TypeName
+   5 $TypeName                String{1..127} optional        // TypeName regex
+   6 $FieldName               String{1..127} optional        // FieldName regex
+   7 $NSID                    String{1..127} optional        // Namespace Identifier regex
+
+Namespace = String /uri                                      // Schema package unique identifier
+NSID = String{pattern="$NSID"}                               // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+TypeName = String{pattern="$TypeName"}                       // Default = ^[A-Z][-$A-Za-z0-9]{0,63}$
+FieldName = String{pattern="$FieldName"}                     // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+TypeRef = String                                             // Autogenerated pattern ($NSID ':')? $TypeName
 ```
 
 If the info section is present the *package* field is required to establish the package's namespace;
@@ -387,7 +371,7 @@ JADN does not restrict the syntax of TypeName and FieldName, but naming conventi
     * The permitted format for FieldName
     * The permitted format for the Namespace Identifier (NSID) used in type references
     * A "System" character used in tool-generated or specially-processed type names
-* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#335-pointers) extension
+* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#55-pointers) extension
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
 ```
@@ -441,9 +425,10 @@ ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
 An information modeling language's abstract DataTypes define their meaning and application behavior.
 As shown in Figure 3-1, JADN defines twelve core types (bold) in three categories:
 
-* [Section 4.2.1](#421-primitive-types): **Primitive**: Types whose instances are atomic values not decomposable
+* [Section 4.2.1.1](#4211-primitive-types): **Primitive**: Types whose instances are atomic values not decomposable
 into instances of other types.
-* [Section 4.2.2](#422-compound-types): **Compound**: Types whose instances are collections of instances of other types.
+* [Section 4.2.2](#422-compound-types): **Compound**: Types whose instances are collections of instances of other
+types. ArrayOf and MapOf are unstructured; Array, Map, and Record are structured types with named fields.
 * [Section 4.2.3](#423-union-types): **Union**: Types whose instances are selected from a set of possible values.
 
 ![Core DataTypes](images/im-datatype.jpg)
@@ -527,8 +512,7 @@ ID and the remaining characters are its value.
 An option may go by different names in different sources: UML calls the minimum cardinality of a
 collection "/lower", XSD calls it "minOccurs", and JSON Schema calls it "minItems". JADN defines
 the minimum length option ID to be `0x7b` (Left Curly Bracket), so the TypeOption string "{0"
-indicates a minimum length of 0 for compound types ([Section 4.2.2](#422-compound-types)),
-as well as for the Binary and String primitive types ([Section 4.2.1](#421-primitive-types)).
+indicates a minimum length of 0 for compound types and for the Binary and String primitive types.
 For convenience this specification re-uses XSD names, if any, for TypeOption and FieldOption IDs,
 so the minimum length option is referred to as "minLength" or "minOccurs" when used with primitive
 or compound CoreTypes respectively.
@@ -547,27 +531,74 @@ numbered consecutively starting at 1.
 in TypeOptions, the Fields array MUST be empty.
 * The default value of TypeOptions, Fields and FieldOptions is the empty Array.
 * The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
-
-Including TypeOption values within FieldOptions is an extension ([Section 5.1](#51-type-definition-within-fields)).
+Description values are reserved for comments from schema authors to readers or maintainers,
+MAY be stripped at any time, and MUST have no effect on validation or serialization.
 
 ## 4.2 Core Types
 
-### 4.2.1 Primitive Types
+*===================================================================*
+
+ *Note: the remainder of this document is being revised. Not for review.*
+
+*===================================================================*
+
+### 4.2.1 Primitive
+
+A primitive core type has no substructure. Its instances are values defined
 
 A primitive type specifies a space of possible values without regard to programming language
 constructs or hardware limits. Restrictions such as range, precision, size, patterns and formats
-are specified using the type-specific options defined in [Section 4.2.1](#421-type-options).
+are specified using the type-specific options listed in this section.
 
-| Type                    | Definition                                                                                                                                                                     |
-|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Binary                  | A sequence of octets.  Length is the number of octets.                                                                                                                         |
-| Boolean                 | An element with one of two values: true or false.                                                                                                                              |
-| Integer                 | A positive or negative whole number.                                                                                                                                           |
-| Number                  | A real number.                                                                                                                                                                 |
-| String                  | A sequence of characters, each of which has a Unicode codepoint.  Length is the number of characters.                                                                          |
+#### 4.2.1.1 Primitive Types
 
-*Note: Primitive options go here*
+##### 4.2.1.1.1 Binary
+An instance of Binary is sequence of octets.
 
+Options: minLength, maxLength
+
+##### 4.2.1.1.2 String
+An instance of String defines a sequence of characters in a character set.
+
+Options: minLength, maxLength, pattern
+
+##### 4.2.1.1.3 Boolean
+An instance of Boolean is one of the predefined values *true* and *false*.
+
+Options: none
+
+##### 4.2.1.1.4 Integer
+An instance of Integer is a value in the (infinite) set of integers (…-2, -1, 0, 1, 2…).
+
+Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+
+##### 4.2.1.1.5 Number
+An instance of Number is a value in the (infinite) set of real numbers.
+
+Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+
+#### 4.2.1.2 Primitive TypeOptions
+
+Table 4-1 lists the type-specific TypeOptions specific to Primitive core types.
+
+| ID   | Chr | Type    | Name         | Description                                       |
+|------|:---:|---------|--------------|---------------------------------------------------|
+| 0x25 |  %  | String  | pattern      | Regular expression                                |
+| 0x2f |  /  | String  | format       | Semantic validation keyword                       |
+| 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
+| 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
+| 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
+| 0x78 |  x  | *       | maxInclusive | Instance is less than or equal to option value    |
+| 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
+| 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
+
+###### Table 4-1. Primitive TypeOptions
+
+* **pattern**: Regular expression
+* **format**: Semantic validation keyword
+* **minLength**, **maxLength**: 
+* **minInclusive**, **maxInclusive**:
+* **minExclusive**, **maxExclusive**:
 
 ### 4.2.2 Compound Types
 
@@ -634,20 +665,8 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
-### 4.1.4 Descriptions
-Description elements (TypeDescription, ItemDescription and FieldDescription) are reserved for comments from
-schema authors to readers or maintainers of the schema.
-* The description value MUST be a string, which MAY be empty.
-* Implementations MUST NOT present this string to end users.
-* Tools for editing schemas SHOULD support displaying and editing descriptions.
-* Implementations MUST NOT take any other action based on the presence, absence, or content of description values.
 
-Description values MAY be used in debug or error output which is intended for developers making use of schemas.
-Tools that translate other media types or programming languages to and from a JADN schema MAY choose to convert
-that media type or programming language's native comments to or from description values. Implementations MAY strip
-description values at any point during processing.
-
-## 4.2 Options
+### 4.2.4 General Options
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
 structure of [Section 4.1](#41-type-definition-structure). New requirements can be accommodated by defining new options
 without modifying that structure. Type and Field options are classifiers that, along with the core type,
@@ -1097,7 +1116,7 @@ Example:
     
     Pixel3 = MapOf(Channel3, Integer)
     
-Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#333-derived-enumerations).
+Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
 
 ## 5.5 Pointers
 Applications may need to model both individual types and collections of types, similar to the way filesystems
@@ -1110,7 +1129,7 @@ A recursive filesystem listing contains pathnames of all files in and under the 
 ([Section 3.2.1](#321-type-options)) generates a list of all type definitions in and under the specified type.  Unfolding
 replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
 type. If no fields in the specified type are marked with the "dir" option, the Pointer extension has the same fields
-as the [Derived Enumeration](#333-derived-enumerations) extension except that IDs are sequential rather than copied
+as the [Derived Enumeration](#53-derived-enumerations) extension except that IDs are sequential rather than copied
 from the referenced type.
 
 Example:
@@ -1610,9 +1629,9 @@ and conforming implementations must support at least one data format.
 
 * Core JADN
     * Validate schema packages according to [Section 3.1](#31-type-definitions), [Section 3.2](#32-options)
-    and [section 6](#6-schema-packages)
+    and [section 3](#3-schema-packages)
     * Validate API values against a schema package
-    * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 4](#4-serialization)
+    * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 6](#6-serialization-and-data-formats)
 * JADN Extensions
     * Satisfy all Core requirements
     * Perform all extension unfolding operations defined in [Section 3.3](#33-jadn-extensions)
@@ -1621,7 +1640,7 @@ This document describes information modeling functions but defines no correspond
 
 * JADN Schema Translator
     * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in
-      [Section 5](#5-definition-formats).
+      [Section 6](#6-serialization-and-data-formats).
 * JADN Concrete Schema Generators
     * Generate format-specific concrete schemas per serialization rules in Section 4.x.
 * JADN Extensions
@@ -1695,10 +1714,12 @@ FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
 *"Graph Visualization Software"*, https://graphviz.gitlab.io/
-###### [JADN-CN]
-OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
+###### [IEEE754]
+*"Floating Point Arithmetic"*, IEEE Std 754-2019, https://ieeexplore.ieee.org/document/8766229, ISO/IEC 60559:2020, https://www.iso.org/obp/ui/en/#iso:std:80985
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
+###### [JADN-CN]
+OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RDF]
