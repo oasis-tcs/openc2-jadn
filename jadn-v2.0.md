@@ -275,29 +275,25 @@ Applications load relevant package(s) plus any additional packages needed to res
 [Section 4](#4-jadn-types) defines the JADN core types.  \
 [Section 5](#5-extensions) defines shortcuts that make type definitions more convenient without affecting meaning.  \
 [Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.  \
-[Section 7](#7-alternate-schema-representations) describes several alternative JADN schema formats:
+[Section 7](#7-alternate-schema-representations) describes some non-normative alternate JADN schema formats:
 * a text-based information definition language (IDL) defined and validated by a language grammar
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
 
 The normative format of a Schema package, as defined in Sections 3 and 4, is JSON data that can be validated by a
-concrete schema, but it can also be represented unambiguously in other formats more suited to human understanding.
+schema, but a package can also be represented unambiguously in other formats more suited to human understanding.
 This specification uses JSON to precisely define the structure of a JADN schema,
 but uses the IDL format described in Section 7 where understanding purpose and meaning is the primary goal.
-These representations are equivalent, and the JSON definition of all IDL content is included in this specification.
+These representations are equivalent, and the JSON definition of all IDL content is included with this specification.
 
 -------
 
 # 3 Schema Packages
 
-A Schema package are the components of an information model's abstract schema. 
-JADN schemas are organized into packages.  A [package](#f1-package) consists of an optional
-information section and a list of [type definitions](#f2-type-definitions).
-
-*metaschema - header
-meta -
-Metadata
-Config*
+An information model's abstract schema is composed of schema packages.
+All packages, including the one defining JADN itself, are instances of the `Schema` type defined in
+the JADN Metaschema package, shown in [Figure 3-1](#figure-3-1----schema-metadata)
+and [Figure 4-2](#figure-4-2-).
 
 ```
        title: "JADN Metaschema"
@@ -341,9 +337,10 @@ Sys = $Sys
 NSID = String{pattern="$NSID"}
 TypeName = String{pattern="$TypeName"}
 FieldName = String{pattern="$FieldName"}
+TypeRef = String{pattern="$TypeRef"}                         // Derived pattern ($NSID ':')? $TypeName
 ```
 
-###### Figure 3-1 -- Schema Metadata
+###### Figure 3-1 -- JADN Schema: Metadata
 
 If the info section is present the *package* field is required to establish the package's namespace;
 other fields are optional.
@@ -435,7 +432,54 @@ types. ArrayOf and MapOf are unstructured; Array, Map, and Record are structured
 ## 4.1 Type Definition Structure
 
 All JADN type definitions have the identical structure, designed to be easily describable, easily processed,
-stable, and extensible. Each type definition has five elements:
+stable, and extensible.
+
+```
+Type = Array
+   1  TypeName                                               // type_name::
+   2  Enumerated(Enum[JADN-Type])                            // base_type::
+   3  ArrayOf(Option) unique                                 // type_options::
+   4  Description                                            // type_description::
+   5  JADN-Type(TagId[base_type])                            // fields::
+
+JADN-Type = Choice
+   1 Binary                   Empty
+   2 Boolean                  Empty
+   3 Integer                  Empty
+   4 Number                   Empty
+   5 String                   Empty
+   6 Enumerated               Items
+   7 Choice                   Fields
+   8 Array                    Fields
+   9 ArrayOf                  Empty
+  10 Map                      Fields
+  11 MapOf                    Empty
+  12 Record                   Fields
+
+Empty = Array{0..0}
+Items = ArrayOf(Item)
+Fields = ArrayOf(Field)
+
+Item = Array
+   1  FieldID                                                // item_id::
+   2  String                                                 // item_value::
+   3  Description                                            // item_description::
+
+Field = Array
+   1  FieldID                                                // field_id::
+   2  FieldName                                              // field_name::
+   3  TypeRef                                                // field_type::
+   4  Options                                                // field_options::
+   5  Description                                            // field_description::
+
+FieldID = Integer{0..*}
+Option = String{1..*}
+Description = String
+```
+
+###### Figure 4-2 -- JADN Schema: Types
+
+As shown in [Figure 4-2](#figure-4-2----jadn-schema-types) each type definition has five elements:
 
 1. **TypeName:** the name of the type being defined
 2. **CoreType:** the JADN built-in type of the type being defined
@@ -642,6 +686,8 @@ The notation `X+y` indicates that the definition of type `X` includes type optio
 * Field positions are unique and by default Array has OrderedSet, not Sequence (non-unique) semantics.
 * Map, MapOf and Record keys are unique and with `seq` option have OrderedSet, not Sequence semantics.
 * The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
+
+*maxOccurs: Unlimited = -2, Unspecified = -1*
 
 ### 4.2.3 Union Types
 
