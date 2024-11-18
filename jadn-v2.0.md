@@ -342,16 +342,13 @@ TypeRef = String{pattern="$TypeRef"}                         // Derived pattern 
 
 ###### Figure 3-1 -- JADN Schema: Metadata
 
-If the info section is present the *package* field is required to establish the package's namespace;
-other fields are optional.
-
 ### 3.1.1 Functional Metadata
-* **package:** A namespace URI that allows type definitions in this package to be unambiguously referenced
-  from other packages. This is an identifier but not necessarily a locator for accessible resources.
-  The namespace may include major or major.minor versioning information, such as http://example.com/acme2
-  or http://example.com/acme/v1.3.
-* **namespaces:** Local map of NSIDs (short names) to namespaces. Used within this package to reference types
-defined in other packages.
+* **package:** A namespace [[IRI](#iri)] that unambiguously identifies this Schema instance and allows type
+definitions in this package to be unambiguously referenced from other packages.
+This is an identifier but not necessarily a resource locator. Metadata is optional, but if present
+it must include the package field. All other Metadata fields are optional.
+* **namespaces:** Associations between Namespace IDs (prefixes) and namespace IRIs.
+Used within this package to reference types defined in other packages.  *TypeReference, blank prefixes, multiples*
 * **roots:** Root types. There are no private type definitions in a package; all types can be referenced
   using the package's namespace. Exports allows authors to designate public types and allows schema tools
   to detect unused types.
@@ -1708,35 +1705,37 @@ The following documents are referenced in such a way that some or all of their c
 ###### [ECMASCRIPT]
 ECMA International, *"ECMAScript 2023 Language Specification"*, ECMA-262 14th Edition, June 2023, https://www.ecma-international.org/ecma-262 (*or corresponding section(s) in current edition*).
 ###### [EUI]
-"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID", IEEE, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+IEEE, *"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID"*, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+###### [IRI]
+Duerst, M., Suignard, M., *"Internationalized Resource Identifiers (IRIs)"*, January 2005, https://datatracker.ietf.org/doc/html/rfc3987
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 June 2022, https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01.
 ###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, http://www.rfc-editor.org/info/rfc791.
+Postel, J., "Internet Protocol", RFC 791, September 1981, https://datatracker.ietf.org/doc/html/rfc791.
 ###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, http://www.rfc-editor.org/info/rfc2119.
+Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://datatracker.ietf.org/doc/html/rfc2119.
 ###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://tools.ietf.org/html/rfc2673.
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://datatracker.ietf.org/doc/html/rfc2673.
 ###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, http://www.rfc-editor.org/info/rfc4291.
+Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://datatracker.ietf.org/doc/html/rfc4291.
 ###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, http://www.rfc-editor.org/info/rfc4632.
+Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://datatracker.ietf.org/doc/html/rfc4632.
 ###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, http://www.rfc-editor.org/info/rfc4648.
+Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://datatracker.ietf.org/doc/html/rfc4648.
 ###### [RFC5234]
-Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://tools.ietf.org/html/rfc5234.
+Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://datatracker.ietf.org/doc/html/rfc5234.
 ###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://tools.ietf.org/html/rfc6901.
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://datatracker.ietf.org/doc/html/rfc6901.
 ###### [RFC8949]
-Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://tools.ietf.org/html/rfc8949.
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://datatracker.ietf.org/doc/html/rfc8949.
 ###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://tools.ietf.org/html/rfc7405.
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://datatracker.ietf.org/doc/html/rfc7405.
 ###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, http://www.rfc-editor.org/info/rfc8174.
+Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://datatracker.ietf.org/doc/html/rfc8174.
 ###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, http://www.rfc-editor.org/info/rfc8200.
+Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://datatracker.ietf.org/doc/html/rfc8200.
 ###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, http://www.rfc-editor.org/info/rfc8259.
+Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, https://datatracker.ietf.org/doc/html/rfc8259.
 
 ## A.2 Informative References
 
@@ -1771,18 +1770,18 @@ W3C, *"RDF 1.2 Concepts and Abstract Syntax"*, https://www.w3.org/TR/rdf12-conce
 ###### [RELAXNG]
 OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
 ###### [RFC3444]
-Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://tools.ietf.org/html/rfc3444.
+Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://datatracker.ietf.org/doc/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
 ###### [RFC7493]
-Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://tools.ietf.org/html/rfc7493.
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://datatracker.ietf.org/doc/html/rfc7493.
 ###### [RFC8340]
-Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://tools.ietf.org/html/rfc8340.
+Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://datatracker.ietf.org/doc/html/rfc8340.
 ###### [RFC8477]
 Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
-(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://tools.ietf.org/html/rfc8477.
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://datatracker.ietf.org/doc/html/rfc8477.
 ###### [RFC8610]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://tools.ietf.org/html/rfc8610.html.
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://datatracker.ietf.org/doc/html/rfc8610.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [TRANSFORM]
