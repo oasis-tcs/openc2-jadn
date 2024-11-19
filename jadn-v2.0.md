@@ -292,8 +292,9 @@ These representations are equivalent, and the JSON definition of all IDL content
 
 An information model's abstract schema is composed of schema packages.
 All packages, including the one defining JADN itself, are instances of the `Schema` type defined in
-the JADN Metaschema package, shown in [Figure 3-1](#figure-3-1----schema-metadata)
-and [Figure 4-2](#figure-4-2-).
+the JADN Metaschema package. `Schema` has two fields: package metadata defined in this section
+([Figure 3-1](#figure-3-1----jadn-schema-metadata)), and a list of types defined in
+[Section 4](#4-jadn-types).
 
 ```
        title: "JADN Metaschema"
@@ -343,24 +344,41 @@ TypeRef = String{pattern="$TypeRef"}                         // Derived pattern 
 ###### Figure 3-1 -- JADN Schema: Metadata
 
 ### 3.1.1 Functional Metadata
+
+If Metadata is present in a Schema instance it must include the package field; all other fields are optional.
+The following fields affect schema processing:
+
 * **package:** A namespace [[IRI](#iri)] that unambiguously identifies this Schema instance and allows type
 definitions in this package to be unambiguously referenced from other packages.
-This is an identifier but not necessarily a resource locator. Metadata is optional, but if present
-it must include the package field. All other Metadata fields are optional.
-* **namespaces:** Associations between Namespace IDs (prefixes) and namespace IRIs.
-Used within this package to reference types defined in other packages.  *TypeReference, blank prefixes, multiples*
-* **roots:** Root types. There are no private type definitions in a package; all types can be referenced
-  using the package's namespace. Exports allows authors to designate public types and allows schema tools
-  to detect unused types.
+This is an identifier but not necessarily a resource locator.
+
+* **version:** Incremental version of this package, a string that compares lexicographically higher
+than previous iterations. The package namespace uniquely identifies both subject and published version
+of a package and is the only identifier used in type references.
+The version field indicates the latest iteration of a package to be used when resolving type references,
+if more than one iteration is available.
+
+* **namespaces:** A set of associations between Namespace IDs (prefixes) and namespace IRIs.
+Types defined in this package may reference types from other packages using `PrefixedName` as defined in
+[[XML Namespaces](#xml-namespaces)].
+A blank prefix associated with a package namespace indicates that its types may be treated as if
+they were defined in this package. This requires the referenced package to have compatible metadata
+and non-conflicting type names.
+
+* **roots:** List of top-level types defined in this package. This documents a single starting point or
+a list of "library" types defined in this package, and allows schema processing tools to flag unreferenced
+type definitions.
+
 * **config:** Values such as name formats and size limits that are customized for this package.
 
-### 3.1.2 Configuration Values
+
 *Implementation defaults, JADN suggested, Package defaults, Type definitions*
 
-#### 3.1.2.1 Value Ranges
-* **MaxBinary:**
-* **MaxString:**
-* **MaxElements:**
+**Size Constraints**
+
+  * **MaxBinary:**
+  * **MaxString:**
+  * **MaxElements:**
 
 Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
 in [Section 4.2.1](#421-type-options).
@@ -379,7 +397,8 @@ String              $MaxString     255     Maximum number of characters
 ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
 ```
 
-#### 3.1.2.2 Name Formats
+**Name Formats**
+
 * **Sys:**
 * **TypeName:**
 * **FieldName:**
@@ -399,16 +418,15 @@ does not affect the meaning of type definitions.
 * Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
 * Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
 
-### 3.1.3 Descriptive Metadata
+### 3.1.2 Descriptive Metadata
+
+The following fields provide information about a package but have no effect on schema processing:
 
 * **title:** A short name for this package.
 * **description:** A brief description of purpose or capabilities of this package
 * **comment:** Any other information applicable to the package.
 * **copyright:** A copyright notice.
-* **license:** SPDX licenseId of the contents of a package.
-* **version:** Incremental version of this package, a string that compares lexicographically higher
-  than previous versions. The *namespaces* field references only package namespaces. Version may be used
-  to determine the most recent definition of a namespace.
+* **license:** SPDX licenseId of the contents of this package.
 
 -------
 
@@ -1736,6 +1754,8 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://datatracker.ietf.org/doc/html/rfc8200.
 ###### [RFC8259]
 Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, https://datatracker.ietf.org/doc/html/rfc8259.
+###### [XML Namespaces]
+W3C, *"Namespaces in XML 1.0"*, December 2009, https://www.w3.org/TR/xml-names/
 
 ## A.2 Informative References
 
