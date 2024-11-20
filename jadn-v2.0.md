@@ -375,20 +375,18 @@ This specification recommends that implementations use the default values for ea
 an explicit value for the variable.
 
 **Name Formats** JADN syntax does not restrict the allowed name formats, but establishing
-naming conventions using different formats for TypeName and FieldName defined in
-[Section 4.1](#41-type-definition-structure) can aid schema readability.
+naming conventions using different formats for TypeName and FieldName (defined in
+[Section 4.1](#41-type-definition-structure)) can aid schema readability.
   * **$TypeName:** regex used to validate TypeName
   * **$FieldName:** regex used to validate FieldName
   * **$NSID:** regex used to validate an external type reference's namespace identifier (prefix string)
   * **$Sys:** character used in software-generated TypeNames ([Section 5](#5-extensions))
 
 * **Size Limits** specify default maximum sizes for variable-sized Primitive and Compound types
-  * **$MaxBinary:** Maximum number of octets in a Binary instance (maxLength default)
-  * **$MaxString:** Maximum number of characters in a String instance (maxLength default)
-  * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance (maxOccurs default)
-
-*the definition defaults to the values shown here, which are deliberately conservative to
-encourage specification authors to define limits based on application requirements.*
+([Section 4](#4-jadn-types))
+  * **$MaxBinary:** Maximum number of octets in a Binary instance (default maxLength)
+  * **$MaxString:** Maximum number of characters in a String instance (default maxLength)
+  * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance (default maxOccurs)
 
 **Conformance Requirements:**
 * Packages MUST NOT permit FieldNames containing the [JSON Pointer](#rfc6901) field separator "/",
