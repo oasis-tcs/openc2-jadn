@@ -291,10 +291,10 @@ These representations are equivalent, and the JSON definition of all IDL content
 # 3 Schema Packages
 
 An information model's abstract schema is composed of schema packages.
-All packages, including the one defining JADN itself, are instances of the `Schema` type defined in
-the JADN Metaschema package. `Schema` has two fields: package metadata defined in this section
-([Figure 3-1](#figure-3-1----jadn-schema-metadata)), and a list of types defined in
-[Section 4](#4-jadn-types).
+All packages, including the one defining JADN itself, are instances of JADN's `Schema` type.
+Schema has two fields: package metadata defined in this section
+([Figure 3-1](#figure-3-1----jadn-schema-metadata)), and a list of type definitions defined in
+[the next section](#4-jadn-types).
 
 ```
        title: "JADN Metaschema"
@@ -343,7 +343,18 @@ TypeRef = String{pattern="$TypeRef"}                         // Derived pattern 
 
 ###### Figure 3-1 -- JADN Schema: Metadata
 
-### 3.1.1 Functional Metadata
+
+### 3.1.1 Descriptive Metadata
+
+The following fields provide information about a package but have no effect on schema processing:
+
+* **title:** A short name for this package.
+* **description:** A brief description of purpose or capabilities of this package
+* **comment:** Any other information applicable to the package.
+* **copyright:** A copyright notice.
+* **license:** SPDX licenseId of the contents of this package.
+
+### 3.1.2 Functional Metadata
 
 If Metadata is present in a Schema instance it must include the package field; all other fields are optional.
 The following fields affect schema processing:
@@ -370,6 +381,8 @@ a list of "library" types defined in this package, and allows schema processing 
 type definitions.
 
 * **config:** Configuration variables used to customize validation within a package.
+
+### 3.1.3 Configuration Variables
 This specification recommends that implementations use the default values for each variable shown in
 [Figure 3-1](#figure-3-1----jadn-schema-metadata). Packages may override the default by setting
 an explicit value for the variable.
@@ -392,16 +405,6 @@ naming conventions using different formats for TypeName and FieldName (defined i
 * Packages MUST NOT permit FieldNames containing the [JSON Pointer](#rfc6901) field separator "/",
 which is reserved for use in the [Pointers](#55-pointers) extension
 * Packages SHOULD NOT define TypeNames containing the $Sys character, but $TypeName MUST permit it
-
-### 3.1.2 Descriptive Metadata
-
-The following fields provide information about a package but have no effect on schema processing:
-
-* **title:** A short name for this package.
-* **description:** A brief description of purpose or capabilities of this package
-* **comment:** Any other information applicable to the package.
-* **copyright:** A copyright notice.
-* **license:** SPDX licenseId of the contents of this package.
 
 -------
 
@@ -1758,6 +1761,8 @@ Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://arc
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [JADN-CN]
 OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
+###### [ORDER]
+LaFontaine, Robin, *"Element order is always important in XML, except when it isn't"*, Balisage: The Markup Conference, 2021, https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RDF]
