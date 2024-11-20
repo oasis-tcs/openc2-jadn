@@ -346,7 +346,7 @@ TypeRef = String{pattern="$TypeRef"}                         // Derived pattern 
 
 ### 3.1.1 Descriptive Metadata
 
-The following fields provide information about a package but have no effect on schema processing:
+These Metadata fields provide information about a package but have no effect on schema processing:
 
 * **title:** A short name for this package.
 * **description:** A brief description of purpose or capabilities of this package
@@ -356,12 +356,12 @@ The following fields provide information about a package but have no effect on s
 
 ### 3.1.2 Functional Metadata
 
-If Metadata is present in a Schema instance it must include the package field; all other fields are optional.
-The following fields affect schema processing:
+These Metadata fields affect schema processing and data validation:
 
 * **package:** A namespace [[IRI](#iri)] that unambiguously identifies this Schema instance and allows type
 definitions in this package to be unambiguously referenced from other packages.
 This is an identifier but not necessarily a resource locator.
+If Metadata is present in a Schema instance it must include the package field; all other fields are optional.
 
 * **version:** Incremental version of this package, a string that compares lexicographically higher
 than previous iterations. The package namespace uniquely identifies both subject and published version
