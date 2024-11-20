@@ -230,7 +230,7 @@ instances that can be compared.
 
 * **Description (annotation)**:
     Description fields of an information model are reserved for comments from authors to readers
-    or maintainers of the model and are ignored by information modeling applications.
+    or maintainers of the model and are ignored by information processing applications.
 
 ### 1.1.2 Acronyms and abbreviations
 
@@ -354,9 +354,7 @@ These Metadata fields provide information about a package but have no effect on 
 * **copyright:** A copyright notice.
 * **license:** SPDX licenseId of the contents of this package.
 
-### 3.1.2 Functional Metadata
-
-These Metadata fields affect schema processing and data validation:
+The following fields affect schema processing:
 
 * **package:** A namespace [[IRI](#iri)] that unambiguously identifies this Schema instance and allows type
 definitions in this package to be unambiguously referenced from other packages.
@@ -433,10 +431,10 @@ stable, and extensible.
 ```
 Type = Array
    1  TypeName                                               // type_name::
-   2  Enumerated(Enum[JADN-Type])                            // base_type::
+   2  Enumerated(Enum[JADN-Type])                            // core_type::
    3  ArrayOf(Option) unique                                 // type_options::
    4  Description                                            // type_description::
-   5  JADN-Type(TagId[base_type])                            // fields::
+   5  JADN-Type(TagId[core_type])                            // fields::
 
 JADN-Type = Choice
    1 Binary                   Empty

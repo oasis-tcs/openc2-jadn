@@ -36,10 +36,10 @@ Config = Map{1..*}                                           // Config vars over
 
 Type = Array
    1  TypeName                                               // type_name::
-   2  Enumerated(Enum[JADN-Type])                            // base_type::
+   2  Enumerated(Enum[JADN-Type])                            // core_type::
    3  Options                                                // type_options::
    4  Description                                            // type_description::
-   5  JADN-Type(TagId[base_type])                            // fields::
+   5  JADN-Type(TagId[core_type])                            // fields::
 
 JADN-Type = Choice
    1 Binary                   Empty

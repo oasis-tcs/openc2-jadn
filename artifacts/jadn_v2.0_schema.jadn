@@ -46,7 +46,7 @@
 
     ["Type", "Array", [], "", [
       [1, "type_name", "TypeName", [], ""],
-      [2, "base_type", "Enumerated", ["#JADN-Type"], ""],
+      [2, "core_type", "Enumerated", ["#JADN-Type"], ""],
       [3, "type_options", "Options", [], ""],
       [4, "type_description", "Description", [], ""],
       [5, "fields", "JADN-Type", ["&2"], ""]
