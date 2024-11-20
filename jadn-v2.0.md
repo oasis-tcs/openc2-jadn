@@ -1788,9 +1788,9 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 ###### [TAGGEDUNION]
 "Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
 ###### [XSD]
-<!--W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.
--->
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
 W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
+
 -------
 
 # Appendix B. Safety, Security and Privacy Considerations
