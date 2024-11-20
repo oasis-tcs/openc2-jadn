@@ -369,54 +369,31 @@ and non-conflicting type names.
 a list of "library" types defined in this package, and allows schema processing tools to flag unreferenced
 type definitions.
 
-* **config:** Values such as name formats and size limits that are customized for this package.
+* **config:** Configuration variables used to customize validation within a package.
+This specification recommends that implementations use the default values for each variable shown in
+[Figure 3-1](#figure-3-1----jadn-schema-metadata). Packages may override the default by setting
+an explicit value for the variable.
 
+**Name Formats** JADN syntax does not restrict the allowed name formats, but establishing
+naming conventions using different formats for TypeName and FieldName defined in
+[Section 4.1](#41-type-definition-structure) can aid schema readability.
+  * **$TypeName:** regex used to validate TypeName
+  * **$FieldName:** regex used to validate FieldName
+  * **$NSID:** regex used to validate an external type reference's namespace identifier (prefix string)
+  * **$Sys:** character used in software-generated TypeNames ([Section 5](#5-extensions))
 
-*Implementation defaults, JADN suggested, Package defaults, Type definitions*
+* **Size Limits** specify default maximum sizes for variable-sized Primitive and Compound types
+  * **$MaxBinary:** Maximum number of octets in a Binary instance (maxLength default)
+  * **$MaxString:** Maximum number of characters in a String instance (maxLength default)
+  * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance (maxOccurs default)
 
-**Size Constraints**
+*the definition defaults to the values shown here, which are deliberately conservative to
+encourage specification authors to define limits based on application requirements.*
 
-  * **MaxBinary:**
-  * **MaxString:**
-  * **MaxElements:**
-
-Type definitions for variable-length types may include maximum size limits using the *maxv* option defined
-in [Section 4.2.1](#421-type-options).
-If an individual type does not define an explicit limit, it uses the limit shown in the package's
-$MaxBinary, $MaxString, or $MaxElements configuration variable ([Section 3](#3-schema-packages)).
-If the specification does not define a limit, the definition defaults to the values shown here, which are
-deliberately conservative to encourage specification authors to define limits based on application requirements.
-* JADN specifications SHOULD define size limits on the variable-length types shown in Figure 3-2.
-* Specifications that do not define alternate size limits SHOULD use the limits shown in Figure 3-2.
-
-```
-Type                Name           Limit   Description
------               -----          -----   -----------
-Binary              $MaxBinary     255     Maximum number of octets
-String              $MaxString     255     Maximum number of characters
-ArrayOf, MapOf      $MaxElements   100     Maximum number of items/properties
-```
-
-**Name Formats**
-
-* **Sys:**
-* **TypeName:**
-* **FieldName:**
-* **NSID:**
-
-JADN does not restrict the syntax of TypeName and FieldName, but naming conventions can aid readability of specifications.
-
-Specifications may use the same syntax for TypeName and FieldName. Using distinct formats may aid understanding but
-does not affect the meaning of type definitions.
-
-* JADN specifications MAY override the default name formats by defining one or more of:
-    * The permitted format for TypeName
-    * The permitted format for FieldName
-    * The permitted format for the Namespace Identifier (NSID) used in type references
-    * A "System" character used in tool-generated or specially-processed type names
-* Schema authors MUST NOT create FieldNames containing the [JSON Pointer](#rfc6901) field separator "/", which is reserved for use in the [Pointers](#55-pointers) extension
-* Schema authors SHOULD NOT create TypeNames containing the System character, but schema processing tools MAY do so
-* Specifications that do not define alternate name formats MUST use the definitions in Figure 3-1 expressed as [ABNF](#rfc5234) and [Regular Expression](#ecmascript):
+**Conformance Requirements:**
+* Packages MUST NOT permit FieldNames containing the [JSON Pointer](#rfc6901) field separator "/",
+which is reserved for use in the [Pointers](#55-pointers) extension
+* Packages SHOULD NOT define TypeNames containing the $Sys character, but $TypeName MUST permit it
 
 ### 3.1.2 Descriptive Metadata
 
