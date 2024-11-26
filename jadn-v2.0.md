@@ -304,41 +304,41 @@ in the [next section](#4-jadn-types).
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
        roots: ["Schema"]
 
-Schema = Record                                              // Definition of a JADN package
-   1 meta                     Metadata optional              // Information about this package
-   2 types                    Type unique [1...]             // Types defined in this package
+Schema = Record                                 // Definition of a JADN package
+   1 meta           Metadata optional           // Information about this package
+   2 types          Type unique [1...]          // Types defined in this package
 
-Metadata = Map                                               // Information about this package
-   1 package                  Namespace                      // Unique name/version of this package
-   2 version                  String{1..*} optional          // Incrementing version within package
-   3 title                    String{1..*} optional          // Title
-   4 description              String{1..*} optional          // Description
-   5 comment                  String{1..*} optional          // Comment
-   6 copyright                String{1..*} optional          // Copyright notice
-   7 license                  String{1..*} optional          // SPDX licenseId of this package
-   8 namespaces               PrefixNs unique [0..*]         // Referenced packages
-   9 roots                    TypeName unique [0..*]         // Roots of the type hierarchy defined by this package
-  10 config                   Config optional                // Configuration variables
+Metadata = Map                                  // Information about this package
+   1 package        Namespace                   // Unique name/version of this package
+   2 version        String{1..*} optional       // Incrementing version within package
+   3 title          String{1..*} optional       // Title
+   4 description    String{1..*} optional       // Description
+   5 comment        String{1..*} optional       // Comment
+   6 copyright      String{1..*} optional       // Copyright notice
+   7 license        String{1..*} optional       // SPDX licenseId of this package
+   8 namespaces     PrefixNs unique [0..*]      // Referenced packages
+   9 roots          TypeName unique [0..*]      // Roots of the type hierarchy defined by this package
+  10 config         Config optional             // Configuration variables
 
-PrefixNs = Array                                             // Prefix corresponding to a namespace IRI
-   1  NSID                                                   // prefix:: Namespace prefix string
-   2  Namespace                                              // namespace:: Namespace IRI
+PrefixNs = Array                                // Prefix corresponding to a namespace IRI
+   1  NSID                                      // prefix:: Namespace prefix string
+   2  Namespace                                 // namespace:: Namespace IRI
 
-Config = Map{1..*}                                           // Config vars override implementation defaults
-   1 $MaxBinary               Integer{1..*} optional         // Package max octets, default = 255
-   2 $MaxString               Integer{1..*} optional         // Package max characters, default = 255
-   3 $MaxElements             Integer{1..*} optional         // Package max items/properties, default = 255
-   4 $Sys                     String{1..1} optional          // System character for TypeName, Default = "."
-   5 $TypeName                String /regex optional         // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName               String /regex optional         // Default = ^[a-z][_A-Za-z0-9]{0,63}$
-   7 $NSID                    String /regex optional         // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+Config = Map{1..*}                              // Config vars override implementation defaults
+   1 $MaxBinary     Integer{1..*} optional      // Package max octets, default = 255
+   2 $MaxString     Integer{1..*} optional      // Package max characters, default = 255
+   3 $MaxElements   Integer{1..*} optional      // Package max items/properties, default = 255
+   4 $Sys           String{1..1} optional       // System character for TypeName, Default = "."
+   5 $TypeName      String /regex optional      // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName     String /regex optional      // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID          String /regex optional      // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
-Namespace = String /uri                                      // Schema package unique identifier
+Namespace = String /uri                         // Schema package unique identifier
 Sys = $Sys
 NSID = String{pattern="$NSID"}
 TypeName = String{pattern="$TypeName"}
 FieldName = String{pattern="$FieldName"}
-TypeRef = String{pattern="$TypeRef"}                         // Derived pattern ($NSID ':')? $TypeName
+TypeRef = String{pattern="$TypeRef"}            // Derived pattern ($NSID ':')? $TypeName
 ```
 
 ###### Figure 3-1 -- JADN Schema: Metadata
