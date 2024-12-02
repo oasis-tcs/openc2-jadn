@@ -385,16 +385,18 @@ Variables not configured in a package have an implementation-defined default val
 defaults shown below.
   * **Name Formats:** JADN syntax does not restrict the allowed name formats, but establishing
 naming conventions using different formats for TypeName and FieldName
-([Section 4.1](#41-type-definition-structure)) can aid schema readability.
-    * **$Sys:** character used in software-generated TypeNames (default = '.')
-    * **$TypeName:** regex used to validate TypeName (default = ^[A-Z][-.A-Za-z0-9]{0,63}$)
-    * **$FieldName:** regex used to validate FieldName (default = ^[a-z][_A-Za-z0-9]{0,63}$)
-    * **$NSID:** regex used to validate an external type reference's namespace identifier
-(prefix string default = ^([A-Za-z][A-Za-z0-9]{0,7})?$)
+([Section 4.1](#41-type-definition-structure)) can aid schema readability. These variables define a package's
+naming conventions:
+    * **$Sys:** A "system" character used in software-generated TypeNames (default = '.')
+    * **$TypeName:** The regex used to validate TypeName (default = ^[A-Z][-.A-Za-z0-9]{0,63}$)
+    * **$FieldName:** The regex used to validate FieldName (default = ^[a-z][_A-Za-z0-9]{0,63}$)
+    * **$NSID:** The regex used to validate an external type reference's namespace identifier
+(prefix string default = ^([A-Za-z][A-Za-z0-9]{0,7})?$). References to types defined in other
+packages (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types)) include an NSID.
 
-  * **Size Limits:** Default maximum sizes for variable-sized Primitive and Compound types
-([Section 4](#4-jadn-types)). Individual type definitions override implementation or package defaults
-using the listed type option.
+  * **Size Limits:** These variables define default maximum sizes for variable-sized
+Primitive and Compound types ([Section 4](#4-jadn-types)).
+Individual type definitions override implementation or package defaults using type options.
     * **$MaxBinary:** Maximum number of octets in a Binary instance (default maxLength = 255)
     * **$MaxString:** Maximum number of characters in a String instance (default maxLength = 255)
     * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance (default maxOccurs = 255)
@@ -417,7 +419,7 @@ or NSID + ":" + Typename if its NSID is not blank.
 An information modeling language's abstract DataTypes define their meaning and application behavior.
 As shown in Figure 3-1, JADN defines twelve core types (bold) in three categories:
 
-* [Section 4.2.1.1](#4211-primitive-types): **Primitive**: Types whose instances are atomic values not decomposable
+* [Section 4.2.1](#421-primitive): **Primitive**: Types whose instances are atomic values not decomposable
 into instances of other types.
 * [Section 4.2.2](#422-compound-types): **Compound**: Types whose instances are collections of instances of other
 types. ArrayOf and MapOf are unstructured; Array, Map, and Record are structured types with named fields.
