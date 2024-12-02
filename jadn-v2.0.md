@@ -298,47 +298,47 @@ in the [next section](#4-jadn-types).
 
 ```
        title: "JADN Metaschema"
-     package: "http://oasis-open.org/jadn/v2.0/schema"
+     package: "http://oasis-open.org/openc2/jadn/v2.0/schema"
  description: "Syntax of a JSON Abstract Data Notation (JADN) package."
      license: "CC-BY-4.0"
-      config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
        roots: ["Schema"]
+      config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 
-Schema = Record                                 // Definition of a JADN package
-   1 meta           Metadata optional           // Information about this package
-   2 types          Type unique [1...]          // Types defined in this package
+Schema = Record                                  // Definition of a JADN package
+   1 meta             Metadata optional          // Information about this package
+   2 types            Type unique [1..*]         // Types defined in this package
 
-Metadata = Map                                  // Information about this package
-   1 package        Namespace                   // Unique name/version of this package
-   2 version        String{1..*} optional       // Incrementing version within package
-   3 title          String{1..*} optional       // Title
-   4 description    String{1..*} optional       // Description
-   5 comment        String{1..*} optional       // Comment
-   6 copyright      String{1..*} optional       // Copyright notice
-   7 license        String{1..*} optional       // SPDX licenseId of this package
-   8 namespaces     PrefixNs unique [0..*]      // Referenced packages
-   9 roots          TypeName unique [0..*]      // Roots of the type hierarchy defined by this package
-  10 config         Config optional             // Configuration variables
+Metadata = Map                                   // Information about this package
+   1 package          Namespace                  // Unique name/version of this package
+   2 version          String{1..*} optional      // Incrementing version within package
+   3 title            String{1..*} optional      // Title
+   4 description      String{1..*} optional      // Description
+   5 comment          String{1..*} optional      // Comment
+   6 copyright        String{1..*} optional      // Copyright notice
+   7 license          String{1..*} optional      // SPDX licenseId of this package
+   8 namespaces       PrefixNs unique [0..*]     // Referenced packages
+   9 roots            TypeName unique [0..*]     // Roots of the type tree(s) in this package
+  10 config           Config optional            // Configuration variables
+  11 jadn_version     Namespace optional         // JADN Metaschema package
 
-PrefixNs = Array                                // Prefix corresponding to a namespace IRI
-   1  NSID                                      // prefix:: Namespace prefix string
-   2  Namespace                                 // namespace:: Namespace IRI
+PrefixNs = Array                                 // Prefix corresponding to a namespace IRI
+   1  NSID                                       // prefix:: Namespace prefix string
+   2  Namespace                                  // namespace:: Namespace IRI
 
-Config = Map{1..*}                              // Config vars override implementation defaults
-   1 $MaxBinary     Integer{1..*} optional      // Package max octets, default = 255
-   2 $MaxString     Integer{1..*} optional      // Package max characters, default = 255
-   3 $MaxElements   Integer{1..*} optional      // Package max items/properties, default = 255
-   4 $Sys           String{1..1} optional       // System character for TypeName, Default = "."
-   5 $TypeName      String /regex optional      // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName     String /regex optional      // Default = ^[a-z][_A-Za-z0-9]{0,63}$
-   7 $NSID          String /regex optional      // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+Config = Map{1..*}                               // Config vars override JADN defaults
+   1 $MaxBinary       Integer{1..*} optional     // Package max octets, default = 255
+   2 $MaxString       Integer{1..*} optional     // Package max characters, default = 255
+   3 $MaxElements     Integer{1..*} optional     // Package max items/properties, default = 255
+   4 $Sys             String{1..1} optional      // System character for TypeName, default = '.'
+   5 $TypeName        String /regex optional     // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName       String /regex optional     // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID            String /regex optional     // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
-Namespace = String /uri                         // Schema package unique identifier
-Sys = $Sys
-NSID = String{pattern="$NSID"}
-TypeName = String{pattern="$TypeName"}
-FieldName = String{pattern="$FieldName"}
-TypeRef = String{pattern="$TypeRef"}            // Derived pattern ($NSID ':')? $TypeName
+Namespace = String /uri                          // Unique name of a package
+NSID = String{pattern="$NSID"}                   // Namespace prefix matching $NSID
+TypeName = String{pattern="$TypeName"}           // Name of a logical type
+FieldName = String{pattern="$FieldName"}         // Name of a field in a structured type
+TypeRef = String                                 // Reference to a type, matching ($NSID ':')? $TypeName
 ```
 
 ###### Figure 3-1 -- JADN Schema: Metadata
@@ -433,43 +433,44 @@ stable, and extensible.
 
 ```
 Type = Array
-   1  TypeName                                               // type_name::
-   2  Enumerated(Enum[JADN-Type])                            // core_type::
-   3  ArrayOf(Option) unique                                 // type_options::
-   4  Description                                            // type_description::
-   5  JADN-Type(TagId[core_type])                            // fields::
+   1  TypeName                                   // type_name::
+   2  Enumerated(Enum[JADN-Type])                // core_type::
+   3  Options                                    // type_options::
+   4  Description                                // type_description::
+   5  JADN-Type(TagId[core_type])                // fields::
 
 JADN-Type = Choice
-   1 Binary                   Empty
-   2 Boolean                  Empty
-   3 Integer                  Empty
-   4 Number                   Empty
-   5 String                   Empty
-   6 Enumerated               Items
-   7 Choice                   Fields
-   8 Array                    Fields
-   9 ArrayOf                  Empty
-  10 Map                      Fields
-  11 MapOf                    Empty
-  12 Record                   Fields
+   1 Binary           Empty
+   2 Boolean          Empty
+   3 Integer          Empty
+   4 Number           Empty
+   5 String           Empty
+   6 Enumerated       Items
+   7 Choice           Fields
+   8 Array            Fields
+   9 ArrayOf          Empty
+  10 Map              Fields
+  11 MapOf            Empty
+  12 Record           Fields
 
 Empty = Array{0..0}
 Items = ArrayOf(Item)
 Fields = ArrayOf(Field)
 
 Item = Array
-   1  FieldID                                                // item_id::
-   2  String                                                 // item_value::
-   3  Description                                            // item_description::
+   1  FieldID                                    // item_id::
+   2  String                                     // item_value::
+   3  Description                                // item_description::
 
 Field = Array
-   1  FieldID                                                // field_id::
-   2  FieldName                                              // field_name::
-   3  TypeRef                                                // field_type::
-   4  Options                                                // field_options::
-   5  Description                                            // field_description::
+   1  FieldID                                    // field_id::
+   2  FieldName                                  // field_name::
+   3  TypeRef                                    // field_type::
+   4  Options                                    // field_options::
+   5  Description                                // field_description::
 
 FieldID = Integer{0..*}
+Options = ArrayOf(Option) unique
 Option = String{1..*}
 Description = String
 ```

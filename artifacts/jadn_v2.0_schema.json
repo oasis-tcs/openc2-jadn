@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "https://oasis-open.org/openc2/jadn/v1.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "http://oasis-open.org/openc2/jadn/v2.0/schema",
   "description": "Validates structure of a JADN schema, does not check values",
   "type": "object",
   "required": ["types"],
@@ -11,7 +11,7 @@
       "required": ["package"],
       "additionalProperties": false,
       "properties": {
-        "package": {"type": "string"},
+        "package": {"$ref": "#/definitions/Uri"},
         "version": {"type": "string"},
         "title": {"type": "string"},
         "description": {"type": "string"},
@@ -19,40 +19,32 @@
         "copyright": {"type": "string"},
         "license": {"type": "string"},
         "namespaces": {"$ref": "#/definitions/Namespaces"},
-        "exports": {"$ref": "#/definitions/Exports"},
-        "config": {"$ref": "#/definitions/Config"}
+        "roots": {"$ref": "#/definitions/Roots"},
+        "config": {"$ref": "#/definitions/Config"},
+        "jadn_version": {"type": "string"}
       }
     },
     "types": {
       "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 2,
-        "maxItems": 5,
-        "items": [
-          {"$ref": "#/definitions/TypeName"},
-          {"$ref": "#/definitions/BaseType"},
-          {"$ref": "#/definitions/Options"},
-          {"$ref": "#/definitions/Description"},
-          {"$ref": "#/definitions/Fields"}
-        ]
-      }
+      "minItems": 1,
+      "items": {"$ref": "#/definitions/Type"}
     }
   },
   "definitions": {
     "Namespaces": {
-      "type": "object",
-      "propertyNames": {"$ref": "#/definitions/NSID"},
-      "patternProperties": {
-        "": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
-    "Exports": {
       "type": "array",
-      "items": {"type": "string"}
+      "items": {"$ref": "#/definitions/PrefixNs"}
+    },
+    "PrefixNs": {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "#/definitions/NSID"},
+        {"$ref": "#/definitions/Uri"}
+      ]
+    },
+    "Roots": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/TypeName"}
     },
     "Config": {
       "type": "object",
@@ -67,20 +59,32 @@
         "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
+    "Type": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "prefixItems": [
+        {"$ref": "#/definitions/TypeName"},
+        {"$ref": "#/definitions/CoreType"},
+        {"$ref": "#/definitions/Options"},
+        {"$ref": "#/definitions/Description"},
+        {"$ref": "#/definitions/Fields"}
+      ]
+    },
     "Fields": {
       "type": "array",
-      "items": [
-        {"anyOf": [
+      "items": {
+        "anyOf": [
           {"$ref": "#/definitions/Item"},
           {"$ref": "#/definitions/Field"}
-        ]}
-      ]
+        ]
+      }
     },
     "Item": {
       "type": "array",
       "minItems": 2,
       "maxItems": 3,
-      "items": [
+      "prefixItems": [
         {"type": "integer"},
         {"type": "string"},
         {"$ref": "#/definitions/Description"}
@@ -90,7 +94,7 @@
       "type": "array",
       "minItems": 3,
       "maxItems": 5,
-      "items": [
+      "prefixItems": [
         {"type": "integer"},
         {"$ref": "#/definitions/FieldName"},
         {"$ref": "#/definitions/TypeRef"},
@@ -99,6 +103,9 @@
       ]
     },
     "NSID": {
+      "type": "string"
+    },
+    "Uri": {
       "type": "string"
     },
     "TypeName": {
@@ -110,11 +117,11 @@
     "FieldName": {
       "type": "string"
     },
-    "BaseType": {
+    "CoreType": {
       "type": "string",
       "enum": ["Binary", "Boolean", "Integer", "Number", "String",
-               "Enumerated", "Choice",
-               "Array", "ArrayOf", "Map", "MapOf", "Record"]
+               "Array", "ArrayOf", "Map", "MapOf", "Record",
+               "Enumerated", "Choice"]
     },
     "Options": {
       "type": "array",
