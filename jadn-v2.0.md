@@ -388,8 +388,10 @@ naming conventions using different formats for TypeName and FieldName
 ([Section 4.1](#41-type-definition-structure)) can aid schema readability. These variables define a package's
 naming conventions:
     * **$Sys:** A "system" character used in software-generated TypeNames (default = '.')
-    * **$TypeName:** The regex used to validate TypeName (default = ^[A-Z][-.A-Za-z0-9]{0,63}$)
-    * **$FieldName:** The regex used to validate FieldName (default = ^[a-z][_A-Za-z0-9]{0,63}$)
+    * **$TypeName:** The regex used to validate TypeName (default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+begins with an upper-case character.)
+    * **$FieldName:** The regex used to validate FieldName (default = ^[a-z][_A-Za-z0-9]{0,63}$
+begins with a lower-case character.)
     * **$NSID:** The regex used to validate an external type reference's namespace identifier
 (prefix string default = ^([A-Za-z][A-Za-z0-9]{0,7})?$). References to types defined in other
 packages (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types)) include an NSID.
