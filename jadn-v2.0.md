@@ -363,38 +363,42 @@ definitions in this package to be unambiguously referenced from other packages.
 This is a unique identifier but not necessarily a resource locator.
 If Metadata is present in a Schema instance it must include the package field; all other fields are optional.
 
-* **version:** Incremental version of this package, a string that compares lexicographically higher
-than previous iterations. The package namespace uniquely identifies both the topic and published version
-of a package and is the only identifier used in type references.
-The version field indicates the latest iteration of a package to be used when resolving type references,
-if more than one iteration is available.
+* **version:** Incremental revision of this package, a string that compares lexicographically higher
+than previous revisions. A package namespace uniquely identifies both the topic and published version
+of a package reference.
+This field identifies the latest revision of a package when more than one revision is available.
+
+* **jadn_version:** Package namespace of the JADN metaschema used to validate this package.
 
 * **namespaces:** A set of associations between Namespace IDs (prefixes) and namespace IRIs.
 Types defined in this package may reference types from other packages using `PrefixedName` as defined in
 [[XML Namespaces](#xml-namespaces)].
-A blank prefix associated with a package namespace indicates that its types may be treated as if
-they were defined in this package. This requires the referenced package to have compatible metadata
-and non-conflicting type names.
+Associating a blank prefix with a package namespace indicates that its types are treated as if they
+were defined in this package. This requires the referenced package to have non-conflicting type names
+and compatible metadata including name formats and namespaces.
 
 * **roots:** List of top-level types defined in this package. This designates a single starting point or
-a catalog of library types defined in this package, and allows schema processing tools to flag unreferenced
-type definitions.
+a catalog of library types defined in this package, and allows schema processing tools to flag
+unreferenced type definitions.
 
 * **config:** Configuration variables used to tailor schema processing within a package.
 Variables not configured in a package have an implementation-defined default value, with recommended
 defaults shown below.
   * **Name Formats:** JADN syntax does not restrict the allowed name formats, but establishing
-naming conventions using different formats for TypeName and FieldName
+naming conventions using distinct formats for TypeName and FieldName
 ([Section 4.1](#41-type-definition-structure)) can aid schema readability. These variables define a package's
 naming conventions:
-    * **$Sys:** A "system" character used in software-generated TypeNames (default = '.')
-    * **$TypeName:** The regex used to validate TypeName (default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-begins with an upper-case character.)
-    * **$FieldName:** The regex used to validate FieldName (default = ^[a-z][_A-Za-z0-9]{0,63}$
-begins with a lower-case character.)
-    * **$NSID:** The regex used to validate an external type reference's namespace identifier
-(prefix string default = ^([A-Za-z][A-Za-z0-9]{0,7})?$). References to types defined in other
-packages (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types)) include an NSID.
+    * **$Sys:** A "system" character used in software-generated TypeNames. Default = '.'
+    * **$TypeName:** The regex used to validate TypeName. Default begins with an upper-case character:
+^[A-Z][-.A-Za-z0-9]{0,63}$
+    * **$FieldName:** The regex used to validate FieldName. Default begins with a lower-case character:
+^[a-z][_A-Za-z0-9]{0,63}$  \
+The JADN Metaschema overrides the default $FieldName pattern to allow config variables beginning
+with '$' and core type names beginning with a capital letter.
+    * **$NSID:** The regex used to validate an external type reference's prefix string.
+Default: ^([A-Za-z][A-Za-z0-9]{0,7})?$  \
+External type references (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types))
+are qualified names that include an NSID.
 
   * **Size Limits:** These variables define default maximum sizes for variable-sized
 Primitive and Compound types ([Section 4](#4-jadn-types)).
@@ -403,16 +407,12 @@ Individual type definitions override implementation or package defaults using ty
     * **$MaxString:** Maximum number of characters in a String instance (default maxLength = 255)
     * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance (default maxOccurs = 255)
 
-The JADN Metaschema overrides the default $FieldName pattern to allow config variables beginning
-with '$' and core type names beginning with a capital letter.
-
 ### 3.1.4 Conformance Requirements
 * The $TypeName format MUST permit TypeNames containing the $Sys character, which is used
 in type names generated by schema processing and translation.
 * The $FieldName format MUST NOT permit FieldNames containing the $Sys character, to enable its
 use as the separator between path components.
-* A TypeRef instance MUST be a TypeName instance if its NSID (prefix) is blank,
-or NSID + ":" + Typename if its NSID is not blank.
+* A TypeRef instance MUST be NSID + ":" + TypeName if its NSID is not blank, else Typename.
 
 -------
 
