@@ -164,10 +164,11 @@ relationships among physical and digital resources, DataType is the only RDF ele
 a digital resource in terms of both a literal representation and its representation-independent
 logical value.
 
-Defining equivalence is the primary distinction between information modeling and other modeling approaches.
+Defining equivalence across representations is the primary distinction between information modeling
+and other data modeling approaches.
 An information model is constructed from DataTypes, not Classes, because its purpose is to compare
-literal values for equivalence based on their logical information content, and only DataTypes define
-instances that can be compared.
+literal values for equivalence based on their logical information content, and only DataTypes have
+instances that can be validated for content integrity and compared for equality.
 
 ## 1.1 Glossary
 
