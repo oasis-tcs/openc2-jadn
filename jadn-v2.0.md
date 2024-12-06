@@ -491,6 +491,12 @@ As shown in [Figure 4-2](#figure-4-2----jadn-schema-types) each type definition 
 4. **TypeDescription:** a non-normative comment
 5. **Fields:** an array of **Item** or **Field** definitions
 
+**Defaults:**
+
+If TypeOptions is not present in a type definition (e.g., ["Username", "String"]), its default is the empty array.  \
+If TypeDescription is not present, its default is the empty string.  \
+If Fields is not present, its default is the empty array.
+
 ### 4.1.1 Primitive
 If CoreType is a Primitive or unstructured Compound type, the **Fields** array is empty.
 
@@ -500,7 +506,7 @@ JSON Format:
 ```
 IDL Example:
 ```
-    Username = String {pattern="^[a-z][a-z0-9]{,11}$"}
+    Username = String {pattern="^[a-z][a-z0-9]{3,11}$"}
 
     Users = ArrayOf(Username)
 ```
@@ -553,15 +559,12 @@ IDL Example:
 Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
 to which it applies, similar in effect to an [[XSD](#xsd)] *facet*. Each option has an ID and value,
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
-ID and the remaining characters are its value.
-
-An option may go by different names in different sources: UML calls the minimum cardinality of a
-collection "/lower", XSD calls it "minOccurs", and JSON Schema calls it "minItems". JADN defines
-the minimum length option ID to be `0x7b` (Left Curly Bracket), so the TypeOption string "{0"
-indicates a minimum length of 0 for compound types and for the Binary and String primitive types.
-For convenience this specification re-uses XSD names, if any, for TypeOption and FieldOption IDs,
-so the minimum length option is referred to as "minLength" or "minOccurs" when used with primitive
-or compound CoreTypes respectively.
+ID and the remaining characters are its value. For example, the minimum length of a Binary or String instance
+is described as the XML "minLength" facet, but in JADN has the `0x7b` (Left Curly Bracket) TypeOption ID.
+A String with a minimum length of 1 has a TypeOption value of `{0` in JSON format, while
+[IDL](#71-information-definition-language) uses a different notation: "String {1..*}".
+In a few cases option IDs have a mnemonic relationship to their purpose but this is not true in general.
+Option IDs are non-semantic integer identifiers that may sometimes be used as Unicode codepoints.
 
 ### 4.1.5 Conformance Requirements
 
@@ -577,8 +580,7 @@ numbered consecutively starting at 1.
 in TypeOptions, the Fields array MUST be empty.
 * The default value of TypeOptions, Fields and FieldOptions is the empty Array.
 * The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
-Description values are reserved for comments from schema authors to readers or maintainers,
-MAY be stripped at any time, and MUST have no effect on validation or serialization.
+* Description values MUST have no effect on validation or serialization. 
 
 ## 4.2 Core Types
 
