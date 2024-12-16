@@ -122,7 +122,7 @@ information model defines the essential content of discrete data items used in c
 independently of how that content is represented for processing, communication or storage.
 * **Essential content** (information, meaning) is defined by information theory, where the amount of
 information conveyed in a message is not directly related to the size or format of the message.
-* **Data items** (messages, documents, function signatures, object state, protocol data units, etc.)
+* **Data items** (documents, messages, protocol data units, data structures, object state, etc.)
 are JADN's scope within a system's domain of discourse.
 
 JADN is based on the **Unified Modeling Language** [[UML](#uml)]:
@@ -131,9 +131,9 @@ with tools for analysis, design, and implementation of software-based systems as
 business and similar processes.*
 
 The UML specification is organized around the concept of classification, and among its
-classifiers are DataType and Class. Instances of a DataType are identified only by their value,
-and all instances of a DataType with the same value are considered to be equal instances. DataType
-instances are immutable because different values are by definition different instances.
+classifiers are DataType and Class. Instances of a DataType are identified by their value,
+and all instances of a DataType with the same value are considered to be equal instances.
+DataType instances are immutable because by definition different values are different instances.
 A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
 only among instances of the same type.
 
@@ -199,7 +199,7 @@ instances that can be validated for content integrity and compared for equality.
     An immutable instance of a logical type used for processing and comparison, specified by
     behavioral effect independently of programming languages and techniques.
 
-* **Data Value (artifact, document, lexical value, literal value, message)**:
+* **Data Value (document, message, artifact, lexical value, literal value)**:
     An immutable instance of a logical type used for transmission or storage, consisting of a sequence of
     octets or characters in an external data format.
     Or equivalently, the same sequence as defined by a data model.
@@ -218,7 +218,7 @@ instances that can be validated for content integrity and compared for equality.
     or documentation purposes.
 
 * **Well-formed**:
-    A data value that is valid according to a structured syntax (e.g., "+json", "+der"),
+    A data value that is valid according to a structured syntax [[RFC 7303](#rfc7303)] (e.g., "+json", "+der"),
     if one is specified by the data format.
 
 * **Valid**:
@@ -561,11 +561,12 @@ to which it applies, similar in effect to an [[XSD](#xsd)] *facet*. Each option 
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
 ID and the remaining characters are its value. For example, the minimum length of a Binary or String instance
 is described as the XML "minLength" facet, but in JADN has the `0x7b` (Left Curly Bracket) TypeOption ID.
-A String with a minimum length of 1 has a TypeOption value of `{0` in JSON format, while
+A String with a minimum length of 1 has a TypeOption value of `{1` in JSON format, while
 [IDL](#71-information-definition-language) uses a different notation: "String {1..*}".
-In a few cases option IDs have a mnemonic relationship to their purpose but this is not true in general.
-Option IDs are non-semantic integer identifiers that may sometimes be used as Unicode codepoints.
+In some cases the character represented by an option ID has a mnemonic relationship to its purpose
+but this is not true in general; option IDs are non-semantic integer identifiers.
 
++-
 ### 4.1.5 Conformance Requirements
 
 * TypeName MUST NOT be a JADN core type  
@@ -808,25 +809,25 @@ are extensions that create an Enumerated type derived from a referenced Array, C
 
 #### 4.2.1.5 Semantic Validation
 The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
-a fixed subset of values that are accurately described by authoritative resources.  The *format* option may also
-affect how values are serialized, see [Section 6](#6-serialization-and-data-formats).
+a subset of logical values that are accurately described by authoritative resources.  The *format* option may also
+affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
 
 ###### Table 4-4. Semantic Validation Keywords
 | Keyword             | Type    | Requirement                                                                                    |
 |---------------------|---------|------------------------------------------------------------------------------------------------|
 | JSON Schema formats | String  | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema).         |
 | eui                 | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
-| f16                 | Number  | IEEE 754 Half-Precision Float                                                                  |
-| f32                 | Number  | IEEE 754 Single-Precision Float                                                                |
-| f64                 | Number  | IEEE 754 Double-Precision Float                                                                |
 | ipv4-addr           | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
 | ipv6-addr           | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
 | ipv4-net            | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net            | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| i8                  | Integer | Signed 8 bit integer, value must be between -128 and 127.                                      |
-| i16                 | Integer | Signed 16 bit integer, value must be between -32768 and 32767.                                 |
-| i32                 | Integer | Signed 32 bit integer, value must be between -2147483648 and 2147483647.                       |
-| u\<*n*\>            | Integer | Unsigned integer or bit field of \<*n*\> bits, value must be between 0 and 2^\<*n*\> - 1.      |
+| i\<*n*\>            | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
+| u\<*n*\>            | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
+| d\<*n*\>            | Integer | Decimal integer scale factor of 10^n: value has n digits after decimal point, n > 0.           |
+| f16                 | Number  | IEEE 754 Half-Precision Float                                                                  |
+| f32                 | Number  | IEEE 754 Single-Precision Float                                                                |
+| f64                 | Number  | IEEE 754 Double-Precision Float                                                                |
+| f128                | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 
 #### 4.2.1.6 Pattern
 The *pattern* option specifies a regular expression used to validate a String instance.
@@ -1786,6 +1787,8 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://datatracker.ietf.org/doc/html/rfc3444.
 ###### [RFC3552]
 Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+###### [RFC7303]
+Hansen, T., Melnikov, A., "Additional Media Type Structured Syntax Suffixes", RFC 7303, January 2013
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://datatracker.ietf.org/doc/html/rfc7493.
 ###### [RFC8340]
