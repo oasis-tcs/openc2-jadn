@@ -606,35 +606,38 @@ The TypeOptions specific to Primitive types are listed in Table 4-1.
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-`*` = applicable to multiple types.
+`*` = Option value must be a valid CoreType instance.
 
 ##### 4.2.1.1 Binary
 A Binary instance is sequence of octets. No Binary value ordering is defined so value range
 options do not apply.
 
-Options: minLength, maxLength
+**Options:** minLength, maxLength
 
 ##### 4.2.1.2 String
 A String instance is a sequence of characters in a character set. Value range options are
-meaningful if the character set defines a collation order.
+meaningful if the character set defines a collation order. The pattern option is mutually
+exclusive with length and range options; a String type definition MUST NOT contain both.
+A String type definition may contain conflicting length and range options such that no
+valid instances exist.
 
-Options: minLength, maxLength, pattern
-Range Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+**Options:** minLength, maxLength, pattern  \
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 ##### 4.2.1.3 Boolean
 An instance of Boolean is one of the predefined values *true* and *false*.
 
-Options: none
+**Options:** none
 
 ##### 4.2.1.4 Integer
 An instance of Integer is a value in the (infinite) set of integers (…, -2, -1, 0, 1, 2, …).
 
-Range Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 ##### 4.2.1.5 Number
 An instance of Number is a value in the (infinite) set of real numbers.
 
-Range Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 
 *===================================================================*
