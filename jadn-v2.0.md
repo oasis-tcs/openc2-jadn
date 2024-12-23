@@ -559,14 +559,15 @@ IDL Example:
 Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
 to which it applies, similar in effect to an [[XSD](#xsd)] *facet*. Each option has an ID and value,
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
-ID and the remaining characters are its value. For example, the minimum length of a Binary or String instance
-is described as the XML "minLength" facet, but in JADN has the `0x7b` (Left Curly Bracket) TypeOption ID.
-A String with a minimum length of 1 has a TypeOption value of `{1` in JSON format, while
-[IDL](#71-information-definition-language) uses a different notation: "String {1..*}".
+ID and the remaining characters are its value. For TypeOption "minLength = 1":
+```
+    +----+-----------+     Option ID = 0x7b (Left Curley Bracket) = "minLength"
+    | ID | Value     |     Value = 1
+    +----+-----------+     TypeOption string = "{1"
+```
 In some cases the character represented by an option ID has a mnemonic relationship to its purpose
 but this is not true in general; option IDs are non-semantic integer identifiers.
 
-+-
 ### 4.1.5 Conformance Requirements
 
 * TypeName MUST NOT be a JADN core type  
@@ -585,55 +586,19 @@ in TypeOptions, the Fields array MUST be empty.
 
 ## 4.2 Core Types
 
-*===================================================================*
-
- *Note: the remainder of this document is being revised. Not for review.*
-
-*===================================================================*
-
 ### 4.2.1 Primitive
 
-A primitive core type has no substructure. Its instances are values defined
+A primitive core type has no substructure, and specifies an unrestricted value space without regard
+to programming language constructs, hardware limits, or data format. The type options listed in this
+section specify restrictions such as size, value range, and regular expression patterns.
+Semantic validation keywords ("formats") listed in [Section 4.2.4](#424-semantic-validation-keywords)
+may also define value restrictions.
 
-A primitive type specifies a space of possible values without regard to programming language
-constructs or hardware limits. Restrictions such as range, precision, size, patterns and formats
-are specified using the type-specific options listed in this section.
-
-#### 4.2.1.1 Primitive Types
-
-##### 4.2.1.1.1 Binary
-An instance of Binary is sequence of octets.
-
-Options: minLength, maxLength
-
-##### 4.2.1.1.2 String
-An instance of String defines a sequence of characters in a character set.
-
-Options: minLength, maxLength, pattern
-
-##### 4.2.1.1.3 Boolean
-An instance of Boolean is one of the predefined values *true* and *false*.
-
-Options: none
-
-##### 4.2.1.1.4 Integer
-An instance of Integer is a value in the (infinite) set of integers (…-2, -1, 0, 1, 2…).
-
-Options: minInclusive, maxInclusive, minExclusive, maxExclusive
-
-##### 4.2.1.1.5 Number
-An instance of Number is a value in the (infinite) set of real numbers.
-
-Options: minInclusive, maxInclusive, minExclusive, maxExclusive
-
-#### 4.2.1.2 Primitive TypeOptions
-
-Table 4-1 lists the type-specific TypeOptions specific to Primitive core types.
+The TypeOptions specific to Primitive types are listed in Table 4-1.
 
 | ID   | Chr | Type    | Name         | Description                                       |
 |------|:---:|---------|--------------|---------------------------------------------------|
 | 0x25 |  %  | String  | pattern      | Regular expression                                |
-| 0x2f |  /  | String  | format       | Semantic validation keyword                       |
 | 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
 | 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
 | 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
@@ -641,13 +606,42 @@ Table 4-1 lists the type-specific TypeOptions specific to Primitive core types.
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-###### Table 4-1. Primitive TypeOptions
+`*` = applicable to multiple types.
 
-* **pattern**: Regular expression
-* **format**: Semantic validation keyword
-* **minLength**, **maxLength**: 
-* **minInclusive**, **maxInclusive**:
-* **minExclusive**, **maxExclusive**:
+##### 4.2.1.1 Binary
+A Binary instance is sequence of octets. No Binary value ordering is defined so value range
+options do not apply.
+
+Options: minLength, maxLength
+
+##### 4.2.1.2 String
+A String instance is a sequence of characters in a character set. Value range options are
+meaningful if the character set defines a collation order.
+
+Options: minLength, maxLength, pattern
+Range Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+
+##### 4.2.1.3 Boolean
+An instance of Boolean is one of the predefined values *true* and *false*.
+
+Options: none
+
+##### 4.2.1.4 Integer
+An instance of Integer is a value in the (infinite) set of integers (…, -2, -1, 0, 1, 2, …).
+
+Range Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+
+##### 4.2.1.5 Number
+An instance of Number is a value in the (infinite) set of real numbers.
+
+Range Options: minInclusive, maxInclusive, minExclusive, maxExclusive
+
+
+*===================================================================*
+
+ *Note: the remainder of this document is being revised. Not for review.*
+
+*===================================================================*
 
 ### 4.2.2 Compound Types
 
@@ -716,8 +710,19 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 
+### 4.2.4 Semantic Validation Keywords
 
-### 4.2.4 General Options
+
+| ID   | Chr | Type    | Name         | Description                                       |
+|------|:---:|---------|--------------|---------------------------------------------------|
+| 0x2f |  /  | *       | format       | Semantic validation keyword                       |
+
+### 4.2.5 General Options
+
+These options apply to all core types:
+
+* default, type inheritance
+
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
 structure of [Section 4.1](#41-type-definition-structure). New requirements can be accommodated by defining new options
 without modifying that structure. Type and Field options are classifiers that, along with the core type,
