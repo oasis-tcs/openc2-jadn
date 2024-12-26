@@ -588,17 +588,19 @@ in TypeOptions, the Fields array MUST be empty.
 
 ### 4.2.1 Primitive
 
-A primitive core type has no substructure, and specifies an unrestricted value space without regard
-to programming language constructs, hardware limits, or data format. The type options listed in this
-section specify restrictions such as size, value range, and regular expression patterns.
-Semantic validation keywords ("formats") listed in [Section 4.2.4](#424-semantic-validation-keywords)
-may also define value restrictions.
+A primitive type has no substructure, and specifies an unrestricted value space without
+regard to processing mechanisms or data format. As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
+the primitive core types are Binary, Boolean, Integer, Number and String.
 
-The TypeOptions specific to Primitive types are listed in Table 4-1.
+Type options specify value restrictions such as size, range, and regular expression patterns.
+Semantic validation keywords ("formats") listed in [Section 4.2.4](#424-semantic-validation-keywords)
+may also define value restrictions on primitive types.
+
+Primitive TypeOptions are listed in Table 4-1:
 
 | ID   | Chr | Type    | Name         | Description                                       |
 |------|:---:|---------|--------------|---------------------------------------------------|
-| 0x25 |  %  | String  | pattern      | Regular expression                                |
+| 0x25 |  %  | String  | pattern      | Instance matches the specified regular expression |
 | 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
 | 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
 | 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
@@ -606,92 +608,115 @@ The TypeOptions specific to Primitive types are listed in Table 4-1.
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-`*` = Option value must be a valid CoreType instance.
+`*` = Option value must be an instance of CoreType.
+
+###### Table 4-1. TypeOptions Specific to Primitive Types
 
 ##### 4.2.1.1 Binary
-A Binary instance is sequence of octets. No Binary value ordering is defined so value range
-options do not apply.
+A Binary instance is sequence of octets. Binary values are not ordered so range
+options do not apply. 
 
 **Options:** minLength, maxLength
 
 ##### 4.2.1.2 String
 A String instance is a sequence of characters in a character set. Value range options are
-meaningful if the character set defines a collation order. The pattern option is mutually
-exclusive with length and range options; a String type definition MUST NOT contain both.
-A String type definition may contain conflicting length and range options such that no
-valid instances exist.
+meaningful if the character set defines a collation order. The pattern, length, and range
+options are not normally used together, but if more than one kind is present in a
+type definition an instance must satisfy all conditions.
 
 **Options:** minLength, maxLength, pattern  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 ##### 4.2.1.3 Boolean
-An instance of Boolean is one of the predefined values *true* and *false*.
+A Boolean instance is one of the predefined values *true* and *false*.
 
 **Options:** none
 
 ##### 4.2.1.4 Integer
-An instance of Integer is a value in the (infinite) set of integers (…, -2, -1, 0, 1, 2, …).
+An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
 
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 ##### 4.2.1.5 Number
-An instance of Number is a value in the (infinite) set of real numbers.
+A Number instance is a value in the ordered infinite set of real numbers.
 
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
+### 4.2.2 Compound Types
+
+A compound type defines a collection of values, specifying both the collection kind
+(sequence, set, ordered set, bag) and how a collection instance is represented as data.
+As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
+a collection has the UML multiplicity properties isOrdered and isUnique, and the compound type
+specifies two additional structural properties: isMapping and isStructured.
+
+* **isOrdered:** if true, item order is significant when comparing collection instances.
+* **isUnique:** if true, no item is duplicated within a collection instance.
+* **isMapping:** if true, each item is a key:value pair with a unique key (Map, MapOf, Record),
+otherwise each item is a value (Array, ArrayOf, Record). The Record type defines the key order,
+allowing a Record instance to be serialized as either a value array or a mapping
+(also known as an associative array or dictionary).
+* **isStructured:** true for compound types that enumerate collection items (Array, Map, Record),
+false where all items are instances of a specified type (ArrayOf, MapOf).
+
+Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-to-compound-types):
+
+| ID   | Chr | Type    | Name            | Description                                       |
+|------|:---:|---------|-----------------|---------------------------------------------------|
+| 0x2a |  *  | String  | vtype           | Value type for ArrayOf and MapOf                  |
+| 0x2b |  +  | String  | ktype           | Key type for MapOf                                |
+| 0x7b |  {  | Integer | minLength       | Minimum number of items in a collection           |
+| 0x7d |  }  | Integer | maxLength       | Maximum number of items in a collection           |
+| 0x3d |  =  | Boolean | id              | Choice/Map/Record/Enumerated keys are numeric IDs |
+| 0x71 |  q  | Boolean | unique, ordered | isOrdered = true,  isUnique = true (ordered set)  | 
+| 0x73 |  s  | Boolean | set             | isOrdered = false, isUnique = true (set)          |
+| 0x62 |  b  | Boolean | unordered       | isOrdered = false, isUnique = false (bag)         |
+
+###### Table 4-2. TypeOptions Specific to Compound Types
+
+By default ArrayOf and Array specify a *sequence* of items,
+while MapOf, Map, and Record specify a *set* of items:
+
+| Compound Type       | Structured | Collection Properties          |
+|---------------------|------------|--------------------------------|
+| ArrayOf(vtype)      | No         | Ordered, non-Unique (sequence) |
+| Array               | Yes        | Ordered, non-Unique (sequence) |
+| MapOf(ktype, vtype) | No         | non-Ordered, Unique (set)      |
+| Map                 | Yes        | non-Ordered, Unique (set)      |
+| Record              | Yes        | non-Ordered, Unique (set)      |
+
+TypeOptions are used to tailor the ordering and uniqueness semantics of compound types,
+allowing collection instances with uniqueness constraints to be validated, and with the same
+ordering significance to be compared, independently of representation:
+
+| Compound Type | TypeOption | Collection Properties         |
+|---------------|------------|-------------------------------|
+| ArrayOf       | set        | Non-Ordered, Unique (set)     |
+| ArrayOf       | unique     | Ordered, Unique (ordered set) |
+| ArrayOf       | unordered  | Non-Ordered, Non-Unique (bag) |
+| Array         | set        | Non-Ordered, Unique (set)     |
+| MapOf         | ordered    | Ordered, Unique (ordered set) |
+| Map           | ordered    | Ordered, Unique (ordered set) |
+| Record        | ordered    | Ordered, Unique (ordered set) |
+
+<!--
+Positional encoding can be used only with data constructs
+that preserve order.
+
+* Members of an ArrayOf or Array type are selected by ordinal position.
+* Members of a Record type are selected by either position or name depending on data format.
+* Field positions are unique and by default Array has OrderedSet, not Sequence (non-unique) semantics.
+* Map, MapOf and Record keys are unique
+* The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
+
+*maxOccurs: Unlimited = -2, Unspecified = -1*
+-->
 
 *===================================================================*
 
  *Note: the remainder of this document is being revised. Not for review.*
 
 *===================================================================*
-
-### 4.2.2 Compound Types
-
-A compound type specifies a collection of values, defining both collection semantics and the abstract syntax
-of its members.
-
-Collection semantics defines:
-* if order is significant when comparing instances (Ordered)
-* if duplicate values are allowed when validating an instance (Unique)
-
-Collection abstract syntax defines:
-* whether all members have the same type (Type Syntax) or each member's type is specified
-individually (Field Syntax).
-* whether members are unnamed (Array, ArrayOf) or named (Map, MapOf, Record). Field names 
-must be unique and so can exist only for unique collection types.
-* whether serialized members are identified by position (Array), name (Map, MapOf),
-or either position or name (Record). Positional encoding can be used only with data constructs
-that preserve order.
-
-| Type                    | Definition                                                                                                                                                                     |
-|:------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Array                   | An ordered list of labeled fields with positionally-defined types. Each field has a position, label, and type.                                                                 |
-| ArrayOf(*vtype*)        | A collection of fields with the same type *vtype*. Ordering and uniqueness are specified by a collection option.                                                               |
-| Map                     | A map from a set of specified keys to values with a value type bound to each key. Each key has an id and a name or label.                                                      |
-| MapOf(*ktype*, *vtype*) | A map from a set of keys of the same type *ktype* to values with the same type *vtype*.                                                                                        |
-| Record                  | A map from a list of keys to values with a value type bound to each key. Each key has a position and a name.                                                                   |
-
-Table 4-2 summarizes the relationship between Compound types and collection behavior.
-The notation `X+y` indicates that the definition of type `X` includes type option `y` defined in
-[Section 4.2.1](#421-type-options).
-
-###### Table 4-2. Mapping Logical Collections to Compound Types
-
-| Ordered | Unique | Collection<br>Semantics | Type<br>Syntax    | Field<br>Syntax                             |
-|---------|--------|-------------------------|-------------------|---------------------------------------------|
-| false   | true   | Set                     | ArrayOf+set       | Array+set<br>Map<br>MapOf<br>Record         |
-| true    | false  | Sequence                | ArrayOf           | none                                        |
-| true    | true   | OrderedSet              | ArrayOf+unique    | Array<br>Map+seq<br>MapOf+seq<br>Record+seq |
-| false   | false  | Bag                     | ArrayOf+unordered | none                                        |
-
-* Members of an ArrayOf or Array type are selected by ordinal position.
-* Members of a Record type are selected by either position or name depending on data format.
-* Field positions are unique and by default Array has OrderedSet, not Sequence (non-unique) semantics.
-* Map, MapOf and Record keys are unique and with `seq` option have OrderedSet, not Sequence semantics.
-* The members of a Bag collection cannot be selected; accessing a Bag instance returns an arbitrary member.
-
-*maxOccurs: Unlimited = -2, Unspecified = -1*
 
 ### 4.2.3 Union Types
 
