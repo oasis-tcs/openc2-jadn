@@ -421,13 +421,11 @@ using $NSID and $TypeName instances as `Prefix` and `LocalPart` respectively.
 # 4 JADN Types
 
 An information modeling language's abstract DataTypes define their meaning and application behavior.
-As shown in Figure 4-1, JADN defines twelve core types (bold) in three categories:
+As shown in Figure 4-1, JADN defines twelve core types in three categories:
 
-* [Section 4.2.1](#421-primitive): **Primitive**: Types whose instances are atomic values not decomposable
-into instances of other types.
-* [Section 4.2.2](#422-compound-types): **Compound**: Types whose instances are collections of instances of other
-types. ArrayOf and MapOf are unstructured; Array, Map, and Record are structured types with named fields.
-* [Section 4.2.3](#423-union-types): **Union**: Types whose instances are selected from a set of possible values.
+* **Primitive** ([Section 4.2.1](#421-primitive-types)): Types whose instances are atomic (non-decomposable) values.
+* **Compound** ([Section 4.2.2](#422-compound-types): Types whose instances are collections of values.
+* **Union** ([Section 4.2.3](#423-union-types)): Types whose instances are selected from a set of possible values.
 
 ![Core DataTypes](images/im-datatype.jpg)
 ###### Figure 4-1 -- JADN Core DataTypes
@@ -459,7 +457,7 @@ JADN-Type = Choice
   11 MapOf            Empty
   12 Record           Fields
 
-Empty = Array{0..0}
+Empty = Array{0}
 Items = ArrayOf(Item)
 Fields = ArrayOf(Field)
 
@@ -483,7 +481,7 @@ Description = String
 
 ###### Figure 4-2 -- JADN Schema: Types
 
-As shown in [Figure 4-2](#figure-4-2----jadn-schema-types) each type definition has five elements:
+Each type definition has five elements:
 
 1. **TypeName:** the name of the type being defined
 2. **CoreType:** the JADN built-in type of the type being defined
@@ -493,7 +491,7 @@ As shown in [Figure 4-2](#figure-4-2----jadn-schema-types) each type definition 
 
 **Defaults:**
 
-If TypeOptions is not present in a type definition (e.g., ["Username", "String"]), its default is the empty array.  \
+If TypeOptions is not present in a type definition, its default is the empty array.  \
 If TypeDescription is not present, its default is the empty string.  \
 If Fields is not present, its default is the empty array.
 
@@ -503,6 +501,8 @@ If CoreType is a Primitive or unstructured Compound type, the **Fields** array i
 JSON Format:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
+    
+    ["Username", "String", ["%^[a-z][a-z0-9]{3,11}$"] ]
 ```
 IDL Example:
 ```
@@ -557,7 +557,7 @@ IDL Example:
 
 ### 4.1.4 Type and Field Options
 Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
-to which it applies, similar in effect to an [[XSD](#xsd)] *facet*. Each option has an ID and value,
+to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option has an ID and value,
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
 ID and the remaining characters are its value. For TypeOption "minLength = 1":
 ```
@@ -586,7 +586,7 @@ in TypeOptions, the Fields array MUST be empty.
 
 ## 4.2 Core Types
 
-### 4.2.1 Primitive
+### 4.2.1 Primitive Types
 
 A primitive type has no substructure, and specifies an unrestricted value space without
 regard to processing mechanisms or data format. As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
@@ -651,7 +651,9 @@ A Number instance is a value in the ordered infinite set of real numbers.
 Compound types define a collection of items.
 As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes), a collection is a UML "MultiplicityElement"
 with cardinality bounds, ordering and uniqueness collection properties,
-while the compound type specifies the types of items in the collection:
+while the compound type specifies the types of items in the collection.
+If TypeOptions does not include an ordering option, ArrayOf and Array specify a *sequence* of items and
+MapOf, Map, and Record specify a *set* of items:
 
 | Compound Type       | Structured | Mapping | Collection Properties          |
 |---------------------|------------|---------|--------------------------------|
@@ -661,15 +663,14 @@ while the compound type specifies the types of items in the collection:
 | Map                 | Yes        | Yes     | non-Ordered, Unique (set)      |
 | Record              | Yes        | Both    | non-Ordered, Unique (set)      |
 
-* If a collection is Ordered, item order is significant when comparing instances.
-* If a collection is Unique, no item is duplicated within an instance.
 * A Structured compound type enumerates the type of each item individually;
 a non-structured type defines the same type for all items
 * A Mapping compound type each item is a key:value pair with a unique key, otherwise each item is a value.
-The Record type defines key order, which allows a Record instance to be either an array or an associative array (map).
+* If a collection is Ordered, item order is significant when comparing instances.
+* If a collection is Unique, no item is duplicated within an instance.
 
-By default, ArrayOf and Array specify a *sequence* of items;
-MapOf, Map, and Record specify a *set* of items.
+The Record type defines key order, which allows a Record instance to be treated as either an array where
+items are identified by position, or an associative array (map) where items are identified by key.
 
 Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-to-compound-types):
 
@@ -686,8 +687,8 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 
 ###### Table 4-2. TypeOptions Specific to Compound Types
 
-If the minLength option is absent, the minimum number of items is zero.
-If the maxLength option is absent, the maximum number of items is unlimited.
+* If the minLength option is absent, the minimum number of items is zero.
+* If the maxLength option is absent, the maximum number of items is unlimited.
 
 By default Map and Record types have Fields identified by both a numeric FieldID and a text FieldName,
 both of which must be unique within a type. FieldIDs for Array and Record types denote position within
