@@ -501,13 +501,13 @@ If CoreType is a Primitive or unstructured Compound type, the **Fields** array i
 JSON Format:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
-    
-    ["Username", "String", ["%^[a-z][a-z0-9]{3,11}$"] ]
+
+    ["Username", "String", ["%^[a-z][a-z0-9]{3,11}$"]]
+    ["Users", "ArrayOf", ["*Username]]
 ```
 IDL Example:
 ```
     Username = String {pattern="^[a-z][a-z0-9]{3,11}$"}
-
     Users = ArrayOf(Username)
 ```
 ### 4.1.2 Enumerated
@@ -522,6 +522,12 @@ JSON Format:
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [ItemId, ItemValue, ItemDescription],
         ...
+    ]]
+
+    ["Color", "Enumerated", [], "", [
+        [1, "red"],
+        [2, "green"],
+        [3, "blue"]
     ]]
 ```
 IDL Example:
@@ -546,6 +552,11 @@ JSON Format:
         [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
         ...
     ]]
+
+    ["Coordinate", "Record", [], "A GPS coordinate", [
+        [1, "latitude", "Latitude", [], "A Number between -90 and 90 degrees"],
+        [2, "longitude", "Longitude", [], "A Number between -180 and 180 degrees"]
+    ]]
 ```
 
 IDL Example:
@@ -557,9 +568,10 @@ IDL Example:
 
 ### 4.1.4 Type and Field Options
 Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
-to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option has an ID and value,
+to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option has an ID and value listed
+in [Section 4.2](#42-core-types),
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
-ID and the remaining characters are its value. For TypeOption "minLength = 1":
+ID and the remaining characters are its value. As an example the TypeOption "minLength = 1" is represented as:
 ```
     +----+-----------+     Option ID = 0x7b (Left Curley Bracket) = "minLength"
     | ID | Value     |     Value = 1
@@ -643,8 +655,10 @@ A Number instance is a value in the ordered infinite set of real numbers.
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.6 Primitive Type Conformance Requirements
-* The *pattern* value SHOULD conform to the Pattern grammar of [ECMAScript](#ecmascript) Section 22.2.
-* A String instance MUST be considered invalid if it does not match the regular expression specified by *pattern*.
+* A value MUST satisfy the conditions defined for each type option listed in
+[Table 4-1](#table-4-1-typeoptions-specific-to-primitive-types)
+to be classified as an instance of a type containing that option.
+* The *pattern* option value SHOULD conform to the Pattern grammar of [ECMAScript](#ecmascript) Section 22.2.
 
 ### 4.2.2 Compound Types
 
@@ -652,7 +666,7 @@ Compound types define a collection of items.
 As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes), a collection is a UML "MultiplicityElement"
 with cardinality bounds, ordering and uniqueness collection properties,
 while the compound type specifies the types of items in the collection.
-If TypeOptions does not include an ordering option, ArrayOf and Array specify a *sequence* of items and
+If a type definition does not contain an ordering option, ArrayOf and Array specify a *sequence* of items and
 MapOf, Map, and Record specify a *set* of items:
 
 | Compound Type       | Structured | Mapping | Collection Properties          |
@@ -687,8 +701,8 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 
 ###### Table 4-2. TypeOptions Specific to Compound Types
 
-* If the minLength option is absent, the minimum number of items is zero.
-* If the maxLength option is absent, the maximum number of items is unlimited.
+* If a type definition does not contain a minLength option, the minimum number of items is zero.
+* If a type definition does not contain a maxLength option, the maximum number of items is unlimited.
 
 By default Map and Record types have Fields identified by both a numeric FieldID and a text FieldName,
 both of which must be unique within a type. FieldIDs for Array and Record types denote position within
