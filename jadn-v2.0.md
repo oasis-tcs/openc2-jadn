@@ -503,12 +503,12 @@ JSON Format:
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
 
     ["Username", "String", ["%^[a-z][a-z0-9]{3,11}$"]]
-    ["Users", "ArrayOf", ["*Username]]
+    ["Users", "ArrayOf", ["*Username"]]
 ```
 IDL Example:
 ```
-    Username = String {pattern="^[a-z][a-z0-9]{3,11}$"}
-    Users = ArrayOf(Username)
+Username = String{pattern="^[a-z][a-z0-9]{3,11}$"}
+Users = ArrayOf(Username)
 ```
 ### 4.1.2 Enumerated
 
@@ -532,10 +532,10 @@ JSON Format:
 ```
 IDL Example:
 ```
-    Color = Enumerated
-      1 red
-      2 green
-      3 blue
+Color = Enumerated
+   1 red
+   2 green
+   3 blue
 ```
 ### 4.1.3 Compound
 
@@ -561,9 +561,9 @@ JSON Format:
 
 IDL Example:
 ```
-    Coordinate = Record             // A GPS coordinate
-      1 latitude    Latitude        // A Number between -90 and 90 degrees
-      2 longitude   Longitude       // A Number between -180 and 180 degrees
+Coordinate = Record                              // A GPS coordinate
+   1 latitude         Latitude                   // A Number between -90 and 90 degrees
+   2 longitude        Longitude                  // A Number between -180 and 180 degrees
 ```
 
 ### 4.1.4 Type and Field Options
@@ -573,9 +573,9 @@ in [Section 4.2](#42-core-types),
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
 ID and the remaining characters are its value. As an example the TypeOption "minLength = 1" is represented as:
 ```
-    +----+-----------+     Option ID = 0x7b (Left Curley Bracket) = "minLength"
-    | ID | Value     |     Value = 1
-    +----+-----------+     TypeOption string = "{1"
++----+-----------+     Option ID = 0x7b (Left Curley Bracket) = "minLength"
+| ID | Value     |     Value = 1
++----+-----------+     TypeOption string = "{1"
 ```
 In some cases the character represented by an option ID has a mnemonic relationship to its purpose
 but this is not true in general; option IDs are non-semantic integer identifiers.
@@ -624,13 +624,13 @@ Primitive TypeOptions are listed in Table 4-1:
 
 ###### Table 4-1. TypeOptions Specific to Primitive Types
 
-##### 4.2.1.1 Binary
+#### 4.2.1.1 Binary
 A Binary instance is sequence of octets. Binary values are not ordered so range
 options do not apply. 
 
 **Options:** minLength, maxLength
 
-##### 4.2.1.2 String
+#### 4.2.1.2 String
 A String instance is a sequence of characters in a character set. Value range options are
 meaningful if the character set defines a collation order. The pattern, length, and range
 options are not normally used together, but if more than one kind is present in a
@@ -639,17 +639,17 @@ type definition an instance must satisfy all conditions.
 **Options:** minLength, maxLength, pattern  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
-##### 4.2.1.3 Boolean
+#### 4.2.1.3 Boolean
 A Boolean instance is one of the predefined values *true* and *false*.
 
 **Options:** none
 
-##### 4.2.1.4 Integer
+#### 4.2.1.4 Integer
 An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
 
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
-##### 4.2.1.5 Number
+#### 4.2.1.5 Number
 A Number instance is a value in the ordered infinite set of real numbers.
 
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
@@ -663,11 +663,9 @@ to be classified as an instance of a type containing that option.
 ### 4.2.2 Compound Types
 
 Compound types define a collection of items.
-As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes), a collection is a UML "MultiplicityElement"
-with cardinality bounds, ordering and uniqueness collection properties,
-while the compound type specifies the types of items in the collection.
-If a type definition does not contain an ordering option, ArrayOf and Array specify a *sequence* of items and
-MapOf, Map, and Record specify a *set* of items:
+As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes), a compound type specifies the type(s)
+of items in a collection, and the collection is a UML "MultiplicityElement" with cardinality bounds
+and ordering / uniqueness properties. The five Compound types are:
 
 | Compound Type       | Structured | Mapping | Collection Properties          |
 |---------------------|------------|---------|--------------------------------|
@@ -677,45 +675,45 @@ MapOf, Map, and Record specify a *set* of items:
 | Map                 | Yes        | Yes     | non-Ordered, Unique (set)      |
 | Record              | Yes        | Both    | non-Ordered, Unique (set)      |
 
-* A Structured compound type enumerates the type of each item individually;
-a non-structured type defines the same type for all items
-* A Mapping compound type each item is a key:value pair with a unique key, otherwise each item is a value.
+* Unless modified with one of the ordering TypeOptions shown below, ArrayOf and Array specify a *sequence*
+of items and MapOf, Map, and Record specify a *set* of items.
+* A Structured type enumerates the type of each item individually;
+each item in a non-structured compound type is an instance of the same type.
+* Each item in a Mapping type is a key:value pair with a unique key, otherwise each item is a value.
 * If a collection is Ordered, item order is significant when comparing instances.
 * If a collection is Unique, no item is duplicated within an instance.
 
-The Record type defines key order, which allows a Record instance to be treated as either an array where
-items are identified by position, or an associative array (map) where items are identified by key.
+The Record type defines key order, which allows Record instances to be represented as either arrays where
+items are identified by position, or associative arrays (maps) where items are identified by key.
 
 Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-to-compound-types):
 
-| ID   | Chr | Type    | Name            | Description                                      |
-|------|:---:|---------|-----------------|--------------------------------------------------|
-| 0x2a |  *  | String  | vtype           | Value type for ArrayOf and MapOf                 |
-| 0x2b |  +  | String  | ktype           | Key type for MapOf                               |
-| 0x7b |  {  | Integer | minLength       | Minimum number of items in a collection          |
-| 0x7d |  }  | Integer | maxLength       | Maximum number of items in a collection          |
-| 0x3d |  =  | Boolean | id              | Fields are identified by FieldID not FieldName   |
-| 0x71 |  q  | Boolean | unique, ordered | isOrdered = true,  isUnique = true (ordered set) | 
-| 0x73 |  s  | Boolean | set             | isOrdered = false, isUnique = true (set)         |
-| 0x62 |  b  | Boolean | unordered       | isOrdered = false, isUnique = false (bag)        |
+| ID   | Chr | Type    | Name            | Description                                                   |
+|------|:---:|---------|-----------------|---------------------------------------------------------------|
+| 0x2a |  *  | String  | vtype           | Value type for ArrayOf and MapOf                              |
+| 0x2b |  +  | String  | ktype           | Key type for MapOf                                            |
+| 0x7b |  {  | Integer | minLength       | Minimum number of items in a collection, default is 0         |
+| 0x7d |  }  | Integer | maxLength       | Maximum number of items in a collection, default is unlimited |
+| 0x3d |  =  | Boolean | id              | Fields are identified by FieldID not FieldName                |
+| 0x71 |  q  | Boolean | unique, ordered | isOrdered = true,  isUnique = true (ordered set)              | 
+| 0x73 |  s  | Boolean | set             | isOrdered = false, isUnique = true (set)                      |
+| 0x62 |  b  | Boolean | unordered       | isOrdered = false, isUnique = false (bag)                     |
 
 ###### Table 4-2. TypeOptions Specific to Compound Types
 
-* If a type definition does not contain a minLength option, the minimum number of items is zero.
-* If a type definition does not contain a maxLength option, the maximum number of items is unlimited.
+* Map and Record types have Fields identified by both a numeric FieldID and a text FieldName, both of which
+must be unique within a type.
+* FieldIDs for Array and Record types denote position within the collection and must be numbered consecutively
+starting at 1.
+* For all structured types, if the `id` option is present or CoreType is Array, fields are always identified
+by FieldID and FieldName is treated as a comment and is otherwise ignored.
 
-By default Map and Record types have Fields identified by both a numeric FieldID and a text FieldName,
-both of which must be unique within a type. FieldIDs for Array and Record types denote position within
-the collection and must be numbered consecutively starting at 1. For all structured types, if the `id` option
-is present or CoreType is Array, fields are always identified by FieldID and FieldName is treated as a
-comment that is otherwise ignored.
-
-TypeOptions specify the ordering and uniqueness semantics of compound types, allowing collection instances
+TypeOptions specify the ordering and uniqueness semantics of compound types, which allows collection instances
 with uniqueness constraints to be validated and instances with the same ordering significance to be compared,
-independently of data representation.
-The ArrayOf type can specify the four UML collection types (*sequence*, *set*, *ordered set*, *bag*),
-but structured and MapOf types are unique so they can specify only *set* or *ordered set*.
-The possible collection types are:
+independently of how they are represented.
+The ArrayOf type can specify the four UML collection types (*sequence*, *set*, *ordered set*, *bag*).
+Structured and MapOf types are always unique, so they can specify only the *set* or *ordered set* types.
+The non-default collection types are:
 
 | Compound Type | TypeOption | Collection Properties         |
 |---------------|------------|-------------------------------|
@@ -727,9 +725,13 @@ The possible collection types are:
 | Map           | ordered    | Ordered, Unique (ordered set) |
 | Record        | ordered    | Ordered, Unique (ordered set) |
 
+* TypeOption `0x71` (indicating that a collection is an ordered set) is displayed as `unique` when applied to
+the ArrayOf type and `ordered`when applied to set types.
+
 #### 4.2.2.1 Field Options
 
-Structured compound types
+The structured compound types (Array, Map and Record) define each field of a collection individually.
+Field options apply to ...
 minOccurs, maxOccurs = required/optional
 
 | ID   | Chr | Type    | Name      | Description                                                         |
