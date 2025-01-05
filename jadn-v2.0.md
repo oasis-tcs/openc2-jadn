@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 20 November 2024
+## 8 January 2025
 
 &nbsp;
 
@@ -590,6 +590,7 @@ numbered consecutively starting at 1.
 * If CoreType is Enumerated, Choice, or Map, ItemID/FieldID MAY be any integer.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
 * If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
+* If FieldOptions includes a TypeOption, that option MUST apply to FieldType.
 * If the [Derived Enumerations](#53-derived-enumerations) or [Pointers](#55-pointers) extensions are present
 in TypeOptions, the Fields array MUST be empty.
 * The default value of TypeOptions, Fields and FieldOptions is the empty Array.
@@ -664,9 +665,9 @@ to be classified as an instance of a type containing that option.
 ### 4.2.2 Compound Types
 
 Compound types define a collection of items.
-As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes) the compound type defines how the items in a
+As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes) a compound type defines how the items in a
 collection are specified, while the collection itself is a UML "MultiplicityElement" with cardinality bounds
-and multiplicity properties.
+and collection properties.
 The Compound types are:
 
 | Compound Type       | Structured | Mapping | Collection Properties          |
@@ -677,14 +678,17 @@ The Compound types are:
 | Map                 | Yes        | Yes     | non-Ordered, Unique (set)      |
 | Record              | Yes        | Both    | non-Ordered, Unique (set)      |
 
-* A Structured type includes individual field definitions. Each field defines an association between an identifier
-and a type and may include field-specific options. A non-structured compound type defines a collection of items
-where each item is an instance of the same type.
-* Each item in a Mapping type is a key:value pair with a unique key, otherwise each item is a value.
+By default, ArrayOf and Array specify a sequence of items and MapOf, Map, and Record specify a set of items,
+but these collection properties can be modified using TypeOptions.
+
+* The vtype option specifies the type of each instance in an ArrayOf or MapOf type.
+* The ktype option specifies the type of each key in a MapOf type.
 * If a collection is Ordered, item order is significant when comparing instances.
 * If a collection is Unique, no item is duplicated within a collection instance.
-* ArrayOf and Array specify a sequence of items and MapOf, Map, and Record specify a set of items, unless
-overridden by a multiplicity option.
+* A Structured type includes individual field definitions. Each field defines an association between an identifier
+and a type and may include field-specific options ([Section 4.2.2.1](#4221-field-options)).
+A non-structured compound type defines a collection where each item is an instance of the same type.
+* Each item in a Mapping type is a key:value pair with a unique key, otherwise each item is a value.
 * The Record type defines the key order, which allows Record instances to be represented as either arrays where
 items are identified by position within the array, or associative arrays (maps) where items are identified by key.
 
@@ -704,19 +708,19 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 ###### Table 4-2. TypeOptions Specific to Compound Types
 
 * Map and Record types have Fields identified by both a numeric FieldID and a text FieldName, both of which
-must be unique within a type.
+are unique within a type.
 * FieldIDs for Array and Record types denote position within the collection and must be numbered consecutively
 starting at 1.
 * For all structured types, if the `id` option is present or CoreType is Array, fields are always identified
 by FieldID and FieldName is treated as a comment and is otherwise ignored.
-* TypeOption `0x71` (indicating that a collection is an ordered set) is displayed as `unique` when used with
+* TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
 Multiplicity options specify the ordering and uniqueness semantics of compound types. This allows collection
 instances with uniqueness constraints to be validated and instances with the same ordering significance to be
 compared, independently of how they are represented.
 The ArrayOf type can specify the four UML collection types (sequence, set, ordered set, bag).
-Structured and MapOf types are always unique, so they can specify only the set or ordered set types.
+Structured and MapOf types are always unique, so they can specify only set or ordered set collections.
 The non-default collection types are:
 
 | Compound Type | Multiplicity Option | Collection Properties         |
@@ -731,50 +735,44 @@ The non-default collection types are:
 
 #### 4.2.2.1 Field Options
 
-The structured compound types (Array, Map and Record) have Fields that define each item in` a collection individually.
-Field options apply to ...
-minOccurs, maxOccurs = required/optional
+Structured compound types (Array, Map and Record) have Fields that define each item in a collection individually.
+Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
+[Table 4-3](#table-4-3-options-applicable-to-an-individual-field):
 
-| ID   | Chr | Type    | Name      | Description                                                         |
-|------|:---:|---------|-----------|---------------------------------------------------------------------|
-| 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional                 |
-| 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none, not 1 = array |
-| 0x26 |  &  | Integer | tagId     | field that specifies the type of this field                         |
-| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection                    |
-| 0x4b |  K  | Boolean | key       | field is a primary key for this type                                | 
-| 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType           |
+| ID   | Chr | Type    | Name      | Description                                                |
+|------|:---:|---------|-----------|------------------------------------------------------------|
+| 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional        |
+| 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none       |
+| 0x26 |  &  | Integer | tagId     | field that specifies the type of this field                |
+| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection           |
+| 0x4b |  K  | Boolean | key       | field is a primary key for this type                       | 
+| 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType  |
+
+###### Table 4-3. Options Applicable to an Individual Field
+
+The **minOccurs** and **maxOccurs** options specify the minimum and maximum number of instances (the multiplicity)
+of a field within a collection:
+
+| minOccurs | maxOccurs | Multiplicity | Description                             |
+|----------:|----------:|-------------:|:----------------------------------------|
+|         1 |         1 |            1 | One instance (required) - default       |
+|         0 |         1 |         0..1 | Zero or one instances (optional)        |
+|         0 |         0 |            0 | Zero instances (prohibited)             |
+|         0 |       < 0 |         0..* | Zero or more instances                  |
+|         1 |       < 0 |         1..* | One or more instance                    |
+|         m |         n |         m..n | At least m but no more than n instances |
+
+* The default value of minOccurs and maxOccurs is 1.
+* There are two reserved values for maxOccurs:
+  * UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements package default
+    ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), or if not specified, an implementation-defined default.
+  * UNLIMITED (-2) indicates that there is no upper bound.
+* If a field has more than one instance, the [data format](#6-serialization-and-data-formats) specifies whether
+its representation differs from that of a single instance. The [Field Multiplicity Extension](#52-field-multiplicity)
+generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
+multiple instances of a type.
 
 <!--
-#### 4.2.1.2 Value Type
-The *vtype* option specifies the type of each field in an ArrayOf or MapOf type. It may be any JADN type or Defined type.
-* An ArrayOf or MapOf instance MUST be considered invalid if any of its elements is not an instance of *vtype*.
-
-#### 4.2.1.3 Key Type
-The *ktype* option specifies the type of each key in a MapOf type. 
-* *ktype* SHOULD be a Defined type, either an enumeration or a type with constraints such as a pattern or semantic valuation keyword that specify a fixed subset of values that belong to a category.
-* A MapOf instance MUST be considered invalid if any of its keys is not an instance of *ktype*.
-
-#### 4.2.2.1 Multiplicity
-Cardinality is the number of elements in a group, and multiplicity is the range of allowed cardinalities
-for that group. The *minc* and *maxc* options specify the minimum and maximum cardinality in a field
-of an Array, Choice, Map, or Record type:
-
-| minOccurs | maxOccurs | Multiplicity | Description                             | Keywords           |
-|----------:|----------:|-------------:|:----------------------------------------|:-------------------|
-|         0 |         1 |         0..1 | No instances or one instance            | optional           |
-|         1 |         1 |            1 | Exactly one instance                    | required           |
-|         0 |         0 |         0..* | Zero or more instances                  | optional, repeated |
-|         1 |         0 |         1..* | At least one instance                   | required, repeated |
-|         m |         n |         m..n | At least m but no more than n instances | required, repeated |
-
-* if *minc* is not present, it defaults to 1.
-* if *maxc* is not present, it defaults to the greater of 1 or *minc*.
-* if *maxc* is 0, it defaults to the MaxElements upper bound specified in [Section 4.1.3](#413-upper-bounds).
-* if *maxc* is less than *minc*, the field definition MUST be considered invalid.
-
-If *minc* is 0, the field is optional, otherwise it is required.  
-If *maxc* is 1 the field is a single element, otherwise it is an array of elements
-as described in [Section 4.3.2](#432-field-multiplicity).  
 
 #### 4.2.1.1 Field Identifiers
 
@@ -797,11 +795,17 @@ such as "NotAllowed", "Verboten", or "Interdit".
 
 #### 4.2.2.2 Compound Type Conformance Requirements
 
-* If CoreType is ArrayOf, TypeOptions MUST include the *vtype* option and MUST NOT include more than one
-collection option (*set*, *unique*, or *unordered*).
-* If CoreType is MapOf, TypeOptions MUST include *ktype* and *vtype* options.
+* A compound type MUST NOT include more than on multiplicity option (set, unique, ordered, or unordered).
+* If CoreType is ArrayOf, TypeOptions MUST include the vtype option.
+* If CoreType is MapOf, TypeOptions MUST include ktype and vtype options.
+* The ktype option SHOULD be a constrained type such as an enumeration, pattern or semantic valuation keyword
+that specifies a fixed subset of values.
+* All values in an ArrayOf or MapOf instance must be an instance of vtype.
+* All keys in a MapOf instance MUST be an instance of ktype.
 * The number of items in a collection instance MUST NOT be less than minLength.
 * The number of items in a collection instance MUST NOT be greater than maxLength.
+* FieldIDs for Array and Record types denote position within the collection and MUST be numbered consecutively
+starting at 1.
 * An instance of a Map, MapOf, or Record type MUST NOT have more than one occurrence of each key.
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the null type.
 * An instance of a Map, MapOf, or Record type with a key mapped to a null value MUST compare as equal to an
@@ -836,6 +840,30 @@ Applications MAY use any programming language data types or mechanisms that exhi
 | ID   | Chr | Type    | Name         | Description                                       |
 |------|:---:|---------|--------------|---------------------------------------------------|
 | 0x2f |  /  | *       | format       | Semantic validation keyword                       |
+
+#### 4.2.4.5 Semantic Validation
+The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
+a subset of logical values that are accurately described by authoritative resources.  The *format* option may also
+affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
+
+###### Table 4-4. Semantic Validation Keywords
+| Keyword             | Type    | Requirement                                                                                    |
+|---------------------|---------|------------------------------------------------------------------------------------------------|
+| JSON Schema formats | String  | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema).         |
+| eui                 | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
+| ipv4-addr           | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
+| ipv6-addr           | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
+| ipv4-net            | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
+| ipv6-net            | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| i\<*n*\>            | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
+| u\<*n*\>            | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
+| d\<*n*\>            | Integer | Decimal integer scale factor of 10^n: value has n digits after decimal point, n > 0.           |
+| f16                 | Number  | IEEE 754 Half-Precision Float                                                                  |
+| f32                 | Number  | IEEE 754 Single-Precision Float                                                                |
+| f64                 | Number  | IEEE 754 Double-Precision Float                                                                |
+| f128                | Number  | IEEE 754 Quadruple-Precision Float                                                             |
+
+
 
 ### 4.2.5 General Options
 
@@ -906,28 +934,6 @@ TypeOption = Choice
 The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
 are extensions that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
 
-#### 4.2.1.5 Semantic Validation
-The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
-a subset of logical values that are accurately described by authoritative resources.  The *format* option may also
-affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
-
-###### Table 4-4. Semantic Validation Keywords
-| Keyword             | Type    | Requirement                                                                                    |
-|---------------------|---------|------------------------------------------------------------------------------------------------|
-| JSON Schema formats | String  | All semantic validation keywords defined in Section 7.3 of [JSON Schema](#jsonschema).         |
-| eui                 | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
-| ipv4-addr           | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
-| ipv6-addr           | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
-| ipv4-net            | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
-| ipv6-net            | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| i\<*n*\>            | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
-| u\<*n*\>            | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
-| d\<*n*\>            | Integer | Decimal integer scale factor of 10^n: value has n digits after decimal point, n > 0.           |
-| f16                 | Number  | IEEE 754 Half-Precision Float                                                                  |
-| f32                 | Number  | IEEE 754 Single-Precision Float                                                                |
-| f64                 | Number  | IEEE 754 Double-Precision Float                                                                |
-| f128                | Number  | IEEE 754 Quadruple-Precision Float                                                             |
-
 
 
 #### 4.2.1.7 Size and Value Constraints
@@ -967,24 +973,7 @@ The *default* option specifies the initial or default value of a field. Applicat
 a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
 
-### 4.2.2 Field Options
-Field options may be specified for each field within a compound type definition.
 
-```
-FieldOption = Choice
-   91 minc      Integer    // '[' Minimum cardinality, default = 1, 0 = optional (Section 3.2.2.1)
-   93 maxc      Integer    // ']' Maximum cardinality, default = 1, 0 = default max, >1 = array
-   38 tagid     Enumerated // '&' Field containing an explicit tag for this Choice type (Section 3.2.2.2)
-   60 dir       Boolean    // '<' Pointer enumeration treats field as a group of items (Extension: Section 3.3.5)
-   75 key       Boolean    // 'K' Field is a primary key for this type (Extension: Section 3.3.6)
-   76 link      Boolean    // 'L' Field is a foreign key reference to a type instance (Extension: Section 3.3.6)
-```
-
-*maxOccurs: Unlimited = -2, Unspecified = -1*
-
-* FieldOptions MUST NOT include more than one of each option.
-* All TypeOption values ([Section 4.2.1](#421-type-options)) included in FieldOptions are extensions. Each TypeOption
-MUST apply to FieldType as defined in [Table 4-3](#table-4-3-allowed-options). 
 
 #### 4.2.2.1 Multiplicity
 
