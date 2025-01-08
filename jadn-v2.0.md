@@ -743,7 +743,6 @@ Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 |------|:---:|---------|-----------|------------------------------------------------------------|
 | 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional        |
 | 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none       |
-| 0x26 |  &  | Integer | tagId     | field that specifies the type of this field                |
 | 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection           |
 | 0x4b |  K  | Boolean | key       | field is a primary key for this type                       | 
 | 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType  |
@@ -822,35 +821,160 @@ each of which is unique within a type definition. Union types define a set of ta
 |:-----------|:---:|:----:|------------------------------------------|
 | Enumerated | Yes |  -   | A vocabulary, a set of tags.             |
 | Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs. |
-| Choice(C*) |  -  | Yes  | An untagged union, a set of types.       |
+| Choice(x)  |  -  | Yes  | An untagged union, a set of types.       |
 
 The TypeOptions applicable to Union types are:
 
-| ID   | Chr | Type    | Name      | Description                                                                  |
-|------|:---:|---------|-----------|------------------------------------------------------------------------------|
-| 0x43 |  C  | String  | combine   | Value is a single character specifying the untagged union combining function |
+| ID   | Chr | Type    | Name      | Description                                                                 |
+|------|:---:|---------|-----------|-----------------------------------------------------------------------------|
+| 0x3d |  =  | Boolean | id        | Fields are identified by FieldID not FieldName                              |
+| 0x43 |  C  | String  | combine   | Option value is a character specifying an untagged union combining function |
 
 #### 4.2.3.1 Enumerated
- An instance is a value that equals one of the tags. The `id` option
- ([Table 4-2](#table-4-2-typeoptions-specific-to-compound-types))
+ An instance is a value that equals one of a set of specified tags. The `id` option
  specifies that the value is an integer matching an `item_id`, otherwise it is a string matching `item_value`.
 
 #### 4.2.3.2 Choice
 An instance is a value matching the type designated by the tag.
 
-#### 4.2.3.3 Choice(untagged)
-An instance is a value matching a logical combination of types. The `combine` option specifies which logical
-function to use:
-* CA = allOf: the value is an instance of all field types
-* CO = anyOf: the value is an instance of at least one field type
-* CX = oneOf: the value is an instance of exactly one field type
+#### 4.2.3.3 Choice(x)
+The *combine* option (x) specifies that a Choice instance must be valid against a logical combination of types.
+The single-character option value indicates the combination type:
+* A: value must be an instance of `allOf` the Choice types
+* O: value must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
+* X: value must be an instance of exactly `oneOf` the Choice types
 
-A Choice(C*) type with a single field can be used to define an alias for FieldType; any combining function
-can be used.
+A Choice(x) type with a single field can be used to define an alias for FieldType; the value of x does not matter.
 
-#### 4.2.3.2 Union Type Conformance Requirements
+#### 4.2.3.4 Field Options Applicable To Union Types
+
+| ID   | Chr | Type    | Name  | Description                                                      |
+|------|:---:|---------|-------|------------------------------------------------------------------|
+| 0x26 |  &  | Integer | tagId | field that specifies the type of this field                      |
+| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Choice |
+
+#### 4.2.3.5 Union Type Conformance Requirements
 
 * n/a
+
+<!--
+
+The Choice type selects one type or a logical combination of types from a set. By default Choice is
+a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
+indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#42112-combine)
+type option it is an [untagged](#union) union where values that match a logical combination of types
+are instances of the Choice type.
+
+##### 4.2.2.2.2 Choice - Untagged Union
+The `combine` option specifies the logical function (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR))
+of the Choice's field types apply to the value. The `anyOf` option performs short-circuit evaluation where
+the first FieldType to match, in field order, indicates the instance type.
+The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
+
+##### 4.2.2.2.3 Choice - Tagged Union
+The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
+one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
+value. But if the *tagid* option is present on a Choice field in an Array or Record container,
+a separate field within that container contains the tag separately from the instance value.
+
+* The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
+
+
+**Example:**
+
+    Product = Choice                        // Discriminated union
+       1 furniture    Furniture
+       2 appliance    Appliance
+       3 software     Software
+    
+    Dept = Enumerated                       // Explicit Tag values derived from the Choice
+       1 furniture
+       2 appliance
+       3 software
+    
+    Software = String /uri
+    
+    Stock1 = Record                         // Discriminated union with intrinsic tag
+       1 quantity     Integer
+       2 product      Product               // Value = Map with one key/value
+    
+    Stock2 = Record                         // Container with explicitly-tagged discriminated union
+       1 dept         Dept                  // Tag = one key from Choice
+       2 quantity     Integer
+       3 product      Product(TagId[dept])  // Choice specifying an explicit tag field
+
+Example JSON serializations of these types are:
+
+Stock1 - Choice with intrinsic tag:
+
+    {
+        "quantity": 395,
+        "product": {"software": "http://www.example.com/B902D1P0W37"}
+    }
+
+Stock2 - Choice with explicit tag:
+
+    {
+        "dept": "software",
+        "quantity": 395,
+        "product": "http://www.example.com/B902D1P0W37"
+    }
+
+**Intrinsic tags:**
+
+When discriminated unions are grouped the distinction between intrinsic and explicit tags becomes
+more apparent. A collection with intrinsic tags is simply a Map, which results in what the
+[W3C JSON and XML Transformations Workshop](#transform) called "Friendly" encodings.
+
+```
+    Hashes = Map{1..*}            // Multiple discriminated unions with intrinsic tag is a Map
+       1 md5          Binary{16..16} /x optional
+       2 sha1         Binary{20..20} /x optional
+       3 sha256       Binary{32..32} /x optional
+```
+
+Hashes Example:
+
+```json
+{
+    "sha256": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9",
+    "md5": "B64CF5EAF07E86D1697D4EEE96A670B6"
+}
+```
+
+**Explicit tags:**
+
+A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
+results in "UnFriendly" encodings with repeated tag and value keys. Yet because some specifications are
+written in this style, the *tagid* option exists to designate an explicit field to be used to specify
+the value type.
+
+```
+    Hashes2 = ArrayOf(HashVal)    // Multiple discriminated unions with explicit tags is an Array
+    
+    HashVal = Record
+       1 algorithm    Enumerated(Enum[HashAlg])  // Tag - one key from Choice
+       2 value        HashAlg(TagId[algorithm])  // Value selected from Choice by 'algorithm' field
+    
+    HashAlg = Choice
+       1 md5          Binary{16..16} /x
+       2 sha1         Binary{20..20} /x
+       3 sha256       Binary{32..32} /x
+```
+Hashes2 Example:
+```json
+[
+  {
+    "algorithm": "md5",
+    "value": "B64CF5EAF07E86D1697D4EEE96A670B6"
+  },{
+    "algorithm": "sha256",
+    "value": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9"
+  }
+]
+```
+
+-->
 
 
 *===================================================================*
@@ -995,20 +1119,6 @@ The *minf* and *maxf* options specify real number value limits.
     * if *maxf* is present, an instance MUST be considered invalid if its value is greater than *maxf*.
 
 
-#### 4.2.1.12 Combine
-The *combine* option specifies that a [Choice](#42222-choice---untagged-union) instance must be valid
-against a logical combination of types. The single-character value indicates the combination type:
-* A = AND: data must be an instance of `allOf` the Choice types
-* O = OR: data must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
-* X = XOR: data must be an instance of exactly `oneOf` the Choice types
-
-#### 4.2.1.13 Extension Point
-The *extend* option is an assertion that an Enumerated, Choice, Array, Map or Record type MAY be incomplete and that
-future versions MAY add new fields that do not change the definitions of existing fields.  This option does not affect
-the validity of data with respect to a specific schema, it is an indicator that applications may be able to obtain
-a newer version of the same package for which the data is valid. Types without this option assert that
-the package identifier will be changed if any field is added, modified, or deleted.
-
 #### 4.2.1.14 Default Value
 The *default* option specifies the initial or default value of a field. Applications deserializing
 a document MUST initialize an unspecified type with its default value.
@@ -1024,121 +1134,6 @@ one must be present. Values greater than 1 specify an array of elements.
 #### 4.2.2.2 Union Types
 The Enumerated type matches one value (an Item ID or Name) from the set of ID/Name pairs defined by the type.
 
-The Choice type selects one type or a logical combination of types from a set. By default Choice is
-a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
-indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#42112-combine)
-type option it is an [untagged](#union) union where values that match a logical combination of types
-are instances of the Choice type.
-
-##### 4.2.2.2.1 Enumerated
-
-##### 4.2.2.2.2 Choice - Untagged Union
-The `combine` option specifies the logical function (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR))
-of the Choice's field types apply to the value. The `anyOf` option performs short-circuit evaluation where
-the first FieldType to match, in field order, indicates the instance type.
-The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
-
-##### 4.2.2.2.3 Choice - Tagged Union
-The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
-one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
-value. But if the *tagid* option is present on a Choice field in an Array or Record container,
-a separate field within that container contains the tag separately from the instance value.
-
-* The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
-
-**Example:**
-
-    Product = Choice                        // Discriminated union
-       1 furniture    Furniture
-       2 appliance    Appliance
-       3 software     Software
-    
-    Dept = Enumerated                       // Explicit Tag values derived from the Choice
-       1 furniture
-       2 appliance
-       3 software
-    
-    Software = String /uri
-    
-    Stock1 = Record                         // Discriminated union with intrinsic tag
-       1 quantity     Integer
-       2 product      Product               // Value = Map with one key/value
-    
-    Stock2 = Record                         // Container with explicitly-tagged discriminated union
-       1 dept         Dept                  // Tag = one key from Choice
-       2 quantity     Integer
-       3 product      Product(TagId[dept])  // Choice specifying an explicit tag field
-
-Example JSON serializations of these types are:
-
-Stock1 - Choice with intrinsic tag:
-
-    {
-        "quantity": 395,
-        "product": {"software": "http://www.example.com/B902D1P0W37"}
-    }
-
-Stock2 - Choice with explicit tag:
-
-    {
-        "dept": "software",
-        "quantity": 395,
-        "product": "http://www.example.com/B902D1P0W37"
-    }
-
-**Intrinsic tags:**
-
-When discriminated unions are grouped the distinction between intrinsic and explicit tags becomes
-more apparent. A collection with intrinsic tags is simply a Map, which results in what the
-[W3C JSON and XML Transformations Workshop](#transform) called "Friendly" encodings.
-
-```
-    Hashes = Map{1..*}            // Multiple discriminated unions with intrinsic tag is a Map
-       1 md5          Binary{16..16} /x optional
-       2 sha1         Binary{20..20} /x optional
-       3 sha256       Binary{32..32} /x optional
-```
-
-Hashes Example:
-
-```json
-{
-    "sha256": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9",
-    "md5": "B64CF5EAF07E86D1697D4EEE96A670B6"
-}
-```
-
-**Explicit tags:**
-
-A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
-results in "UnFriendly" encodings with repeated tag and value keys. Yet because some specifications are
-written in this style, the *tagid* option exists to designate an explicit field to be used to specify
-the value type.
-
-```
-    Hashes2 = ArrayOf(HashVal)    // Multiple discriminated unions with explicit tags is an Array
-    
-    HashVal = Record
-       1 algorithm    Enumerated(Enum[HashAlg])  // Tag - one key from Choice
-       2 value        HashAlg(TagId[algorithm])  // Value selected from Choice by 'algorithm' field
-    
-    HashAlg = Choice
-       1 md5          Binary{16..16} /x
-       2 sha1         Binary{20..20} /x
-       3 sha256       Binary{32..32} /x
-```
-Hashes2 Example:
-```json
-[
-  {
-    "algorithm": "md5",
-    "value": "B64CF5EAF07E86D1697D4EEE96A670B6"
-  },{
-    "algorithm": "sha256",
-    "value": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9"
-  }
-]
-```
 
 -------
 
