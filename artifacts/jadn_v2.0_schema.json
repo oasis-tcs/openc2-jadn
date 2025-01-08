@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://oasis-open.org/openc2/jadn/v1.1",
-  "description": "Validates the structure of a JADN schema, does not check values",
+  "$id": "http://oasis-open.org/openc2/jadn/v2.0/schema",
+  "description": "Validates structure of a JADN schema, does not check values",
   "type": "object",
   "required": ["types"],
   "additionalProperties": false,
   "properties": {
-    "info": {
+    "meta": {
       "type": "object",
       "required": ["package"],
       "additionalProperties": false,
@@ -19,51 +19,28 @@
         "copyright": {"type": "string"},
         "license": {"type": "string"},
         "namespaces": {"$ref": "#/definitions/Namespaces"},
-        "exports": {"$ref": "#/definitions/Roots"},
         "roots": {"$ref": "#/definitions/Roots"},
-        "config": {"$ref": "#/definitions/Config"}
+        "config": {"$ref": "#/definitions/Config"},
+        "jadn_version": {"type": "string"}
       }
     },
     "types": {
       "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 2,
-        "maxItems": 5,
-        "items": [
-          {"$ref": "#/definitions/TypeName"},
-          {"$ref": "#/definitions/BaseType"},
-          {"$ref": "#/definitions/Options"},
-          {"$ref": "#/definitions/Description"},
-          {"$ref": "#/definitions/Fields"}
-        ]
-      }
+      "minItems": 1,
+      "items": {"$ref": "#/definitions/Type"}
     }
   },
   "definitions": {
     "Namespaces": {
-      "anyOf": [
-        {"$ref": "#/definitions/NsArr"},
-        {"$ref": "#/definitions/NsObj"}
-      ]
-    },
-    "NsArr": {
       "type": "array",
       "items": {"$ref": "#/definitions/PrefixNs"}
     },
     "PrefixNs": {
       "type": "array",
-      "items": [
+      "prefixItems": [
         {"$ref": "#/definitions/NSID"},
         {"$ref": "#/definitions/Uri"}
       ]
-    },
-    "NsObj": {
-      "type": "object",
-      "propertyNames": {"$ref": "#/definitions/NSID"},
-      "patternProperties": {
-        "": {"$ref": "#/definitions/Uri"}
-      }
     },
     "Roots": {
       "type": "array",
@@ -79,24 +56,35 @@
         "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
         "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
         "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$MaxDesc": {"type": "integer", "minValue":  1}
+        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
       }
+    },
+    "Type": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "prefixItems": [
+        {"$ref": "#/definitions/TypeName"},
+        {"$ref": "#/definitions/CoreType"},
+        {"$ref": "#/definitions/Options"},
+        {"$ref": "#/definitions/Description"},
+        {"$ref": "#/definitions/Fields"}
+      ]
     },
     "Fields": {
       "type": "array",
-      "items": [
-        {"anyOf": [
+      "items": {
+        "anyOf": [
           {"$ref": "#/definitions/Item"},
           {"$ref": "#/definitions/Field"}
-        ]}
-      ]
+        ]
+      }
     },
     "Item": {
       "type": "array",
       "minItems": 2,
       "maxItems": 3,
-      "items": [
+      "prefixItems": [
         {"type": "integer"},
         {"type": "string"},
         {"$ref": "#/definitions/Description"}
@@ -106,7 +94,7 @@
       "type": "array",
       "minItems": 3,
       "maxItems": 5,
-      "items": [
+      "prefixItems": [
         {"type": "integer"},
         {"$ref": "#/definitions/FieldName"},
         {"$ref": "#/definitions/TypeRef"},
@@ -129,11 +117,11 @@
     "FieldName": {
       "type": "string"
     },
-    "BaseType": {
+    "CoreType": {
       "type": "string",
       "enum": ["Binary", "Boolean", "Integer", "Number", "String",
-               "Enumerated", "Choice",
-               "Array", "ArrayOf", "Map", "MapOf", "Record"]
+               "Array", "ArrayOf", "Map", "MapOf", "Record",
+               "Enumerated", "Choice"]
     },
     "Options": {
       "type": "array",
