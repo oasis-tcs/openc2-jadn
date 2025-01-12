@@ -142,8 +142,8 @@ Instances of a Class are objects that model operations and behavior.
 An object does not have an immutable value: its state can change over time and two objects
 instantiated from the same Class, even with identical property values, are different instances.
 Although objects are not values, DataTypes model object features that are values, such as
-documents and messages in physical systems and public fields and API (getter/setter) views
-of private state in software systems.
+documents and messages in business processes and public fields and API (getter/setter) views
+of private state in software-based systems.
 Additional differences between DataType and Class include:
 * Collection DataTypes specify if value order is significant. Class public fields and API values
 do not have an order.
@@ -163,8 +163,8 @@ specifications. RDF graphs are sets of subject-predicate-object triples, where t
 IRIs, blank nodes, or **datatyped literals**. They are used to express descriptions of resources.*
 
 RDF defines DataType as having a "lexical-to-value (L2V) mapping", and while an RDF graph defines
-relationships among physical and digital resources, DataType is the only RDF element that defines
-a digital resource in terms of both a literal representation and its representation-independent
+relationships among physical and data resources, DataType is the only RDF element that defines
+a data resource in terms of both a literal representation and its representation-independent
 logical value.
 
 Defining equivalence across representations is the primary distinction between information modeling
@@ -272,14 +272,14 @@ Types defined in a package have names qualified by its namespace, and reference 
 packages by their qualified names. An individual Schema instance is called a "package" because it is an
 instance, not a Type, and to distinguish it from an "application schema" that is the set of packages
 in an information model.
-* There is no "information model" type containing or naming a set of schema packages.
+* There is no "information model" type containing or assigning a name to a set of schema packages.
 Applications load relevant package(s) plus any additional packages needed to resolve type references.
 
 [Section 3](#3-schema-packages) defines schema packages and metadata.  \
 [Section 4](#4-jadn-types) defines the JADN core types.  \
 [Section 5](#5-extensions) defines shortcuts that make type definitions more convenient without affecting meaning.  \
 [Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.  \
-[Section 7](#7-alternate-schema-representations) describes some non-normative alternate JADN schema formats:
+[Section 7](#7-alternate-schema-representations) describes non-normative alternate JADN schema formats:
 * a text-based information definition language (IDL) defined and validated by a language grammar
 * property tables used in protocol or document format specifications
 * entity-relationship diagrams (ERDs) used for data modeling
@@ -288,7 +288,7 @@ The normative format of a Schema package, as defined in Sections 3 and 4, is JSO
 schema, but a package can also be represented unambiguously in other formats more suited to human understanding.
 This specification uses JSON to precisely define the structure of a JADN schema,
 but uses the IDL format described in Section 7 where understanding purpose and meaning is the primary goal.
-These representations are equivalent, and the JSON definition of all IDL content is included with this specification.
+These representations are equivalent, but if there is a conflict the JSON definition has precedence.
 
 -------
 
