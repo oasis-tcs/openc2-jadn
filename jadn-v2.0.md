@@ -125,22 +125,25 @@ information conveyed in a message is not directly related to the size or format 
 * **Data items** (documents, messages, protocol data units, data structures, object state, etc.)
 are JADN's scope within a system's domain of discourse.
 
-JADN is based on the **Unified Modeling Language** [[UML](#uml)]:
 > *The objective of UML is to provide system architects, software engineers, and software developers
 with tools for analysis, design, and implementation of software-based systems as well as for modeling
 business and similar processes.*
 
-The UML specification is organized around the concept of classification, and among its
-classifiers are DataType and Class. Instances of a DataType are identified by their value,
-and all instances of a DataType with the same value are considered to be equal instances.
-DataType instances are immutable because by definition different values are different instances.
+-- [[Unified Modeling Language (UML)](#uml)]
+
+JADN is a UML profile for documents and messages. UML's organizing principle is classification, and
+among its classifiers are DataType and Class. Instances of a DataType are identified by their
+value, and all instances of a DataType with the same value are considered to be equal instances.
+DataType instances are immutable because by definition a different value is a different instance.
 A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
 only among instances of the same type.
 
-Instances of a Class are objects. Objects are not identified by value because two objects
-instantiated from the same Class, even with the same property values, remain distinct and no two
-objects are ever equal. Although objects are not values, DataTypes model object features that
-are values, such as public fields and API (getter/setter) views of private state.
+Instances of a Class are objects that model operations and behavior.
+An object does not have an immutable value: its state can change over time and two objects
+instantiated from the same Class, even with identical property values, are different instances.
+Although objects are not values, DataTypes model object features that are values, such as
+documents and messages in physical systems and public fields and API (getter/setter) views
+of private state in software systems.
 Additional differences between DataType and Class include:
 * Collection DataTypes specify if value order is significant. Class public fields and API values
 do not have an order.
@@ -149,8 +152,8 @@ For example, software functions cannot persistently modify arguments passed by v
 those passed by reference. Validating a document for correctness or integrity validates the values
 it contains but not the values it references. A document DataType can distinguish between local and
 external references and validate that local references identify values contained within that instance.
-* Misusing Class to model data often results in contradictions such as treating a
-one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
+* Misusing Class to model data is a common practice, but often results in contradictions such as
+modeling a one-dimensional Coordinate (e.g., latitude) as a DataType but a two-dimensional Coordinate
 (latitude, longitude) as a Class.
 
 The **Resource Description Framework** [[RDF](#rdf)] includes DataTypes:
@@ -601,13 +604,13 @@ in TypeOptions, the Fields array MUST be empty.
 
 ### 4.2.1 Primitive Types
 
-A primitive type has no substructure, and specifies an unrestricted value space without
-regard to processing mechanisms or data format. As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
+A primitive type has no substructure, and specifies an unrestricted space of atomic values
+without regard to processing mechanisms or data format. As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
 the primitive core types are Binary, Boolean, Integer, Number and String.
 
 Type options specify value restrictions such as size, range, and regular expression patterns.
-Semantic validation keywords ("formats") listed in [Section 4.2.4](#424-semantic-validation-keywords)
-may also define value restrictions on primitive types.
+Semantic validation keywords (formats) listed in [Section 4.2.4](#424-semantic-validation-keywords)
+also define value restrictions on primitive types.
 
 Primitive TypeOptions are listed in Table 4-1:
 
@@ -716,11 +719,11 @@ by FieldID and FieldName is treated as a comment and is otherwise ignored.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
-Multiplicity options specify the ordering and uniqueness semantics of compound types. This allows collection
-instances with uniqueness constraints to be validated and instances with the same ordering significance to be
-compared, independently of how they are represented.
-The ArrayOf type can specify the four UML collection types (sequence, set, ordered set, bag).
-Structured and MapOf types are always unique, so they can specify only set or ordered set collections.
+Multiplicity TypeOptions specify the ordering and uniqueness semantics of compound types.
+This allows collection instances with uniqueness constraints to be validated and instances
+with the same ordering significance to be compared, independently of their compound type.
+The ArrayOf compound type can specify the four UML collection types (sequence, set, ordered set, bag).
+Structured and MapOf compound types are always unique, so they can specify only set or ordered set collections.
 The non-default collection types are:
 
 | Compound Type | Multiplicity Option | Collection Properties         |
@@ -765,7 +768,8 @@ of a field within a collection:
 * There are two reserved sentinel values for maxOccurs:
   * UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements package default
     ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), or if not specified, an implementation-defined default.
-  * UNLIMITED (-2) indicates that there is no upper bound.
+  * UNLIMITED (-2) indicates that no upper bound is defined, although implementations are still limited
+    by available storage capacity and the results of resource exhaustion are undefined.
 * If a field has more than one instance, the [data format](#6-serialization-and-data-formats) specifies whether
 its representation differs from that of a single instance. The [Field Multiplicity Extension](#52-field-multiplicity)
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
