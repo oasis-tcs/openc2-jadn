@@ -294,6 +294,7 @@ These representations are equivalent, but if there is a conflict the JSON defini
 
 # 3 Schema Packages
 
+A UML Package is a namespace for its members.
 An information model's abstract schema is composed of schema packages.
 All packages, including the one defining JADN itself, are instances of JADN's `Schema` type.
 Schema has two fields: package metadata defined in this section
@@ -714,8 +715,9 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 are unique within a type.
 * FieldIDs for Array and Record types denote position within the collection and must be numbered consecutively
 starting at 1.
-* For Map, Record, Enumerated and Choice types the `id` option indicates that fields are always identified by FieldID.
+* For Map, Enumerated and Choice types the `id` option indicates that fields are always identified by FieldID.
 FieldName is treated as a comment that has no effect on validation and is never included in literal values.
+The `id` option cannot be used with Record; the Array type is equivalent to Record with id.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
@@ -744,7 +746,7 @@ The TypeOptions applicable to each compound CoreType are:
 | Array               | minLength, maxLength, set                           |
 | MapOf(ktype, vtype) | minLength, maxLength, ordered, ktype, vtype         |
 | Map                 | minLength, maxLength, ordered, id                   |
-| Record              | minLength, maxLength, ordered, id                   |
+| Record              | minLength, maxLength, ordered                       |
 
 #### 4.2.2.1 Field Options
 
