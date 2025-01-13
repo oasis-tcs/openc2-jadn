@@ -372,7 +372,7 @@ than previous revisions. A package namespace uniquely identifies both the topic 
 of a referenced package.
 This field identifies the latest revision of a package when more than one revision is available.
 
-* **jadn_version:** Package namespace of the JADN metaschema used to validate this package.
+* **jadn_version:** Package namespace of the JADN version used to validate this package.
 
 * **namespaces:** A set of associations between Namespace IDs (prefixes) and namespace IRIs.
 Types defined in this package may reference types from other packages using `PrefixedName` as defined in
@@ -686,10 +686,10 @@ but these collection properties can be modified using TypeOptions.
 
 * The vtype option specifies the type of each instance in an ArrayOf or MapOf type.
 * The ktype option specifies the type of each key in a MapOf type.
-* If a collection is Ordered, item order is significant when comparing instances.
-* If a collection is Unique, no item is duplicated within a collection instance.
+* If a collection is Ordered, item order is significant when comparing instances, otherwise it is not.
+* If a collection is Unique, no item is duplicated within a collection instance, otherwise duplicates are allowed.
 * A Structured type includes individual field definitions. Each field defines an association between an identifier
-and a type and may include field-specific options ([Section 4.2.2.1](#4221-field-options)).
+(position and/or key) and a type and may include field-specific options ([Section 4.2.2.1](#4221-field-options)).
 A non-structured compound type defines a collection where each item is an instance of the same type.
 * Each item in a Mapping type is a key:value pair with a unique key, otherwise each item is a value.
 * The Record type defines the key order, which allows Record instances to be represented as either arrays where
@@ -697,16 +697,16 @@ items are identified by position within the array, or associative arrays (maps) 
 
 Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-to-compound-types):
 
-| ID   | Chr | Type    | Name            | Description                                                   |
-|------|:---:|---------|-----------------|---------------------------------------------------------------|
-| 0x2a |  *  | String  | vtype           | Value type for ArrayOf and MapOf                              |
-| 0x2b |  +  | String  | ktype           | Key type for MapOf                                            |
-| 0x7b |  {  | Integer | minLength       | Minimum number of items in a collection, default is 0         |
-| 0x7d |  }  | Integer | maxLength       | Maximum number of items in a collection, default is unlimited |
-| 0x3d |  =  | Boolean | id              | Fields are identified by FieldID not FieldName                |
-| 0x71 |  q  | Boolean | unique, ordered | isOrdered = true,  isUnique = true (ordered set)              | 
-| 0x73 |  s  | Boolean | set             | isOrdered = false, isUnique = true (set)                      |
-| 0x62 |  b  | Boolean | unordered       | isOrdered = false, isUnique = false (bag)                     |
+| ID   | Chr | Type    | Name           | Description                                                   |
+|------|:---:|---------|----------------|---------------------------------------------------------------|
+| 0x2a |  *  | String  | vtype          | Value type for ArrayOf and MapOf                              |
+| 0x2b |  +  | String  | ktype          | Key type for MapOf                                            |
+| 0x7b |  {  | Integer | minLength      | Minimum number of items in a collection, default is 0         |
+| 0x7d |  }  | Integer | maxLength      | Maximum number of items in a collection, default is unlimited |
+| 0x3d |  =  | Boolean | id             | Fields are identified by FieldID not FieldName                |
+| 0x71 |  q  | Boolean | unique/ordered | isOrdered = true,  isUnique = true (ordered set)              | 
+| 0x73 |  s  | Boolean | set            | isOrdered = false, isUnique = true (set)                      |
+| 0x62 |  b  | Boolean | unordered      | isOrdered = false, isUnique = false (bag)                     |
 
 ###### Table 4-2. TypeOptions Specific to Compound Types
 
@@ -714,8 +714,8 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 are unique within a type.
 * FieldIDs for Array and Record types denote position within the collection and must be numbered consecutively
 starting at 1.
-* For all structured types, if the `id` option is present or CoreType is Array, fields are always identified
-by FieldID and FieldName is treated as a comment and is otherwise ignored.
+* For Map, Record, Enumerated and Choice types the `id` option indicates that fields are always identified by FieldID.
+FieldName is treated as a comment that has no effect on validation and is never included in literal values.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
@@ -735,6 +735,16 @@ The non-default collection types are:
 | MapOf         | ordered             | Ordered, Unique (ordered set) |
 | Map           | ordered             | Ordered, Unique (ordered set) |
 | Record        | ordered             | Ordered, Unique (ordered set) |
+
+The TypeOptions applicable to each compound CoreType are:
+
+| Compound Type       | Allowed TypeOptions                                 |
+|---------------------|-----------------------------------------------------|
+| ArrayOf(vtype)      | minLength, maxLength, set, unique, unordered, vtype |
+| Array               | minLength, maxLength, set                           |
+| MapOf(ktype, vtype) | minLength, maxLength, ordered, ktype, vtype         |
+| Map                 | minLength, maxLength, ordered, id                   |
+| Record              | minLength, maxLength, ordered, id                   |
 
 #### 4.2.2.1 Field Options
 
@@ -768,7 +778,7 @@ of a field within a collection:
 * There are two reserved sentinel values for maxOccurs:
   * UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements package default
     ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), or if not specified, an implementation-defined default.
-  * UNLIMITED (-2) indicates that no upper bound is defined, although implementations are still limited
+  * UNLIMITED (-2) indicates that no upper bound is defined. Implementations are still limited
     by available storage capacity and the results of resource exhaustion are undefined.
 * If a field has more than one instance, the [data format](#6-serialization-and-data-formats) specifies whether
 its representation differs from that of a single instance. The [Field Multiplicity Extension](#52-field-multiplicity)
