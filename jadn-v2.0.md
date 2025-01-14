@@ -277,7 +277,7 @@ Applications load relevant package(s) plus any additional packages needed to res
 
 [Section 3](#3-schema-packages) defines schema packages and metadata.  \
 [Section 4](#4-jadn-types) defines the JADN core types.  \
-[Section 5](#5-extensions) defines shortcuts that make type definitions more convenient without affecting meaning.  \
+[Section 5](#5-shortcuts) defines shortcuts that make type definitions more convenient without affecting meaning.  \
 [Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.  \
 [Section 7](#7-alternate-schema-representations) describes non-normative alternate JADN schema formats:
 * a text-based information definition language (IDL) defined and validated by a language grammar
@@ -294,8 +294,8 @@ These representations are equivalent, but if there is a conflict the JSON defini
 
 # 3 Schema Packages
 
-A UML Package is a namespace for its members.
-An information model's abstract schema is composed of schema packages.
+Packages provide the main structuring and organizing capability of UML.
+A UML package is a namespace for its members, and a JADN abstract schema is composed using packages.
 All packages, including the one defining JADN itself, are instances of JADN's `Schema` type.
 Schema has two fields: package metadata defined in this section
 ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), and a list of type definitions defined
@@ -595,7 +595,7 @@ numbered consecutively starting at 1.
 * FieldType MUST be a Primitive type, ArrayOf, MapOf, or a model-defined (non-core) type.
 * If FieldType is not a core type, FieldOptions MUST NOT contain any TypeOption.
 * If FieldOptions includes a TypeOption, that option MUST apply to FieldType.
-* If the [Derived Enumerations](#53-derived-enumerations) or [Pointers](#55-pointers) extensions are present
+* If the [Derived Enumerations](#53-derived-enumerations) or [Pointers](#55-pointers) shortcuts are present
 in TypeOptions, the Fields array MUST be empty.
 * The default value of TypeOptions, Fields and FieldOptions is the empty Array.
 * The default value of TypeDescription, ItemDescription and FieldDescription is the empty String.
@@ -783,7 +783,7 @@ of a field within a collection:
   * UNLIMITED (-2) indicates that no upper bound is defined. Implementations are still limited
     by available storage capacity and the results of resource exhaustion are undefined.
 * If a field has more than one instance, the [data format](#6-serialization-and-data-formats) specifies whether
-its representation differs from that of a single instance. The [Field Multiplicity Extension](#52-field-multiplicity)
+its representation differs from that of a single instance. The [Field Multiplicity Shortcut](#52-field-multiplicity)
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
 multiple instances of a type.
 
@@ -830,20 +830,22 @@ otherwise identical instance without that key.
 
 ### 4.2.3 Union Types
 
-A union type specifies a set of alternatives used to classify a value. A tag consists of an integer and a string,
-each of which is unique within a type definition. Union types define a set of tags, types or both:
+A union type specifies a set of alternatives used to classify a value, where either a single alternative is
+selected by a tag present in the value, or the value is an instance of a defined combination of alternatives.
+A tag consists of an integer and a string, each of which is unique within a type definition.
+Union types define a set of tags, types or both:
 
-| Type       | Tag | Type | Definition                               |
-|:-----------|:---:|:----:|------------------------------------------|
-| Enumerated | Yes |  -   | A vocabulary, a set of tags.             |
-| Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs. |
-| Choice(x)  |  -  | Yes  | An untagged union, a set of types.       |
+| Type       | Tag | Type | Definition                                         |
+|:-----------|:---:|:----:|----------------------------------------------------|
+| Enumerated | Yes |  -   | A vocabulary, a set of tags.                       |
+| Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs.           |
+| Choice(x)  |  -  | Yes  | An untagged union, a logical combination of types. |
 
 The TypeOptions applicable to Union types are:
 
 | ID   | Chr | Type    | Name      | Description                                                                 |
 |------|:---:|---------|-----------|-----------------------------------------------------------------------------|
-| 0x3d |  =  | Boolean | id        | Fields are identified by FieldID not FieldName                              |
+| 0x3d |  =  | Boolean | id        | Field tag is a FieldID not FieldName                                        |
 | 0x43 |  C  | String  | combine   | Option value is a character specifying an untagged union combining function |
 
 #### 4.2.3.1 Enumerated
@@ -1067,54 +1069,11 @@ if the option ID is present the value of that option is True.
 Type options apply to the type definition as a whole. The *id*, *vtype*, *ktype*, *enum*, and *pointer* options
 are intrinsic components of the types to which they apply. 
 Other options specify value constraints on the type.
-```
-TypeOption = Choice
-   61 id        Boolean    // '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
-   42 vtype     String     // '*' Value type for ArrayOf and MapOf (Section 3.2.1.2)
-   43 ktype     String     // '+' Key type for MapOf (Section 3.2.1.3)
-   35 enum      String     // '#' Extension: Enumerated type derived from a specified type (Section 3.3.3)
-   62 pointer   String     // '>' Extension: Enumerated type pointers derived from a specified type (Section 3.3.5)
-   47 format    String     // '/' Semantic validation keyword (Section 3.2.1.5)
-   37 pattern   String     // '%' Regular expression used to validate a String type (Section 3.2.1.6)
-  121 minf      Number     // 'y' Minimum real number value (Section 3.2.1.7)
-  122 maxf      Number     // 'z' Maximum real number value
-  123 minv      Integer    // '{' Minimum integer value, octet or character count, or element count (Section 3.2.1.7)
-  125 maxv      Integer    // '}' Maximum integer value, octet or character count, or element count
-  113 unique    Boolean    // 'q' ArrayOf instance must not contain duplicate values (Section 3.2.1.8)
-  115 set       Boolean    // 's' ArrayOf instance is unordered and unique (Section 3.2.1.9)
-   98 unordered Boolean    // 'b' ArrayOf instance is unordered (Section 3.2.1.10)
-  111 seq       Boolean    // 'o' Map, MapOf, or Record instance is ordered and unique (Section 3.2.1.11)
-   67 combine   String     // 'C' Choice is an untagged union, a logical combination of types (Section 3.2.1.12) 
-   88 extend    Boolean    // 'X' Type is extensible; new Items or Fields may be appended (Section 3.2.1.13)
-   33 default   String     // '!' Default value (Section 3.2.1.14)
-```
-
-* TypeOptions MUST contain zero or one instance of each TypeOption.
-* TypeOptions MUST contain only TypeOption instances allowed for CoreType as shown in Table 3-3, plus a default value.
-
-###### Table 4-3. Allowed Options
-
-| CoreType   | Allowed Options                           |
-|:-----------|:------------------------------------------|
-| Binary     | minv, maxv, format                        |
-| Boolean    |                                           |
-| Integer    | minv, maxv, format                        |
-| Number     | minf, maxf, format                        |
-| String     | minv, maxv, format, pattern               |
-| Array      | minv, maxv, format, extend                |
-| ArrayOf    | vtype, minv, maxv, unique, set, unordered |
-| Map        | id, minv, maxv, seq, extend               |
-| MapOf      | vtype, ktype, minv, maxv, seq             |
-| Record     | minv, maxv, seq, extend                   |
-| Enumerated | id, enum, pointer, extend                 |
-| Choice     | id, combine, extend                       |
-
 
 
 #### 4.2.1.4 Derived Enumeration
 The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
-are extensions that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
-
+are shortcuts that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
 
 
 #### 4.2.1.7 Size and Value Constraints
@@ -1153,15 +1112,15 @@ The Enumerated type matches one value (an Item ID or Name) from the set of ID/Na
 
 -------
 
-# 5 Extensions
+# 5 Shortcuts
 
-JADN consists of a set of core definition elements, plus several extensions that make type definitions
+JADN consists of a set of core definition elements, plus several shortcuts that make type definitions
 more compact or support the [DRY](#dry) software design principle.
-Extensions are syntactic sugar that can be replaced by core definitions without changing their meaning.
+Shortcuts are syntactic sugar that can be replaced by core definitions without changing their meaning.
 Unfolding definitions into core format simplifies the code needed to serialize and validate data
 and may clarify their meaning, but creates additional definitions that must be kept in sync.
 
-The following extensions can be converted to core definitions:
+The following shortcuts can be converted to core definitions:
 * Anonymous type definition within a field
 * Field multiplicity other than required/optional
 * Derived enumeration
@@ -1213,7 +1172,7 @@ Unfolding replaces this with:
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
-field multiplicity extension:
+field multiplicity shortcut:
 
     Roster = Record
        1 org_name     String
@@ -1258,7 +1217,7 @@ Unfolding replaces the Channel and ChannelMask definitions with:
 ## 5.4 MapOf With Enumerated Key
 A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Unfolding replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
-enumeration. In order to use this extension, each ItemValue of the Enumerated type must be a valid FieldName.
+enumeration. In order to use this shortcut, each ItemValue of the Enumerated type must be a valid FieldName.
 
 Example:
 
@@ -1276,13 +1235,13 @@ Applications may need to model both individual types and collections of types, s
 have files and directories.
 The "dir" option ([Section 3.2.2](#322-field-options)) marks a field as a collection of types.
 The dir option has no effect on the structure or serialization of information;
-its sole purpose is to support pathname generation using the Pointer extension.
+its sole purpose is to support pathname generation using the Pointer shortcut.
 
-A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer extension
+A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer shortcut
 ([Section 3.2.1](#321-type-options)) generates a list of all type definitions in and under the specified type.  Unfolding
-replaces the Pointer extension with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
-type. If no fields in the specified type are marked with the "dir" option, the Pointer extension has the same fields
-as the [Derived Enumeration](#53-derived-enumerations) extension except that IDs are sequential rather than copied
+replaces the Pointer shortcut with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
+type. If no fields in the specified type are marked with the "dir" option, the Pointer shortcut has the same fields
+as the [Derived Enumeration](#53-derived-enumerations) shortcut except that IDs are sequential rather than copied
 from the referenced type.
 
 Example:
@@ -1317,7 +1276,7 @@ It also allows referencing type definitions across specifications. If TypeB is d
 its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
 development of packages regardless of whether the underlying data format has native namespace support.
 
-The structure of a "Catalog" instance is not affected by this extension. Although "a/x" is a valid JSON Pointer
+The structure of a "Catalog" instance is not affected by this shortcut. Although "a/x" is a valid JSON Pointer
 to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
 value is not considered an "Item":
 
@@ -1329,7 +1288,7 @@ value is not considered an "Item":
       }
     }
 
-Note that the *enum* and *pointer* extensions create shallow dependencies: the referenced
+Note that the *enum* and *pointer* shortcuts create shallow dependencies: the referenced
 types are needed in order to unfold them but types below the direct references are not.
 
 ## 5.6 Links
@@ -1341,7 +1300,7 @@ cannot recursively contain other instances of that type either directly or indir
 But a type can contain references to itself or to other types without restriction, as long as the
 referenced type contains a primary key that identifies instances of that type.
 
-The link extension supports references: the *key* option designates a field as a primary key,
+The link shortcut supports references: the *key* option designates a field as a primary key,
 and the *link* option designates a field as a foreign key that references an instance of the specified type.
 The *key* and *link* options do not affect serialization or validation of data, but they MAY
 be used by applications to perform relationship-aware operations such as checking referential integrity.
@@ -1775,7 +1734,7 @@ Figure 7-3 is an example instance of the University type serialized in
 # 8 Conformance
 
 Conformance targets:
-This document defines two conformance levels for JADN implementations: Core and Extensions.
+This document defines two conformance levels for JADN implementations: Core and Shortcuts.
 
 This document defines several data formats. Conformance claims are made with respect to a specified data format,
 and conforming implementations must support at least one data format.
@@ -1785,9 +1744,9 @@ and conforming implementations must support at least one data format.
     and [section 3](#3-schema-packages)
     * Validate API values against a schema package
     * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 6](#6-serialization-and-data-formats)
-* JADN Extensions
+* JADN Shortcuts
     * Satisfy all Core requirements
-    * Perform all extension unfolding operations defined in [Section 3.3](#33-jadn-extensions)
+    * Perform all shortcut unfolding operations defined in [Section 3.3](#33-jadn-shortcuts)
 
 This document describes information modeling functions but defines no corresponding conformance requirements:
 
@@ -1796,8 +1755,8 @@ This document describes information modeling functions but defines no correspond
       [Section 6](#6-serialization-and-data-formats).
 * JADN Concrete Schema Generators
     * Generate format-specific concrete schemas per serialization rules in Section 4.x.
-* JADN Extensions
-    * Recognize opportunities to fold related types into extensions, i.e., given a core schema package,
+* JADN Shortcuts
+    * Recognize opportunities to fold related types into shortcuts, i.e., given a core schema package,
      generate syntactic sugar where possible.
 
 -------
