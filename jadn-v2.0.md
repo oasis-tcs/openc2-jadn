@@ -125,6 +125,9 @@ information conveyed in a message is not directly related to the size or format 
 * **Data items** (documents, messages, protocol data units, data structures, object state, etc.)
 are JADN's scope within a system's domain of discourse.
 
+An information model answers the question "What does the recipient know after receiving a data item"?
+It defines and communicates a form separately from the values used to fill it in.
+
 > *The objective of UML is to provide system architects, software engineers, and software developers
 with tools for analysis, design, and implementation of software-based systems as well as for modeling
 business and similar processes.*
@@ -664,7 +667,7 @@ A Number instance is a value in the ordered infinite set of real numbers.
 * A value MUST satisfy the conditions defined for each type option listed in
 [Table 4-1](#table-4-1-typeoptions-specific-to-primitive-types)
 to be classified as an instance of a type containing that option.
-* The *pattern* option value SHOULD conform to the Pattern grammar of [ECMAScript](#ecmascript) Section 22.2.
+* The *pattern* option value SHOULD conform to the Pattern grammar of [[ECMAScript](#ecmascript)] Section 22.2.
 
 ### 4.2.2 Compound Types
 
@@ -716,10 +719,24 @@ are unique within a type.
 * FieldIDs for Array and Record types denote position within the collection and must be numbered consecutively
 starting at 1.
 * For Map, Enumerated and Choice types the `id` option indicates that fields are always identified by FieldID.
-FieldName is treated as a comment that has no effect on validation and is never included in literal values.
-The `id` option cannot be used with Record; the Array type is equivalent to Record with id.
+  * Without `id`, FieldName is a defined name that is included in the semantics of the type, must be
+    populated in the type definition, and may appear in serialized data depending on serialization format.
+  * With `id`, FieldName is a suggested label that is not included in the semantics of the type,
+    may be empty in the type definition, has no effect on validation,
+    and never appears in serialized data regardless of data format. 
+  * The `id` option cannot be used with Record; the Array type is equivalent to Record with id.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
+
+<!-- For CN?
+#### 4.2.1.1 Field Identifiers
+
+For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
+If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
+whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
+the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
+such as "NotAllowed", "Verboten", or "Interdit".
+-->
 
 Multiplicity TypeOptions specify the ordering and uniqueness semantics of compound types.
 This allows collection instances with uniqueness constraints to be validated and instances
@@ -750,7 +767,8 @@ The TypeOptions applicable to each compound CoreType are:
 
 #### 4.2.2.1 Field Options
 
-Structured compound types (Array, Map and Record) have Fields that define each item in a collection individually.
+Structured compound types (Array, Map and Record) and the Choice type have Fields that define each item in a
+collection individually.
 Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 [Table 4-3](#table-4-3-options-applicable-to-an-individual-field):
 
@@ -777,7 +795,7 @@ of a field within a collection:
 |         m |         n |         m..n | At least m but no more than n instances |
 
 * The default value of minOccurs and maxOccurs is 1.
-* There are two reserved sentinel values for maxOccurs:
+* maxOccurs includes non-negative integers (0..n), plus two reserved sentinel values less than 0: 
   * UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements package default
     ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), or if not specified, an implementation-defined default.
   * UNLIMITED (-2) indicates that no upper bound is defined. Implementations are still limited
@@ -786,27 +804,6 @@ of a field within a collection:
 its representation differs from that of a single instance. The [Field Multiplicity Shortcut](#52-field-multiplicity)
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
 multiple instances of a type.
-
-<!--
-
-#### 4.2.1.1 Field Identifiers
-
-The *id* option used with Map, Enumerated, and Choice types determines how fields are specified in API instances of these types.
-If the *id* option is absent, API instances use the FieldName string and the type is referred to as "named".
-If the *id* option is present, API instances use the FieldID tag and the type is referred to as "labeled".
-The Record type is always named and has no *id* option; the Array type is its labeled equivalent.
-* In named types, FieldName is a defined name that is included in the semantics of the type, must be
-populated in the type definition, and may appear in serialized data depending on serialization format.
-* In labeled types, FieldName is a suggested label that is not included in the semantics of the type,
-may be empty in the type definition, and never appears in serialized data regardless of data format.
-
-For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
-If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
-whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
-the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
-such as "NotAllowed", "Verboten", or "Interdit".
-
--->
 
 #### 4.2.2.2 Compound Type Conformance Requirements
 
@@ -831,29 +828,39 @@ otherwise identical instance without that key.
 ### 4.2.3 Union Types
 
 A union type specifies a set of alternatives used to classify a value, where either a single alternative is
-selected by a tag present in the value, or the value is an instance of a defined combination of alternatives.
+selected by a tag present in the value, or the value is an instance of a specified combination of alternatives.
 A tag consists of an integer and a string, each of which is unique within a type definition.
 Union types define a set of tags, types or both:
 
-| Type       | Tag | Type | Definition                                         |
-|:-----------|:---:|:----:|----------------------------------------------------|
-| Enumerated | Yes |  -   | A vocabulary, a set of tags.                       |
-| Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs.           |
-| Choice(x)  |  -  | Yes  | An untagged union, a logical combination of types. |
+| Type       | Tag | Type | Definition                                           |
+|:-----------|:---:|:----:|------------------------------------------------------|
+| Enumerated | Yes |  -   | A vocabulary, a set of tags.                         |
+| Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs.             |
+| Choice(x)  |  -  | Yes  | An untagged union, a specified combination of types. |
 
 The TypeOptions applicable to Union types are:
 
 | ID   | Chr | Type    | Name      | Description                                                                 |
 |------|:---:|---------|-----------|-----------------------------------------------------------------------------|
-| 0x3d |  =  | Boolean | id        | Field tag is a FieldID not FieldName                                        |
+| 0x3d |  =  | Boolean | id        | Tag is an integer FieldID, not a string FieldName                           |
 | 0x43 |  C  | String  | combine   | Option value is a character specifying an untagged union combining function |
 
 #### 4.2.3.1 Enumerated
- An instance is a value that equals one of a set of specified tags. The `id` option
- specifies that the value is an integer matching an `item_id`, otherwise it is a string matching `item_value`.
+
+An instance is a value that equals one of a set of specified tags. The `id` option 
+specifies that the value is an integer matching an `item_id`, otherwise it is a string matching `item_value`.
+
+* Derived Enumeration
+
+The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
+are shortcuts that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
 
 #### 4.2.3.2 Choice
+
 An instance is a value matching the type designated by the tag.
+
+Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are optional and exactly
+one must be present. Values greater than 1 specify an array of elements.
 
 #### 4.2.3.3 Choice(x)
 The *combine* option (x) specifies that a Choice instance must be valid against a logical combination of types.
@@ -896,7 +903,6 @@ value. But if the *tagid* option is present on a Choice field in an Array or Rec
 a separate field within that container contains the tag separately from the instance value.
 
 * The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
-
 
 **Example:**
 
@@ -1013,7 +1019,7 @@ The *format* option value is a semantic validation keyword. Each keyword specifi
 a subset of logical values that are accurately described by authoritative resources.  The *format* option may also
 affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
 
-#### 4.1.4.1 JADN Semantic Validation
+#### 4.2.4.1 JADN Semantic Validation
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
@@ -1031,7 +1037,7 @@ affect how logical values are serialized, see [Section 6](#6-serialization-and-d
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
 
-#### 4.1.4.2 XSD Semantic Validation
+#### 4.2.4.2 XSD Semantic Validation
 
 Semantic validation keywords defined in [[XSD]()].
 
@@ -1040,7 +1046,7 @@ Semantic validation keywords defined in [[XSD]()].
 | XML Schema formats | String  |  |
 
 
-#### 4.1.4.3 JSON Schema Semantic Validation
+#### 4.2.4.3 JSON Schema Semantic Validation
 
 Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
 
@@ -1048,11 +1054,17 @@ Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3
 |---------------------|---------|---------------------------------------------------------------------------------------|
 | JSON Schema formats | String  |  |
 
-### 4.2.5 General Options
+### 4.2.5 General Type Options
 
 These options apply to all core types:
 
 * default, type inheritance
+
+#### 4.2.5.1 Default Value
+
+The *default* option specifies the initial or default value of a field. Applications deserializing
+a document MUST initialize an unspecified type with its default value.
+Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
 
 This section defines the mechanism used to support a varied set of information needs within the strictly regular
 structure of [Section 4.1](#41-type-definition-structure). New requirements can be accommodated by defining new options
@@ -1064,51 +1076,6 @@ Each option is a text string that may be included in TypeOptions or FieldOptions
 [Section 4.2.1](#421-type-options) and [Section 4.2.2](#422-field-options).
 * The remaining characters are the option value. Boolean options have no additional characters;
 if the option ID is present the value of that option is True.
-
-### 4.2.1 Type Options
-Type options apply to the type definition as a whole. The *id*, *vtype*, *ktype*, *enum*, and *pointer* options
-are intrinsic components of the types to which they apply. 
-Other options specify value constraints on the type.
-
-
-#### 4.2.1.4 Derived Enumeration
-The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
-are shortcuts that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
-
-
-#### 4.2.1.7 Size and Value Constraints
-The *minv* and *maxv* options specify size or integer value limits.
-The *minf* and *maxf* options specify real number value limits.
-
-* For Binary, String, Array, ArrayOf, Map, MapOf, and Record types:
-    * if *minv* is not present, it defaults to zero.
-    * if *maxv* is not present or is zero, it defaults to the upper bound specified in [Section 4.2.1](#421-type-options).
-    * a Binary instance MUST be considered invalid if its number of bytes is less than *minv* or greater than *maxv*.
-    * a String instance MUST be considered invalid if its number of characters is less than *minv* or greater than *maxv*.
-    * an Array, ArrayOf, Map, MapOf, or Record instance MUST be considered invalid if its number of elements is less than *minv* or greater than *maxv*.
-* For Integer types:
-    * if *minv* is present, an instance MUST be considered invalid if its value is less than *minv*.
-    * if *maxv* is present, an instance MUST be considered invalid if its value is greater than *maxv*.
-* For Number types:
-    * if *minf* is present, an instance MUST be considered invalid if its value is less than *minf*.
-    * if *maxf* is present, an instance MUST be considered invalid if its value is greater than *maxf*.
-
-
-#### 4.2.1.14 Default Value
-The *default* option specifies the initial or default value of a field. Applications deserializing
-a document MUST initialize an unspecified type with its default value.
-Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
-
-
-
-#### 4.2.2.1 Multiplicity
-
-Within a Choice type *minc* values of 0 and 1 are equivalent because all fields are optional and exactly
-one must be present. Values greater than 1 specify an array of elements.
-
-#### 4.2.2.2 Union Types
-The Enumerated type matches one value (an Item ID or Name) from the set of ID/Name pairs defined by the type.
-
 
 -------
 
@@ -1127,6 +1094,13 @@ The following shortcuts can be converted to core definitions:
 * MapOf type with Enumerated key type
 * Pointers
 * Links
+
+| ID | Chr | Type   | Name    | Description |
+|----|:---:|--------|---------|-------------|
+|    |     |        | enum    |             |
+|    |     |        | pointer |             |
+|    |  K  |        | key     |             |
+|    |  L  |        | Link    |             |
 
 ## 5.1 Type Definition Within Fields
 
