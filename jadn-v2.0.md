@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 8 January 2025
+## 22 January 2025
 
 &nbsp;
 
@@ -36,8 +36,8 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.1.json
-* JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/schemas/jadn-v1.1.jadn
+* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/cs01/schemas/jadn-v2.0.json
+* JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/cs01/schemas/jadn-v2.0.jadn
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
@@ -125,8 +125,8 @@ information conveyed in a message is not directly related to the size or format 
 * **Data items** (documents, messages, protocol data units, data structures, object state, etc.)
 are JADN's scope within a system's domain of discourse.
 
-An information model answers the question "What does the recipient know after receiving a data item"?
-It defines and communicates a form separately from the values used to fill it in.
+An information model defines the question "What does the recipient know after receiving
+a data item" separately from "what does a data item look like".
 
 > *The objective of UML is to provide system architects, software engineers, and software developers
 with tools for analysis, design, and implementation of software-based systems as well as for modeling
@@ -265,11 +265,11 @@ organized into abstract schema packages which are included in an application's i
 ![Information Model Structure](images/im-toplevel.jpg)
 ###### Figure 2-1 -- Information Model Organization
 
-* An IM consists of a set of abstract schemas that define information content, and a set of
+* A JADN IM consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core type.
 * Schema is the top level JADN type. It has two fields:
   * "Metadata" containing descriptive and functional information about the schema package as a whole.
-  * List of "Type" containing JADN type definitions. Every type definition is a UML DataType
+  * List of "Type" containing JADN type definitions. Every type definition is a UML DataType.
 * An instance of the Schema type is identified by a globally-unique package namespace.
 Types defined in a package have names qualified by its namespace, and reference types defined in other
 packages by their qualified names. An individual Schema instance is called a "package" because it is an
@@ -283,9 +283,9 @@ Applications load relevant package(s) plus any additional packages needed to res
 [Section 5](#5-shortcuts) defines shortcuts that make type definitions more convenient without affecting meaning.  \
 [Section 6](#6-serialization-and-data-formats) discusses using encoding rules to define concrete data formats.  \
 [Section 7](#7-alternate-schema-representations) describes non-normative alternate JADN schema formats:
-* a text-based information definition language (IDL) defined and validated by a language grammar
-* property tables used in protocol or document format specifications
-* entity-relationship diagrams (ERDs) used for data modeling
+  * a text-based information definition language (IDL) defined and validated by a language grammar
+  * property tables used in protocol or document format specifications
+  * entity-relationship diagrams (ERDs) used for data modeling
 
 The normative format of a Schema package, as defined in Sections 3 and 4, is JSON data that can be validated by a
 schema, but a package can also be represented unambiguously in other formats more suited to human understanding.
@@ -302,7 +302,7 @@ A UML package is a namespace for its members, and a JADN abstract schema is comp
 All packages, including the one defining JADN itself, are instances of JADN's `Schema` type.
 Schema has two fields: package metadata defined in this section
 ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), and a list of type definitions defined
-in the [next section](#4-jadn-types).
+in [Section 4](#4-jadn-types).
 
 ```
        title: "JADN Metaschema"
@@ -369,7 +369,6 @@ These Metadata fields affect schema processing:
 * **package:** A namespace [[IRI](#iri)] that unambiguously identifies this Schema instance and allows type
 definitions in this package to be unambiguously referenced from other packages.
 This is a unique identifier but not necessarily a resource locator.
-If Metadata is present in a Schema instance it must include the package field; all other fields are optional.
 
 * **version:** Incremental revision of this package, a string that compares lexicographically higher
 than previous revisions. A package namespace uniquely identifies both the topic and published version
@@ -411,17 +410,18 @@ are prefixed names that include an NSID.
   * **Size Limits:** These variables define default maximum sizes for variable-sized
 Primitive and Compound types ([Section 4](#4-jadn-types)).
 Individual type definitions override implementation or package defaults using type options.
-    * **$MaxBinary:** Maximum number of octets in a Binary instance. Default maxLength = 255
-    * **$MaxString:** Maximum number of characters in a String instance. Default maxLength = 255
-    * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance. Default maxOccurs = 255
+    * **$MaxBinary:** Maximum number of octets in a Binary instance. Default `maxLength` = 255
+    * **$MaxString:** Maximum number of characters in a String instance. Default `maxLength` = 255
+    * **$MaxElements:** Maximum number of items in an ArrayOf or MapOf instance. Default `maxOccurs` = 255
 
-### 3.1.4 Package Conformance Requirements
+### 3.1.3 Package Conformance Requirements
 * The $TypeName format MUST permit TypeNames containing the $Sys character, which is used
 in type names generated by schema processing and translation.
 * The $FieldName format MUST NOT permit FieldNames containing the $Sys character, to enable its
 use as a path component separator.
 * A TypeRef instance MUST be a qualified name (`QName`) as defined in [[XML Namespaces](#xml-namespaces)]
 using $NSID and $TypeName instances as `Prefix` and `LocalPart` respectively.
+* If Metadata is present in a Schema instance it MUST include the package field; all other fields are optional.
 
 -------
 
@@ -498,9 +498,9 @@ Each type definition has five elements:
 
 **Defaults:**
 
-If TypeOptions is not present in a type definition, its default is the empty array.  \
-If TypeDescription is not present, its default is the empty string.  \
-If Fields is not present, its default is the empty array.
+* If TypeOptions is not present in a type definition, its default is the empty array.
+* If TypeDescription is not present, its default is the empty string.
+* If Fields is not present, its default is the empty array.
 
 ### 4.1.1 Primitive
 If CoreType is a Primitive or unstructured Compound type, the **Fields** array is empty.
@@ -703,8 +703,8 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 
 | ID   | Chr | Type    | Name           | Description                                                   |
 |------|:---:|---------|----------------|---------------------------------------------------------------|
-| 0x2a |  *  | String  | vtype          | Value type for ArrayOf and MapOf                              |
-| 0x2b |  +  | String  | ktype          | Key type for MapOf                                            |
+| 0x2a |  *  | TypeRef | vtype          | Value type for ArrayOf and MapOf                              |
+| 0x2b |  +  | TypeRef | ktype          | Key type for MapOf                                            |
 | 0x7b |  {  | Integer | minLength      | Minimum number of items in a collection, default is 0         |
 | 0x7d |  }  | Integer | maxLength      | Maximum number of items in a collection, default is unlimited |
 | 0x3d |  =  | Boolean | id             | Fields are identified by FieldID not FieldName                |
@@ -807,7 +807,7 @@ multiple instances of a type.
 
 #### 4.2.2.2 Compound Type Conformance Requirements
 
-* A compound type MUST NOT include more than on multiplicity option (set, unique, ordered, or unordered).
+* A compound type MUST NOT include more than one multiplicity option (set, unique, ordered, or unordered).
 * If CoreType is ArrayOf, TypeOptions MUST include the vtype option.
 * If CoreType is MapOf, TypeOptions MUST include ktype and vtype options.
 * The ktype option SHOULD be a constrained type such as an enumeration, pattern or semantic valuation keyword
@@ -827,9 +827,9 @@ otherwise identical instance without that key.
 
 ### 4.2.3 Union Types
 
-A union type specifies a set of alternatives used to classify a value, where either a single alternative is
-selected by a tag present in the value, or the value is an instance of a specified combination of alternatives.
-A tag consists of an integer and a string, each of which is unique within a type definition.
+A union type specifies a set of alternatives used to classify a value. Like Compound types, some Union types
+have fields individually identified by tag, where the tag consists of an integer FieldID and a string FieldName,
+each of which is local to and unique within the type definition.
 Union types define a set of tags, types or both:
 
 | Type       | Tag | Type | Definition                                           |
@@ -840,15 +840,18 @@ Union types define a set of tags, types or both:
 
 The TypeOptions applicable to Union types are:
 
-| ID   | Chr | Type    | Name      | Description                                                                 |
-|------|:---:|---------|-----------|-----------------------------------------------------------------------------|
-| 0x3d |  =  | Boolean | id        | Tag is an integer FieldID, not a string FieldName                           |
-| 0x43 |  C  | String  | combine   | Option value is a character specifying an untagged union combining function |
+| ID   | Chr | Type    | Name      | Description                                                                  |
+|------|:---:|---------|-----------|------------------------------------------------------------------------------|
+| 0x3d |  =  | Boolean | id        | If present Tag is an integer FieldID, otherwise a string FieldName           |
+| 0x43 |  C  | String  | combine   | Option value is a character specifying the untagged union combining function |
 
 #### 4.2.3.1 Enumerated
 
-An instance is a value that equals one of a set of specified tags. The `id` option 
-specifies that the value is an integer matching an `item_id`, otherwise it is a string matching `item_value`.
+An Enumerated type defines a vocabulary, an explicitly listed set of values.
+An instance is a value included in the set.
+The `id` option specifies that an instance is an integer matching an `item_id`,
+otherwise it is a string matching the corresponding `item_value`.
+
 
 * Derived Enumeration
 
@@ -875,7 +878,7 @@ A Choice(x) type with a single field can be used to define an alias for FieldTyp
 
 | ID   | Chr | Type    | Name  | Description                                                      |
 |------|:---:|---------|-------|------------------------------------------------------------------|
-| 0x26 |  &  | Integer | tagId | field that specifies the type of this field                      |
+| 0x26 |  &  | Integer | tagId | field that contains the tag for this field                       |
 | 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Choice |
 
 #### 4.2.3.5 Union Type Conformance Requirements
@@ -1011,15 +1014,19 @@ Hashes2 Example:
 
 ... an extensible set of ...
 
-| ID   | Chr | Type    | Name         | Description                                       |
-|------|:---:|---------|--------------|---------------------------------------------------|
-| 0x2f |  /  | *       | format       | Semantic validation keyword                       |
+| ID   | Chr | Type       | Name         | Description                                       |
+|------|:---:|------------|--------------|---------------------------------------------------|
+| 0x2f |  /  | Enumerated | format       | Semantic validation keyword                       |
 
-The *format* option value is a semantic validation keyword. Each keyword specifies validation requirements for
-a subset of logical values that are accurately described by authoritative resources.  The *format* option may also
-affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
+The *format* option value is a semantic validation keyword selected from a defined set of options.
+Each keyword specifies validation requirements for logical values that are accurately described by authoritative
+resources, and the serialized (literal) representations of those values. For formats whose logical type equals
+the literal type (e.g., /email, /hostname for string values), validation operates on that type. For 
 
-#### 4.2.4.1 JADN Semantic Validation
+
+The *format* option may also affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
+
+#### 4.2.4.1 JADN Semantic Validation Keywords
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
@@ -1037,7 +1044,7 @@ affect how logical values are serialized, see [Section 6](#6-serialization-and-d
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
 
-#### 4.2.4.2 XSD Semantic Validation
+#### 4.2.4.2 XSD Semantic Validation Keywords
 
 Semantic validation keywords defined in [[XSD]()].
 
@@ -1046,13 +1053,20 @@ Semantic validation keywords defined in [[XSD]()].
 | XML Schema formats | String  |  |
 
 
-#### 4.2.4.3 JSON Schema Semantic Validation
+#### 4.2.4.3 JSON Schema Semantic Validation Keywords
+
+[JSON Schema]() defines Semantic Content With Format
 
 Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
 
-| Keyword             | Type    | Requirement                                                                           |
-|---------------------|---------|---------------------------------------------------------------------------------------|
-| JSON Schema formats | String  |  |
+| Keyword   | Type    | Requirement                                                             |
+|-----------|---------|-------------------------------------------------------------------------|
+| date-time | Integer | POSIX time formatted as defined by [RFC 3339]() Section 5.6 "date-time" |
+| date      | Integer | POSIX time "full-date"                                                  |
+| time      | Integer | POSIX time "full-time"                                                  |
+| duration  | Integer | Duration formatted as defined in RFC 3339 Appendix A                    |
+| email     | String  | Internet Email address as defined by [RFC 5322]() Section 3.4.1         |
+| idn-email | String  | Internet Email address as defined by [RFC 6531]()                       |
 
 ### 4.2.5 General Type Options
 
