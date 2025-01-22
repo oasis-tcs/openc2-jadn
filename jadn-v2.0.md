@@ -1098,8 +1098,8 @@ if the option ID is present the value of that option is True.
 JADN consists of a set of core definition elements, plus several shortcuts that make type definitions
 more compact or support the [DRY](#dry) software design principle.
 Shortcuts are syntactic sugar that can be replaced by core definitions without changing their meaning.
-Unfolding definitions into core format simplifies the code needed to serialize and validate data
-and may clarify their meaning, but creates additional definitions that must be kept in sync.
+Expanding shortcuts into core definitions simplifies serialization and validation code
+and may aid understanding, but creates additional definitions that must be kept in sync.
 
 The following shortcuts can be converted to core definitions:
 * Anonymous type definition within a field
@@ -1109,17 +1109,24 @@ The following shortcuts can be converted to core definitions:
 * Pointers
 * Links
 
-| ID | Chr | Type   | Name    | Description |
-|----|:---:|--------|---------|-------------|
-|    |     |        | enum    |             |
-|    |     |        | pointer |             |
-|    |  K  |        | key     |             |
-|    |  L  |        | Link    |             |
+| ID   | Chr | Type    | Name    | Description                                                        |
+|------|:---:|---------|---------|--------------------------------------------------------------------|
+| 0x23 |  #  | TypeRef | enum    | Enumerated type derived from a structured type                     |
+| 0x3e |  >  | TypeRef | pointer | Enumerated type containing pointers derived from a structured type |
+
+| ID   | Chr | Type    | Name | Description                                                 |
+|------|:---:|---------|------|-------------------------------------------------------------|
+| 0x4b |  K  | Boolean | key  | Field is a primary key for instances of this type           |
+| 0x4c |  L  | Boolean | link | Field is a foreign key identifying an instance of FieldType |
 
 ## 5.1 Type Definition Within Fields
 
-A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field of a structure definition.
-Unfolding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
+Each field of structured type (Array, Map, Record) whose FieldType is an unstructured core type
+(any primitive type with type options, ArrayOf, MapOf) defines an anonymous type. 
+
+A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field
+of a structured type definition.
+Expanding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
 ([Section 4.2.1](#421-type-options)) from FieldOptions.
 
 Example:
