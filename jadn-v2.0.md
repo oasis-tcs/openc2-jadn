@@ -1119,29 +1119,30 @@ The following shortcuts can be converted to core definitions:
 | 0x4b |  K  | Boolean | key  | Field is a primary key for instances of this type           |
 | 0x4c |  L  | Boolean | link | Field is a foreign key identifying an instance of FieldType |
 
-## 5.1 Type Definition Within Fields
+## 5.1 Anonymous Type Definition
 
-Each field of structured type (Array, Map, Record) whose FieldType is an unstructured core type
-(any primitive type with type options, ArrayOf, MapOf) defines an anonymous type. 
+This shortcut allows fields within a structured type to be defined anonymously.
+Expanding the definition generates a named type for each anonymous field, moves
+all TypeOptions included in the field to the generated type,
+and replaces the field type with a reference to the generated type.
+This requires the anonymous field to be a non-structured core type and any TypeOption
+values included in FieldOptions to apply to FieldType. 
 
-A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field
-of a structured type definition.
-Expanding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
-([Section 4.2.1](#421-type-options)) from FieldOptions.
+Example: a structured type with anonymous fields:
+```
+Coordinate = Record                              // A GPS coordinate
+   1 latitude         Number {-90.0, 90.0}       // A Number between -90 and 90 degrees
+   2 longitude        Number {-180.0, 180.0}     // A Number between -180 and 180 degrees
+```
+Expanded type with references to generated types:
+```
+Coordinate = Record                              // A GPS coordinate
+   1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
+   2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
 
-Example:
-
-    Member = Record
-       1 name         String
-       2 email        String /email
-
-Unfolding replaces this with:
-
-    Member = Record
-       1 name         String
-       2 email        Member$email
-    
-    Member$email = String /email           // Tool-generated type definition.
+Coordinate.latitude = Number {-90.0, 90.0}
+Coordinate.longitude = Number {-180.0, 180.0}
+```
 
 ## 5.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
