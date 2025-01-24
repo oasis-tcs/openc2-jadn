@@ -623,45 +623,52 @@ Primitive TypeOptions are listed in Table 4-1:
 | 0x25 |  %  | String  | pattern      | Instance matches the specified regular expression |
 | 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
 | 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
+| 0x76 |  v  | *       | const        | Instance is equal to option value                 |
 | 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
 | 0x78 |  x  | *       | maxInclusive | Instance is less than or equal to option value    |
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-`*` = Option value must be an instance of CoreType.
+`*` = Option value must evaluate to an instance of CoreType.
 
 ###### Table 4-1. TypeOptions Specific to Primitive Types
 
-#### 4.2.1.1 Binary
-A Binary instance is sequence of octets. Binary values are not ordered so range
-options do not apply. 
+*Note: This specification does not define an expression language but does not preclude their use.
+For options with type = `*` the result of using a value other than a single terminal element
+(literal instance of a Primitive type) is not defined here.*
 
-**Options:** minLength, maxLength
+#### 4.2.1.1 Boolean
+A Boolean instance is one of the predefined values *true* and *false*.
 
-#### 4.2.1.2 String
+**Options:** const
+
+#### 4.2.1.2 Integer
+An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
+
+**Options:** const
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
+
+#### 4.2.1.3 Number
+A Number instance is a value in the ordered infinite set of real numbers.
+
+**Options:** const
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
+
+#### 4.2.1.4 String
 A String instance is a sequence of characters in a character set. Value range options are
 meaningful if the character set defines a collation order. The pattern, length, and range
 options are not normally used together, but if more than one kind is present in a
 type definition an instance must satisfy all conditions.
 
-**Options:** pattern  \
+**Options:** pattern, const  \
 **Length Options:** minLength, maxLength  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
-#### 4.2.1.3 Boolean
-A Boolean instance is one of the predefined values *true* and *false*.
+#### 4.2.1.5 Binary
+A Binary instance is sequence of octets. Binary values are not ordered so range
+options do not apply. 
 
-**Options:** none
-
-#### 4.2.1.4 Integer
-An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
-
-**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
-
-#### 4.2.1.5 Number
-A Number instance is a value in the ordered infinite set of real numbers.
-
-**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
+**Options:** minLength, maxLength, const
 
 #### 4.2.1.6 Primitive Type Conformance Requirements
 * A value MUST satisfy the conditions defined for each type option listed in
