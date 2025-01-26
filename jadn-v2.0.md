@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 22 January 2025
+## 29 January 2025
 
 &nbsp;
 
@@ -645,13 +645,13 @@ A Boolean instance is one of the predefined values *true* and *false*.
 #### 4.2.1.2 Integer
 An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
 
-**Options:** const
+**Options:** const  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.3 Number
 A Number instance is a value in the ordered infinite set of real numbers.
 
-**Options:** const
+**Options:** const  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.4 String
@@ -839,58 +839,102 @@ have fields individually identified by tag, where the tag consists of an integer
 each of which is local to and unique within the type definition.
 Union types define a set of tags, types or both:
 
-| Type       | Tag | Type | Definition                                           |
-|:-----------|:---:|:----:|------------------------------------------------------|
-| Enumerated | Yes |  -   | A vocabulary, a set of tags.                         |
-| Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs.             |
-| Choice(x)  |  -  | Yes  | An untagged union, a specified combination of types. |
+| Type       | Tag | Type | Definition                                        |
+|:-----------|:---:|:----:|---------------------------------------------------|
+| Enumerated | Yes |  -   | Vocabulary, a set of tags.                        |
+| Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.            |
+| Choice(Cx) |  -  | Yes  | Untagged union, a specified combination of types. |
 
 The TypeOptions applicable to Union types are:
 
-| ID   | Chr | Type    | Name      | Description                                                                  |
-|------|:---:|---------|-----------|------------------------------------------------------------------------------|
-| 0x3d |  =  | Boolean | id        | If present Tag is an integer FieldID, otherwise a string FieldName           |
-| 0x43 |  C  | String  | combine   | Option value is a character specifying the untagged union combining function |
+| ID   | Chr | Type    | Name    | Description                                                                  |
+|------|:---:|---------|---------|------------------------------------------------------------------------------|
+| 0x3d |  =  | Boolean | id      | If present Tag is an integer FieldID, otherwise a string FieldName           |
+| 0x43 |  C  | String  | combine | Option value is a character specifying the untagged union combining function |
 
 #### 4.2.3.1 Enumerated
 
-An Enumerated type defines a vocabulary, an explicitly listed set of values.
-An instance is a value included in the set.
+An Enumerated type defines a vocabulary, an explicitly listed set of `item_id`:`item_value` pairs.
+Enumerated is described as "a degenerate tagged union of unit type" ([ENUM](#enum)) because it defines
+the tags of a tagged union without any associated type, and an instance equals one of the defined tags.
 The `id` option specifies that an instance is an integer matching an `item_id`,
 otherwise it is a string matching the corresponding `item_value`.
 
+The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) shortcuts
+create an Enumerated type containing the tags from a referenced structured type.
 
-* Derived Enumeration
+#### 4.2.3.2 Choice (Tagged)
 
-The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
-are shortcuts that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
+The Choice type without a *combine* TypeOption is a tagged union, a structure that defines a set of tag:type pairs.
+Values include a tag specifying a single FieldType from the set, and an instance is a value that matches the
+FieldType specified by the tag.
 
-#### 4.2.3.2 Choice
+Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are inherently optional
+and exactly one (specified by the tag) must be present.
 
-An instance is a value matching the type designated by the tag.
+#### 4.2.3.3 Choice (Untagged)
 
-Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are optional and exactly
-one must be present. Values greater than 1 specify an array of elements.
+The Choice type containing a *combine* TypeOption is an untagged union, a structure that defines a set of types
+used collectively to classify a value.
 
-#### 4.2.3.3 Choice(x)
-The *combine* option (x) specifies that a Choice instance must be valid against a logical combination of types.
-The single-character option value indicates the combination type:
-* A: value must be an instance of `allOf` the Choice types
-* O: value must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
-* X: value must be an instance of exactly `oneOf` the Choice types
+The *combine* option value is a single character that specifies the required combination of FieldTypes:
+* A: value must be an instance of `allOf` the types
+* O: value must be an instance of `anyOf` the types, tried in field order until a match is found
+* X: value must be an instance of `oneOf` the types and no others
 
-A Choice(x) type with a single field can be used to define an alias for FieldType; the value of x does not matter.
+Field order does not matter for the `allOf` and `oneOf` options because values must always be evaluated
+against all FieldTypes.
+Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
 
-#### 4.2.3.4 Field Options Applicable To Union Types
+In this example the value "Home" is an instance of both a pre-defined and custom type, and if any processing
+decisions depend on the category, the pre-defined type must appear first in the Choice otherwise all values
+will be tagged and processed as instances of the custom type:
+```
+PhoneType = Choice(anyOf)
+  1 predefined  PhoneNumberTypes   // Pre-defined names
+  2 custom      String{3..10}      // Any name 3-10 characters in length
 
-| ID   | Chr | Type    | Name  | Description                                                      |
-|------|:---:|---------|-------|------------------------------------------------------------------|
-| 0x26 |  &  | Integer | tagId | field that contains the tag for this field                       |
-| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Choice |
+PhoneNumberTypes = Enumerated
+  1 Home
+  2 Cell
+  3 Office
+```
 
-#### 4.2.3.5 Union Type Conformance Requirements
+An untagged Choice with a single field can be used to define an alias for FieldType; the *combine* option
+used makes no difference when there is only one field.
 
-* n/a
+#### 4.2.3.4 Field Options
+
+The FieldOptions applicable to Union types are:
+
+| ID   | Chr | Type    | Name  | Description                                                     |
+|------|:---:|---------|-------|-----------------------------------------------------------------|
+| 0x26 |  &  | Integer | tagId | field holding the tag used for a Tagged Union                   |
+| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Union |
+
+##### 4.2.3.4.1 TagId
+
+A tagged union within a structured type may use the `tagId` option to specify a separate field within
+that type to be used as its tag. The value of the designated field must be a valid field identifier
+for the Choice, and is normally an Enumerated type generated from the Choice using the
+[Derived Enumeration](#53-derived-enumerations) shortcut:
+
+```
+Connection = Record
+  1 version      Enumerated(Enum[IP-Addr])      // source and destination versions must agree
+  2 source       IP-Addr(TagId[version])
+  3 destination  IP-Addr(TagId[version])
+
+IP-Addr = Choice
+  1 v4           IPv4-Addr
+  2 v6           IPv6-Addr
+```
+
+##### 4.2.3.4.2 Not
+
+A field within an untagged union may use the `not` option to complement its match result. This is
+useful only in an `allOf` Choice where one or more fields restrict the set of instances because
+a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 <!--
 
@@ -1825,6 +1869,8 @@ InfoAdvisors, *"What are Conceptual, Logical, and Physical Data Models?"*, https
 Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
+###### [ENUM]
+*"Enumerated Type"*, https://en.wikipedia.org/wiki/Enumerated_type
 ###### [FDT]
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8.
 ###### [FIX]
