@@ -855,7 +855,7 @@ The TypeOptions applicable to Union types are:
 #### 4.2.3.1 Enumerated
 
 An Enumerated type defines a vocabulary, an explicitly listed set of `item_id`:`item_value` pairs.
-Enumerated is described as "a degenerate tagged union of unit type" ([ENUM](#enum)) because it defines
+Enumerated is described as "a degenerate tagged union of unit type" [[ENUM](#enum)] because it defines
 the tags of a tagged union without any associated type, and an instance equals one of the defined tags.
 The `id` option specifies that an instance is an integer matching an `item_id`,
 otherwise it is a string matching the corresponding `item_value`.
@@ -884,11 +884,11 @@ The *combine* option value is a single character that specifies the required com
 
 Field order does not matter for the `allOf` and `oneOf` options because values must always be evaluated
 against all FieldTypes.
-Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
 
-In this example the value "Home" is an instance of both a pre-defined and custom type, and if any processing
-decisions depend on the category, the pre-defined type must appear first in the Choice otherwise all values
-will be tagged and processed as instances of the custom type:
+Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
+In this example the value "Home" is an instance of both a pre-defined and custom type.
+If any processing actions depend on the category, the pre-defined type must appear first in the Choice otherwise
+it will never match and all values will be tagged and processed as instances of the custom type:
 ```
 PhoneType = Choice(anyOf)
   1 predefined  PhoneNumberTypes   // Pre-defined names
