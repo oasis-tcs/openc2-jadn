@@ -574,11 +574,18 @@ Coordinate = Record                              // A GPS coordinate
 ```
 
 ### 4.1.4 Type and Field Options
+
+Type and field options are the mechanisms to support a varied set of information needs within the
+strictly regular type definition structure. New requirements can be accommodated by defining new options
+without modifying that structure.
 Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
 to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option has an ID and value listed
 in [Section 4.2](#42-core-types),
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
-ID and the remaining characters are its value. As an example the TypeOption "minLength = 1" is represented as:
+ID and the remaining characters are its value.
+Boolean options have no additional characters; if the option ID is present the value of that option is True.
+
+As an example the TypeOption "minLength = 1" is represented as:
 ```
 +----+-----------+     Option ID = 0x7b (Left Curley Bracket) = "minLength"
 | ID | Value     |     Value = 1 (Integer)
@@ -933,7 +940,7 @@ IP-Addr = Choice
 ##### 4.2.3.4.2 Not
 
 A field within an untagged union may use the `not` option to complement its match result. This is
-useful only in an `allOf` Choice where one or more fields restrict the set of instances because
+useful only in an `allOf` Choice where one or more fields restrict the set of instances, because
 a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 <!--
@@ -1054,14 +1061,39 @@ Hashes2 Example:
 
 -->
 
-
 *===================================================================*
 
  *Note: the remainder of this document is being revised. Not for review.*
 
 *===================================================================*
 
-### 4.2.4 Semantic Validation
+### 4.2.4 General Type Options
+
+The TypeOptions applicable to all core types are:
+
+| ID   | Chr | Type    | Name      | Description                                        |
+|------|:---:|---------|-----------|----------------------------------------------------|
+| 0x65 |  e  | TypeRef | extends   | Inheritance extension: superset of referenced type |
+| 0x72 |  r  | TypeRef | restricts | Inheritance restriction: subset of referenced type |
+| 0x61 |  a  | Boolean | abstract  | Inheritance abstract: non-instantiatable type      |
+| 0x66 |  f  | Boolean | final     | Inheritance final: cannot be subtyped              |
+
+#### 4.2.4.1 Type Inheritance
+
+type inheritance
+
+#### 4.2.4.2 Constant Value
+
+#### 4.2.4.3 Default Value
+
+* *Note: Constant and default values in this specification apply only to primitive types.
+Need a structured literal language to support compound values.* 
+
+The *default* option specifies the initial or default value of a field. Applications deserializing
+a document MUST initialize an unspecified type with its default value.
+Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
+
+### 4.2.5 Semantic Validation
 
 ... an extensible set of ...
 
@@ -1077,7 +1109,7 @@ the literal type (e.g., /email, /hostname for string values), validation operate
 
 The *format* option may also affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
 
-#### 4.2.4.1 JADN Semantic Validation Keywords
+#### 4.2.5.1 JADN Semantic Validation Keywords
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
@@ -1095,7 +1127,7 @@ The *format* option may also affect how logical values are serialized, see [Sect
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
 
-#### 4.2.4.2 XSD Semantic Validation Keywords
+#### 4.2.5.2 XSD Semantic Validation Keywords
 
 Semantic validation keywords defined in [[XSD]()].
 
@@ -1104,7 +1136,7 @@ Semantic validation keywords defined in [[XSD]()].
 | XML Schema formats | String  |  |
 
 
-#### 4.2.4.3 JSON Schema Semantic Validation Keywords
+#### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
 [JSON Schema]() defines Semantic Content With Format
 
@@ -1118,29 +1150,6 @@ Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3
 | duration  | Integer | Duration formatted as defined in RFC 3339 Appendix A                    |
 | email     | String  | Internet Email address as defined by [RFC 5322]() Section 3.4.1         |
 | idn-email | String  | Internet Email address as defined by [RFC 6531]()                       |
-
-### 4.2.5 General Type Options
-
-These options apply to all core types:
-
-* default, type inheritance
-
-#### 4.2.5.1 Default Value
-
-The *default* option specifies the initial or default value of a field. Applications deserializing
-a document MUST initialize an unspecified type with its default value.
-Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
-
-This section defines the mechanism used to support a varied set of information needs within the strictly regular
-structure of [Section 4.1](#41-type-definition-structure). New requirements can be accommodated by defining new options
-without modifying that structure. Type and Field options are classifiers that, along with the core type,
-determine whether data values are instances of the defined type.
-
-Each option is a text string that may be included in TypeOptions or FieldOptions, encoded as follows:
-* The first character is the option ID. Its Unicode codepoint is the numeric value (FieldID) shown in
-[Section 4.2.1](#421-type-options) and [Section 4.2.2](#422-field-options).
-* The remaining characters are the option value. Boolean options have no additional characters;
-if the option ID is present the value of that option is True.
 
 -------
 
