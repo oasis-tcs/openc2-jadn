@@ -1061,11 +1061,6 @@ Hashes2 Example:
 
 -->
 
-*===================================================================*
-
- *Note: the remainder of this document is being revised. Not for review.*
-
-*===================================================================*
 
 ### 4.2.4 General Type Options
 
@@ -1080,18 +1075,36 @@ The TypeOptions applicable to all core types are:
 
 #### 4.2.4.1 Type Inheritance
 
-type inheritance
+UML defines inherited classifiers and JADN defines a mechanism for constructing DataType inheritance
+hierarchies using the `extends` and `restricts` TypeOptions. Unlike class inheritance, type inheritance
+mechanisms are defined using a simple subset rule:
+* If type B *extends* type A, then every instance of A is also an instance of B
+* If type B *restricts* type A, then every instance of B is also an instance of A
+
+This requires that every subtype has the same CoreType as its parent type.
+
+...
 
 #### 4.2.4.2 Constant Value
+
+...
 
 #### 4.2.4.3 Default Value
 
 * *Note: Constant and default values in this specification apply only to primitive types.
 Need a structured literal language to support compound values.* 
 
+...
+
 The *default* option specifies the initial or default value of a field. Applications deserializing
 a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
+
+*===================================================================*
+
+ *Note: the remainder of this document is being revised. Not for review.*
+
+*===================================================================*
 
 ### 4.2.5 Semantic Validation
 
