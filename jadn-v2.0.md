@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 22 January 2025
+## 29 January 2025
 
 &nbsp;
 
@@ -574,11 +574,18 @@ Coordinate = Record                              // A GPS coordinate
 ```
 
 ### 4.1.4 Type and Field Options
+
+Type and field options are the mechanisms to support a varied set of information needs within the
+strictly regular type definition structure. New requirements can be accommodated by defining new options
+without modifying that structure.
 Each TypeOption and FieldOption provides a limited piece of information about some aspect of the DataType
 to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option has an ID and value listed
 in [Section 4.2](#42-core-types),
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
-ID and the remaining characters are its value. As an example the TypeOption "minLength = 1" is represented as:
+ID and the remaining characters are its value.
+Boolean options have no additional characters; if the option ID is present the value of that option is True.
+
+As an example the TypeOption "minLength = 1" is represented as:
 ```
 +----+-----------+     Option ID = 0x7b (Left Curley Bracket) = "minLength"
 | ID | Value     |     Value = 1 (Integer)
@@ -623,45 +630,52 @@ Primitive TypeOptions are listed in Table 4-1:
 | 0x25 |  %  | String  | pattern      | Instance matches the specified regular expression |
 | 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
 | 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
+| 0x76 |  v  | *       | const        | Instance is equal to option value                 |
 | 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
 | 0x78 |  x  | *       | maxInclusive | Instance is less than or equal to option value    |
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-`*` = Option value must be an instance of CoreType.
+`*` = Option value must evaluate to an instance of CoreType.
 
 ###### Table 4-1. TypeOptions Specific to Primitive Types
 
-#### 4.2.1.1 Binary
-A Binary instance is sequence of octets. Binary values are not ordered so range
-options do not apply. 
+*Note: This specification does not define an expression language but does not preclude their use.
+For options with type = `*` the result of using a value other than a single terminal element
+(literal instance of a Primitive type) is not defined here.*
 
-**Options:** minLength, maxLength
+#### 4.2.1.1 Boolean
+A Boolean instance is one of the predefined values *true* and *false*.
 
-#### 4.2.1.2 String
+**Options:** const
+
+#### 4.2.1.2 Integer
+An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
+
+**Options:** const  \
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
+
+#### 4.2.1.3 Number
+A Number instance is a value in the ordered infinite set of real numbers.
+
+**Options:** const  \
+**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
+
+#### 4.2.1.4 String
 A String instance is a sequence of characters in a character set. Value range options are
 meaningful if the character set defines a collation order. The pattern, length, and range
 options are not normally used together, but if more than one kind is present in a
 type definition an instance must satisfy all conditions.
 
-**Options:** pattern  \
+**Options:** pattern, const  \
 **Length Options:** minLength, maxLength  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
-#### 4.2.1.3 Boolean
-A Boolean instance is one of the predefined values *true* and *false*.
+#### 4.2.1.5 Binary
+A Binary instance is sequence of octets. Binary values are not ordered so range
+options do not apply. 
 
-**Options:** none
-
-#### 4.2.1.4 Integer
-An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
-
-**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
-
-#### 4.2.1.5 Number
-A Number instance is a value in the ordered infinite set of real numbers.
-
-**Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
+**Options:** minLength, maxLength, const
 
 #### 4.2.1.6 Primitive Type Conformance Requirements
 * A value MUST satisfy the conditions defined for each type option listed in
@@ -832,58 +846,102 @@ have fields individually identified by tag, where the tag consists of an integer
 each of which is local to and unique within the type definition.
 Union types define a set of tags, types or both:
 
-| Type       | Tag | Type | Definition                                           |
-|:-----------|:---:|:----:|------------------------------------------------------|
-| Enumerated | Yes |  -   | A vocabulary, a set of tags.                         |
-| Choice     | Yes | Yes  | A tagged union, a set of tag:type pairs.             |
-| Choice(x)  |  -  | Yes  | An untagged union, a specified combination of types. |
+| Type       | Tag | Type | Definition                                        |
+|:-----------|:---:|:----:|---------------------------------------------------|
+| Enumerated | Yes |  -   | Vocabulary, a set of tags.                        |
+| Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.            |
+| Choice(Cx) |  -  | Yes  | Untagged union, a specified combination of types. |
 
 The TypeOptions applicable to Union types are:
 
-| ID   | Chr | Type    | Name      | Description                                                                  |
-|------|:---:|---------|-----------|------------------------------------------------------------------------------|
-| 0x3d |  =  | Boolean | id        | If present Tag is an integer FieldID, otherwise a string FieldName           |
-| 0x43 |  C  | String  | combine   | Option value is a character specifying the untagged union combining function |
+| ID   | Chr | Type    | Name    | Description                                                                  |
+|------|:---:|---------|---------|------------------------------------------------------------------------------|
+| 0x3d |  =  | Boolean | id      | If present Tag is an integer FieldID, otherwise a string FieldName           |
+| 0x43 |  C  | String  | combine | Option value is a character specifying the untagged union combining function |
 
 #### 4.2.3.1 Enumerated
 
-An Enumerated type defines a vocabulary, an explicitly listed set of values.
-An instance is a value included in the set.
+An Enumerated type defines a vocabulary, an explicitly listed set of `item_id`:`item_value` pairs.
+Enumerated is described as "a degenerate tagged union of unit type" [[ENUM](#enum)] because it defines
+the tags of a tagged union without any associated type, and an instance equals one of the defined tags.
 The `id` option specifies that an instance is an integer matching an `item_id`,
 otherwise it is a string matching the corresponding `item_value`.
 
+The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) shortcuts
+create an Enumerated type containing the tags from a referenced structured type.
 
-* Derived Enumeration
+#### 4.2.3.2 Choice (Tagged)
 
-The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
-are shortcuts that create an Enumerated type derived from a referenced Array, Choice, Map or Record type.
+The Choice type without a *combine* TypeOption is a tagged union, a structure that defines a set of tag:type pairs.
+Values include a tag specifying a single FieldType from the set, and an instance is a value that matches the
+FieldType specified by the tag.
 
-#### 4.2.3.2 Choice
+Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are inherently optional
+and exactly one (specified by the tag) must be present.
 
-An instance is a value matching the type designated by the tag.
+#### 4.2.3.3 Choice (Untagged)
 
-Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are optional and exactly
-one must be present. Values greater than 1 specify an array of elements.
+The Choice type containing a *combine* TypeOption is an untagged union, a structure that defines a set of types
+used collectively to classify a value.
 
-#### 4.2.3.3 Choice(x)
-The *combine* option (x) specifies that a Choice instance must be valid against a logical combination of types.
-The single-character option value indicates the combination type:
-* A: value must be an instance of `allOf` the Choice types
-* O: value must be an instance of `anyOf` the Choice types (at least one, short-circuit evaluated in field order)
-* X: value must be an instance of exactly `oneOf` the Choice types
+The *combine* option value is a single character that specifies the required combination of FieldTypes:
+* A: value must be an instance of `allOf` the types
+* O: value must be an instance of `anyOf` the types, tried in field order until a match is found
+* X: value must be an instance of `oneOf` the types and no others
 
-A Choice(x) type with a single field can be used to define an alias for FieldType; the value of x does not matter.
+Field order does not matter for the `allOf` and `oneOf` options because values must always be evaluated
+against all FieldTypes.
 
-#### 4.2.3.4 Field Options Applicable To Union Types
+Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
+In this example the value "Home" is an instance of both a pre-defined and custom type.
+If any processing actions depend on the category, the pre-defined type must appear first in the Choice otherwise
+it will never match and all values will be tagged and processed as instances of the custom type:
+```
+PhoneType = Choice(anyOf)
+  1 predefined  PhoneNumberTypes   // Pre-defined names
+  2 custom      String{3..10}      // Any name 3-10 characters in length
 
-| ID   | Chr | Type    | Name  | Description                                                      |
-|------|:---:|---------|-------|------------------------------------------------------------------|
-| 0x26 |  &  | Integer | tagId | field that contains the tag for this field                       |
-| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Choice |
+PhoneNumberTypes = Enumerated
+  1 Home
+  2 Cell
+  3 Office
+```
 
-#### 4.2.3.5 Union Type Conformance Requirements
+An untagged Choice with a single field can be used to define an alias for FieldType; the *combine* option
+used makes no difference when there is only one field.
 
-* n/a
+#### 4.2.3.4 Field Options
+
+The FieldOptions applicable to Union types are:
+
+| ID   | Chr | Type    | Name  | Description                                                     |
+|------|:---:|---------|-------|-----------------------------------------------------------------|
+| 0x26 |  &  | Integer | tagId | field holding the tag used for a Tagged Union                   |
+| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Union |
+
+##### 4.2.3.4.1 TagId
+
+A tagged union within a structured type may use the `tagId` option to specify a separate field within
+that type to be used as its tag. The value of the designated field must be a valid field identifier
+for the Choice, and is normally an Enumerated type generated from the Choice using the
+[Derived Enumeration](#53-derived-enumerations) shortcut:
+
+```
+Connection = Record
+  1 version      Enumerated(Enum[IP-Addr])      // source and destination versions must agree
+  2 source       IP-Addr(TagId[version])
+  3 destination  IP-Addr(TagId[version])
+
+IP-Addr = Choice
+  1 v4           IPv4-Addr
+  2 v6           IPv6-Addr
+```
+
+##### 4.2.3.4.2 Not
+
+A field within an untagged union may use the `not` option to complement its match result. This is
+useful only in an `allOf` Choice where one or more fields restrict the set of instances, because
+a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 <!--
 
@@ -1004,13 +1062,51 @@ Hashes2 Example:
 -->
 
 
+### 4.2.4 General Type Options
+
+The TypeOptions applicable to all core types are:
+
+| ID   | Chr | Type    | Name      | Description                                        |
+|------|:---:|---------|-----------|----------------------------------------------------|
+| 0x65 |  e  | TypeRef | extends   | Inheritance extension: superset of referenced type |
+| 0x72 |  r  | TypeRef | restricts | Inheritance restriction: subset of referenced type |
+| 0x61 |  a  | Boolean | abstract  | Inheritance abstract: non-instantiatable type      |
+| 0x66 |  f  | Boolean | final     | Inheritance final: cannot be subtyped              |
+
+#### 4.2.4.1 Type Inheritance
+
+UML defines inherited classifiers and JADN defines a mechanism for constructing DataType inheritance
+hierarchies using the `extends` and `restricts` TypeOptions. Unlike class inheritance, type inheritance
+mechanisms are defined using a simple subset rule:
+* If type B *extends* type A, then every instance of A is also an instance of B
+* If type B *restricts* type A, then every instance of B is also an instance of A
+
+This requires that every subtype has the same CoreType as its parent type.
+
+...
+
+#### 4.2.4.2 Constant Value
+
+...
+
+#### 4.2.4.3 Default Value
+
+* *Note: Constant and default values in this specification apply only to primitive types.
+Need a structured literal language to support compound values.* 
+
+...
+
+The *default* option specifies the initial or default value of a field. Applications deserializing
+a document MUST initialize an unspecified type with its default value.
+Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
+
 *===================================================================*
 
  *Note: the remainder of this document is being revised. Not for review.*
 
 *===================================================================*
 
-### 4.2.4 Semantic Validation
+### 4.2.5 Semantic Validation
 
 ... an extensible set of ...
 
@@ -1026,7 +1122,7 @@ the literal type (e.g., /email, /hostname for string values), validation operate
 
 The *format* option may also affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
 
-#### 4.2.4.1 JADN Semantic Validation Keywords
+#### 4.2.5.1 JADN Semantic Validation Keywords
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
@@ -1044,7 +1140,7 @@ The *format* option may also affect how logical values are serialized, see [Sect
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
 
-#### 4.2.4.2 XSD Semantic Validation Keywords
+#### 4.2.5.2 XSD Semantic Validation Keywords
 
 Semantic validation keywords defined in [[XSD]()].
 
@@ -1053,7 +1149,7 @@ Semantic validation keywords defined in [[XSD]()].
 | XML Schema formats | String  |  |
 
 
-#### 4.2.4.3 JSON Schema Semantic Validation Keywords
+#### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
 [JSON Schema]() defines Semantic Content With Format
 
@@ -1067,29 +1163,6 @@ Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3
 | duration  | Integer | Duration formatted as defined in RFC 3339 Appendix A                    |
 | email     | String  | Internet Email address as defined by [RFC 5322]() Section 3.4.1         |
 | idn-email | String  | Internet Email address as defined by [RFC 6531]()                       |
-
-### 4.2.5 General Type Options
-
-These options apply to all core types:
-
-* default, type inheritance
-
-#### 4.2.5.1 Default Value
-
-The *default* option specifies the initial or default value of a field. Applications deserializing
-a document MUST initialize an unspecified type with its default value.
-Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
-
-This section defines the mechanism used to support a varied set of information needs within the strictly regular
-structure of [Section 4.1](#41-type-definition-structure). New requirements can be accommodated by defining new options
-without modifying that structure. Type and Field options are classifiers that, along with the core type,
-determine whether data values are instances of the defined type.
-
-Each option is a text string that may be included in TypeOptions or FieldOptions, encoded as follows:
-* The first character is the option ID. Its Unicode codepoint is the numeric value (FieldID) shown in
-[Section 4.2.1](#421-type-options) and [Section 4.2.2](#422-field-options).
-* The remaining characters are the option value. Boolean options have no additional characters;
-if the option ID is present the value of that option is True.
 
 -------
 
@@ -1119,29 +1192,30 @@ The following shortcuts can be converted to core definitions:
 | 0x4b |  K  | Boolean | key  | Field is a primary key for instances of this type           |
 | 0x4c |  L  | Boolean | link | Field is a foreign key identifying an instance of FieldType |
 
-## 5.1 Type Definition Within Fields
+## 5.1 Anonymous Type Definition
 
-Each field of structured type (Array, Map, Record) whose FieldType is an unstructured core type
-(any primitive type with type options, ArrayOf, MapOf) defines an anonymous type. 
+This shortcut allows fields within a structured type to be defined anonymously.
+Expanding the definition generates a named type for each anonymous field, moves
+all TypeOptions included in the field to the generated type,
+and replaces the field type with a reference to the generated type.
+This requires the anonymous field to be a non-structured core type and any TypeOption
+values included in FieldOptions to apply to FieldType. 
 
-A type without fields (Primitive types, ArrayOf, MapOf) may be defined anonymously within a field
-of a structured type definition.
-Expanding converts all anonymous type definitions to explicit named types and excludes all TypeOption values
-([Section 4.2.1](#421-type-options)) from FieldOptions.
+Example: a structured type with anonymous fields:
+```
+Coordinate = Record                              // A GPS coordinate
+   1 latitude         Number {-90.0, 90.0}       // A Number between -90 and 90 degrees
+   2 longitude        Number {-180.0, 180.0}     // A Number between -180 and 180 degrees
+```
+Expanded type with references to generated types:
+```
+Coordinate = Record                              // A GPS coordinate
+   1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
+   2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
 
-Example:
-
-    Member = Record
-       1 name         String
-       2 email        String /email
-
-Unfolding replaces this with:
-
-    Member = Record
-       1 name         String
-       2 email        Member$email
-    
-    Member$email = String /email           // Tool-generated type definition.
+Coordinate.latitude = Number {-90.0, 90.0}
+Coordinate.longitude = Number {-180.0, 180.0}
+```
 
 ## 5.2 Field Multiplicity
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
@@ -1817,6 +1891,8 @@ InfoAdvisors, *"What are Conceptual, Logical, and Physical Data Models?"*, https
 Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
+###### [ENUM]
+*"Enumerated Type"*, https://en.wikipedia.org/wiki/Enumerated_type
 ###### [FDT]
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8.
 ###### [FIX]
