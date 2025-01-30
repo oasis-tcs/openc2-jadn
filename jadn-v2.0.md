@@ -914,10 +914,10 @@ used makes no difference when there is only one field.
 
 The FieldOptions applicable to Union types are:
 
-| ID   | Chr | Type    | Name  | Description                                                     |
-|------|:---:|---------|-------|-----------------------------------------------------------------|
-| 0x26 |  &  | Integer | tagId | field holding the tag used for a Tagged Union                   |
-| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Union |
+| ID   | Chr | Type    | Name  | Description                                                |
+|------|:---:|---------|-------|------------------------------------------------------------|
+| 0x26 |  &  | Integer | tagId | field holding the tag used for a Tagged Union              |
+| 0x4E |  N  | Boolean | not   | value is not an instance of FieldType in an untagged Union |
 
 ##### 4.2.3.4.1 TagId
 
@@ -1075,15 +1075,60 @@ The TypeOptions applicable to all core types are:
 
 #### 4.2.4.1 Type Inheritance
 
-UML defines inherited classifiers and JADN defines a mechanism for constructing DataType inheritance
+UML defines inherited classifiers, and JADN defines a mechanism for constructing DataType inheritance
 hierarchies using the `extends` and `restricts` TypeOptions. Unlike class inheritance, type inheritance
 mechanisms are defined using a simple subset rule:
 * If type B *extends* type A, then every instance of A is also an instance of B
 * If type B *restricts* type A, then every instance of B is also an instance of A
 
-This requires that every subtype has the same CoreType as its parent type.
+This requires that every subtype have the same CoreType as its parent. Although the subset rule is meaningful and
+inheritance TypeOptions are valid for all core types, in practice inheritance is useful with only some types:
 
-...
+* **Primitive:** Inheritance is not applied to primitive types because:
+  * It is not possible to *extend* a Primitive type because every value that could be an instance of that
+type already is.
+  * It is not useful to *restrict* a Primitive type because the options defined in
+[Section 4.2.1](#421-primitive-types) perform restrictions directly without referencing a parent type.
+  * An untagged Choice (`anyOf` or `allOf`) of types based on the same primitive type is equivalent to
+extend or restrict respectively.
+
+Examples:
+```
+Name1 = Choice(anyOf)   // Extend equivalent:  "2915", "a34c", "D72F" are valid.   "g16H" is not.
+  1 a   String (pattern="^[a-z0-9]$")
+  2 b   String (pattern="^[A-Z0-9]$")
+
+Name2 = Choice(allOf)   // Restrict equivalent: "2915" is valid.   "a34c", "D72F", "g16H are not.
+  1 a   String (pattern="^[a-z0-9]$")
+  2 b   String (pattern="^[A-Z0-9]$")
+```
+
+* **Compound:**
+  * Inheritance is not applied to unstructured compound types (ArrayOf and MapOf) because the minLength and maxLength
+options defined in [Section 4.2.2](#422-compound-types) are used directly to define collections with different
+cardinality limits without referencing a parent type.
+  * Inheritance is used to add, remove, or modify the cardinality of fields in structured compound types.
+
+Examples:
+```
+```
+
+* **Enumerated:**
+  * Items can be added to an Enumerated type using `extends`.
+  * No mechanism is defined to remove items from an Enumerated type.
+
+Examples:
+```
+Colors1 = Enumerated                    // Primary colors
+  5 red
+  3 green
+ 16 blue
+
+Colors2 = Enumerated extends(Colors1)   // Primary and secondary colors
+  2 yellow
+  7 magenta
+  6 cyan
+```
 
 #### 4.2.4.2 Constant Value
 
