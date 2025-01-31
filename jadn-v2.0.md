@@ -1085,8 +1085,8 @@ The TypeOptions applicable to all core types are:
 UML defines inherited classifiers, and JADN defines a mechanism for constructing DataType inheritance
 hierarchies using the `extends` and `restricts` TypeOptions.
 Unlike class inheritance, type inheritance mechanisms are defined using a simple subset rule:
-* If type B *extends* type A, then every instance of A is also an instance of B
-* If type B *restricts* type A, then every instance of B is also an instance of A
+* If type B `extends` type A, then every instance of A is also an instance of B
+* If type B `restricts` type A, then every instance of B is also an instance of A
 * The `abstract` TypeOption indicates that the type cannot be used as a classifier; values may be
 classified against its subtypes.
 * The `final` TypeOption indicates that this type can be used as a classifier but cannot have subtypes.
@@ -1128,7 +1128,7 @@ Entity = Record abstract                    // Base type, cannot be instantiated
 Person = Record extends(Entity)             // Add email address
   3 email   String /email optional
 
-AnonymousPerson = Record restricts(Person) final  // Prohibit name, cannot be further extended or restricted
+AnonymousPerson = Record restricts(Person) final  // Prohibit "name" field, cannot be subtyped
   2 name    String [0]
 ```
 
