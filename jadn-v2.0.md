@@ -943,6 +943,13 @@ A field within an untagged union may use the `not` option to complement its matc
 useful only in an `allOf` Choice where one or more fields restrict the set of instances, because
 a complement without a restriction matches instances of arbitrary size, type and complexity.
 
+#### 4.2.3.5 Union Type Conformance Requirements
+
+* The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially starting at 1.
+* A value MUST be classified against the fields of a Choice(anyOf) type in field order and be an instance
+of the first matching field.
+
+
 <!--
 
 The Choice type selects one type or a logical combination of types from a set. By default Choice is
@@ -1076,13 +1083,16 @@ The TypeOptions applicable to all core types are:
 #### 4.2.4.1 Type Inheritance
 
 UML defines inherited classifiers, and JADN defines a mechanism for constructing DataType inheritance
-hierarchies using the `extends` and `restricts` TypeOptions. Unlike class inheritance, type inheritance
-mechanisms are defined using a simple subset rule:
+hierarchies using the `extends` and `restricts` TypeOptions.
+Unlike class inheritance, type inheritance mechanisms are defined using a simple subset rule:
 * If type B *extends* type A, then every instance of A is also an instance of B
 * If type B *restricts* type A, then every instance of B is also an instance of A
+* The `abstract` TypeOption indicates that the type cannot be used as a classifier; values may be
+classified against its subtypes.
+* The `final` TypeOption indicates that this type can be used as a classifier but cannot have subtypes.
 
-This requires that every subtype have the same CoreType as its parent. Although the subset rule is meaningful and
-inheritance TypeOptions are valid for all core types, in practice inheritance is useful with only some types:
+Although the subset rule is meaningful and inheritance TypeOptions are valid for all core types,
+in practice inheritance is useful with only some types:
 
 * **Primitive:** Inheritance is not applied to primitive types because:
   * It is not possible to *extend* a Primitive type because every value that could be an instance of that
@@ -1111,6 +1121,15 @@ cardinality limits without referencing a parent type.
 
 Examples:
 ```
+Entity = Record abstract                    // Base type, cannot be instantiated
+  1 id      Integer
+  2 name    String optional
+
+Person = Record extends(Entity)             // Add email address
+  3 email   String /email optional
+
+AnonymousPerson = Record restricts(Person) final  // Prohibit name, cannot be further extended or restricted
+  2 name    String [0]
 ```
 
 * **Enumerated:**
@@ -1119,22 +1138,22 @@ Examples:
 
 Examples:
 ```
-Colors1 = Enumerated                    // Primary colors
+Colors1 = Enumerated                        // Primary colors
   5 red
   3 green
  16 blue
 
-Colors2 = Enumerated extends(Colors1)   // Primary and secondary colors
+Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
   2 yellow
   7 magenta
   6 cyan
 ```
 
-#### 4.2.4.2 Constant Value
+#### 4.2.4.2 Constant and Default Values
 
 ...
 
-#### 4.2.4.3 Default Value
+
 
 * *Note: Constant and default values in this specification apply only to primitive types.
 Need a structured literal language to support compound values.* 
@@ -1144,6 +1163,12 @@ Need a structured literal language to support compound values.*
 The *default* option specifies the initial or default value of a field. Applications deserializing
 a document MUST initialize an unspecified type with its default value.
 Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
+
+#### 4.2.4.3 General Type Conformance Requirements
+
+* A type MUST NOT have more than one `extends` or `restricts` TypeOption.
+* A type MUST NOT have both `extends` and `restricts` TypeOptions.
+* A type with an `extends` or `restricts` TypeOption MUST have the same CoreType as the type referenced by that option.
 
 *===================================================================*
 
