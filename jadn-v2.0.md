@@ -659,18 +659,18 @@ options apply to Compound types but cannot be used until a Compound literal form
 #### 4.2.1.1 Boolean
 A Boolean instance is one of the predefined values *true* and *false*.
 
-**Options:** const
+**Options:** const, default
 
 #### 4.2.1.2 Integer
 An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
 
-**Options:** const  \
+**Options:** const, default  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.3 Number
 A Number instance is a value in the ordered infinite set of real numbers.
 
-**Options:** const  \
+**Options:** const, default  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.4 String
@@ -679,7 +679,7 @@ meaningful if the character set defines a collation order. The pattern, length, 
 options are not normally used together, but if more than one kind is present in a
 type definition an instance must satisfy all conditions.
 
-**Options:** pattern, const  \
+**Options:** pattern, const, default  \
 **Length Options:** minLength, maxLength  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
@@ -687,7 +687,7 @@ type definition an instance must satisfy all conditions.
 A Binary instance is sequence of octets. Binary values are not ordered so range
 options do not apply. 
 
-**Options:** minLength, maxLength, const
+**Options:** minLength, maxLength, const, default
 
 #### 4.2.1.6 Primitive Type Conformance Requirements
 * A value MUST satisfy the conditions defined for each type option listed in
