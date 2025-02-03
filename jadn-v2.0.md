@@ -630,19 +630,31 @@ Primitive TypeOptions are listed in Table 4-1:
 | 0x25 |  %  | String  | pattern      | Instance matches the specified regular expression |
 | 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
 | 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
+| 0x75 |  u  | *       | default      | Instance equals default if no value is given      |
 | 0x76 |  v  | *       | const        | Instance is equal to option value                 |
 | 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
 | 0x78 |  x  | *       | maxInclusive | Instance is less than or equal to option value    |
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-`*` = Option value must evaluate to an instance of CoreType.
-
 ###### Table 4-1. TypeOptions Specific to Primitive Types
+
+`*` indicates that the option value must evaluate to an instance of CoreType.
+
+* The `default` option specifies a pre-set value to be used for an optional/nullable variable when no other
+value is supplied.
+  * When parsing a literal value of `null` or when no literal value is present, the logical value is set to
+    the default.
+  * When classifying a logical value of `null` or when no value is present, the classifier uses the default.
+  * When serializing a logical value equal to the default, the literal value is either omitted or `null` as
+    specified by the data format.
+* The `constant` option specifies a pre-set value used as a classifier, equivalent to setting both
+`minInclusive` and `maxInclusive` to that value.
 
 *Note: This specification does not define an expression language but does not preclude their use.
 For options with type = `*` the result of using a value other than a single terminal element
-(literal instance of a Primitive type) is not defined here.*
+(literal instance of a Primitive type) is not defined here. In principle the `default` and `const`
+options apply to Compound types but cannot be used until a Compound literal format is defined.*
 
 #### 4.2.1.1 Boolean
 A Boolean instance is one of the predefined values *true* and *false*.
@@ -1083,7 +1095,10 @@ The TypeOptions applicable to all core types are:
 #### 4.2.4.1 Type Inheritance
 
 UML defines inherited classifiers, and JADN defines a mechanism for constructing DataType inheritance
-hierarchies using the `extends` and `restricts` TypeOptions.
+hierarchies using the `extends` and `restricts` TypeOptions. Type inheritance is static;
+it can be implemented as a shortcut that transforms inherited type definitions into expanded form
+prior to use, or as a runtime classifier operation.
+
 Unlike class inheritance, type inheritance mechanisms are defined using a simple subset rule:
 * If type B `extends` type A, then every instance of A is also an instance of B
 * If type B `restricts` type A, then every instance of B is also an instance of A
@@ -1094,27 +1109,27 @@ classified against its subtypes.
 Although the subset rule is meaningful and inheritance TypeOptions are valid for all core types,
 in practice inheritance is useful with only some types:
 
-* **Primitive:** Inheritance is not applied to primitive types because:
-  * It is not possible to *extend* a Primitive type because every value that could be an instance of that
+* **Primitive:** Inheritance is not useful with primitive types because:
+  * It is not possible to extend a Primitive type because every value that could be an instance of that
 type already is.
-  * It is not useful to *restrict* a Primitive type because the options defined in
+  * It is not useful to restrict a Primitive type because the options defined in
 [Section 4.2.1](#421-primitive-types) perform restrictions directly without referencing a parent type.
-  * An untagged Choice (`anyOf` or `allOf`) of types based on the same primitive type is equivalent to
-extend or restrict respectively.
+  * Determining subsets analytically is not always practical. But an untagged Choice (`anyOf` or `allOf`)
+of types based on the same primitive type is equivalent to extend or restrict respectively.
 
 Examples:
 ```
 Name1 = Choice(anyOf)   // Extend equivalent:  "2915", "a34c", "D72F" are valid.   "g16H" is not.
-  1 a   String (pattern="^[a-z0-9]$")
-  2 b   String (pattern="^[A-Z0-9]$")
+  1 a       String{pattern="^[a-z0-9]$"}
+  2 b       String{pattern="^[A-Z0-9]$"}
 
 Name2 = Choice(allOf)   // Restrict equivalent: "2915" is valid.   "a34c", "D72F", "g16H are not.
-  1 a   String (pattern="^[a-z0-9]$")
-  2 b   String (pattern="^[A-Z0-9]$")
+  1 a       String{pattern="^[a-z0-9]$"}
+  2 b       String{pattern="^[A-Z0-9]$"}
 ```
 
 * **Compound:**
-  * Inheritance is not applied to unstructured compound types (ArrayOf and MapOf) because the minLength and maxLength
+  * Inheritance is not useful with unstructured compound types (ArrayOf and MapOf) because the minLength and maxLength
 options defined in [Section 4.2.2](#422-compound-types) are used directly to define collections with different
 cardinality limits without referencing a parent type.
   * Inheritance is used to add, remove, or modify the cardinality of fields in structured compound types.
@@ -1149,26 +1164,12 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
   6 cyan
 ```
 
-#### 4.2.4.2 Constant and Default Values
-
-...
-
-
-
-* *Note: Constant and default values in this specification apply only to primitive types.
-Need a structured literal language to support compound values.* 
-
-...
-
-The *default* option specifies the initial or default value of a field. Applications deserializing
-a document MUST initialize an unspecified type with its default value.
-Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
-
 #### 4.2.4.3 General Type Conformance Requirements
 
 * A type MUST NOT have more than one `extends` or `restricts` TypeOption.
 * A type MUST NOT have both `extends` and `restricts` TypeOptions.
 * A type with an `extends` or `restricts` TypeOption MUST have the same CoreType as the type referenced by that option.
+
 
 *===================================================================*
 
