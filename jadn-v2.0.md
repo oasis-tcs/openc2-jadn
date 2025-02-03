@@ -645,7 +645,7 @@ Primitive TypeOptions are listed in Table 4-1:
 value is supplied.
   * When parsing a literal value of `null` or when no literal value is present, the logical value is set to
     the default.
-  * When classifying a logical value of `null` or when no value is present, the classifier uses the default.
+  * When classifying a logical value of `null` or when no logical value is present, the classifier uses the default.
   * When serializing a logical value equal to the default, the literal value is either omitted or `null` as
     specified by the data format.
 * The `constant` option specifies a pre-set value used as a classifier, equivalent to setting both
@@ -798,15 +798,17 @@ collection individually.
 Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 [Table 4-3](#table-4-3-options-applicable-to-an-individual-field):
 
-| ID   | Chr | Type    | Name      | Description                                                |
-|------|:---:|---------|-----------|------------------------------------------------------------|
-| 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional        |
-| 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none       |
-| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection           |
-| 0x4b |  K  | Boolean | key       | field is a primary key for this type                       | 
-| 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType  |
+| ID   | Chr | Type    | Name      | Description                                               |
+|------|:---:|---------|-----------|-----------------------------------------------------------|
+| 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional       |
+| 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none      |
+| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection          |
+| 0x4b |  K  | Boolean | key       | field is the primary key for this type                    | 
+| 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType |
 
 ###### Table 4-3. Options Applicable to an Individual Field
+
+#### 4.2.2.2 Multiplicity
 
 The **minOccurs** and **maxOccurs** options specify the minimum and maximum number of instances (the multiplicity)
 of a field within a collection:
@@ -831,15 +833,48 @@ its representation differs from that of a single instance. The [Field Multiplici
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
 multiple instances of a type.
 
+#### 4.2.2.3 Namespace mount points
+
+...
+
+#### 4.2.2.4 Links
+
+The `key` and `link` TypeOptions support references to instances of a structured compound type.
+The `key` option designates one field as the primary key, and the `link` option designates
+a field as a foreign key that references an instance of the specified type.
+These options provide semantic information to applications; they do not affect serialization.
+The *contain* relationships of an information model should form a directed acyclic graph, and where
+types have a cyclic relationship replacing a contained value with a reference using `link` breaks
+the cycle and eliminates recursive nesting and data duplication.
+The `link` option also supports relationship-aware application operations such as checking referential integrity.
+
+As an example, an instance of a Person type with cyclic relationships would be a nested denormalized nightmare
+without references. Using `link` references to eliminate *contain* cycles results in a flat set of independent,
+normalized values:
+```
+Person = Record
+    1 id        Key(Integer)
+    2 name      String
+    3 mother    Link(Person)
+    4 father    Link(Person)
+    5 siblings  Link(Person) [0..*]
+    6 employer  Link(Organization) optional
+
+Organization = Record
+    1 name      String
+    2 ein       Key(String{10..10})
+    3 ceo       Link(Person)
+```
+
 #### 4.2.2.2 Compound Type Conformance Requirements
 
 * A compound type MUST NOT include more than one multiplicity option (set, unique, ordered, or unordered).
-* If CoreType is ArrayOf, TypeOptions MUST include the vtype option.
-* If CoreType is MapOf, TypeOptions MUST include ktype and vtype options.
+* If CoreType is ArrayOf, TypeOptions MUST include the `vtype` option.
+* If CoreType is MapOf, TypeOptions MUST include `ktype` and `vtype` options.
 * The ktype option SHOULD be a constrained type such as an enumeration, pattern or semantic valuation keyword
 that specifies a fixed subset of values.
-* All values in an ArrayOf or MapOf instance must be an instance of vtype.
-* All keys in a MapOf instance MUST be an instance of ktype.
+* All values in an ArrayOf or MapOf instance must be an instance of `vtype`.
+* All keys in a MapOf instance MUST be an instance of `ktype`.
 * The number of items in a collection instance MUST NOT be less than minLength.
 * The number of items in a collection instance MUST NOT be greater than maxLength.
 * FieldIDs for Array and Record types denote position within the collection and MUST be numbered consecutively
@@ -850,6 +885,8 @@ starting at 1.
 otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
+* An Array, Map or Record type MUST have no more than one `key` field. The key field MAY be a compound type.
+* The FieldType of a field with the `link` option MUST equal the FieldType of the `key` field of the referenced type.
 
 ### 4.2.3 Union Types
 
@@ -1149,7 +1186,7 @@ AnonymousPerson = Record restricts(Person) final  // Prohibit "name" field, cann
 
 * **Enumerated:**
   * Items can be added to an Enumerated type using `extends`.
-  * No mechanism is defined to remove items from an Enumerated type.
+  * No mechanism is currently defined to remove items from an Enumerated type.
 
 Examples:
 ```
@@ -1215,9 +1252,9 @@ The *format* option may also affect how logical values are serialized, see [Sect
 
 Semantic validation keywords defined in [[XSD]()].
 
-| Keyword            | Type    | Requirement                                            |
-|--------------------|---------|--------------------------------------------------------|
-| XML Schema formats | String  |  |
+| Keyword            | Type    | Requirement |
+|--------------------|---------|-------------|
+| XML Schema formats | String  |             |
 
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
@@ -1247,21 +1284,17 @@ and may aid understanding, but creates additional definitions that must be kept 
 
 The following shortcuts can be converted to core definitions:
 * Anonymous type definition within a field
-* Field multiplicity other than required/optional
+* Multi-value field multiplicity
 * Derived enumeration
 * MapOf type with Enumerated key type
-* Pointers
-* Links
+* Derived paths
+* Inheritance
 
 | ID   | Chr | Type    | Name    | Description                                                        |
 |------|:---:|---------|---------|--------------------------------------------------------------------|
 | 0x23 |  #  | TypeRef | enum    | Enumerated type derived from a structured type                     |
 | 0x3e |  >  | TypeRef | pointer | Enumerated type containing pointers derived from a structured type |
 
-| ID   | Chr | Type    | Name | Description                                                 |
-|------|:---:|---------|------|-------------------------------------------------------------|
-| 0x4b |  K  | Boolean | key  | Field is a primary key for instances of this type           |
-| 0x4c |  L  | Boolean | link | Field is a foreign key identifying an instance of FieldType |
 
 ## 5.1 Anonymous Type Definition
 
@@ -1289,6 +1322,7 @@ Coordinate.longitude = Number {-180.0, 180.0}
 ```
 
 ## 5.2 Field Multiplicity
+
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
 FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
@@ -1321,6 +1355,7 @@ field multiplicity shortcut:
     Members = ArrayOf(Member)       // Explicitly-defined array: default minv = 0, maxv = 0
 
 ## 5.3 Derived Enumerations
+
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
 Unfolding removes *enum* from Type Options and adds fields containing
@@ -1371,6 +1406,7 @@ Example:
 Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
 
 ## 5.5 Pointers
+
 Applications may need to model both individual types and collections of types, similar to the way filesystems
 have files and directories.
 The "dir" option ([Section 3.2.2](#322-field-options)) marks a field as a collection of types.
@@ -1431,54 +1467,9 @@ value is not considered an "Item":
 Note that the *enum* and *pointer* shortcuts create shallow dependencies: the referenced
 types are needed in order to unfold them but types below the direct references are not.
 
-## 5.6 Links
+## 5.6 Inheritance
 
-*Note: move to Types - Key/Link references are semantic*
-
-The container graph of an information model cannot have cycles, meaning that an instance of a type
-cannot recursively contain other instances of that type either directly or indirectly through other types.
-But a type can contain references to itself or to other types without restriction, as long as the
-referenced type contains a primary key that identifies instances of that type.
-
-The link shortcut supports references: the *key* option designates a field as a primary key,
-and the *link* option designates a field as a foreign key that references an instance of the specified type.
-The *key* and *link* options do not affect serialization or validation of data, but they MAY
-be used by applications to perform relationship-aware operations such as checking referential integrity.
-
-As an example, a Person type might include family, friend, and employment relationships:
-
-    Person = Record
-        1 id        Key(Integer)
-        2 name      String
-        3 mother    Link(Person)
-        4 father    Link(Person)
-        5 siblings  Link(Person) [0..*]
-        6 friends   Link(Person) [0..*]
-        7 employer  Link(Organization) optional
-
-    Organization = Record
-        1 name      String
-        2 ein       Key(String{10..10})
-
-Unfolding creates an explicit type for each key and replaces links with that type. Unfolded types support
-syntactic validation of individual instances but do not include an explicit indication of identifier uniqueness
-or relationships between instances:
-
-    Person = Record
-        1 id        Person$id
-        2 name      String
-        3 mother    Person$id
-        4 father    Person$id
-        5 siblings  Person$id [0..*]
-        6 friends   Person$id [0..*]
-        7 employer  Organization$ein optional
-
-    Organization = Record
-        1 name      String
-        2 ein       Organization$ein
- 
-    Person$id = Integer
-    Organization$ein = String{10..10}
+... statically translated, partial overlap ...
 
 -------
 
