@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 29 January 2025
+## 5 February 2025
 
 &nbsp;
 
@@ -648,7 +648,7 @@ value is supplied.
   * When classifying a logical value of `null` or when no logical value is present, the classifier uses the default.
   * When serializing a logical value equal to the default, the literal value is either omitted or `null` as
     specified by the data format.
-* The `constant` option specifies a pre-set value used as a classifier, equivalent to setting both
+* The `const` option specifies a pre-set value used as a classifier, equivalent to setting both
 `minInclusive` and `maxInclusive` to that value.
 
 *Note: This specification does not define an expression language but does not preclude their use.
@@ -839,17 +839,23 @@ multiple instances of a type.
 
 #### 4.2.2.4 Links
 
-The `key` and `link` TypeOptions support references to instances of a structured compound type.
-The `key` option designates one field as the primary key, and the `link` option designates
-a field as a foreign key that references an instance of the specified type.
-These options provide semantic information to applications; they do not affect serialization.
-The *contain* relationships of an information model should form a directed acyclic graph, and where
-types have a cyclic relationship replacing a contained value with a reference using `link` breaks
-the cycle and eliminates recursive nesting and data duplication.
-The `link` option also supports relationship-aware application operations such as checking referential integrity.
+An information model defines type relationships in two ways: as collections containing values
+or as references to values.
+Collection relationships are normally hierarchical: a root compound type such as book contains chapters,
+which contain sentences, which contain leaf types such as words. A hierarchy is a directed acyclic graph
+(DAG), meaning that its types have no circular dependencies and its values have no indefinitely-deep
+recursive nesting. When collection types have cyclic relationships either directly or indirectly through
+other types, the cycles should be broken by replacing a contained value to a reference to flatten its
+values by eliminating recursive nesting.
 
-As an example, an instance of a Person type with cyclic relationships would be a nested denormalized nightmare
-without references. Using `link` references to eliminate *contain* cycles results in a flat set of independent,
+The `key` and `link` TypeOptions support type references.
+* The `key` option designates one field of a structured compound type as its primary key.
+* The `link` option designates a field as a foreign key that references an instance of the specified type,
+flattening collection values and supporting relationship-aware application operations such as
+checking referential integrity.
+
+As an example, an instance of a Person type with cyclic relationships would contain denormalized (duplicated)
+nested values. Using `link` references to eliminate contain cycles results in a flat set of independent,
 normalized values:
 ```
 Person = Record
