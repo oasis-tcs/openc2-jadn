@@ -845,10 +845,10 @@ Collection relationships are normally hierarchical: a root compound type such as
 which contain sentences, which contain leaf types such as words. A hierarchy is a directed acyclic graph
 (DAG), meaning that its types have no circular dependencies and its values have no indefinitely-deep
 recursive nesting. When collection types have cyclic relationships either directly or indirectly through
-other types, the cycles should be broken by replacing a contained value to a reference to flatten its
-values by eliminating recursive nesting.
+other types, the cycles should be broken by replacing a contained value with a reference to eliminate
+recursive nesting.
 
-The `key` and `link` TypeOptions support type references.
+The `key` and `link` TypeOptions support type references:
 * The `key` option designates one field of a structured compound type as its primary key.
 * The `link` option designates a field as a foreign key that references an instance of the specified type,
 flattening collection values and supporting relationship-aware application operations such as
