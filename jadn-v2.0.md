@@ -892,7 +892,7 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 * An Array, Map or Record type MUST have no more than one `key` field. The key field MAY be a compound type.
-* The FieldType of a field with the `link` option MUST equal the FieldType of the `key` field of the referenced type.
+* The value of a field with the `link` option MUST equal the FieldType of the `key` field of the referenced type.
 * Values referenced by the `link` option MUST be instances of the referenced type.
 
 ### 4.2.3 Union Types
