@@ -687,7 +687,8 @@ type definition an instance must satisfy all conditions.
 A Binary instance is sequence of octets. Binary values are not ordered so range
 options do not apply. 
 
-**Options:** minLength, maxLength, const, default
+**Options:** const, default  \
+**Length Options:** minLength, maxLength
 
 #### 4.2.1.6 Primitive Type Conformance Requirements
 * A value MUST satisfy the conditions defined for each type option listed in
@@ -849,7 +850,8 @@ other types, the cycles should be broken by replacing a contained value with a r
 recursive nesting.
 
 The `key` and `link` TypeOptions support type references:
-* The `key` option designates one field of a structured compound type as its primary key.
+* The `key` option designates one field of a structured compound type as its primary key. Although the key
+field is normally a primitive type, it may be defined as a compound type to support composite keys.
 * The `link` option designates a field as a foreign key that references an instance of the specified type,
 flattening collection values and supporting relationship-aware application operations such as
 checking referential integrity.
@@ -870,6 +872,17 @@ Organization = Record
     1 name      String
     2 ein       Key(String{10..10})
     3 ceo       Link(Person)
+```
+
+Example composite key:
+```
+LineItem = Record
+   1 item_id    Key(ItemId)     // Composite unique identifier for a line item within an order
+   2 quantity   Integer         // Other information about the ordered item
+
+ItemId = Array
+   1 Integer                    // order_id:: Order unique identifier
+   2 Integer                    // product_id:: Product unique identifier
 ```
 
 #### 4.2.2.2 Compound Type Conformance Requirements
@@ -995,16 +1008,23 @@ IP-Addr = Choice
 
 ##### 4.2.3.4.2 Not
 
-A field within an untagged union may use the `not` option to complement its match result. This is
-useful only in an `allOf` Choice where one or more fields restrict the set of instances, because
-a complement without a restriction matches instances of arbitrary size, type and complexity.
+A field within an untagged union may use the `not` (logical negation) option to complement its match result.
+This option is valid only in an `allOf` Choice where one or more fields restrict the set of instances,
+because a complement without a restriction matches instances of arbitrary size, type and complexity.
+
+```
+UserName = Choice(allOf)            // A combination of lower, upper and digits, but not all digits.
+   1 a          String {pattern="^[a-zA-Z0-9]$}"
+   2 b          String [4,16]
+   3 c          !String {pattern="^[0-9]$}"
+```
 
 #### 4.2.3.5 Union Type Conformance Requirements
 
 * The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially starting at 1.
-* A value MUST be classified against the fields of a Choice(anyOf) type in field order and be an instance
+* A value MUST be classified against the fields of a Choice(anyOf) type in field order and as an instance
 of the first matching field.
-
+* The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without a `not` option.
 
 <!--
 
