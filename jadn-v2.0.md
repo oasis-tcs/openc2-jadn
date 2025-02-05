@@ -855,7 +855,7 @@ flattening collection values and supporting relationship-aware application opera
 checking referential integrity.
 
 As an example, an instance of a Person type with cyclic relationships would contain denormalized (duplicated)
-nested values. Using `link` references to eliminate contain cycles results in a flat set of independent,
+nested values. Using `link` references to eliminate contained value cycles results in a flat set of independent,
 normalized values:
 ```
 Person = Record
@@ -892,8 +892,8 @@ otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 * An Array, Map or Record type MUST have no more than one `key` field. The key field MAY be a compound type.
-* The value of a field with the `link` option MUST equal the FieldType of the `key` field of the referenced type.
 * Values referenced by the `link` option MUST be instances of the referenced type.
+* The value of a field with the `link` option MUST equal the value of the `key` field of the referenced type.
 
 ### 4.2.3 Union Types
 
@@ -1173,7 +1173,7 @@ Name2 = Choice(allOf)   // Restrict equivalent: "2915" is valid.   "a34c", "D72F
 ```
 
 * **Compound:**
-  * Inheritance is not useful with unstructured compound types (ArrayOf and MapOf) because the minLength and maxLength
+  * Inheritance may not be useful with unstructured compound types (ArrayOf and MapOf) because the minLength and maxLength
 options defined in [Section 4.2.2](#422-compound-types) are used directly to define collections with different
 cardinality limits without referencing a parent type.
   * Inheritance is used to add, remove, or modify the cardinality of fields in structured compound types.
@@ -1208,7 +1208,7 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
   6 cyan
 ```
 
-#### 4.2.4.3 General Type Conformance Requirements
+#### 4.2.4.2 General Type Conformance Requirements
 
 * A type MUST NOT have more than one `extends` or `restricts` TypeOption.
 * A type MUST NOT have both `extends` and `restricts` TypeOptions.
