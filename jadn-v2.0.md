@@ -1019,8 +1019,10 @@ UserName = Choice(allOf)            // A combination of lower, upper and digits,
    3 c          !String {pattern="^[0-9]$}"
 ```
 
-#### 4.2.3.5 Union Type Conformance Requirements
-
+A tagged union within a structured type may use the `tagId` option to specify a separate field within
+that type to be used as its tag. The value of the designated field must be a valid field identifier
+for the Choice, and is normally an Enumerated type generated from the Choice using the
+[Derived Enumeration](#53-derived-enumerations) shortcut:
 * The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially starting at 1.
 * A value MUST be classified against the fields of a Choice(anyOf) type in field order and as an instance
 of the first matching field.
@@ -1233,7 +1235,6 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
 * A type MUST NOT have more than one `extends` or `restricts` TypeOption.
 * A type MUST NOT have both `extends` and `restricts` TypeOptions.
 * A type with an `extends` or `restricts` TypeOption MUST have the same CoreType as the type referenced by that option.
-
 
 *===================================================================*
 
