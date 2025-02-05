@@ -5,7 +5,7 @@
 
 ## Committee Specification Draft 01
 
-## 29 January 2025
+## 5 February 2025
 
 &nbsp;
 
@@ -630,35 +630,47 @@ Primitive TypeOptions are listed in Table 4-1:
 | 0x25 |  %  | String  | pattern      | Instance matches the specified regular expression |
 | 0x7b |  {  | Integer | minLength    | Minimum octet or character count                  |
 | 0x7d |  }  | Integer | maxLength    | Maximum octet or character count                  |
+| 0x75 |  u  | *       | default      | Instance equals default if no value is given      |
 | 0x76 |  v  | *       | const        | Instance is equal to option value                 |
 | 0x77 |  w  | *       | minInclusive | Instance is greater than or equal to option value |
 | 0x78 |  x  | *       | maxInclusive | Instance is less than or equal to option value    |
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
 
-`*` = Option value must evaluate to an instance of CoreType.
-
 ###### Table 4-1. TypeOptions Specific to Primitive Types
+
+`*` indicates that the option value must evaluate to an instance of CoreType.
+
+* The `default` option specifies a pre-set value to be used for an optional/nullable variable when no other
+value is supplied.
+  * When parsing a literal value of `null` or when no literal value is present, the logical value is set to
+    the default.
+  * When classifying a logical value of `null` or when no logical value is present, the classifier uses the default.
+  * When serializing a logical value equal to the default, the literal value is either omitted or `null` as
+    specified by the data format.
+* The `const` option specifies a pre-set value used as a classifier, equivalent to setting both
+`minInclusive` and `maxInclusive` to that value.
 
 *Note: This specification does not define an expression language but does not preclude their use.
 For options with type = `*` the result of using a value other than a single terminal element
-(literal instance of a Primitive type) is not defined here.*
+(literal instance of a Primitive type) is not defined here. In principle the `default` and `const`
+options apply to Compound types but cannot be used until a Compound literal format is defined.*
 
 #### 4.2.1.1 Boolean
 A Boolean instance is one of the predefined values *true* and *false*.
 
-**Options:** const
+**Options:** const, default
 
 #### 4.2.1.2 Integer
 An Integer instance is a value in the ordered infinite set of integers (…, -2, -1, 0, 1, 2, …).
 
-**Options:** const  \
+**Options:** const, default  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.3 Number
 A Number instance is a value in the ordered infinite set of real numbers.
 
-**Options:** const  \
+**Options:** const, default  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.4 String
@@ -667,7 +679,7 @@ meaningful if the character set defines a collation order. The pattern, length, 
 options are not normally used together, but if more than one kind is present in a
 type definition an instance must satisfy all conditions.
 
-**Options:** pattern, const  \
+**Options:** pattern, const, default  \
 **Length Options:** minLength, maxLength  \
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
@@ -675,7 +687,8 @@ type definition an instance must satisfy all conditions.
 A Binary instance is sequence of octets. Binary values are not ordered so range
 options do not apply. 
 
-**Options:** minLength, maxLength, const
+**Options:** const, default  \
+**Length Options:** minLength, maxLength
 
 #### 4.2.1.6 Primitive Type Conformance Requirements
 * A value MUST satisfy the conditions defined for each type option listed in
@@ -786,15 +799,17 @@ collection individually.
 Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 [Table 4-3](#table-4-3-options-applicable-to-an-individual-field):
 
-| ID   | Chr | Type    | Name      | Description                                                |
-|------|:---:|---------|-----------|------------------------------------------------------------|
-| 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional        |
-| 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none       |
-| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection           |
-| 0x4b |  K  | Boolean | key       | field is a primary key for this type                       | 
-| 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType  |
+| ID   | Chr | Type    | Name      | Description                                               |
+|------|:---:|---------|-----------|-----------------------------------------------------------|
+| 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional       |
+| 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none      |
+| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection          |
+| 0x4b |  K  | Boolean | key       | field is the primary key for this type                    | 
+| 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType |
 
 ###### Table 4-3. Options Applicable to an Individual Field
+
+#### 4.2.2.2 Multiplicity
 
 The **minOccurs** and **maxOccurs** options specify the minimum and maximum number of instances (the multiplicity)
 of a field within a collection:
@@ -819,15 +834,66 @@ its representation differs from that of a single instance. The [Field Multiplici
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
 multiple instances of a type.
 
+#### 4.2.2.3 Namespace mount points
+
+...
+
+#### 4.2.2.4 Links
+
+An information model defines type relationships in two ways: as collections containing values
+or as references to values.
+Collection relationships are normally hierarchical: a root compound type such as book contains chapters,
+which contain sentences, which contain leaf types such as words. A hierarchy is a directed acyclic graph
+(DAG), meaning that its types have no circular dependencies and its values have no indefinitely-deep
+recursive nesting. When collection types have cyclic relationships either directly or indirectly through
+other types, the cycles should be broken by replacing a contained value with a reference to eliminate
+recursive nesting.
+
+The `key` and `link` TypeOptions support type references:
+* The `key` option designates one field of a structured compound type as its primary key. Although the key
+field is normally a primitive type, it may be defined as a compound type to support composite keys.
+* The `link` option designates a field as a foreign key that references an instance of the specified type,
+flattening collection values and supporting relationship-aware application operations such as
+checking referential integrity.
+
+As an example, an instance of a Person type with cyclic relationships would contain denormalized (duplicated)
+nested values. Using `link` references to eliminate contained value cycles results in a flat set of independent,
+normalized values:
+```
+Person = Record
+    1 id        Key(Integer)
+    2 name      String
+    3 mother    Link(Person)
+    4 father    Link(Person)
+    5 siblings  Link(Person) [0..*]
+    6 employer  Link(Organization) optional
+
+Organization = Record
+    1 name      String
+    2 ein       Key(String{10..10})
+    3 ceo       Link(Person)
+```
+
+Example composite key:
+```
+LineItem = Record
+   1 item_id    Key(ItemId)     // Composite unique identifier for a line item within an order
+   2 quantity   Integer         // Other information about the ordered item
+
+ItemId = Array
+   1 Integer                    // order_id:: Order unique identifier
+   2 Integer                    // product_id:: Product unique identifier
+```
+
 #### 4.2.2.2 Compound Type Conformance Requirements
 
 * A compound type MUST NOT include more than one multiplicity option (set, unique, ordered, or unordered).
-* If CoreType is ArrayOf, TypeOptions MUST include the vtype option.
-* If CoreType is MapOf, TypeOptions MUST include ktype and vtype options.
+* If CoreType is ArrayOf, TypeOptions MUST include the `vtype` option.
+* If CoreType is MapOf, TypeOptions MUST include `ktype` and `vtype` options.
 * The ktype option SHOULD be a constrained type such as an enumeration, pattern or semantic valuation keyword
 that specifies a fixed subset of values.
-* All values in an ArrayOf or MapOf instance must be an instance of vtype.
-* All keys in a MapOf instance MUST be an instance of ktype.
+* All values in an ArrayOf or MapOf instance must be an instance of `vtype`.
+* All keys in a MapOf instance MUST be an instance of `ktype`.
 * The number of items in a collection instance MUST NOT be less than minLength.
 * The number of items in a collection instance MUST NOT be greater than maxLength.
 * FieldIDs for Array and Record types denote position within the collection and MUST be numbered consecutively
@@ -838,6 +904,9 @@ starting at 1.
 otherwise identical instance without that key.
 * The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
+* An Array, Map or Record type MUST have no more than one `key` field. The key field MAY be a compound type.
+* Values referenced by the `link` option MUST be instances of the referenced type.
+* The value of a field with the `link` option MUST equal the value of the `key` field of the referenced type.
 
 ### 4.2.3 Union Types
 
@@ -914,10 +983,10 @@ used makes no difference when there is only one field.
 
 The FieldOptions applicable to Union types are:
 
-| ID   | Chr | Type    | Name  | Description                                                     |
-|------|:---:|---------|-------|-----------------------------------------------------------------|
-| 0x26 |  &  | Integer | tagId | field holding the tag used for a Tagged Union                   |
-| 0x4E |  N  | String  | not   | value is not an instance of the field type in an untagged Union |
+| ID   | Chr | Type    | Name  | Description                                                |
+|------|:---:|---------|-------|------------------------------------------------------------|
+| 0x26 |  &  | Integer | tagId | field holding the tag used for a Tagged Union              |
+| 0x4E |  N  | Boolean | not   | value is not an instance of FieldType in an untagged Union |
 
 ##### 4.2.3.4.1 TagId
 
@@ -939,9 +1008,25 @@ IP-Addr = Choice
 
 ##### 4.2.3.4.2 Not
 
-A field within an untagged union may use the `not` option to complement its match result. This is
-useful only in an `allOf` Choice where one or more fields restrict the set of instances, because
-a complement without a restriction matches instances of arbitrary size, type and complexity.
+A field within an untagged union may use the `not` (logical negation) option to complement its match result.
+This option is valid only in an `allOf` Choice where one or more fields restrict the set of instances,
+because a complement without a restriction matches instances of arbitrary size, type and complexity.
+
+```
+UserName = Choice(allOf)            // A combination of lower, upper and digits, but not all digits.
+   1 a          String {pattern="^[a-zA-Z0-9]$}"
+   2 b          String [4,16]
+   3 c          !String {pattern="^[0-9]$}"
+```
+
+A tagged union within a structured type may use the `tagId` option to specify a separate field within
+that type to be used as its tag. The value of the designated field must be a valid field identifier
+for the Choice, and is normally an Enumerated type generated from the Choice using the
+[Derived Enumeration](#53-derived-enumerations) shortcut:
+* The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially starting at 1.
+* A value MUST be classified against the fields of a Choice(anyOf) type in field order and as an instance
+of the first matching field.
+* The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without a `not` option.
 
 <!--
 
@@ -1075,30 +1160,81 @@ The TypeOptions applicable to all core types are:
 
 #### 4.2.4.1 Type Inheritance
 
-UML defines inherited classifiers and JADN defines a mechanism for constructing DataType inheritance
-hierarchies using the `extends` and `restricts` TypeOptions. Unlike class inheritance, type inheritance
-mechanisms are defined using a simple subset rule:
-* If type B *extends* type A, then every instance of A is also an instance of B
-* If type B *restricts* type A, then every instance of B is also an instance of A
+UML defines inherited classifiers, and JADN defines a mechanism for constructing DataType inheritance
+hierarchies using the `extends` and `restricts` TypeOptions. Type inheritance is static;
+it can be implemented as a shortcut that transforms inherited type definitions into expanded form
+prior to use, or as a runtime classifier operation.
 
-This requires that every subtype has the same CoreType as its parent type.
+Unlike class inheritance, type inheritance mechanisms are defined using a simple subset rule:
+* If type B `extends` type A, then every instance of A is also an instance of B
+* If type B `restricts` type A, then every instance of B is also an instance of A
+* The `abstract` TypeOption indicates that the type cannot be used as a classifier; values may be
+classified against its subtypes.
+* The `final` TypeOption indicates that this type can be used as a classifier but cannot have subtypes.
 
-...
+Although the subset rule is meaningful and inheritance TypeOptions are valid for all core types,
+in practice inheritance is useful with only some types:
 
-#### 4.2.4.2 Constant Value
+* **Primitive:** Inheritance is not useful with primitive types because:
+  * It is not possible to extend a Primitive type because every value that could be an instance of that
+type already is.
+  * It is not useful to restrict a Primitive type because the options defined in
+[Section 4.2.1](#421-primitive-types) perform restrictions directly without referencing a parent type.
+  * Determining subsets analytically is not always practical. But an untagged Choice (`anyOf` or `allOf`)
+of types based on the same primitive type is equivalent to extend or restrict respectively.
 
-...
+Examples:
+```
+Name1 = Choice(anyOf)   // Extend equivalent:  "2915", "a34c", "D72F" are valid.   "g16H" is not.
+  1 a       String{pattern="^[a-z0-9]$"}
+  2 b       String{pattern="^[A-Z0-9]$"}
 
-#### 4.2.4.3 Default Value
+Name2 = Choice(allOf)   // Restrict equivalent: "2915" is valid.   "a34c", "D72F", "g16H are not.
+  1 a       String{pattern="^[a-z0-9]$"}
+  2 b       String{pattern="^[A-Z0-9]$"}
+```
 
-* *Note: Constant and default values in this specification apply only to primitive types.
-Need a structured literal language to support compound values.* 
+* **Compound:**
+  * Inheritance may not be useful with unstructured compound types (ArrayOf and MapOf) because the minLength and maxLength
+options defined in [Section 4.2.2](#422-compound-types) are used directly to define collections with different
+cardinality limits without referencing a parent type.
+  * Inheritance is used to add, remove, or modify the cardinality of fields in structured compound types.
 
-...
+Examples:
+```
+Entity = Record abstract                    // Base type, cannot be instantiated
+  1 id      Integer
+  2 name    String optional
 
-The *default* option specifies the initial or default value of a field. Applications deserializing
-a document MUST initialize an unspecified type with its default value.
-Serialization behavior is not defined; applications MAY omit or populate fields whose values equal the default.
+Person = Record extends(Entity)             // Add email address
+  3 email   String /email optional
+
+AnonymousPerson = Record restricts(Person) final  // Prohibit "name" field, cannot be subtyped
+  2 name    String [0]
+```
+
+* **Enumerated:**
+  * Items can be added to an Enumerated type using `extends`.
+  * No mechanism is currently defined to remove items from an Enumerated type.
+
+Examples:
+```
+Colors1 = Enumerated                        // Primary colors
+  5 red
+  3 green
+ 16 blue
+
+Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
+  2 yellow
+  7 magenta
+  6 cyan
+```
+
+#### 4.2.4.2 General Type Conformance Requirements
+
+* A type MUST NOT have more than one `extends` or `restricts` TypeOption.
+* A type MUST NOT have both `extends` and `restricts` TypeOptions.
+* A type with an `extends` or `restricts` TypeOption MUST have the same CoreType as the type referenced by that option.
 
 *===================================================================*
 
@@ -1144,9 +1280,9 @@ The *format* option may also affect how logical values are serialized, see [Sect
 
 Semantic validation keywords defined in [[XSD]()].
 
-| Keyword            | Type    | Requirement                                            |
-|--------------------|---------|--------------------------------------------------------|
-| XML Schema formats | String  |  |
+| Keyword            | Type    | Requirement |
+|--------------------|---------|-------------|
+| XML Schema formats | String  |             |
 
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
@@ -1176,21 +1312,15 @@ and may aid understanding, but creates additional definitions that must be kept 
 
 The following shortcuts can be converted to core definitions:
 * Anonymous type definition within a field
-* Field multiplicity other than required/optional
+* Multi-value field multiplicity
 * Derived enumeration
 * MapOf type with Enumerated key type
-* Pointers
-* Links
+* Derived paths
 
 | ID   | Chr | Type    | Name    | Description                                                        |
 |------|:---:|---------|---------|--------------------------------------------------------------------|
 | 0x23 |  #  | TypeRef | enum    | Enumerated type derived from a structured type                     |
 | 0x3e |  >  | TypeRef | pointer | Enumerated type containing pointers derived from a structured type |
-
-| ID   | Chr | Type    | Name | Description                                                 |
-|------|:---:|---------|------|-------------------------------------------------------------|
-| 0x4b |  K  | Boolean | key  | Field is a primary key for instances of this type           |
-| 0x4c |  L  | Boolean | link | Field is a foreign key identifying an instance of FieldType |
 
 ## 5.1 Anonymous Type Definition
 
@@ -1204,8 +1334,8 @@ values included in FieldOptions to apply to FieldType.
 Example: a structured type with anonymous fields:
 ```
 Coordinate = Record                              // A GPS coordinate
-   1 latitude         Number {-90.0, 90.0}       // A Number between -90 and 90 degrees
-   2 longitude        Number {-180.0, 180.0}     // A Number between -180 and 180 degrees
+   1 latitude         Number [-90.0, 90.0]       // A Number between -90 and 90 degrees
+   2 longitude        Number [-180.0, 180.0]     // A Number between -180 and 180 degrees
 ```
 Expanded type with references to generated types:
 ```
@@ -1213,11 +1343,12 @@ Coordinate = Record                              // A GPS coordinate
    1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
    2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
 
-Coordinate.latitude = Number {-90.0, 90.0}
-Coordinate.longitude = Number {-180.0, 180.0}
+Coordinate.latitude = Number [-90.0, 90.0]
+Coordinate.longitude = Number [-180.0, 180.0]
 ```
 
 ## 5.2 Field Multiplicity
+
 Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
 FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
@@ -1250,6 +1381,7 @@ field multiplicity shortcut:
     Members = ArrayOf(Member)       // Explicitly-defined array: default minv = 0, maxv = 0
 
 ## 5.3 Derived Enumerations
+
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
 Unfolding removes *enum* from Type Options and adds fields containing
@@ -1300,6 +1432,7 @@ Example:
 Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
 
 ## 5.5 Pointers
+
 Applications may need to model both individual types and collections of types, similar to the way filesystems
 have files and directories.
 The "dir" option ([Section 3.2.2](#322-field-options)) marks a field as a collection of types.
@@ -1359,55 +1492,6 @@ value is not considered an "Item":
 
 Note that the *enum* and *pointer* shortcuts create shallow dependencies: the referenced
 types are needed in order to unfold them but types below the direct references are not.
-
-## 5.6 Links
-
-*Note: move to Types - Key/Link references are semantic*
-
-The container graph of an information model cannot have cycles, meaning that an instance of a type
-cannot recursively contain other instances of that type either directly or indirectly through other types.
-But a type can contain references to itself or to other types without restriction, as long as the
-referenced type contains a primary key that identifies instances of that type.
-
-The link shortcut supports references: the *key* option designates a field as a primary key,
-and the *link* option designates a field as a foreign key that references an instance of the specified type.
-The *key* and *link* options do not affect serialization or validation of data, but they MAY
-be used by applications to perform relationship-aware operations such as checking referential integrity.
-
-As an example, a Person type might include family, friend, and employment relationships:
-
-    Person = Record
-        1 id        Key(Integer)
-        2 name      String
-        3 mother    Link(Person)
-        4 father    Link(Person)
-        5 siblings  Link(Person) [0..*]
-        6 friends   Link(Person) [0..*]
-        7 employer  Link(Organization) optional
-
-    Organization = Record
-        1 name      String
-        2 ein       Key(String{10..10})
-
-Unfolding creates an explicit type for each key and replaces links with that type. Unfolded types support
-syntactic validation of individual instances but do not include an explicit indication of identifier uniqueness
-or relationships between instances:
-
-    Person = Record
-        1 id        Person$id
-        2 name      String
-        3 mother    Person$id
-        4 father    Person$id
-        5 siblings  Person$id [0..*]
-        6 friends   Person$id [0..*]
-        7 employer  Organization$ein optional
-
-    Organization = Record
-        1 name      String
-        2 ein       Organization$ein
- 
-    Person$id = Integer
-    Organization$ein = String{10..10}
 
 -------
 
