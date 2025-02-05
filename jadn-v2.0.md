@@ -1315,13 +1315,11 @@ The following shortcuts can be converted to core definitions:
 * Derived enumeration
 * MapOf type with Enumerated key type
 * Derived paths
-* Inheritance
 
 | ID   | Chr | Type    | Name    | Description                                                        |
 |------|:---:|---------|---------|--------------------------------------------------------------------|
 | 0x23 |  #  | TypeRef | enum    | Enumerated type derived from a structured type                     |
 | 0x3e |  >  | TypeRef | pointer | Enumerated type containing pointers derived from a structured type |
-
 
 ## 5.1 Anonymous Type Definition
 
@@ -1335,8 +1333,8 @@ values included in FieldOptions to apply to FieldType.
 Example: a structured type with anonymous fields:
 ```
 Coordinate = Record                              // A GPS coordinate
-   1 latitude         Number {-90.0, 90.0}       // A Number between -90 and 90 degrees
-   2 longitude        Number {-180.0, 180.0}     // A Number between -180 and 180 degrees
+   1 latitude         Number (-90.0, 90.0)       // A Number between -90 and 90 degrees
+   2 longitude        Number (-180.0, 180.0)     // A Number between -180 and 180 degrees
 ```
 Expanded type with references to generated types:
 ```
@@ -1344,8 +1342,8 @@ Coordinate = Record                              // A GPS coordinate
    1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
    2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
 
-Coordinate.latitude = Number {-90.0, 90.0}
-Coordinate.longitude = Number {-180.0, 180.0}
+Coordinate.latitude = Number (-90.0, 90.0)
+Coordinate.longitude = Number (-180.0, 180.0)
 ```
 
 ## 5.2 Field Multiplicity
@@ -1493,10 +1491,6 @@ value is not considered an "Item":
 
 Note that the *enum* and *pointer* shortcuts create shallow dependencies: the referenced
 types are needed in order to unfold them but types below the direct references are not.
-
-## 5.6 Inheritance
-
-... statically translated, partial overlap ...
 
 -------
 
