@@ -1333,8 +1333,8 @@ values included in FieldOptions to apply to FieldType.
 Example: a structured type with anonymous fields:
 ```
 Coordinate = Record                              // A GPS coordinate
-   1 latitude         Number (-90.0, 90.0)       // A Number between -90 and 90 degrees
-   2 longitude        Number (-180.0, 180.0)     // A Number between -180 and 180 degrees
+   1 latitude         Number [-90.0, 90.0]       // A Number between -90 and 90 degrees
+   2 longitude        Number [-180.0, 180.0]     // A Number between -180 and 180 degrees
 ```
 Expanded type with references to generated types:
 ```
@@ -1342,8 +1342,8 @@ Coordinate = Record                              // A GPS coordinate
    1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
    2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
 
-Coordinate.latitude = Number (-90.0, 90.0)
-Coordinate.longitude = Number (-180.0, 180.0)
+Coordinate.latitude = Number [-90.0, 90.0]
+Coordinate.longitude = Number [-180.0, 180.0]
 ```
 
 ## 5.2 Field Multiplicity
