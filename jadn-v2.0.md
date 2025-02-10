@@ -504,7 +504,7 @@ Each type definition has five elements:
 ### 4.1.1 Primitive
 If CoreType is a Primitive or unstructured Compound type, the **Fields** array is empty.
 
-JSON Format:
+JSON Format and Example:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
 
@@ -523,7 +523,7 @@ If CoreType is the Enumerated Type, each item definition in the **Fields** array
 2. **ItemValue:** the string value of the item
 3. **ItemDescription:** a non-normative comment
 
-JSON Format:
+JSON Format and Example:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [ItemId, ItemValue, ItemDescription],
@@ -552,7 +552,7 @@ If CoreType is a structured Compound or Choice type, each field definition in th
 4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
 5. **FieldDescription:** a non-normative comment
 
-JSON Format:
+JSON Format and Example:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
@@ -582,7 +582,8 @@ to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option
 in [Section 4.2](#42-core-types),
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
 ID and the remaining characters are its value.
-Boolean options have no additional characters; if the option ID is present the value of that option is True.
+Boolean options have no additional characters; if the option ID is present its value is True,
+otherwise False.
 
 As an example the TypeOption "minLength = 1" is represented as:
 ```
@@ -1013,9 +1014,9 @@ because a complement without a restriction matches instances of arbitrary size, 
 
 ```
 UserName = Choice(allOf)            // A combination of lower, upper and digits, but not all digits.
-   1 a          String {pattern="^[a-zA-Z0-9]$}"
+   1 a          String {pattern="^[a-zA-Z0-9]$"}
    2 b          String [4,16]
-   3 c          !String {pattern="^[0-9]$}"
+   3 c          !String {pattern="^[0-9]$"}
 ```
 
 A tagged union within a structured type may use the `tagId` option to specify a separate field within
