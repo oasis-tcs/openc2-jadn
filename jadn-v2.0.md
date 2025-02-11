@@ -803,7 +803,6 @@ Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 |------|:---:|---------|-----------|-----------------------------------------------------------|
 | 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional       |
 | 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none      |
-| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection          |
 | 0x4b |  K  | Boolean | key       | field is the primary key for this type                    | 
 | 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType |
 
@@ -834,11 +833,7 @@ its representation differs from that of a single instance. The [Field Multiplici
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
 multiple instances of a type.
 
-#### 4.2.2.3 Namespace mount points
-
-...
-
-#### 4.2.2.4 Links
+#### 4.2.2.3 Links
 
 An information model defines type relationships in two ways: as collections containing values
 or as references to values.
@@ -885,7 +880,7 @@ ItemId = Array
    2 Integer                    // product_id:: Product unique identifier
 ```
 
-#### 4.2.2.2 Compound Type Conformance Requirements
+#### 4.2.2.4 Compound Type Conformance Requirements
 
 * A compound type MUST NOT include more than one multiplicity option (set, unique, ordered, or unordered).
 * If CoreType is ArrayOf, TypeOptions MUST include the `vtype` option.
@@ -915,11 +910,11 @@ have fields individually identified by tag, where the tag consists of an integer
 each of which is local to and unique within the type definition.
 Union types define a set of tags, types or both:
 
-| Type       | Tag | Type | Definition                                        |
-|:-----------|:---:|:----:|---------------------------------------------------|
-| Enumerated | Yes |  -   | Vocabulary, a set of tags.                        |
-| Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.            |
-| Choice(Cx) |  -  | Yes  | Untagged union, a specified combination of types. |
+| Type       | Tag | Type | Definition                                                |
+|:-----------|:---:|:----:|-----------------------------------------------------------|
+| Enumerated | Yes |  -   | Vocabulary, a set of tags.                                |
+| Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.                    |
+| Choice(Cx) |  -  | Yes  | Untagged union, a specified logical combination of types. |
 
 The TypeOptions applicable to Union types are:
 
@@ -962,9 +957,10 @@ Field order does not matter for the `allOf` and `oneOf` options because values m
 against all FieldTypes.
 
 Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
-In this example the value "Home" is an instance of both a pre-defined and custom type.
-If any processing actions depend on the category, the pre-defined type must appear first in the Choice otherwise
-it will never match and all values will be tagged and processed as instances of the custom type:
+In this example the value "Home" is an instance of both a predefined and custom type.
+If any processing actions depend on the type classification of a value, the predefined type
+must appear first in the Choice otherwise it will never match and all values will be
+tagged and processed as instances of the custom type:
 ```
 PhoneType = Choice(anyOf)
   1 predefined  PhoneNumberTypes   // Pre-defined names
@@ -976,8 +972,8 @@ PhoneNumberTypes = Enumerated
   3 Office
 ```
 
-An untagged Choice with a single field can be used to define an alias for FieldType; the *combine* option
-used makes no difference when there is only one field.
+An untagged Choice with a single field can be used to define an alias for FieldType.
+The *combine* option has no effect when there is only one field.
 
 #### 4.2.3.4 Field Options
 
@@ -1028,125 +1024,6 @@ for the Choice, and is normally an Enumerated type generated from the Choice usi
 of the first matching field.
 * The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without a `not` option.
 
-<!--
-
-The Choice type selects one type or a logical combination of types from a set. By default Choice is
-a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
-indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#42112-combine)
-type option it is an [untagged](#union) union where values that match a logical combination of types
-are instances of the Choice type.
-
-##### 4.2.2.2.2 Choice - Untagged Union
-The `combine` option specifies the logical function (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR))
-of the Choice's field types apply to the value. The `anyOf` option performs short-circuit evaluation where
-the first FieldType to match, in field order, indicates the instance type.
-The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
-
-##### 4.2.2.2.3 Choice - Tagged Union
-The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
-one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
-value. But if the *tagid* option is present on a Choice field in an Array or Record container,
-a separate field within that container contains the tag separately from the instance value.
-
-* The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
-
-**Example:**
-
-    Product = Choice                        // Discriminated union
-       1 furniture    Furniture
-       2 appliance    Appliance
-       3 software     Software
-    
-    Dept = Enumerated                       // Explicit Tag values derived from the Choice
-       1 furniture
-       2 appliance
-       3 software
-    
-    Software = String /uri
-    
-    Stock1 = Record                         // Discriminated union with intrinsic tag
-       1 quantity     Integer
-       2 product      Product               // Value = Map with one key/value
-    
-    Stock2 = Record                         // Container with explicitly-tagged discriminated union
-       1 dept         Dept                  // Tag = one key from Choice
-       2 quantity     Integer
-       3 product      Product(TagId[dept])  // Choice specifying an explicit tag field
-
-Example JSON serializations of these types are:
-
-Stock1 - Choice with intrinsic tag:
-
-    {
-        "quantity": 395,
-        "product": {"software": "http://www.example.com/B902D1P0W37"}
-    }
-
-Stock2 - Choice with explicit tag:
-
-    {
-        "dept": "software",
-        "quantity": 395,
-        "product": "http://www.example.com/B902D1P0W37"
-    }
-
-**Intrinsic tags:**
-
-When discriminated unions are grouped the distinction between intrinsic and explicit tags becomes
-more apparent. A collection with intrinsic tags is simply a Map, which results in what the
-[W3C JSON and XML Transformations Workshop](#transform) called "Friendly" encodings.
-
-```
-    Hashes = Map{1..*}            // Multiple discriminated unions with intrinsic tag is a Map
-       1 md5          Binary{16..16} /x optional
-       2 sha1         Binary{20..20} /x optional
-       3 sha256       Binary{32..32} /x optional
-```
-
-Hashes Example:
-
-```json
-{
-    "sha256": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9",
-    "md5": "B64CF5EAF07E86D1697D4EEE96A670B6"
-}
-```
-
-**Explicit tags:**
-
-A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
-results in "UnFriendly" encodings with repeated tag and value keys. Yet because some specifications are
-written in this style, the *tagid* option exists to designate an explicit field to be used to specify
-the value type.
-
-```
-    Hashes2 = ArrayOf(HashVal)    // Multiple discriminated unions with explicit tags is an Array
-    
-    HashVal = Record
-       1 algorithm    Enumerated(Enum[HashAlg])  // Tag - one key from Choice
-       2 value        HashAlg(TagId[algorithm])  // Value selected from Choice by 'algorithm' field
-    
-    HashAlg = Choice
-       1 md5          Binary{16..16} /x
-       2 sha1         Binary{20..20} /x
-       3 sha256       Binary{32..32} /x
-```
-Hashes2 Example:
-```json
-[
-  {
-    "algorithm": "md5",
-    "value": "B64CF5EAF07E86D1697D4EEE96A670B6"
-  },{
-    "algorithm": "sha256",
-    "value": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9"
-  }
-]
-```
-
--->
-
-
 ### 4.2.4 General Type Options
 
 The TypeOptions applicable to all core types are:
@@ -1172,7 +1049,7 @@ Unlike class inheritance, type inheritance mechanisms are defined using a simple
 classified against its subtypes.
 * The `final` TypeOption indicates that this type can be used as a classifier but cannot have subtypes.
 
-Although the subset rule is meaningful and inheritance TypeOptions are valid for all core types,
+Although the subset rule is definitive and inheritance TypeOptions are valid for all core types,
 in practice inheritance is useful with only some types:
 
 * **Primitive:** Inheritance is not useful with primitive types because:
