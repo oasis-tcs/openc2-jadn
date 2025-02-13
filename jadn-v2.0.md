@@ -77,7 +77,7 @@ in the separate plain text file prevails.
 #### Key words:
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",
 "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14
-[[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
+[[RFC 2119](#rfc2119)] and [[RFC 8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
 #### Citation format:
 When referencing this specification the following citation format should be used:
@@ -957,8 +957,9 @@ Field order does not matter for the `allOf` and `oneOf` options because values m
 against all FieldTypes.
 
 Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
-In this example the value "Home" is an instance of both a predefined and custom type.
-If any processing actions depend on the type classification of a value, the predefined type
+In this example the value "Home" is an instance of both the predefined and custom types and could be
+classified as either one.
+If any processing actions depend on the classification decision, the predefined type
 must appear first in the Choice otherwise it will never match and all values will be
 tagged and processed as instances of the custom type:
 ```
@@ -1121,6 +1122,8 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
 
 ### 4.2.5 Semantic Validation
 
+In addition to type classification, semantic validation ensures that data values are within boundaries that
+applications will understand.
 ... an extensible set of ...
 
 | ID   | Chr | Type       | Name         | Description                                       |
@@ -1152,6 +1155,10 @@ The *format* option may also affect how logical values are serialized, see [Sect
 | f64       | Number  | IEEE 754 Double-Precision Float                                                                |
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
+| date-time | Integer | POSIX time formatted as defined by [RFC 3339]() Section 5.6 "date-time"                        |
+| date      | Integer | POSIX time "full-date"                                                                         |
+| time      | Integer | POSIX time "full-time"                                                                         |
+| duration  | Integer | Duration in seconds formatted as defined in RFC 3339 Appendix A                                |
 
 #### 4.2.5.2 XSD Semantic Validation Keywords
 
@@ -1164,18 +1171,43 @@ Semantic validation keywords defined in [[XSD]()].
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
-[JSON Schema]() defines Semantic Content With Format
+The following semantic validation keywords are defined in [[JSON Schema](#jsonschema)] Section 7.3.
+Because JSON Schema defines only text representations, these keywords have the meanings listed here
+when used with the String type.
+[JADN Semantic Validation Keywords](#4251-jadn-semantic-validation-keywords) defines the meaning
+of some of these keywords when used with types other than String.
 
-Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
+For example, a String with `date-time` format has literal values such as:
+* "2024-10-02T10:00:00-05:00"
+* "2024-10-02T15:00:00Z"
+* "2024-10-02T15:00:00.000Z"
 
-| Keyword   | Type    | Requirement                                                             |
-|-----------|---------|-------------------------------------------------------------------------|
-| date-time | Integer | POSIX time formatted as defined by [RFC 3339]() Section 5.6 "date-time" |
-| date      | Integer | POSIX time "full-date"                                                  |
-| time      | Integer | POSIX time "full-time"                                                  |
-| duration  | Integer | Duration formatted as defined in RFC 3339 Appendix A                    |
-| email     | String  | Internet Email address as defined by [RFC 5322]() Section 3.4.1         |
-| idn-email | String  | Internet Email address as defined by [RFC 6531]()                       |
+These are unequal strings even though they represent the same timestamp.
+JADN defines an Integer with `date-time` format as a POSIX time, which is the same value for
+these examples, date-time strings in non-RFC-3339 formats, and the integer representations 1727881200 decimal
+and 66fd5ff0 hex.
+
+| Keyword               | Type   | Requirement                                                                      |
+|-----------------------|--------|----------------------------------------------------------------------------------|
+| date-time             | String | String literal [RFC 3339](#rfc3339) Section 5.6 "date-time"                      |
+| date                  | String | String literal RFC 3339 Section 5.6 "full-date"                                  |
+| time                  | String | String literal RFC 3339 Section 5.6 "full-time"                                  |
+| duration              | String | String literal RFC 3339 Appendix A "duration"                                    |
+| email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                       |
+| idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                         |
+| hostname              | String | RFC 1123 Section 2.1                                                             |
+| idn-hostname          | String | RFC 1123 or RFC5890 Section 2.3.2.3                                              |
+| ipv4                  | String | "dotted quad" as defined in [RFC 2673](#rfc2673) Section 3.2                     |
+| ipv6                  | String | IPv6 address literal as defined in [RFC 4291](#rfc4291) Section 2.2              |
+| uri                   | String | [RFC 3986](#rfc3986)                                                             |
+| uri-reference         | String | [RFC 3986](#rfc3986)                                                             |
+| iri                   | String | [RFC 3987](#rfc3986)                                                             |
+| iri-reference         | String | [RFC 3987](#rfc3986)                                                             |
+| uuid                  | String | String representation of a UUID as defined in [RFC 4122](#rfc4122)               |
+| uri-template          | String | [RFC 6570](#rfc6570)                                                             |
+| json-pointer          | String | [RFC 6901](#rfc6901) Section 5                                                   |
+| relative-json-pointer | String | No current specification, last I-D expired Dec 2023                              |
+| regex                 | String | Regular Expression according to [ECMA-262](#ecmascript) Section 22.2.1 "Pattern" |
 
 -------
 
@@ -1804,7 +1836,7 @@ While any hyperlinks included in this appendix were valid at the time of publica
 The following documents are referenced in such a way that some or all of their content constitutes requirements of this document.
 
 ###### [ECMASCRIPT]
-ECMA International, *"ECMAScript 2023 Language Specification"*, ECMA-262 14th Edition, June 2023, https://www.ecma-international.org/ecma-262 (*or corresponding section(s) in current edition*).
+ECMA International, *"ECMAScript 2024 Language Specification"*, ECMA-262 15th Edition, June 2024, https://www.ecma-international.org/ecma-262 (*or corresponding section(s) in current edition*).
 ###### [EUI]
 IEEE, *"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID"*, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
 ###### [IRI]
