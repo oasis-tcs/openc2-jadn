@@ -133,9 +133,11 @@ business and similar processes.*
 
 -- [[Unified Modeling Language (UML)](#uml)]
 
-JADN is a UML profile for documents and messages. UML's organizing principle is classification, and
-among its classifiers are DataType and Class. Instances of a DataType are identified by their
-value, and all instances of a DataType with the same value are considered to be equal instances.
+JADN is a UML profile for documents and messages. UML's organizing principle is classification,
+where a classifier represents a classification of instances according to their features.
+The values that are classified by a classifier are called instances of the classifier.
+UML defines several kinds of classifier including DataType and Class. Instances of a DataType are identified
+by their value, and all instances of a DataType with the same value are considered to be equal instances.
 DataType instances are immutable because by definition a different value is a different instance.
 A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
 only among instances of the same type.
@@ -956,12 +958,19 @@ The *combine* option value is a single character that specifies the required com
 Field order does not matter for the `allOf` and `oneOf` options because values must always be evaluated
 against all FieldTypes.
 
-Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
+Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint because
+this performs both classification and validation.
+A value may be an instance of more than one classifier, and classification may be used to answer
+two questions:
+* given a classifier A, is value X an instance of A? (validation)
+* given a value X, which classifier among {A, B, C, ...} is it to be considered an instance of?
+(classification)
+
 In this example the value "Home" is an instance of both the predefined and custom types and could be
 classified as either one.
-If any processing actions depend on the classification decision, the predefined type
+If any processing operations depend on the classification decision, the predefined type
 must appear first in the Choice otherwise it will never match and all values will be
-tagged and processed as instances of the custom type:
+tagged, serialized, and processed as instances of the custom type:
 ```
 PhoneType = Choice(anyOf)
   1 predefined  PhoneNumberTypes   // Pre-defined names
@@ -1155,10 +1164,16 @@ The *format* option may also affect how logical values are serialized, see [Sect
 | f64       | Number  | IEEE 754 Double-Precision Float                                                                |
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
-| date-time | Integer | POSIX time formatted as defined by [RFC 3339]() Section 5.6 "date-time"                        |
-| date      | Integer | POSIX time "full-date"                                                                         |
-| time      | Integer | POSIX time "full-time"                                                                         |
-| duration  | Integer | Duration in seconds formatted as defined in RFC 3339 Appendix A                                |
+| date-time | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
+| date      | Integer | POSIX time                                                                                     |
+| time      | Integer | POSIX time                                                                                     |
+| duration  | Integer | A number of seconds                                                                            |
+
+<!--
+ 00:00:00 UTC on 1 January 1970
+formatted as defined by [RFC 3339]() Section 5.6 "date-time"
+ formatted as defined in RFC 3339 Appendix A
+-->
 
 #### 4.2.5.2 XSD Semantic Validation Keywords
 
@@ -1869,6 +1884,8 @@ Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, 
 Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://datatracker.ietf.org/doc/html/rfc8200.
 ###### [RFC8259]
 Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, https://datatracker.ietf.org/doc/html/rfc8259.
+###### [POSIX Time]
+IEEE and The Open Group, "POSIX.1-2024 - standard operating system and environment: time()", "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
 ###### [XML Namespaces]
 W3C, *"Namespaces in XML 1.0"*, December 2009, https://www.w3.org/TR/xml-names/
 
