@@ -1131,34 +1131,33 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
 
 ### 4.2.5 Semantic Validation
 
-In addition to type classification, semantic validation ensures that data values are within boundaries that
-applications will understand.
-... an extensible set of ...
+Semantic validation supplements type validation, ensuring that data values are within boundaries that
+applications will understand. Each *format* type option is a semantic validation keyword that references
+requirements defined by authoritative resources outside this specification.
+
+The TypeOptions field of a type definition ([Section 4.1](#41-type-definition-structure)) is an id:value
+mapping whose keys must be unique. But format options have no value; the keyword is part of the key so a
+type may include multiple format options.
 
 | ID   | Chr | Type       | Name         | Description                                       |
 |------|:---:|------------|--------------|---------------------------------------------------|
 | 0x2f |  /  | Enumerated | format       | Semantic validation keyword                       |
 
-The *format* option value is a semantic validation keyword selected from a defined set of options.
-Each keyword specifies validation requirements for logical values that are accurately described by authoritative
-resources, and the serialized (literal) representations of those values. For formats whose logical type equals
-the literal type (e.g., /email, /hostname for string values), validation operates on that type. For 
-
-
-The *format* option may also affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
-
 #### 4.2.5.1 JADN Semantic Validation Keywords
+
+JADN types define both logical values and literals, and format options affect both validation and translation
+between values and text representations. See [Section 6](#6-serialization-and-data-formats).
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
 | eui       | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
 | ipv4-addr | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
-| ipv6-addr | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
+| ipv6-addr | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200) Section 3                                    |
 | ipv4-net  | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net  | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
 | i\<*n*\>  | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
 | u\<*n*\>  | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
-| d\<*n*\>  | Integer | Decimal integer scale factor of 10^n: value has n digits after decimal point, n > 0.           |
+| d\<*n*\>  | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
 | f16       | Number  | IEEE 754 Half-Precision Float                                                                  |
 | f32       | Number  | IEEE 754 Single-Precision Float                                                                |
 | f64       | Number  | IEEE 754 Double-Precision Float                                                                |
@@ -1169,11 +1168,46 @@ The *format* option may also affect how logical values are serialized, see [Sect
 | time      | Integer | POSIX time                                                                                     |
 | duration  | Integer | A number of seconds                                                                            |
 
-<!--
- 00:00:00 UTC on 1 January 1970
-formatted as defined by [RFC 3339]() Section 5.6 "date-time"
- formatted as defined in RFC 3339 Appendix A
--->
+* **Address Formats**
+* **Number Formats**
+* **Time Formats**
+
+The meaning of an Integer with a time-related option (date-time, date, time, duration) is defined by the Portable
+Operating System Interface ([POSIX](#posix-time) specification as "the number of seconds since the Epoch".
+An epoch is a fixed date and time used as a reference from which time is measured.
+The Unix epoch is 00:00:00 UTC on January 1, 1970, but POSIX permits other epochs such as
+00:00:00 UTC on January 1, 1900. Interoperability between systems using Integer time requires them to have
+a common epoch; in practice this means the Unix epoch is used unless specifically documented otherwise.
+
+POSIX also defines the relationship between integer time and the `tm` calendar time structure, which includes
+tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec.
+
+The logical value of an Integer with the `date` keyword is any Integer corresponding to the specified year, month
+and day of month, ignoring the time fields.  \
+The logical value of an Integer with the `time` keyword is any Integer corresponding to the specified hour, minute
+and second, ignoring the date fields.
+
+The Integer type with these keywords is a logical value independent of representation, which can include
+strings in RFC 3339 format, other date and time formats, decimal string, hex string, base64 string,
+or an integer value in binary serializations.
+
+The decimal scale factor format `/d#` can be used with Integer times to specify time resolution:
+```
+Timestamp = Integer /date-time              // 1727877600 seconds         = 2024-10-02T15:00:00Z
+Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z
+```
+
+A String type with a time-related keyword is a logical string equal to the text representation,
+where different strings are non-equal values even if they represent the same logical time:
+```
+Timestamp2 = String /date-time
+
+"2024-10-02T10:00:00-05:00"
+"2024-10-02T15:00:00Z"
+"2024-10-02T15:00:00.000Z"
+"10:00:00 AM, October 2, 2024 EST"
+"Wednesday, October 2, 2024 11:00:00 AM GMT-04:00 DST"
+```
 
 #### 4.2.5.2 XSD Semantic Validation Keywords
 
@@ -1198,9 +1232,6 @@ For example, a String with `date-time` format has literal values such as:
 * "2024-10-02T15:00:00.000Z"
 
 These are unequal strings even though they represent the same timestamp.
-JADN defines an Integer with `date-time` format as a POSIX time, which is the same value for
-these examples, date-time strings in non-RFC-3339 formats, and the integer representations 1727881200 decimal
-and 66fd5ff0 hex.
 
 | Keyword               | Type   | Requirement                                                                      |
 |-----------------------|--------|----------------------------------------------------------------------------------|
