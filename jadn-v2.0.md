@@ -1147,38 +1147,58 @@ type may include multiple format options.
 
 JADN types define both logical values and literals, and format options affect both validation and translation
 between values and text representations. See [Section 6](#6-serialization-and-data-formats).
+The JADN format keywords are:
 
-| Keyword   | Type    | Requirement                                                                                    |
-|-----------|---------|------------------------------------------------------------------------------------------------|
-| eui       | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
-| ipv4-addr | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
-| ipv6-addr | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200) Section 3                                    |
-| ipv4-net  | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
-| ipv6-net  | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| i\<*n*\>  | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
-| u\<*n*\>  | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
-| d\<*n*\>  | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
-| f16       | Number  | IEEE 754 Half-Precision Float                                                                  |
-| f32       | Number  | IEEE 754 Single-Precision Float                                                                |
-| f64       | Number  | IEEE 754 Double-Precision Float                                                                |
-| f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
-| f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
-| date-time | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
-| date      | Integer | POSIX time                                                                                     |
-| time      | Integer | POSIX time                                                                                     |
-| duration  | Integer | A number of seconds                                                                            |
+| Keyword     | Type    | Requirement                                                                                    |
+|-------------|---------|------------------------------------------------------------------------------------------------|
+| i\<*n*\>    | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
+| u\<*n*\>    | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
+| d\<*n*\>    | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
+| f16         | Number  | [IEEE 754](#ieee754) Half-Precision Float                                                      |
+| f32         | Number  | IEEE 754 Single-Precision Float                                                                |
+| f64         | Number  | IEEE 754 Double-Precision Float                                                                |
+| f128        | Number  | IEEE 754 Quadruple-Precision Float                                                             |
+| f256        | Number  | IEEE 754 Octuple-Precision Float                                                               |
+| ipv4-addr   | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
+| ipv6-addr   | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200) Section 3                                    |
+| ipv4-net    | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
+| ipv6-net    | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| eui         | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
+| uuid        | Binary  |                                                                                                |
+| tagged-uuid | Array   |                                                                                                |
+| date-time   | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
+| date        | Integer | POSIX time                                                                                     |
+| time        | Integer | POSIX time                                                                                     |
+| duration    | Integer | A number of seconds                                                                            |
 
-* **Address Formats**
-* **Number Formats**
-* **Time Formats**
+##### Integer and Number Formats
 
-The meaning of an Integer with a time-related option (date-time, date, time, duration) is defined by the Portable
-Operating System Interface ([POSIX](#posix-time) specification as "the number of seconds since the Epoch".
+The signed and unsigned integer keywords `/i#` and `/u#` indicate a range constraint on a logical value,
+equivalent to the `minInclusive` and `maxInclusive` options using two's-complement bounds for signed integers.
+They also indicate the size of the bit field used to hold a literal value in direct binary data format.
+
+The decimal scale factor keyword `/d#` indicates that an Integer holds an application value multiplied
+by the specified power of 10, using an integer to hold a fixed-precision rational number,
+or changing the units of a physical value:
+```
+Amount = Integer /d2    // Integer 152 represents an application value of 1.52,
+                        // changing units of currency in USD to cents.
+```
+
+The IEEE 754 floating point number keywords `/f#` indicate the significand and exponent ranges of logical
+Number instances, and the size and structure of lexical Number instances when using binary data formats such as CBOR.
+
+##### Address Formats
+
+
+##### Time Formats
+
+The meaning of an Integer with a time-related option is defined by the Portable Operating System Interface
+([POSIX](#posix-time)) specification as "the number of seconds since the Epoch".
 An epoch is a fixed date and time used as a reference from which time is measured.
 The Unix epoch is 00:00:00 UTC on January 1, 1970, but POSIX permits other epochs such as
-00:00:00 UTC on January 1, 1900. Interoperability between systems using Integer time requires them to have
-a common epoch; in practice this means the Unix epoch is used unless specifically documented otherwise.
-
+00:00:00 UTC on January 1, 1900. Interoperability between systems using Integer time representations requires them
+to have a common epoch; in practice this means the Unix epoch is used unless specifically documented otherwise.
 POSIX also defines the relationship between integer time and the `tm` calendar time structure, which includes
 tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec.
 
@@ -1197,8 +1217,8 @@ Timestamp = Integer /date-time              // 1727877600 seconds         = 2024
 Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z
 ```
 
-A String type with a time-related keyword is a logical string equal to the text representation,
-where different strings are non-equal values even if they represent the same logical time:
+A String type with a time-related keyword is a logical string equal to its text representation, where
+different strings are non-equal values that sort alphabetically even if they represent the same logical time:
 ```
 Timestamp2 = String /date-time
 
@@ -1466,34 +1486,34 @@ name-value encoding for tabular data.
 
 * When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-| JADN Type | JSON Serialization Requirement |
-| :--- | :--- |
-| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648). |
-| **Boolean** | JSON **true** or **false** |
-| **Integer** | JSON **number** |
-| **Number** | JSON **number** |
-| **String** | JSON **string** |
-| **Enumerated** | JSON **string** ItemValue |
-| **Enumerated** with "id" | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property.  Property key is FieldName. |
-| **Choice** with "id" | JSON **object** with one property. Property key is FieldID converted to string. |
-| **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null. |
-| **Map** | JSON **object**. Property keys are FieldNames. |
-| **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** | JSON **object**. Property keys are FieldNames. |
+| JADN Type                | JSON Serialization Requirement                                                                                                                                                                                                                                                                                                              |
+|:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Binary**               | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648).                                                                                                                                                                                                                          |
+| **Boolean**              | JSON **true** or **false**                                                                                                                                                                                                                                                                                                                  |
+| **Integer**              | JSON **number**                                                                                                                                                                                                                                                                                                                             |
+| **Number**               | JSON **number**                                                                                                                                                                                                                                                                                                                             |
+| **String**               | JSON **string**                                                                                                                                                                                                                                                                                                                             |
+| **Enumerated**           | JSON **string** ItemValue                                                                                                                                                                                                                                                                                                                   |
+| **Enumerated** with "id" | JSON **integer** ItemID                                                                                                                                                                                                                                                                                                                     |
+| **Choice**               | JSON **object** with one property.  Property key is FieldName.                                                                                                                                                                                                                                                                              |
+| **Choice** with "id"     | JSON **object** with one property. Property key is FieldID converted to string.                                                                                                                                                                                                                                                             |
+| **Array**                | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                                                                     |
+| **ArrayOf**              | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null.                                                                                                                                                                                                                                                            |
+| **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
+| **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                                                           |
+| **MapOf**                | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 
 **Format options that affect JSON serialization**
 * When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
-| Option | JADN Type | JSON Serialization Requirement |
-| :--- | :--- | :--- |
-| **x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
-| **ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2. |
-| **ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2. |
-| **ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1. |
-| **ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3. |
+| Option        | JADN Type | JSON Serialization Requirement                                                                                                                                                      |
+|:--------------|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **x**         | Binary    | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
+| **ipv4-addr** | Binary    | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2.                                                                                        |
+| **ipv6-addr** | Binary    | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2.                                                             |
+| **ipv4-net**  | Array     | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1.                                                       |
+| **ipv6-net**  | Array     | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3.                                                       |
 
 Specifications MAY define additional format options for textual representation of Binary, Integer, Number or Array data.
 
@@ -1503,8 +1523,8 @@ positional encoding for tabular data.
 
 * When using Compact JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
 
-| JADN Type | Concise JSON Serialization Requirement |
-| :--- | :--- |
+| JADN Type  | Concise JSON Serialization Requirement                                                                                                                  |
+|:-----------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Record** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 
 ## 6.3 Concise JSON Serialization:
@@ -1514,13 +1534,13 @@ data.
 
 * When using Concise JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
 
-| JADN Type | Concise JSON Serialization Requirement |
-| :--- | :--- |
-| **Enumerated** | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
-| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** |  JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
+| JADN Type      | Concise JSON Serialization Requirement                                                                                                                                                                                                                                                              |
+|:---------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enumerated** | JSON **integer** ItemID                                                                                                                                                                                                                                                                             |
+| **Choice**     | JSON **object** with one property. Property key is the FieldID converted to string.                                                                                                                                                                                                                 |
+| **Map**        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                   |
+| **MapOf**      | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record**     | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                             |
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
 
@@ -1605,7 +1625,7 @@ serialized as:
 Although JSON data is unambiguous, it is not ideal as a documentation format. This section suggests
 several more readable ways of describing and documenting information models.
 
-*This section is informative*
+***Note:*** *This section is informative*
 
 ## 7.1 Information Definition Language
 
@@ -1885,6 +1905,8 @@ The following documents are referenced in such a way that some or all of their c
 ECMA International, *"ECMAScript 2024 Language Specification"*, ECMA-262 15th Edition, June 2024, https://www.ecma-international.org/ecma-262 (*or corresponding section(s) in current edition*).
 ###### [EUI]
 IEEE, *"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID"*, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+###### [IEEE754]
+*"Floating Point Arithmetic"*, IEEE Std 754-2019, https://ieeexplore.ieee.org/document/8766229, ISO/IEC 60559:2020, https://www.iso.org/obp/ui/en/#iso:std:80985
 ###### [IRI]
 Duerst, M., Suignard, M., *"Internationalized Resource Identifiers (IRIs)"*, January 2005, https://datatracker.ietf.org/doc/html/rfc3987
 ###### [JSONSCHEMA]
@@ -1942,8 +1964,6 @@ FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
 *"Graph Visualization Software"*, https://graphviz.gitlab.io/
-###### [IEEE754]
-*"Floating Point Arithmetic"*, IEEE Std 754-2019, https://ieeexplore.ieee.org/document/8766229, ISO/IEC 60559:2020, https://www.iso.org/obp/ui/en/#iso:std:80985
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [JADN-CN]
