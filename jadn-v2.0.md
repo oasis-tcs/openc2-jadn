@@ -4,7 +4,7 @@
 # Specification for JSON Abstract Data Notation (JADN) Version 2.0
 
 ## Committee Specification Draft 01
-## 12 February 2025
+## 19 February 2025
 
 &nbsp;
 
@@ -1123,12 +1123,6 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
 * A type MUST NOT have both `extends` and `restricts` TypeOptions.
 * A type with an `extends` or `restricts` TypeOption MUST have the same CoreType as the type referenced by that option.
 
-*===================================================================*
-
- *Note: the remainder of this document is being revised. Not for review.*
-
-*===================================================================*
-
 ### 4.2.5 Semantic Validation
 
 Semantic validation supplements type validation, ensuring that data values are within boundaries that
@@ -1164,8 +1158,8 @@ The JADN format keywords are:
 | ipv4-net    | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
 | ipv6-net    | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
 | eui         | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
-| uuid        | Binary  |                                                                                                |
-| tagged-uuid | Array   |                                                                                                |
+| uuid        | Binary  | Universally Unique ID (UUID) as defined in [RFC 9562](#rfc9562)                                |
+| tagged-uuid | Array   | UUID with string prefix                                                                        |
 | date-time   | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
 | date        | Integer | POSIX time                                                                                     |
 | time        | Integer | POSIX time                                                                                     |
@@ -1179,17 +1173,33 @@ They also indicate the size of the bit field used to hold a literal value in dir
 
 The decimal scale factor keyword `/d#` indicates that an Integer holds an application value multiplied
 by the specified power of 10, using an integer to hold a fixed-precision rational number,
-or changing the units of a physical value:
+or changing the unit scaling of a physical value:
 ```
 Amount = Integer /d2    // Integer 152 represents an application value of 1.52,
                         // changing units of currency in USD to cents.
 ```
 
 The IEEE 754 floating point number keywords `/f#` indicate the significand and exponent ranges of logical
-Number instances, and the size and structure of lexical Number instances when using binary data formats such as CBOR.
+Number instances, and the size and structure of lexical Number instances when using binary data formats.
 
-##### Address Formats
+##### Address and Identifier Formats
 
+The `/uuid` keyword indicates a Universally Unique IDentifier (UUID), a 128 bit Binary label used to
+uniquely identify items, structured and serialized as defined in [RFC 9562](#rfc9562).
+
+The `tagged-uuid` keyword indicates an Array consisting of a String prefix and a Binary UUID, similar in purpose to a
+[STIX] Section 2.9 `Identifier`. Although STIX defines the prefix to be the *type* property
+of the object identified by the UUID, this specification is not specific to any message protocol and does
+not constrain prefix content:
+```
+ObjectId = Array /tagged-uuid
+   1 String                         // prefix:: Type Prefix
+   2 UUID                           // uuid:: Unique Identifier
+```
+When serialized in a text data format the `prefix` and `uuid` fields are separated by two dashes:
+```
+"ipv4-addr--ff26c055-6336-5bc5-b98d-13d6226742dd"
+```
 
 ##### Time Formats
 
@@ -1231,12 +1241,66 @@ Timestamp2 = String /date-time
 
 #### 4.2.5.2 XSD Semantic Validation Keywords
 
-Semantic validation keywords defined in [[XSD]()].
+XML Schema Definition Language ([[XSD]()]) Section 3 defines a set of built-in DataTypes
+using a text-centric approach:
+> The *value space* of *anyAtomicType* is the union of the value spaces of all the *primitive* datatypes
+> defined here or supplied as implementation-defined primitives.
 
-| Keyword            | Type    | Requirement |
-|--------------------|---------|-------------|
-| XML Schema formats | String  |             |
+Information models are value-centric: the JADN *value space* consists of the five [Primitive](#421-primitive-types)
+types defined in Section 4.2.1, and the *lexical space* is constructed using semantic keywords defined here
+or supplied from elsewhere. This difference has several effects:
 
+* Enumerated is a first-class JADN DataType, not a facet of string or integer representations.
+* Integer and Number are distinct first-class JADN DataTypes, not subsets of a *decimal* DataType. Open and
+closed intervals apply to both Integers and Numbers.
+* System time (Epoch + Integer offset and the Seven-property subset of POSIX `tm`) is the value space
+of time-related Integers. The lexical space is broad, and lexical mappings beyond ISO 8601
+(DMY/YMD/MDY, 12/24 hour, locale specifics) are out of scope but can be expressed in JADN as
+externally-defined format options.
+
+The following format options are defined for XSD compatibility. Many are aliases for JADN options applicable
+to all serialized data formats; some are specific to XML serialization but may be generalized to all
+serializations (e.g., an Array definition of QName) in a future version.
+
+| XSD DataType         | JADN DataType | JADN Opts  | XSD-compatible      |
+|----------------------|---------------|------------|---------------------|
+| string               | String        |            |                     |
+| - normalizedString   | String        |            | /normalizedString   |
+| - token              | String        |            | /token              |
+| - language           | String        |            | /language           |
+| - name               | String        |            | /name               |
+| boolean              | Boolean       |            |                     |
+| decimal (integer)    | -             | -          | -                   |
+| - integer            | Integer       |            |                     |
+| - long               | Integer       | /i64       | /long               |
+| - int                | Integer       | /i32       | /int                |
+| - short              | Integer       | /i16       | /short              |
+| - byte               | Integer       | /i8        | /byte               |
+| - nonNegativeInteger | Integer       | [0, *]     | /nonNegativeInteger |
+| - positiveInteger    | Integer       | (0, *]     | /positiveInteger    |
+| - unsignedLong       | Integer       | /u64       | /unsignedLong       |
+| - unsignedInt        | Integer       | /u32       | /unsignedInt        |
+| - unsignedShort      | Integer       | /u16       | /unsignedShort      |
+| - unsignedByte       | Integer       | /u8        | /unsignedByte       |
+| - nonPositiveInteger | Integer       | [*, 0]     | /nonPositiveInteger |
+| - negativeInteger    | Integer       | [*, 0)     | /negativeInteger    |
+| decimal (float)      | Number        | -          | -                   |
+| float                | Number        | /f32       | /float              |
+| double               | Number        | /f64       | /double             |
+| duration             | Integer       | /duration  |                     |
+| - dayTimeDuration    | Integer       |            | /dayTimeDuration    |
+| - yearMonthDuration  | Integer       |            | /yearMonthDuration  |
+| dateTime             | Integer       | /date-time | /dateTime           |
+| time                 | Integer       | /time      |                     |
+| date                 | Integer       | /date      |                     |
+| gYearMonth           | Integer       |            | /gYearMonth         |
+| gYear                | Integer       |            | /gYear              |
+| gMonthDay            | Integer       |            | /gMonthDay          |
+| hexBinary            | Binary        | /x, /X     | /hexBinary          |
+| base64Binary         | Binary        | /b64       | /base64Binary       |
+| anyUri               | String        | /uri, /iri | /anyUri             |
+| QName                | String        |            | /QName              |
+| Notation             | String        |            | /Notation           |
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
@@ -1253,27 +1317,27 @@ For example, a String with `date-time` format has literal values such as:
 
 These are unequal strings even though they represent the same timestamp.
 
-| Keyword               | Type   | Requirement                                                                      |
-|-----------------------|--------|----------------------------------------------------------------------------------|
-| date-time             | String | String literal [RFC 3339](#rfc3339) Section 5.6 "date-time"                      |
-| date                  | String | String literal RFC 3339 Section 5.6 "full-date"                                  |
-| time                  | String | String literal RFC 3339 Section 5.6 "full-time"                                  |
-| duration              | String | String literal RFC 3339 Appendix A "duration"                                    |
-| email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                       |
-| idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                         |
-| hostname              | String | RFC 1123 Section 2.1                                                             |
-| idn-hostname          | String | RFC 1123 or RFC5890 Section 2.3.2.3                                              |
-| ipv4                  | String | "dotted quad" as defined in [RFC 2673](#rfc2673) Section 3.2                     |
-| ipv6                  | String | IPv6 address literal as defined in [RFC 4291](#rfc4291) Section 2.2              |
-| uri                   | String | [RFC 3986](#rfc3986)                                                             |
-| uri-reference         | String | [RFC 3986](#rfc3986)                                                             |
-| iri                   | String | [RFC 3987](#rfc3986)                                                             |
-| iri-reference         | String | [RFC 3987](#rfc3986)                                                             |
-| uuid                  | String | String representation of a UUID as defined in [RFC 4122](#rfc4122)               |
-| uri-template          | String | [RFC 6570](#rfc6570)                                                             |
-| json-pointer          | String | [RFC 6901](#rfc6901) Section 5                                                   |
-| relative-json-pointer | String | No current specification, last I-D expired Dec 2023                              |
-| regex                 | String | Regular Expression according to [ECMA-262](#ecmascript) Section 22.2.1 "Pattern" |
+| Keyword               | Type   | Requirement                                                                           |
+|-----------------------|--------|---------------------------------------------------------------------------------------|
+| date-time             | String | String literal [RFC 3339](#rfc3339) Section 5.6 "date-time"                           |
+| date                  | String | String literal RFC 3339 Section 5.6 "full-date"                                       |
+| time                  | String | String literal RFC 3339 Section 5.6 "full-time"                                       |
+| duration              | String | String literal RFC 3339 Appendix A "duration"                                         |
+| email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                            |
+| idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                              |
+| hostname              | String | RFC 1123 Section 2.1                                                                  |
+| idn-hostname          | String | RFC 1123 or RFC5890 Section 2.3.2.3                                                   |
+| ipv4                  | String | "dotted quad" representation as defined in [RFC 2673](#rfc2673) Section 3.2           |
+| ipv6                  | String | Text representation of an IPv6 address as defined in [RFC 4291](#rfc4291) Section 2.2 |
+| uri                   | String | [RFC 3986](#rfc3986)                                                                  |
+| uri-reference         | String | [RFC 3986](#rfc3986)                                                                  |
+| iri                   | String | [RFC 3987](#rfc3986)                                                                  |
+| iri-reference         | String | [RFC 3987](#rfc3986)                                                                  |
+| uuid                  | String | "hex-and-dash" representation of a UUID as defined in [RFC 9562](#rfc9562)            |
+| uri-template          | String | [RFC 6570](#rfc6570)                                                                  |
+| json-pointer          | String | [RFC 6901](#rfc6901) Section 5                                                        |
+| relative-json-pointer | String | No current specification, last I-D expired Dec 2023                                   |
+| regex                 | String | Regular Expression according to [ECMA-262](#ecmascript) Section 22.2.1 "Pattern"      |
 
 -------
 
@@ -1912,31 +1976,33 @@ Duerst, M., Suignard, M., *"Internationalized Resource Identifiers (IRIs)"*, Jan
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 June 2022, https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01.
 ###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, https://datatracker.ietf.org/doc/html/rfc791.
+Postel, J., "Internet Protocol", RFC 791, September 1981, https://www.rfc-editor.org/rfc/rfc791.
 ###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://datatracker.ietf.org/doc/html/rfc2119.
+Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://www.rfc-editor.org/rfc/rfc2119.
 ###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://datatracker.ietf.org/doc/html/rfc2673.
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://www.rfc-editor.org/rfc/rfc2673.
 ###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://datatracker.ietf.org/doc/html/rfc4291.
+Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://www.rfc-editor.org/rfc/rfc4291.
 ###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://datatracker.ietf.org/doc/html/rfc4632.
+Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://www.rfc-editor.org/rfc/html/rfc4632.
 ###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://datatracker.ietf.org/doc/html/rfc4648.
+Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://www.rfc-editor.org/rfc/rfc4648.
 ###### [RFC5234]
-Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://datatracker.ietf.org/doc/html/rfc5234.
+Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://www.rfc-editor.org/rfc/rfc5234.
 ###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://datatracker.ietf.org/doc/html/rfc6901.
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://www.rfc-editor.org/rfc/rfc6901.
 ###### [RFC8949]
-Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://datatracker.ietf.org/doc/html/rfc8949.
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://www.rfc-editor.org/rfc/rfc8949.
 ###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://datatracker.ietf.org/doc/html/rfc7405.
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://www.rfc-editor.org/rfc/rfc7405.
 ###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://datatracker.ietf.org/doc/html/rfc8174.
+Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://www.rfc-editor.org/rfc/rfc8174.
 ###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://datatracker.ietf.org/doc/html/rfc8200.
+Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://www.rfc-editor.org/rfc/rfc8200.
 ###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, https://datatracker.ietf.org/doc/html/rfc8259.
+Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, IETF RFC 8259, December 2017, https://www.rfc-editor.org/rfc/rfc8259.
+###### [RFC9562]
+Davis, K., Peabody, B., Leach P., "Universally Unique IDentifiers (UUIDs)", IETF RFC 9562, May 2024, https://www.rfc-editor.org/rfc/rfc9562.
 ###### [POSIX Time]
 IEEE and The Open Group, "POSIX.1-2024 - standard operating system and environment: time()", "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
 ###### [XML Namespaces]
@@ -1977,20 +2043,22 @@ W3C, *"RDF 1.2 Concepts and Abstract Syntax"*, https://www.w3.org/TR/rdf12-conce
 ###### [RELAXNG]
 OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
 ###### [RFC3444]
-Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://datatracker.ietf.org/doc/html/rfc3444.
+Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://www.rfc-editor.org/rfc/rfc3444.
 ###### [RFC3552]
-Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/rfc/rfc3552.
 ###### [RFC7303]
 Hansen, T., Melnikov, A., "Additional Media Type Structured Syntax Suffixes", RFC 7303, January 2013
 ###### [RFC7493]
-Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://datatracker.ietf.org/doc/html/rfc7493.
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://www.rfc-editor.org/rfc/rfc7493.
 ###### [RFC8340]
-Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://datatracker.ietf.org/doc/html/rfc8340.
+Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://www.rfc-editor.org/rfc/rfc8340.
 ###### [RFC8477]
 Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
-(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://datatracker.ietf.org/doc/html/rfc8477.
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://www.rfc-editor.org/rfc/rfc8477.
 ###### [RFC8610]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://datatracker.ietf.org/doc/html/rfc8610.html.
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://www.rfc-editor.org/rfc/rfc8610.html.
+###### [STIX]
+Bret Jordan, Rich Piazza, Trey Darley, "Structured Threat Information Expression (STIX) Version 2.1", OASIS Cyber Threat Intelligence (CTI) TC, 10 June 2021, https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [TRANSFORM]
