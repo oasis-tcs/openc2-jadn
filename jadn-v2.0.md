@@ -1405,9 +1405,9 @@ Unfolding replaces this with:
 
     Roster = Record
        1 org_name     String
-       2 members      Roster$members optional// Optional: minc=0, maxc=1
+       2 members      Roster.members optional// Optional: minc=0, maxc=1
     
-    Roster$members = ArrayOf(Member){1..*} // Tool-generated array: minv=1, maxv=0
+    Roster.members = ArrayOf(Member){1..*} // Tool-generated array: minv=1, maxv=0
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
@@ -1645,41 +1645,39 @@ serialized as:
 | **f32** | Number    | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 | **f64** | Number    | **float64**: IEEE 754 Double-Precision Float (#7.27). |
 
-<!---
+
 ## 6.5 XML Serialization:
-*XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
 
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-| JADN Type | XML Serialization Requirement |
-| :--- | :--- |
-| **Binary**  | <xs:element name="FieldName" type="xs:base64Binary"/> |
-| **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
-| **Integer** | <xs:element name="FieldName" type="xs:integer"/> |
-| **Number**  | <xs:element name="FieldName" type="xs:decimal"/> |
-| **String**  | <xs:element name="FieldName" type="xs:string"/> |
-| **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item |
-| **Choice**  | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
-| **Array**   | <xs:element name="FieldName"/> containing elements with name FieldName of each field |
-| **ArrayOf** | <xs:element name="FieldName"/> containing elements with the same FieldName for all fields |
-| **Map**     | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
-| **MapOf**   | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
-| **Record**  | same as **Map** |
+| JADN Type      | XML Serialization Requirement                                                                   |
+|:---------------|:------------------------------------------------------------------------------------------------|
+| **Binary**     | <xs:element name="FieldName" type="xs:base64Binary"/>                                           |
+| **Boolean**    | <xs:attribute name="FieldName" type="xs:boolean"/>                                              |
+| **Integer**    | <xs:element name="FieldName" type="xs:integer"/>                                                |
+| **Number**     | <xs:element name="FieldName" type="xs:decimal"/>                                                |
+| **String**     | <xs:element name="FieldName" type="xs:string"/>                                                 |
+| **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item                  |
+| **Choice**     | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
+| **Array**      | <xs:element name="FieldName"/> containing elements with name FieldName of each field            |
+| **ArrayOf**    | <xs:element name="FieldName"/> containing elements with the same FieldName for all fields       |
+| **Map**        | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute             |
+| **MapOf**      | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute             |
+| **Record**     | same as **Map**                                                                                 |
 
 **Format options that affect XML serialization**
 * When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
-| Option | JADN Type | XML Serialization Requirement |
-| :--- | :--- | :--- |
-| **x**   | Binary  | <xs:element name="FieldName" type="xs:hexBinary"/> |
-| **i8**  | Integer | <xs:element name="FieldName" type="xs:byte"/> |
-| **i16** | Integer | <xs:element name="FieldName" type="xs:short"/> |
-| **i32** | Integer | <xs:element name="FieldName" type="xs:int"/> |
-| **u1..u8**  | Integer | <xs:element name="FieldName" type="xs:unsignedByte"/> |
-| **u9..u16** | Integer | <xs:element name="FieldName" type="xs:unsignedShort"/> |
-| **u17..u32** | Integer | <xs:element name="FieldName" type="xs:unsignedInt"/> |
-| **u33..u*** | Integer | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
---->
+| Option       | JADN Type | XML Serialization Requirement                               |
+|:-------------|:----------|:------------------------------------------------------------|
+| **x**        | Binary    | <xs:element name="FieldName" type="xs:hexBinary"/>          |
+| **i8**       | Integer   | <xs:element name="FieldName" type="xs:byte"/>               |
+| **i16**      | Integer   | <xs:element name="FieldName" type="xs:short"/>              |
+| **i32**      | Integer   | <xs:element name="FieldName" type="xs:int"/>                |
+| **u1..u8**   | Integer   | <xs:element name="FieldName" type="xs:unsignedByte"/>       |
+| **u9..u16**  | Integer   | <xs:element name="FieldName" type="xs:unsignedShort"/>      |
+| **u17..u32** | Integer   | <xs:element name="FieldName" type="xs:unsignedInt"/>        |
+| **u33..u***  | Integer   | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
 
 -------
 
