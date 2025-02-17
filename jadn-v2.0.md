@@ -757,6 +757,33 @@ starting at 1.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
+Example: the `id` option - instances use FieldId instead of FieldName
+```
+["Colors", "Enumerated", [], "", [
+  [1, "red", "The color of roses"],
+  [2, "green"],
+  [3, "blue", "Violets"]
+]],
+
+["ColorIds", "Enumerated", ["="], "", [
+  [1, "red", "The color of roses"],
+  [2, "green"],
+  [3, "blue", "Violets"]
+]]
+```
+
+```
+Colors = Enumerated
+   1 red                          // The color of roses
+   2 green
+   3 blue                         // Violets
+
+ColorIds = Enumerated#
+   1                             // red:: The color of roses
+   2                             // green::
+   3                             // blue:: Violets
+```
+
 <!-- For CN?
 #### 4.2.1.1 Field Identifiers
 
@@ -1787,15 +1814,15 @@ breaks out the MULTIPLICITY field options into a separate column:
 ```
 followed by (for compound types without the *id* option):
 ```
-+---------+---------------+-------------+--------+------------------+
-| FieldID | FieldName[/]  | FIELDSTRING | [m..n] | FieldDescription |
-+---------+---------------+-------------+--------+------------------+
++---------+------------+-------------+--------+------------------+
+| FieldID | FieldName  | FIELDSTRING | [m..n] | FieldDescription |
++---------+------------+-------------+--------+------------------+
 ```
 or (for compound types with the *id* option):
 ```
-+---------+-------------+--------+----------------------------------+
-| FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
-+---------+-------------+--------+----------------------------------+
++---------+-------------+--------+-------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription  |
++---------+-------------+--------+-------------------------------+
 ```
 **Example Markdown Table:**
 
