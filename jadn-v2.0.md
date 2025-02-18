@@ -1241,9 +1241,9 @@ The JADN format keywords are:
 
 | Keyword     | Type    | Requirement                                                                                    |
 |-------------|---------|------------------------------------------------------------------------------------------------|
-| i\<*n*\>    | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
-| u\<*n*\>    | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
-| d\<*n*\>    | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
+| i\<n\>      | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
+| u\<n\>      | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
+| d\<n\>      | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
 | f16         | Number  | [IEEE 754](#ieee754) Half-Precision Float                                                      |
 | f32         | Number  | IEEE 754 Single-Precision Float                                                                |
 | f64         | Number  | IEEE 754 Double-Precision Float                                                                |
@@ -1263,11 +1263,11 @@ The JADN format keywords are:
 
 ##### Integer and Number Formats
 
-The signed and unsigned integer keywords `/i#` and `/u#` indicate a range constraint on a logical value,
+The signed and unsigned integer keywords `/i<n>` and `/u<n>` indicate a range constraint on a logical value,
 equivalent to the `minInclusive` and `maxInclusive` options using two's-complement bounds for signed integers.
 They also indicate the size of the bit field used to hold a literal value in direct binary data format.
 
-The decimal scale factor keyword `/d#` indicates that an Integer holds an application value multiplied
+The decimal scale factor keyword `/d<n>` indicates that an Integer holds an application value multiplied
 by the specified power of 10, using an integer to hold a fixed-precision rational number,
 or changing the unit scaling of a physical value:
 ```
@@ -1317,7 +1317,7 @@ The Integer type with these keywords is a logical value independent of represent
 strings in RFC 3339 format, other date and time formats, decimal string, hex string, base64 string,
 or an integer value in binary serializations.
 
-The decimal scale factor format `/d#` can be used with Integer times to specify time resolution:
+The decimal scale factor format `/d<n>` can be used with Integer times to specify time resolution:
 ```
 Timestamp = Integer /date-time              // 1727877600 seconds         = 2024-10-02T15:00:00Z
 Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z
@@ -1995,10 +1995,10 @@ Figure 7-3 is an example instance of the University type serialized in
 Information Modeling is applied within a system design process that may include:
 * IM Design
   * Abstract Schema Design and Validation
-  * Schema Format Translation
+  * Alternate Schema Format Translation
 * Message Processing
   * Single Format Message Validation
-  * Multiple Format Lossless Message Translation
+  * Multiple Format Lossless Roundtrip Message Translation
 * Concrete Schema Conversion
 
 As noted in the introduction, an information modeling language is a formal syntax that allows users
@@ -2007,8 +2007,8 @@ conformance requirements address schema design and validation. Although Sections
 example message encoding rules and alternate schema presentation formats, this specification has
 no conformance requirements related to those activities.
 
-Conforming implementations SHALL satisfy all conformance requirements listed in this document, including
-the following sections:
+Conforming implementations SHALL satisfy all conformance requirements listed in Sections 1-5 of this document,
+including the following sections:
 * [3.1.3 Package](#313-package-conformance-requirements)
 * [4.1.5 Types](#415-type-conformance-requirements)
 * [4.2.1.6 Primitive Types](#4216-primitive-type-conformance-requirements)
@@ -2204,7 +2204,7 @@ The following individuals have participated in the creation of this specificatio
 * Define two special values for maxOccurs upper bound: "unspecified" and "unlimited".
 * Split single range option into value range and length.
 * Add format options:
-  * /d# - decimal scale factor for fixed-point Integer type
+  * /d<n> - decimal scale factor for fixed-point Integer type
   * /tagged-uuid for labeling uuid references to specific types
 * Define separate format option behavior when applied to logical vs. text values.
 * Add XML serialization rules.
