@@ -1484,7 +1484,7 @@ Coordinate.longitude = Number [-180.0, 180.0]
 
 ## 5.2 Field Multiplicity
 
-Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
+Fields may be defined to have multiple values of the same type. Expanding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
 FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
 size (*minv* and *maxv*) TypeOptions of the new ArrayOf type, except that if *minc* is 0
@@ -1497,7 +1497,7 @@ Example:
        1 org_name     String
        2 members      Member [0..*]         // Optional and repeated: minc=0, maxc=0
 
-Unfolding replaces this with:
+Expanding replaces this with:
 
     Roster = Record
        1 org_name     String
@@ -1519,7 +1519,7 @@ field multiplicity shortcut:
 
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
-Unfolding removes *enum* from Type Options and adds fields containing
+Expanding removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) the *enum* option is represented
@@ -1527,7 +1527,7 @@ as a function string: "Enum(\<referenced-type\>)".
 Within ArrayOf and MapOf types, the *ktype* and *vtype* options may contain an enum option.  As an
 example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN vtype option "*#Pixel".
 
-Unfolding references an explicit Enumerated type if it exists, otherwise it creates an explicit
+Expanding references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
 Example:
@@ -1541,7 +1541,7 @@ Example:
     
     ChannelMask = ArrayOf(Enum[Pixel])      // ArrayOf(derived enumeration)
 
-Unfolding replaces the Channel and ChannelMask definitions with:
+Expanding replaces the Channel and ChannelMask definitions with:
 
     Channel2 = Enumerated
        1 red
@@ -1551,7 +1551,7 @@ Unfolding replaces the Channel and ChannelMask definitions with:
     ChannelMask2 = ArrayOf(Channel)
 
 ## 5.4 MapOf With Enumerated Key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Unfolding replaces the MapOf type definition
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expanding replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
 enumeration. In order to use this shortcut, each ItemValue of the Enumerated type must be a valid FieldName.
 
@@ -1564,69 +1564,44 @@ Example:
     
     Pixel3 = MapOf(Channel3, Integer)
     
-Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
+Expanding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
 
 ## 5.5 Pointers
 
-Applications may need to model both individual types and collections of types, similar to the way filesystems
-have files and directories.
-The "dir" option ([Section 3.2.2](#322-field-options)) marks a field as a collection of types.
-The dir option has no effect on the structure or serialization of information;
-its sole purpose is to support pathname generation using the Pointer shortcut.
-
-A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer shortcut
-([Section 3.2.1](#321-type-options)) generates a list of all type definitions in and under the specified type.  Unfolding
-replaces the Pointer shortcut with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
-type. If no fields in the specified type are marked with the "dir" option, the Pointer shortcut has the same fields
-as the [Derived Enumeration](#53-derived-enumerations) shortcut except that IDs are sequential rather than copied
-from the referenced type.
+The Pointer shortcut generates a depth-first list of paths, similar to a recursive filesystem listing.
+Expanding replaces the Pointer shortcut with an Enumerated type containing a [JSON Pointer](#rfc6901)
+pathname for each leaf type under the specified TypeRef. Link fields are listed but not followed.
 
 Example:
+```
+BOM = Record
+   1 bomFormat        BomFormat
+   2 version          String
+   3 metadata         Metadata
 
-    Catalog = Record
-       1 a            TypeA
-       2 b/           TypeB
-    
-    TypeA = Record
-       1 x            Number
-       2 y            Number
-    
-    TypeB = Record
-       1 foo          String
-       2 bar          Integer
-    
-    Paths = Enumerated(Pointer[Catalog])
+BomFormat = Enumerated
+   1 cyclonedx
+   2 spdx
 
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option (shown
-as "b/").
-Unfolding replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
+Metadata = Record
+   1 timestamp        String /date-time
+   2 tools            Tool [1..*]
 
-    Paths2 = Enumerated
-       1 a                                  // Item 1
-       2 b/foo                              // Item 2
-       3 b/bar                              // Item 3
+Tool = Record{1..*}
+   1 vendor           String optional
+   2 name             String optional
 
-This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
-in multiple locations in a hierarchy, and 3) needs identifiers for each type in the category.
-
-It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
-its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
-development of packages regardless of whether the underlying data format has native namespace support.
-
-The structure of a "Catalog" instance is not affected by this shortcut. Although "a/x" is a valid JSON Pointer
-to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
-value is not considered an "Item":
-
-    {
-      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1 (TypeA)
-      "b": {                            <-- "b" is a dir or namespace mount point, not an Item.
-        "foo": "Elephant",              <-- "b/foo" is Item 2 (String)
-        "bar": 762                      <-- "b/bar" is Item 3 (TypeC)
-      }
-    }
-
-Note that the *enum* and *pointer* shortcuts create shallow dependencies: the referenced
-types are needed in order to unfold them but types below the direct references are not.
+BomList = Enumerated(Pointer[BOM])
+```
+Expanding replaces BomList with:
+```
+BomList = Enumerated
+   1 bomFormat
+   2 version
+   3 metadata/timestamp
+   4 metadata/tools/#/vendor
+   5 metadata/tools/#/name
+```
 
 -------
 
@@ -1779,7 +1754,7 @@ serialized as:
 
 # 7 Alternate Schema Representations
 
-[Section 3.1](#31-type-definitions) defines the normative JSON format of JADN type definitions.
+[Section 4](#4-jadn-types) defines the normative JSON format of JADN type definitions.
 Although JSON data is unambiguous, it is not ideal as a documentation format. This section suggests
 several more readable ways of describing and documenting information models.
 
@@ -1788,7 +1763,7 @@ several more readable ways of describing and documenting information models.
 ## 7.1 Information Definition Language
 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
-It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
+It replicates the structure of [Section 4.1](#41-type-definition-structure) but combines each type
 and its options into a single string formatted for readability.
 The conversion between JSON and JADN-IDL formats is lossless in both directions, meaning that
 the IDL described here is unambiguous and complete.  But it is not intended to be immutable; syntactic
@@ -1815,8 +1790,6 @@ Compound types without the *id* option:
         FieldID FieldName[/] FIELDSTRING      // FieldDescription
         ...
 ```
-If a field includes the [*dir*](#335-pointers) FieldOption, the SOLIDUS character (/)
-as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as an informative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
@@ -1835,9 +1808,9 @@ followed by a label terminator ("::"):
 **Type Options:**
 
 TYPESTRING is the value of CoreType or FieldType, followed by string representations of the type options,
-if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
-* TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.2](#312-name-formats).
-* FMTNAME is the name of a semantic validation function as specified in [Section 3.2.1.5](#3215-semantic-validation).
+if applicable to TYPE as specified in [Section 4.2](#42-core-types).
+* TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.3](#313-package-conformance-requirements).
+* FMTNAME is the name of a semantic validation function as specified in [Section 4.1.5](#425-semantic-validation).
 ```
     TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is CoreType or FieldType
     ID          = ".ID"
@@ -2019,31 +1992,28 @@ Figure 7-3 is an example instance of the University type serialized in
 
 # 8 Conformance
 
-Conformance targets:
-This document defines two conformance levels for JADN implementations: Core and Shortcuts.
+Information Modeling is applied within a system design process that may include:
+* IM Design
+  * Abstract Schema Design and Validation
+  * Schema Format Translation
+* Message Processing
+  * Single Format Message Validation
+  * Multiple Format Lossless Message Translation
+* Concrete Schema Conversion
 
-This document defines several data formats. Conformance claims are made with respect to a specified data format,
-and conforming implementations must support at least one data format.
+As noted in the introduction, an information modeling language is a formal syntax that allows users
+to capture data semantics and constraints. This specification defines the JADN IM language, and its
+conformance requirements address schema design and validation. Although Sections 6 and 7 present
+example message encoding rules and alternate schema presentation formats, this specification has
+no conformance requirements related to those activities.
 
-* Core JADN
-    * Validate schema packages according to [Section 3.1](#31-type-definitions), [Section 3.2](#32-options)
-    and [section 3](#3-schema-packages)
-    * Validate API values against a schema package
-    * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 6](#6-serialization-and-data-formats)
-* JADN Shortcuts
-    * Satisfy all Core requirements
-    * Perform all shortcut unfolding operations defined in [Section 3.3](#33-jadn-shortcuts)
-
-This document describes information modeling functions but defines no corresponding conformance requirements:
-
-* JADN Schema Translator
-    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in
-      [Section 6](#6-serialization-and-data-formats).
-* JADN Concrete Schema Generators
-    * Generate format-specific concrete schemas per serialization rules in Section 4.x.
-* JADN Shortcuts
-    * Recognize opportunities to fold related types into shortcuts, i.e., given a core schema package,
-     generate syntactic sugar where possible.
+Conforming implementations SHALL satisfy all conformance requirements listed in this document, including
+the following sections:
+* [3.1.3 Package](#313-package-conformance-requirements)
+* [4.1.5 Types](#415-type-conformance-requirements)
+* [4.2.1.6 Primitive Types](#4216-primitive-type-conformance-requirements)
+* [4.2.2.4 Compound Types](#4224-compound-type-conformance-requirements)
+* [4.2.4.2 General Type](#4242-general-type-conformance-requirements)
 
 -------
 
