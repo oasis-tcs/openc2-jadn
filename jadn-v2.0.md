@@ -137,6 +137,7 @@ For complete copyright information please see the Notices section in the Appendi
       - [4.2.3.2 Choice (Tagged)](#4232-choice-tagged)
       - [4.2.3.3 Choice (Untagged)](#4233-choice-untagged)
       - [4.2.3.4 Field Options](#4234-field-options)
+      - [4.2.3.5 Union Type Conformance Requirements](#4235-union-type-conformance-requirements)
     - [4.2.4 General Type Options](#424-general-type-options)
       - [4.2.4.1 Type Inheritance](#4241-type-inheritance)
       - [4.2.4.2 General Type Conformance Requirements](#4242-general-type-conformance-requirements)
@@ -995,7 +996,7 @@ starting at 1.
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the null type.
 * An instance of a Map, MapOf, or Record type with a key mapped to a null value MUST compare as equal to an
 otherwise identical instance without that key.
-* The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
+* The length of an Array, ArrayOf or Record instance MUST NOT include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 * An Array, Map or Record type MUST have no more than one `key` field. The key field MAY be a compound type.
 * Values referenced by the `link` option MUST be instances of the referenced type.
@@ -1124,11 +1125,15 @@ UserName = Choice(allOf)            // A combination of lower, upper and digits,
 A tagged union within a structured type may use the `tagId` option to specify a separate field within
 that type to be used as its tag. The value of the designated field must be a valid field identifier
 for the Choice, and is normally an Enumerated type generated from the Choice using the
-[Derived Enumeration](#53-derived-enumerations) shortcut:
+[Derived Enumeration](#53-derived-enumerations) shortcut.
+
+#### 4.2.3.5 Union Type Conformance Requirements
+
 * The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially starting at 1.
 * A value MUST be classified against the fields of a Choice(anyOf) type in field order and as an instance
 of the first matching field.
-* The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without a `not` option.
+* The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without
+a `not` option.
 
 ### 4.2.4 General Type Options
 
@@ -2013,7 +2018,8 @@ including the following sections:
 * [4.1.5 Types](#415-type-conformance-requirements)
 * [4.2.1.6 Primitive Types](#4216-primitive-type-conformance-requirements)
 * [4.2.2.4 Compound Types](#4224-compound-type-conformance-requirements)
-* [4.2.4.2 General Type](#4242-general-type-conformance-requirements)
+* [4.2.3.5 Union Types](#4235-union-type-conformance-requirements)
+* [4.2.4.2 Inherited Types](#4242-general-type-conformance-requirements)
 
 -------
 
