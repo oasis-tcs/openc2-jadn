@@ -757,7 +757,7 @@ starting at 1.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
-Example: the `id` option - instances use FieldId instead of FieldName
+Example: the `id` option indicates that values use FieldId instead of FieldName
 ```
 ["Colors", "Enumerated", [], "", [
   [1, "red", "The color of roses"],
@@ -2159,13 +2159,19 @@ The following individuals have participated in the creation of this specificatio
 
 ### Changes from v1.0 to v2.0
 
-* Change "unlimited" maxOccurs sentinel value from 0 to -1.
-  *This minor but incompatible change required a new major version.*
-* Add Choice untagged unions.
-* Add type inheritance.
-* Change "namespaces" prefix list from mappings to pairings.
-* Rename package "Information" to "Metadata" to avoid conflation with information modeling.
-* Rename package "exports" to "roots" to better describe purpose and effect.
+* Add type inheritance options.
+* Add untagged union options to Choice type.
+* Allow multiple namespace prefixes to designate the same namespace.
+* Define two special values for maxOccurs upper bound: "unspecified" and "unlimited".
+* Split single range option into value range and length.
+* Add format options:
+  * /d# - decimal scale factor for fixed-point Integer type
+  * /tagged-uuid for labeling uuid references to specific types
+* Define separate format option behavior when applied to logical vs. text values.
+* Define XSD-compatible format options.
+* In package header:
+  * rename "Information" to "Metadata" to avoid conflation with information modeling.
+  * rename "exports" to "roots" to better describe purpose and effect.
 
 ### Changes from v1.0 CSD 01 to v1.0
 
