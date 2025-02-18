@@ -35,8 +35,13 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/cs01/schemas/jadn-v2.0.json
-* JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/cs01/schemas/jadn-v2.0.jadn
+* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.json
+* JADN metaschema for JADN documents:
+  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jadn
+  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jidl
+* JADN schema for Examples:
+  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jadn
+  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jidl
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
@@ -1427,7 +1432,7 @@ These are unequal strings even though they represent the same timestamp.
 | email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                            |
 | idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                              |
 | hostname              | String | RFC 1123 Section 2.1                                                                  |
-| idn-hostname          | String | RFC 1123 or RFC5890 Section 2.3.2.3                                                   |
+| idn-hostname          | String | RFC 1123 or RFC 5890 Section 2.3.2.3                                                  |
 | ipv4                  | String | "dotted quad" representation as defined in [RFC 2673](#rfc2673) Section 3.2           |
 | ipv6                  | String | Text representation of an IPv6 address as defined in [RFC 4291](#rfc4291) Section 2.2 |
 | uri                   | String | [RFC 3986](#rfc3986)                                                                  |

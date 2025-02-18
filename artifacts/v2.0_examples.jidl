@@ -1,0 +1,226 @@
+     package: "https://oasis-open.org/jadn/v2.0/examples"
+ description: "Example type definitions from JADN Specification"
+
+Username = String{pattern="^[a-z][a-z0-9]{3,11}$"}
+
+Users = ArrayOf(Username)
+
+Color = Enumerated
+   1 red
+   2 green
+   3 blue
+
+Coordinate = Record                              // A GPS coordinate
+   1 latitude         Latitude                   // A Number between -90 and 90 degrees
+   2 longitude        Longitude                  // A Number between -180 and 180 degrees
+
+Colors = Enumerated
+   1 red                                         // The color of roses
+   2 green
+   3 blue                                        // Violets
+
+ColorIds = Enumerated#
+   1                                             // red:: The color of roses
+   2                                             // green::
+   3                                             // blue:: Violets
+
+Person = Record
+   1 id               Key(Integer)               // key
+   2 name             String
+   3 mother           Link(Person)               // link
+   4 father           Link(Person)               // link
+   5 siblings         Link(Person) [0..*]        // link
+   6 employer         Link(Organization) optional
+
+Organization = Record
+   1 name             String
+   2 ein              Key(String{10..10})
+   3 ceo              Link(Person)
+
+LineItem = Array
+   1  Key(ItemId)                                // item_id:: Composite unique identifier for a line item within an order
+   2  Integer                                    // quantity:: Other information about the ordered item
+
+ItemId = Array
+   1  Integer                                    // order_id:: Order unique identifier
+   2  Integer                                    // product_id:: Product unique identifier
+
+PhoneType = Choice(anyOf)
+   1  PhoneNumberTypes                           // predefined:: Pre-defined names
+   2  String{3..10}                              // custom:: Any name 3-10 characters
+
+PhoneNumberTypes = Enumerated
+   1 Home
+   2 Cell
+   3 Office
+
+UserName = Choice(allOf)                         // A combination of lower, upper and digits, but not all digits.
+   1  String{pattern="^[a-zA-Z0-9]$"}            // a::
+   2  String{4..*} [1..16]                       // b::
+   3  !String{pattern="^[0-9]$"}                 // c::
+
+Name1 = Choice(anyOf)                            // Extend equivalent: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern="^[a-z0-9]$"}               // a::
+   2  String{pattern="^[A-Z0-9]$"}               // b::
+
+Name2 = Choice(allOf)                            // Restrict equivalent: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern="^[a-z0-9]$"}               // a::
+   2  String{pattern="^[A-Z0-9]$"}               // b::
+
+Entity = Record abstract                         // Base type, cannot be instantiated
+   1 id               Integer
+   2 name             String optional
+
+Person2 = Record extends(Entity)                 // Add email address
+   3 email            String /email optional
+
+AnonymousPerson = Record final restricts(Person2)
+   2 name             String [0]
+
+Coordinate2 = Record                             // A GPS coordinate
+   1 latitude         Coordinate2.latitude       // A Number between -90 and 90 degrees
+   2 longitude        Coordinate2.longitude      // A Number between -180 and 180 degrees
+
+Coordinate2.latitude = Number=(90.0, *]          // A Number between -90 and 90 degrees
+
+Coordinate2.longitude = Number=[-180.0, 180.0]   // A Number between -180 and 180 degrees
+
+Roster = Record
+   1 org_name         String
+   2 members          Member [0..*]              // Optional and repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
+
+Roster2 = Record
+   1 org_name         String
+   2 members          Roster2.members optional   // Optional: minOccurs=0, no maxOccurs
+
+Roster2.members = ArrayOf(Member){1..*}          // Tool-generated array: minLength=1, no maxLength
+
+Roster3 = Record
+   1 org_name         String
+   2 members          Members                    // members field is required: default minOccurs = 1, maxOccurs = 1
+
+Members = ArrayOf(Member)                        // Explicitly-defined array: no minLength, no maxLength
+
+Pixel = Map
+   1 red              Integer
+   2 green            Integer
+   3 blue             Integer
+
+Channel = Enumerated(Enum[Pixel])                // Derived Enumerated type
+
+ChannelMask = ArrayOf(Enum[Pixel])               // ArrayOf(derived enumeration)
+
+Channel2 = Enumerated
+   1 red
+   2 green
+   3 blue
+
+ChannelMask2 = ArrayOf(Channel)
+
+Channel3 = Enumerated
+   1 red
+   2 green
+   3 blue
+
+Pixel3 = MapOf(Channel3, Integer)
+
+BOM = Record
+   1 bomFormat        BomFormat
+   2 version          String
+   3 metadata         Metadata
+
+BomFormat = Enumerated
+   1 cyclonedx
+   2 spdx
+
+Metadata = Record
+   1 timestamp        String /date-time
+   2 tools            Tool [1..*]
+
+Tool = Record{1..*}
+   1 vendor           String optional
+   2 name             String optional
+
+BomList = Enumerated(Pointer[BOM])
+
+BomList2 = Enumerated
+   1 bomFormat
+   2 version
+   3 metadata/timestamp
+   4 metadata/tools/#/vendor
+   5 metadata/tools/#/name
+
+Colors1 = Enumerated                             // Primary colors
+   5 red
+   3 green
+  16 blue
+
+Colors2 = Enumerated extends(Colors1)            // Primary and secondary colors
+   2 yellow
+   7 magenta
+   6 cyan
+
+Connection = Record
+   1 version          Enumerated(Enum[IP-Addr])  // Source and destination versions must agree
+   2 source           IP-Addr(TagId[version])
+   3 destination      IP-Addr(TagId[version])
+
+IP-Addr = Choice
+   1 v4               IPv4-Addr
+   2 v6               IPv6-Addr
+
+Person3 = Record
+   1 name             String
+   2 id               Integer
+   3 email            String optional
+
+FieldID = Integer=[0, *]
+
+Option = String=[a, z]{1..*}                     // ** Need JIDL Syntax **
+
+Product = Choice                                 // Discriminated union
+   1 furniture        Furniture
+   2 appliance        Appliance
+   3 software         Software
+
+Dept = Enumerated                                // Explicit Tag values derived from the Choice
+   1 furniture
+   2 appliance
+   3 software
+
+Software = String /uri
+
+Stock1 = Record                                  // Discriminated union with intrinsic tag
+   1 quantity         Integer
+   2 product          Product                    // Value = Map with one key/value
+
+Stock2 = Record                                  // Container with explicitly-tagged discriminated union
+   1 dept             Dept                       // Tag = one key from Choice
+   2 quantity         Integer
+   3 product          Product(TagId[dept])       // Choice specifying an explicit tag field
+
+Hashes = Map{1..*}                               // Multiple discriminated unions with intrinsic tags is a Map
+   1 md5              Binary{16..16} /x optional
+   2 sha1             Binary{20..20} /x optional
+   3 sha256           Binary{32..32} /x optional
+
+Hashes2 = ArrayOf(HashVal)                       // Multiple discriminated unions with explicit tags is an Array
+
+HashVal = Record
+   1 algorithm        Enumerated(Enum[HashAlg])  // Tag - one key from Choice
+   2 value            HashAlg(TagId[algorithm])  // Value selected from Choice by 'algorithm' field
+
+HashAlg = Choice
+   1 md5              Binary{16..16} /x
+   2 sha1             Binary{20..20} /x
+   3 sha256           Binary{32..32} /x
+
+Member = Record
+   1 name             String
+   2 email            String /email
+
+Member2 = Record
+   1 name             String
+   2 email            Member2.email
+
+Member2.email = String /email                    // Tool-generated type definition.
