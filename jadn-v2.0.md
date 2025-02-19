@@ -1253,27 +1253,27 @@ JADN types define both logical values and literals, and format options affect bo
 between values and text representations. See [Section 6](#6-serialization-and-data-formats).
 The JADN format keywords are:
 
-| Keyword     | Type    | Requirement                                                                                    |
-|-------------|---------|------------------------------------------------------------------------------------------------|
-| i\<n\>      | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
-| u\<n\>      | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
-| d\<n\>      | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
-| f16         | Number  | [IEEE 754](#ieee754) Half-Precision Float                                                      |
-| f32         | Number  | IEEE 754 Single-Precision Float                                                                |
-| f64         | Number  | IEEE 754 Double-Precision Float                                                                |
-| f128        | Number  | IEEE 754 Quadruple-Precision Float                                                             |
-| f256        | Number  | IEEE 754 Octuple-Precision Float                                                               |
-| ipv4-addr   | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
-| ipv6-addr   | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200) Section 3                                    |
-| ipv4-net    | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
-| ipv6-net    | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| eui         | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
-| uuid        | Binary  | Universally Unique ID (UUID) as defined in [RFC 9562](#rfc9562)                                |
-| tagged-uuid | Array   | UUID with string prefix                                                                        |
-| date-time   | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
-| date        | Integer | POSIX time                                                                                     |
-| time        | Integer | POSIX time                                                                                     |
-| duration    | Integer | A number of seconds                                                                            |
+| Keyword   | Type    | Requirement                                                                                    |
+|-----------|---------|------------------------------------------------------------------------------------------------|
+| i\<n\>    | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
+| u\<n\>    | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
+| d\<n\>    | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
+| f16       | Number  | [IEEE 754](#ieee754) Half-Precision Float                                                      |
+| f32       | Number  | IEEE 754 Single-Precision Float                                                                |
+| f64       | Number  | IEEE 754 Double-Precision Float                                                                |
+| f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
+| f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
+| ipv4-addr | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
+| ipv6-addr | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200) Section 3                                    |
+| ipv4-net  | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
+| ipv6-net  | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| eui       | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
+| uuid      | Binary  | Universally Unique ID (UUID) as defined in [RFC 9562](#rfc9562)                                |
+| tag-uuid  | Array   | UUID with string prefix                                                                        |
+| date-time | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
+| date      | Integer | POSIX time                                                                                     |
+| time      | Integer | POSIX time                                                                                     |
+| duration  | Integer | A number of seconds                                                                            |
 
 ##### Integer and Number Formats
 
@@ -1297,7 +1297,7 @@ Number instances, and the size and structure of lexical Number instances when us
 The `/uuid` keyword indicates a Universally Unique IDentifier (UUID), a 128 bit Binary label used to
 uniquely identify items, structured and serialized as defined in [RFC 9562](#rfc9562).
 
-The `tagged-uuid` keyword indicates an Array consisting of a String prefix and a Binary UUID, similar in purpose to a
+The `tag-uuid` keyword indicates an Array consisting of a String prefix and a Binary UUID, similar in purpose to a
 [STIX] Section 2.9 `Identifier`. Although STIX defines the prefix to be the *type* property
 of the object identified by the UUID, this specification is not specific to any message protocol and does
 not constrain prefix content:
@@ -2220,7 +2220,7 @@ The following individuals have participated in the creation of this specificatio
 * Split single range option into value range and length.
 * Add format options:
   * /d<n> - decimal scale factor for fixed-point Integer type
-  * /tagged-uuid for labeling uuid references to specific types
+  * /tag-uuid for labeling uuid references to specific types
 * Define separate format option behavior when applied to logical vs. text values.
 * Add XML serialization rules.
 * Define XSD-compatible format options.
