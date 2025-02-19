@@ -4,8 +4,7 @@
 # Specification for JSON Abstract Data Notation (JADN) Version 2.0
 
 ## Committee Specification Draft 01
-
-## 5 February 2025
+## 19 February 2025
 
 &nbsp;
 
@@ -36,8 +35,13 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/cs01/schemas/jadn-v2.0.json
-* JADN schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/cs01/schemas/jadn-v2.0.jadn
+* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.json
+* JADN metaschema for JADN documents:
+  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jadn
+  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jidl
+* JADN schema for Examples:
+  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jadn
+  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jidl
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
@@ -78,7 +82,7 @@ in the separate plain text file prevails.
 #### Key words:
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",
 "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14
-[[RFC2119](#rfc2119)] and [[RFC8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
+[[RFC 2119](#rfc2119)] and [[RFC 8174](#rfc8174)] when, and only when, they appear in all capitals, as shown here.
 
 #### Citation format:
 When referencing this specification the following citation format should be used:
@@ -91,7 +95,7 @@ Latest stage: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 -------
 
 ## Notices
-Copyright © OASIS Open 2021. All Rights Reserved.
+Copyright © OASIS Open 2025. All Rights Reserved.
 
 Distributed under the terms of the OASIS [IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr).
 
@@ -104,6 +108,76 @@ For complete copyright information please see the Notices section in the Appendi
 
 # Table of Contents
 
+- [1 Introduction](#1-introduction)
+  - [1.1 Glossary](#11-glossary)
+    - [1.1.1 Definitions of terms](#111-definitions-of-terms)
+    - [1.1.2 Acronyms and abbreviations](#112-acronyms-and-abbreviations)
+- [2 Information Models](#2-information-models)
+- [3 Schema Packages](#3-schema-packages)
+    - [3.1.1 Descriptive Metadata](#311-descriptive-metadata)
+    - [3.1.2 Functional Metadata](#312-functional-metadata)
+    - [3.1.3 Package Conformance Requirements](#313-package-conformance-requirements)
+- [4 JADN Types](#4-jadn-types)
+  - [4.1 Type Definition Structure](#41-type-definition-structure)
+    - [4.1.1 Primitive](#411-primitive)
+    - [4.1.2 Enumerated](#412-enumerated)
+    - [4.1.3 Compound](#413-compound)
+    - [4.1.4 Type and Field Options](#414-type-and-field-options)
+    - [4.1.5 Type Conformance Requirements](#415-type-conformance-requirements)
+  - [4.2 Core Types](#42-core-types)
+    - [4.2.1 Primitive Types](#421-primitive-types)
+      - [4.2.1.1 Boolean](#4211-boolean)
+      - [4.2.1.2 Integer](#4212-integer)
+      - [4.2.1.3 Number](#4213-number)
+      - [4.2.1.4 String](#4214-string)
+      - [4.2.1.5 Binary](#4215-binary)
+      - [4.2.1.6 Primitive Type Conformance Requirements](#4216-primitive-type-conformance-requirements)
+    - [4.2.2 Compound Types](#422-compound-types)
+      - [4.2.2.1 Field Options](#4221-field-options)
+      - [4.2.2.2 Multiplicity](#4222-multiplicity)
+      - [4.2.2.3 Links](#4223-links)
+      - [4.2.2.4 Compound Type Conformance Requirements](#4224-compound-type-conformance-requirements)
+    - [4.2.3 Union Types](#423-union-types)
+      - [4.2.3.1 Enumerated](#4231-enumerated)
+      - [4.2.3.2 Choice (Tagged)](#4232-choice-tagged)
+      - [4.2.3.3 Choice (Untagged)](#4233-choice-untagged)
+      - [4.2.3.4 Field Options](#4234-field-options)
+      - [4.2.3.5 Union Type Conformance Requirements](#4235-union-type-conformance-requirements)
+    - [4.2.4 General Type Options](#424-general-type-options)
+      - [4.2.4.1 Type Inheritance](#4241-type-inheritance)
+      - [4.2.4.2 General Type Conformance Requirements](#4242-general-type-conformance-requirements)
+    - [4.2.5 Semantic Validation](#425-semantic-validation)
+      - [4.2.5.1 JADN Semantic Validation Keywords](#4251-jadn-semantic-validation-keywords)
+      - [4.2.5.2 XSD Semantic Validation Keywords](#4252-xsd-semantic-validation-keywords)
+      - [4.2.5.3 JSON Schema Semantic Validation Keywords](#4253-json-schema-semantic-validation-keywords)
+- [5 Shortcuts](#5-shortcuts)
+  - [5.1 Anonymous Type Definition](#51-anonymous-type-definition)
+  - [5.2 Field Multiplicity](#52-field-multiplicity)
+  - [5.3 Derived Enumerations](#53-derived-enumerations)
+  - [5.4 MapOf With Enumerated Key](#54-mapof-with-enumerated-key)
+  - [5.5 Pointers](#55-pointers)
+- [6 Serialization and Data Formats](#6-serialization-and-data-formats)
+  - [6.1 Verbose JSON Serialization](#61-verbose-json-serialization)
+  - [6.2 Compact JSON Serialization:](#62-compact-json-serialization)
+  - [6.3 Concise JSON Serialization:](#63-concise-json-serialization)
+  - [6.4 CBOR Serialization](#64-cbor-serialization)
+  - [6.5 XML Serialization:](#65-xml-serialization)
+- [7 Alternate Schema Representations](#7-alternate-schema-representations)
+  - [7.1 Information Definition Language](#71-information-definition-language)
+  - [7.2 Property Tables](#72-property-tables)
+  - [7.3 Entity Relationship Diagrams](#73-entity-relationship-diagrams)
+- [8 Conformance](#8-conformance)
+- [Appendix A. References](#appendix-a-references)
+  - [A.1 Normative References](#a1-normative-references)
+  - [A.2 Informative References](#a2-informative-references)
+- [Appendix B. Safety, Security and Privacy Considerations](#appendix-b-safety-security-and-privacy-considerations)
+- [Appendix C. Acknowledgments](#appendix-c-acknowledgments)
+  - [C.1 Special Thanks](#c1-special-thanks)
+  - [C.2 Participants](#c2-participants)
+- [Appendix D. Revision History](#appendix-d-revision-history)
+    - [Changes from v1.0 to v2.0](#changes-from-v10-to-v20)
+    - [Changes from v1.0 CSD 01 to v1.0](#changes-from-v10-csd-01-to-v10)
+- [Appendix E. Notices](#appendix-e-notices)
 
 -------
 
@@ -134,9 +208,11 @@ business and similar processes.*
 
 -- [[Unified Modeling Language (UML)](#uml)]
 
-JADN is a UML profile for documents and messages. UML's organizing principle is classification, and
-among its classifiers are DataType and Class. Instances of a DataType are identified by their
-value, and all instances of a DataType with the same value are considered to be equal instances.
+JADN is a UML profile for documents and messages. UML's organizing principle is classification,
+where a classifier represents a classification of instances according to their features.
+The values that are classified by a classifier are called instances of the classifier.
+UML defines several kinds of classifier including DataType and Class. Instances of a DataType are identified
+by their value, and all instances of a DataType with the same value are considered to be equal instances.
 DataType instances are immutable because by definition a different value is a different instance.
 A value may be classified as an instance of multiple DataTypes, but value comparison is meaningful
 only among instances of the same type.
@@ -193,26 +269,30 @@ instances that can be validated for content integrity and compared for equality.
 
 * **Equivalence**:
     The relation between the meaning represented by two data values such that each logically implies the other.
-    Two data values are equivalent if and only if they are classified as instances of the same logical type
+    Two data values are equivalent if and only if they are classified as instances of the same DataType
     and have the same logical value.
 
-* **Logical Type**:
-    An abstract DataType that defines the meaning and essential content of a discrete data item used
+* **DataType (logical type, type)**:
+    An abstract type that defines the meaning and essential content of a discrete data item used
     in computing independently of how it is represented for processing, communication or storage.
-    Logical types are defined by and composed using an information modeling language.
+    DataTypes are defined by and composed using an information modeling language.
+    Every DataType has a value space as defined in [XSD](#xsd) Part 2 Section 2.1
+    and a lexical space defined by a specified data format.
 
 * **Logical Value (information value)**:
-    An immutable instance of a logical type used for processing and comparison, specified by
+    An immutable instance of a DataType used for processing and comparison, specified by
     behavioral effect independently of programming languages and techniques.
+    Every logical value is a member of the value space of its DataType.
 
 * **Data Value (document, message, artifact, lexical value, literal value)**:
-    An immutable instance of a logical type used for transmission or storage, consisting of a sequence of
+    An immutable instance of a DataType used for transmission or storage, consisting of a sequence of
     octets or characters in an external data format.
-    Or equivalently, the same sequence as defined by a data model.
+    Every lexical value is a member of a lexical space of its DataType.
 
 * **Data Format**:
     Serialization rules that specify the media type (e.g., XML, JSON, CBOR, Protobuf),
     design goals (human readability, efficiency), and style preferences for data values in that format.
+    A data format defines a lexical space and a lexical mapping for each DataType.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
@@ -228,12 +308,12 @@ instances that can be validated for content integrity and compared for equality.
     if one is specified by the data format.
 
 * **Valid**:
-    A logical value is valid if it satisfies the constraints of its logical type.
-    A data value is valid if it is well-formed and is classified as an instance of a logical type.
+    A logical value is valid if it satisfies the constraints of its DataType.
+    A data value is valid if it is well-formed and is classified as an instance of a DataType.
 
 * **Serialization**:
     Serialization, or encoding, converts a logical value into a data value.
-    De-serialization, or decoding, classifies a data value and converts it into an instance of a logical type.
+    De-serialization, or decoding, classifies a data value and converts it into an instance of a DataType.
 
 * **Description (annotation)**:
     Description fields of an information model are reserved for comments from authors to readers
@@ -505,7 +585,7 @@ Each type definition has five elements:
 ### 4.1.1 Primitive
 If CoreType is a Primitive or unstructured Compound type, the **Fields** array is empty.
 
-JSON Format:
+JSON Format and Example:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
 
@@ -524,7 +604,7 @@ If CoreType is the Enumerated Type, each item definition in the **Fields** array
 2. **ItemValue:** the string value of the item
 3. **ItemDescription:** a non-normative comment
 
-JSON Format:
+JSON Format and Example:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [ItemId, ItemValue, ItemDescription],
@@ -553,7 +633,7 @@ If CoreType is a structured Compound or Choice type, each field definition in th
 4. **FieldOptions:** an array of zero or more **FieldOption** or **TypeOption** values applicable to **FieldType**
 5. **FieldDescription:** a non-normative comment
 
-JSON Format:
+JSON Format and Example:
 ```
     [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
         [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
@@ -583,7 +663,8 @@ to which it applies, similar in purpose to an [[XSD](#xsd)] *facet*. Each option
 in [Section 4.2](#42-core-types),
 and is represented in JSON format as a string where the first character's Unicode codepoint is the option's
 ID and the remaining characters are its value.
-Boolean options have no additional characters; if the option ID is present the value of that option is True.
+Boolean options have no additional characters; if the option ID is present its value is True,
+otherwise False.
 
 As an example the TypeOption "minLength = 1" is represented as:
 ```
@@ -755,6 +836,33 @@ starting at 1.
 * TypeOption `0x71` (collection is an ordered set) is referred to as `unique` when used with
 the ArrayOf type and `ordered` when used with MapOf, Map or Record types.
 
+Example: the `id` option indicates that values use FieldId instead of FieldName
+```
+["Colors", "Enumerated", [], "", [
+  [1, "red", "The color of roses"],
+  [2, "green"],
+  [3, "blue", "Violets"]
+]],
+
+["ColorIds", "Enumerated", ["="], "", [
+  [1, "red", "The color of roses"],
+  [2, "green"],
+  [3, "blue", "Violets"]
+]]
+```
+
+```
+Colors = Enumerated
+   1 red                          // The color of roses
+   2 green
+   3 blue                         // Violets
+
+ColorIds = Enumerated#
+   1                             // red:: The color of roses
+   2                             // green::
+   3                             // blue:: Violets
+```
+
 <!-- For CN?
 #### 4.2.1.1 Field Identifiers
 
@@ -803,7 +911,6 @@ Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 |------|:---:|---------|-----------|-----------------------------------------------------------|
 | 0x5b |  [  | Integer | minOccurs | min cardinality, default = 1, 0 = field is optional       |
 | 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none      |
-| 0x3c |  <  | Boolean | dir       | pointer enumeration treats field as a collection          |
 | 0x4b |  K  | Boolean | key       | field is the primary key for this type                    | 
 | 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType |
 
@@ -834,11 +941,7 @@ its representation differs from that of a single instance. The [Field Multiplici
 generates an ArrayOf() type definition for data formats (e.g., JSON) with different representations for single and
 multiple instances of a type.
 
-#### 4.2.2.3 Namespace mount points
-
-...
-
-#### 4.2.2.4 Links
+#### 4.2.2.3 Links
 
 An information model defines type relationships in two ways: as collections containing values
 or as references to values.
@@ -885,7 +988,7 @@ ItemId = Array
    2 Integer                    // product_id:: Product unique identifier
 ```
 
-#### 4.2.2.2 Compound Type Conformance Requirements
+#### 4.2.2.4 Compound Type Conformance Requirements
 
 * A compound type MUST NOT include more than one multiplicity option (set, unique, ordered, or unordered).
 * If CoreType is ArrayOf, TypeOptions MUST include the `vtype` option.
@@ -902,7 +1005,7 @@ starting at 1.
 * An instance of a Map, MapOf, or Record type MUST NOT have a key of the null type.
 * An instance of a Map, MapOf, or Record type with a key mapped to a null value MUST compare as equal to an
 otherwise identical instance without that key.
-* The length of an Array, ArrayOf or Record instance MUST not include null values after the last non-null value.
+* The length of an Array, ArrayOf or Record instance MUST NOT include null values after the last non-null value.
 * Two Array, ArrayOf or Record instances that differ only in the number of trailing nulls MUST compare as equal.
 * An Array, Map or Record type MUST have no more than one `key` field. The key field MAY be a compound type.
 * Values referenced by the `link` option MUST be instances of the referenced type.
@@ -915,11 +1018,11 @@ have fields individually identified by tag, where the tag consists of an integer
 each of which is local to and unique within the type definition.
 Union types define a set of tags, types or both:
 
-| Type       | Tag | Type | Definition                                        |
-|:-----------|:---:|:----:|---------------------------------------------------|
-| Enumerated | Yes |  -   | Vocabulary, a set of tags.                        |
-| Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.            |
-| Choice(Cx) |  -  | Yes  | Untagged union, a specified combination of types. |
+| Type       | Tag | Type | Definition                                                |
+|:-----------|:---:|:----:|-----------------------------------------------------------|
+| Enumerated | Yes |  -   | Vocabulary, a set of tags.                                |
+| Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.                    |
+| Choice(Cx) |  -  | Yes  | Untagged union, a specified logical combination of types. |
 
 The TypeOptions applicable to Union types are:
 
@@ -961,10 +1064,19 @@ The *combine* option value is a single character that specifies the required com
 Field order does not matter for the `allOf` and `oneOf` options because values must always be evaluated
 against all FieldTypes.
 
-Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint.
-In this example the value "Home" is an instance of both a pre-defined and custom type.
-If any processing actions depend on the category, the pre-defined type must appear first in the Choice otherwise
-it will never match and all values will be tagged and processed as instances of the custom type:
+Field order is significant when using the `anyOf` option and the FieldTypes are not disjoint because
+this performs both classification and validation.
+A value may be an instance of more than one classifier, and classification may be used to answer
+two questions:
+* given a classifier A, is value X an instance of A? (validation)
+* given a value X, which classifier among {A, B, C, ...} is it to be considered an instance of?
+(classification)
+
+In this example the value "Home" is an instance of both the predefined and custom types and could be
+classified as either one.
+If any processing operations depend on the classification decision, the predefined type
+must appear first in the Choice otherwise it will never match and all values will be
+tagged, serialized, and processed as instances of the custom type:
 ```
 PhoneType = Choice(anyOf)
   1 predefined  PhoneNumberTypes   // Pre-defined names
@@ -976,8 +1088,8 @@ PhoneNumberTypes = Enumerated
   3 Office
 ```
 
-An untagged Choice with a single field can be used to define an alias for FieldType; the *combine* option
-used makes no difference when there is only one field.
+An untagged Choice with a single field can be used to define an alias for FieldType.
+The *combine* option has no effect when there is only one field.
 
 #### 4.2.3.4 Field Options
 
@@ -1013,139 +1125,24 @@ This option is valid only in an `allOf` Choice where one or more fields restrict
 because a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 ```
-UserName = Choice(allOf)            // A combination of lower, upper and digits, but not all digits.
-   1 a          String {pattern="^[a-zA-Z0-9]$}"
-   2 b          String [4,16]
-   3 c          !String {pattern="^[0-9]$}"
+UserName = Choice(allOf)                         // A combination of lower, upper and digits, but not all digits.
+   1  String{pattern="^[a-zA-Z0-9]$"}            // a::
+   2  String{4..*} [1..16]                       // b::
+   3  !String{pattern="^[0-9]$"}                 // c::
 ```
 
 A tagged union within a structured type may use the `tagId` option to specify a separate field within
 that type to be used as its tag. The value of the designated field must be a valid field identifier
 for the Choice, and is normally an Enumerated type generated from the Choice using the
-[Derived Enumeration](#53-derived-enumerations) shortcut:
+[Derived Enumeration](#53-derived-enumerations) shortcut.
+
+#### 4.2.3.5 Union Type Conformance Requirements
+
 * The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially starting at 1.
 * A value MUST be classified against the fields of a Choice(anyOf) type in field order and as an instance
 of the first matching field.
-* The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without a `not` option.
-
-<!--
-
-The Choice type selects one type or a logical combination of types from a set. By default Choice is
-a discriminated ([tagged](#taggedunion)) union where data instances contain a tag (FieldName or FieldId)
-indicating which FieldType from the Choice to evaluate. If a Choice has a [combine](#42112-combine)
-type option it is an [untagged](#union) union where values that match a logical combination of types
-are instances of the Choice type.
-
-##### 4.2.2.2.2 Choice - Untagged Union
-The `combine` option specifies the logical function (`anyOf` (OR), `allOf` (AND), or exactly `oneOf` (XOR))
-of the Choice's field types apply to the value. The `anyOf` option performs short-circuit evaluation where
-the first FieldType to match, in field order, indicates the instance type.
-The `allOf` and `oneOf` options always perform the evaluation against all FieldTypes.
-
-##### 4.2.2.2.3 Choice - Tagged Union
-The Choice type without a combine option represents a [discriminated union](#union), a Map with exactly
-one tag:type pair where the tag indicates the value type. By default the tag is included in the instance
-value. But if the *tagid* option is present on a Choice field in an Array or Record container,
-a separate field within that container contains the tag separately from the instance value.
-
-* The Tag field MUST be an Enumerated type derived from the Choice.  It MAY contain a subset of fields from the Choice.
-
-**Example:**
-
-    Product = Choice                        // Discriminated union
-       1 furniture    Furniture
-       2 appliance    Appliance
-       3 software     Software
-    
-    Dept = Enumerated                       // Explicit Tag values derived from the Choice
-       1 furniture
-       2 appliance
-       3 software
-    
-    Software = String /uri
-    
-    Stock1 = Record                         // Discriminated union with intrinsic tag
-       1 quantity     Integer
-       2 product      Product               // Value = Map with one key/value
-    
-    Stock2 = Record                         // Container with explicitly-tagged discriminated union
-       1 dept         Dept                  // Tag = one key from Choice
-       2 quantity     Integer
-       3 product      Product(TagId[dept])  // Choice specifying an explicit tag field
-
-Example JSON serializations of these types are:
-
-Stock1 - Choice with intrinsic tag:
-
-    {
-        "quantity": 395,
-        "product": {"software": "http://www.example.com/B902D1P0W37"}
-    }
-
-Stock2 - Choice with explicit tag:
-
-    {
-        "dept": "software",
-        "quantity": 395,
-        "product": "http://www.example.com/B902D1P0W37"
-    }
-
-**Intrinsic tags:**
-
-When discriminated unions are grouped the distinction between intrinsic and explicit tags becomes
-more apparent. A collection with intrinsic tags is simply a Map, which results in what the
-[W3C JSON and XML Transformations Workshop](#transform) called "Friendly" encodings.
-
-```
-    Hashes = Map{1..*}            // Multiple discriminated unions with intrinsic tag is a Map
-       1 md5          Binary{16..16} /x optional
-       2 sha1         Binary{20..20} /x optional
-       3 sha256       Binary{32..32} /x optional
-```
-
-Hashes Example:
-
-```json
-{
-    "sha256": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9",
-    "md5": "B64CF5EAF07E86D1697D4EEE96A670B6"
-}
-```
-
-**Explicit tags:**
-
-A collection with explicit tags is an array of tag-value pairs.  It is more complex to specify, and it
-results in "UnFriendly" encodings with repeated tag and value keys. Yet because some specifications are
-written in this style, the *tagid* option exists to designate an explicit field to be used to specify
-the value type.
-
-```
-    Hashes2 = ArrayOf(HashVal)    // Multiple discriminated unions with explicit tags is an Array
-    
-    HashVal = Record
-       1 algorithm    Enumerated(Enum[HashAlg])  // Tag - one key from Choice
-       2 value        HashAlg(TagId[algorithm])  // Value selected from Choice by 'algorithm' field
-    
-    HashAlg = Choice
-       1 md5          Binary{16..16} /x
-       2 sha1         Binary{20..20} /x
-       3 sha256       Binary{32..32} /x
-```
-Hashes2 Example:
-```json
-[
-  {
-    "algorithm": "md5",
-    "value": "B64CF5EAF07E86D1697D4EEE96A670B6"
-  },{
-    "algorithm": "sha256",
-    "value": "C9004978CF5ADA526622ACD4EFED005A980058B7B9972B12F9B3A5D0DA46B7D9"
-  }
-]
-```
-
--->
-
+* The `not` FieldOption MUST appear only in a Choice(allOf) type containing at least one field without
+a `not` option.
 
 ### 4.2.4 General Type Options
 
@@ -1172,7 +1169,7 @@ Unlike class inheritance, type inheritance mechanisms are defined using a simple
 classified against its subtypes.
 * The `final` TypeOption indicates that this type can be used as a classifier but cannot have subtypes.
 
-Although the subset rule is meaningful and inheritance TypeOptions are valid for all core types,
+Although the subset rule is definitive and inheritance TypeOptions are valid for all core types,
 in practice inheritance is useful with only some types:
 
 * **Primitive:** Inheritance is not useful with primitive types because:
@@ -1185,13 +1182,13 @@ of types based on the same primitive type is equivalent to extend or restrict re
 
 Examples:
 ```
-Name1 = Choice(anyOf)   // Extend equivalent:  "2915", "a34c", "D72F" are valid.   "g16H" is not.
-  1 a       String{pattern="^[a-z0-9]$"}
-  2 b       String{pattern="^[A-Z0-9]$"}
+Name1 = Choice(anyOf)                            // Extend equivalent: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern="^[a-z0-9]$"}               // a::
+   2  String{pattern="^[A-Z0-9]$"}               // b::
 
-Name2 = Choice(allOf)   // Restrict equivalent: "2915" is valid.   "a34c", "D72F", "g16H are not.
-  1 a       String{pattern="^[a-z0-9]$"}
-  2 b       String{pattern="^[A-Z0-9]$"}
+Name2 = Choice(allOf)                            // Restrict equivalent: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern="^[a-z0-9]$"}               // a::
+   2  String{pattern="^[A-Z0-9]$"}               // b::
 ```
 
 * **Compound:**
@@ -1236,69 +1233,221 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
 * A type MUST NOT have both `extends` and `restricts` TypeOptions.
 * A type with an `extends` or `restricts` TypeOption MUST have the same CoreType as the type referenced by that option.
 
-*===================================================================*
-
- *Note: the remainder of this document is being revised. Not for review.*
-
-*===================================================================*
-
 ### 4.2.5 Semantic Validation
 
-... an extensible set of ...
+Semantic validation supplements type validation, ensuring that data values are within boundaries that
+applications will understand. Each *format* type option is a semantic validation keyword that references
+requirements defined by authoritative resources outside this specification.
+
+The TypeOptions field of a type definition ([Section 4.1](#41-type-definition-structure)) is an id:value
+mapping whose keys must be unique. But format options have no value; the keyword is part of the key so a
+type may include multiple format options.
 
 | ID   | Chr | Type       | Name         | Description                                       |
 |------|:---:|------------|--------------|---------------------------------------------------|
 | 0x2f |  /  | Enumerated | format       | Semantic validation keyword                       |
 
-The *format* option value is a semantic validation keyword selected from a defined set of options.
-Each keyword specifies validation requirements for logical values that are accurately described by authoritative
-resources, and the serialized (literal) representations of those values. For formats whose logical type equals
-the literal type (e.g., /email, /hostname for string values), validation operates on that type. For 
-
-
-The *format* option may also affect how logical values are serialized, see [Section 6](#6-serialization-and-data-formats).
-
 #### 4.2.5.1 JADN Semantic Validation Keywords
+
+JADN types define both logical values and literals, and format options affect both validation and translation
+between values and text representations. See [Section 6](#6-serialization-and-data-formats).
+The JADN format keywords are:
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
-| eui       | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
-| ipv4-addr | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
-| ipv6-addr | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200)  Section 3                                   |
-| ipv4-net  | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
-| ipv6-net  | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
-| i\<*n*\>  | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
-| u\<*n*\>  | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
-| d\<*n*\>  | Integer | Decimal integer scale factor of 10^n: value has n digits after decimal point, n > 0.           |
-| f16       | Number  | IEEE 754 Half-Precision Float                                                                  |
+| i\<n\>    | Integer | Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1.                          |
+| u\<n\>    | Integer | Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1.                  |
+| d\<n\>    | Integer | Decimal integer scale factor of 10^n: for n>0 value has n fractional digits.                   |
+| f16       | Number  | [IEEE 754](#ieee754) Half-Precision Float                                                      |
 | f32       | Number  | IEEE 754 Single-Precision Float                                                                |
 | f64       | Number  | IEEE 754 Double-Precision Float                                                                |
 | f128      | Number  | IEEE 754 Quadruple-Precision Float                                                             |
 | f256      | Number  | IEEE 754 Octuple-Precision Float                                                               |
+| ipv4-addr | Binary  | IPv4 address as specified in [RFC 791](#rfc791) Section 3.1                                    |
+| ipv6-addr | Binary  | IPv6 address as specified in [RFC 8200](#rfc8200) Section 3                                    |
+| ipv4-net  | Array   | Binary IPv4 address and Integer prefix length as specified in [RFC 4632](#rfc4632) Section 3.1 |
+| ipv6-net  | Array   | Binary IPv6 address and Integer prefix length as specified in [RFC 4291](#rfc4291) Section 2.3 |
+| eui       | Binary  | IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as specified in [EUI](#eui)    |
+| uuid      | Binary  | Universally Unique ID (UUID) as defined in [RFC 9562](#rfc9562)                                |
+| tag-uuid  | Array   | UUID with string prefix                                                                        |
+| date-time | Integer | [POSIX time](#posix-time): the number of seconds since the Epoch                               |
+| date      | Integer | POSIX time                                                                                     |
+| time      | Integer | POSIX time                                                                                     |
+| duration  | Integer | A number of seconds                                                                            |
+
+##### Integer and Number Formats
+
+The signed and unsigned integer keywords `/i<n>` and `/u<n>` indicate a range constraint on a logical value,
+equivalent to the `minInclusive` and `maxInclusive` options using two's-complement bounds for signed integers.
+They also indicate the size of the bit field used to hold a literal value in direct binary data format.
+
+The decimal scale factor keyword `/d<n>` indicates that an Integer holds an application value multiplied
+by the specified power of 10, using an integer to hold a fixed-precision rational number,
+or changing the unit scaling of a physical value:
+```
+Amount = Integer /d2    // Integer 152 represents an application value of 1.52,
+                        // changing currency unit from US dollars to cents
+```
+
+The IEEE 754 floating point number keywords `/f#` indicate the significand and exponent ranges of logical
+Number instances, and the size and structure of lexical Number instances when using binary data formats.
+
+##### Address and Identifier Formats
+
+The `/uuid` keyword indicates a Universally Unique IDentifier (UUID), a 128 bit Binary label used to
+uniquely identify items, structured and serialized as defined in [RFC 9562](#rfc9562).
+
+The `tag-uuid` keyword indicates an Array consisting of a String prefix and a Binary UUID, similar in purpose to a
+[STIX] Section 2.9 `Identifier`. Although STIX defines the prefix to be the *type* property
+of the object identified by the UUID, this specification is not specific to any message protocol and does
+not constrain prefix content:
+```
+ObjectId = Array /tag-uuid
+   1  String                                     // prefix:: Type Prefix
+   2  UUID                                       // uuid:: Unique Identifier
+```
+When serialized in a text data format the `prefix` and `uuid` fields are separated by two dashes:
+```
+"ipv4-addr--ff26c055-6336-5bc5-b98d-13d6226742dd"
+```
+
+##### Time Formats
+
+The meaning of an Integer with a time-related option is defined by the Portable Operating System Interface
+([POSIX](#posix-time)) specification as "the number of seconds since the Epoch".
+An epoch is a fixed date and time used as a reference from which time is measured.
+The Unix epoch is 00:00:00 UTC on January 1, 1970, but POSIX permits other epochs such as
+00:00:00 UTC on January 1, 1900. Interoperability between systems using Integer time representations requires them
+to have a common epoch; in practice this means the Unix epoch is used unless specifically documented otherwise.
+POSIX also defines the relationship between integer time and the `tm` calendar time structure, which includes
+tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec.
+
+The logical value of an Integer with the `date` keyword is any Integer corresponding to the specified year, month
+and day of month, ignoring the time fields.  \
+The logical value of an Integer with the `time` keyword is any Integer corresponding to the specified hour, minute
+and second, ignoring the date fields.
+
+The Integer type with these keywords is a logical value independent of representation, which can include
+strings in RFC 3339 format, other date and time formats, decimal string, hex string, base64 string,
+or an integer value in binary serializations.
+
+The decimal scale factor format `/d<n>` can be used with Integer times to specify time resolution:
+```
+Timestamp = Integer /date-time              // 1727877600 seconds         = 2024-10-02T15:00:00Z
+Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z
+```
+
+A String type with a time-related keyword is a logical string equal to its text representation, where
+different strings are non-equal values that sort alphabetically even if they represent the same logical time:
+```
+Timestamp2 = String /date-time
+
+"2024-10-02T10:00:00-05:00"
+"2024-10-02T15:00:00Z"
+"2024-10-02T15:00:00.000Z"
+"10:00:00 AM, October 2, 2024 EST"
+"Wednesday, October 2, 2024 11:00:00 AM GMT-04:00 DST"
+```
 
 #### 4.2.5.2 XSD Semantic Validation Keywords
 
-Semantic validation keywords defined in [[XSD]()].
+XML Schema Definition Language ([[XSD](#xsd)]) Section 3 defines a set of built-in DataTypes
+using a text-centric approach:
+> The *value space* of *anyAtomicType* is the union of the value spaces of all the *primitive* datatypes
+> defined here or supplied as implementation-defined primitives.
 
-| Keyword            | Type    | Requirement |
-|--------------------|---------|-------------|
-| XML Schema formats | String  |             |
+Information models are value-centric: the JADN *value space* consists of the five [Primitive](#421-primitive-types)
+types defined in Section 4.2.1, and the *lexical space* is constructed using semantic keywords defined here
+or supplied from elsewhere. This difference has several effects:
 
+* Enumerated is a first-class JADN DataType, not a facet of string or integer representations.
+* Integer and Number are distinct first-class JADN DataTypes, not subsets of a *decimal* DataType. Open and
+closed intervals apply to both Integers and Numbers.
+* System time (Epoch + Integer offset and the Seven-property subset of POSIX `tm`) is the value space
+of time-related Integers. The lexical space is broad, and lexical mappings beyond ISO 8601
+(DMY/YMD/MDY, 12/24 hour, locale specifics) are out of scope but can be expressed in JADN as
+externally-defined format options.
+
+The following format options are defined for XSD compatibility. Many are aliases for JADN options applicable
+to all serialized data formats; some are specific to XML serialization but may be generalized to all
+serializations (e.g., an Array definition of QName) in a future version.
+
+| XSD DataType         | JADN DataType | JADN Opts  | XSD-compatible      |
+|----------------------|---------------|------------|---------------------|
+| string               | String        |            |                     |
+| - normalizedString   | String        |            | /normalizedString   |
+| - token              | String        |            | /token              |
+| - language           | String        |            | /language           |
+| - name               | String        |            | /name               |
+| boolean              | Boolean       |            |                     |
+| decimal (integer)    | -             | -          | -                   |
+| - integer            | Integer       |            |                     |
+| - long               | Integer       | /i64       | /long               |
+| - int                | Integer       | /i32       | /int                |
+| - short              | Integer       | /i16       | /short              |
+| - byte               | Integer       | /i8        | /byte               |
+| - nonNegativeInteger | Integer       | [0, *]     | /nonNegativeInteger |
+| - positiveInteger    | Integer       | (0, *]     | /positiveInteger    |
+| - unsignedLong       | Integer       | /u64       | /unsignedLong       |
+| - unsignedInt        | Integer       | /u32       | /unsignedInt        |
+| - unsignedShort      | Integer       | /u16       | /unsignedShort      |
+| - unsignedByte       | Integer       | /u8        | /unsignedByte       |
+| - nonPositiveInteger | Integer       | [*, 0]     | /nonPositiveInteger |
+| - negativeInteger    | Integer       | [*, 0)     | /negativeInteger    |
+| decimal (float)      | Number        | -          | -                   |
+| float                | Number        | /f32       | /float              |
+| double               | Number        | /f64       | /double             |
+| duration             | Integer       | /duration  |                     |
+| - dayTimeDuration    | Integer       |            | /dayTimeDuration    |
+| - yearMonthDuration  | Integer       |            | /yearMonthDuration  |
+| dateTime             | Integer       | /date-time | /dateTime           |
+| time                 | Integer       | /time      |                     |
+| date                 | Integer       | /date      |                     |
+| gYearMonth           | Integer       |            | /gYearMonth         |
+| gYear                | Integer       |            | /gYear              |
+| gMonthDay            | Integer       |            | /gMonthDay          |
+| hexBinary            | Binary        | /x, /X     | /hexBinary          |
+| base64Binary         | Binary        | /b64       | /base64Binary       |
+| anyUri               | String        | /uri, /iri | /anyUri             |
+| QName                | String        |            | /QName              |
+| Notation             | String        |            | /Notation           |
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
-[JSON Schema]() defines Semantic Content With Format
+The following semantic validation keywords are defined in [[JSON Schema](#jsonschema)] Section 7.3.
+Because JSON Schema defines only text representations, these keywords have the meanings listed here
+when used with the String type.
+[JADN Semantic Validation Keywords](#4251-jadn-semantic-validation-keywords) defines the meaning
+of some of these keywords when used with types other than String.
 
-Semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
+For example, a String with `date-time` format has literal values such as:
+* "2024-10-02T10:00:00-05:00"
+* "2024-10-02T15:00:00Z"
+* "2024-10-02T15:00:00.000Z"
 
-| Keyword   | Type    | Requirement                                                             |
-|-----------|---------|-------------------------------------------------------------------------|
-| date-time | Integer | POSIX time formatted as defined by [RFC 3339]() Section 5.6 "date-time" |
-| date      | Integer | POSIX time "full-date"                                                  |
-| time      | Integer | POSIX time "full-time"                                                  |
-| duration  | Integer | Duration formatted as defined in RFC 3339 Appendix A                    |
-| email     | String  | Internet Email address as defined by [RFC 5322]() Section 3.4.1         |
-| idn-email | String  | Internet Email address as defined by [RFC 6531]()                       |
+These are unequal strings even though they represent the same timestamp.
+
+| Keyword               | Type   | Requirement                                                                           |
+|-----------------------|--------|---------------------------------------------------------------------------------------|
+| date-time             | String | String literal [RFC 3339](#rfc3339) Section 5.6 "date-time"                           |
+| date                  | String | String literal RFC 3339 Section 5.6 "full-date"                                       |
+| time                  | String | String literal RFC 3339 Section 5.6 "full-time"                                       |
+| duration              | String | String literal RFC 3339 Appendix A "duration"                                         |
+| email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                            |
+| idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                              |
+| hostname              | String | RFC 1123 Section 2.1                                                                  |
+| idn-hostname          | String | RFC 1123 or RFC 5890 Section 2.3.2.3                                                  |
+| ipv4                  | String | "dotted quad" representation as defined in [RFC 2673](#rfc2673) Section 3.2           |
+| ipv6                  | String | Text representation of an IPv6 address as defined in [RFC 4291](#rfc4291) Section 2.2 |
+| uri                   | String | [RFC 3986](#rfc3986)                                                                  |
+| uri-reference         | String | [RFC 3986](#rfc3986)                                                                  |
+| iri                   | String | [RFC 3987](#rfc3986)                                                                  |
+| iri-reference         | String | [RFC 3987](#rfc3986)                                                                  |
+| uuid                  | String | "hex-and-dash" representation of a UUID as defined in [RFC 9562](#rfc9562)            |
+| uri-template          | String | [RFC 6570](#rfc6570)                                                                  |
+| json-pointer          | String | [RFC 6901](#rfc6901) Section 5                                                        |
+| relative-json-pointer | String | No current specification, last I-D expired Dec 2023                                   |
+| regex                 | String | Regular Expression according to [ECMA-262](#ecmascript) Section 22.2.1 "Pattern"      |
 
 -------
 
@@ -1349,7 +1498,7 @@ Coordinate.longitude = Number [-180.0, 180.0]
 
 ## 5.2 Field Multiplicity
 
-Fields may be defined to have multiple values of the same type. Unfolding converts each field that can
+Fields may be defined to have multiple values of the same type. Expanding converts each field that can
 have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
 FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
 size (*minv* and *maxv*) TypeOptions of the new ArrayOf type, except that if *minc* is 0
@@ -1360,15 +1509,15 @@ Example:
 
     Roster = Record
        1 org_name     String
-       2 members      Member [0..*]         // Optional and repeated: minc=0, maxc=0
+       2 members      Member [0..*]             // Optional and repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
 
-Unfolding replaces this with:
+Expanding replaces this with:
 
     Roster = Record
        1 org_name     String
-       2 members      Roster$members optional// Optional: minc=0, maxc=1
-    
-    Roster$members = ArrayOf(Member){1..*} // Tool-generated array: minv=1, maxv=0
+       2 members      Roster.members optional   // Optional: minOccurs=0, default maxOccurs (1)
+
+    Roster.members = ArrayOf(Member){1..*}      // Tool-generated array: minLength=1, no maxLength
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
@@ -1376,15 +1525,15 @@ field multiplicity shortcut:
 
     Roster = Record
        1 org_name     String
-       2 members      Members       // members field is required: default minc = 1, maxc = 1
-    
-    Members = ArrayOf(Member)       // Explicitly-defined array: default minv = 0, maxv = 0
+       2 members      Members       // members field is required: default minOccurs (1), maxOccurs (1)
+
+    Members = ArrayOf(Member)       // Explicitly-defined array: no minLength, no maxLength
 
 ## 5.3 Derived Enumerations
 
 An Enumerated type defined with the *enum* option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
-Unfolding removes *enum* from Type Options and adds fields containing
+Expanding removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
 In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) the *enum* option is represented
@@ -1392,7 +1541,7 @@ as a function string: "Enum(\<referenced-type\>)".
 Within ArrayOf and MapOf types, the *ktype* and *vtype* options may contain an enum option.  As an
 example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN vtype option "*#Pixel".
 
-Unfolding references an explicit Enumerated type if it exists, otherwise it creates an explicit
+Expanding references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
 
 Example:
@@ -1406,7 +1555,7 @@ Example:
     
     ChannelMask = ArrayOf(Enum[Pixel])      // ArrayOf(derived enumeration)
 
-Unfolding replaces the Channel and ChannelMask definitions with:
+Expanding replaces the Channel and ChannelMask definitions with:
 
     Channel2 = Enumerated
        1 red
@@ -1416,7 +1565,7 @@ Unfolding replaces the Channel and ChannelMask definitions with:
     ChannelMask2 = ArrayOf(Channel)
 
 ## 5.4 MapOf With Enumerated Key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Unfolding replaces the MapOf type definition
+A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expanding replaces the MapOf type definition
 with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
 enumeration. In order to use this shortcut, each ItemValue of the Enumerated type must be a valid FieldName.
 
@@ -1429,69 +1578,44 @@ Example:
     
     Pixel3 = MapOf(Channel3, Integer)
     
-Unfolding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
+Expanding replaces the Pixel MapOf with the explicit Pixel Map shown under [Derived Enumerations](#53-derived-enumerations).
 
 ## 5.5 Pointers
 
-Applications may need to model both individual types and collections of types, similar to the way filesystems
-have files and directories.
-The "dir" option ([Section 3.2.2](#322-field-options)) marks a field as a collection of types.
-The dir option has no effect on the structure or serialization of information;
-its sole purpose is to support pathname generation using the Pointer shortcut.
-
-A recursive filesystem listing contains pathnames of all files in and under the current directory.  The Pointer shortcut
-([Section 3.2.1](#321-type-options)) generates a list of all type definitions in and under the specified type.  Unfolding
-replaces the Pointer shortcut with an Enumerated type containing a [JSON Pointer](#rfc6901) pathname for each
-type. If no fields in the specified type are marked with the "dir" option, the Pointer shortcut has the same fields
-as the [Derived Enumeration](#53-derived-enumerations) shortcut except that IDs are sequential rather than copied
-from the referenced type.
+The Pointer shortcut generates a depth-first list of paths, similar to a recursive filesystem listing.
+Expanding replaces the Pointer shortcut with an Enumerated type containing a [JSON Pointer](#rfc6901)
+pathname for each leaf type under the specified TypeRef. Link fields are listed but not followed.
 
 Example:
+```
+BOM = Record
+   1 bomFormat        BomFormat
+   2 version          String
+   3 metadata         Metadata
 
-    Catalog = Record
-       1 a            TypeA
-       2 b/           TypeB
-    
-    TypeA = Record
-       1 x            Number
-       2 y            Number
-    
-    TypeB = Record
-       1 foo          String
-       2 bar          Integer
-    
-    Paths = Enumerated(Pointer[Catalog])
+BomFormat = Enumerated
+   1 cyclonedx
+   2 spdx
 
-In this example, Catalog field "a" is a single type and field "b" is designated as a collection by the "dir" option (shown
-as "b/").
-Unfolding replaces Paths with an Enumerated type containing JSON Pointers to all leaf types in and under Catalog:
+Metadata = Record
+   1 timestamp        String /date-time
+   2 tools            Tool [1..*]
 
-    Paths2 = Enumerated
-       1 a                                  // Item 1
-       2 b/foo                              // Item 2
-       3 b/bar                              // Item 3
+Tool = Record{1..*}
+   1 vendor           String optional
+   2 name             String optional
 
-This is useful when an application 1) needs a category of types, e.g., "Items", 2) defines these types
-in multiple locations in a hierarchy, and 3) needs identifiers for each type in the category.
-
-It also allows referencing type definitions across specifications. If TypeB is defined in Specification B,
-its subtypes can be referenced from Specification A under field name "b".  This facilitates distributed
-development of packages regardless of whether the underlying data format has native namespace support.
-
-The structure of a "Catalog" instance is not affected by this shortcut. Although "a/x" is a valid JSON Pointer
-to a specific value (57.9), "Catalog" does not define "a" as a dir so "a/x" is not listed in Paths and its
-value is not considered an "Item":
-
-    {
-      "a": {"x": 57.9, "y": 4.841},     <-- "a" is Item 1 (TypeA)
-      "b": {                            <-- "b" is a dir or namespace mount point, not an Item.
-        "foo": "Elephant",              <-- "b/foo" is Item 2 (String)
-        "bar": 762                      <-- "b/bar" is Item 3 (TypeC)
-      }
-    }
-
-Note that the *enum* and *pointer* shortcuts create shallow dependencies: the referenced
-types are needed in order to unfold them but types below the direct references are not.
+BomList = Enumerated(Pointer[BOM])
+```
+Expanding replaces BomList with:
+```
+BomList = Enumerated
+   1 bomFormat
+   2 version
+   3 metadata/timestamp
+   4 metadata/tools/#/vendor
+   5 metadata/tools/#/name
+```
 
 -------
 
@@ -1511,34 +1635,34 @@ name-value encoding for tabular data.
 
 * When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-| JADN Type | JSON Serialization Requirement |
-| :--- | :--- |
-| **Binary** | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648). |
-| **Boolean** | JSON **true** or **false** |
-| **Integer** | JSON **number** |
-| **Number** | JSON **number** |
-| **String** | JSON **string** |
-| **Enumerated** | JSON **string** ItemValue |
-| **Enumerated** with "id" | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property.  Property key is FieldName. |
-| **Choice** with "id" | JSON **object** with one property. Property key is FieldID converted to string. |
-| **Array** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
-| **ArrayOf** | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null. |
-| **Map** | JSON **object**. Property keys are FieldNames. |
-| **Map** with "id" | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** | JSON **object**. Property keys are FieldNames. |
+| JADN Type                | JSON Serialization Requirement                                                                                                                                                                                                                                                                                                              |
+|:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Binary**               | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648).                                                                                                                                                                                                                          |
+| **Boolean**              | JSON **true** or **false**                                                                                                                                                                                                                                                                                                                  |
+| **Integer**              | JSON **number**                                                                                                                                                                                                                                                                                                                             |
+| **Number**               | JSON **number**                                                                                                                                                                                                                                                                                                                             |
+| **String**               | JSON **string**                                                                                                                                                                                                                                                                                                                             |
+| **Enumerated**           | JSON **string** ItemValue                                                                                                                                                                                                                                                                                                                   |
+| **Enumerated** with "id" | JSON **integer** ItemID                                                                                                                                                                                                                                                                                                                     |
+| **Choice**               | JSON **object** with one property.  Property key is FieldName.                                                                                                                                                                                                                                                                              |
+| **Choice** with "id"     | JSON **object** with one property. Property key is FieldID converted to string.                                                                                                                                                                                                                                                             |
+| **Array**                | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                                                                     |
+| **ArrayOf**              | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null.                                                                                                                                                                                                                                                            |
+| **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
+| **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                                                           |
+| **MapOf**                | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 
 **Format options that affect JSON serialization**
 * When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
-| Option | JADN Type | JSON Serialization Requirement |
-| :--- | :--- | :--- |
-| **x** | Binary | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
-| **ipv4-addr** | Binary | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2. |
-| **ipv6-addr** | Binary | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2. |
-| **ipv4-net** | Array | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1. |
-| **ipv6-net** | Array | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3. |
+| Option        | JADN Type | JSON Serialization Requirement                                                                                                                                                      |
+|:--------------|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **x**         | Binary    | JSON **string** containing Base16 (hex) encoding of a binary value as defined in [RFC 4648](#rfc4648) Section 8. Note that the Base16 alphabet does not include lower-case letters. |
+| **ipv4-addr** | Binary    | JSON **string** containing a "dotted-quad" as specified in [RFC 2673](#rfc2673) Section 3.2.                                                                                        |
+| **ipv6-addr** | Binary    | JSON **string** containing the text representation of an IPv6 address as specified in [RFC 4291](#rfc4291) Section 2.2.                                                             |
+| **ipv4-net**  | Array     | JSON **string** containing the text representation of an IPv4 address range as specified in [RFC 4632](#rfc4632) Section 3.1.                                                       |
+| **ipv6-net**  | Array     | JSON **string** containing the text representation of an IPv6 address range as specified in [RFC 4291](#rfc4291) Section 2.3.                                                       |
 
 Specifications MAY define additional format options for textual representation of Binary, Integer, Number or Array data.
 
@@ -1548,8 +1672,8 @@ positional encoding for tabular data.
 
 * When using Compact JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
 
-| JADN Type | Concise JSON Serialization Requirement |
-| :--- | :--- |
+| JADN Type  | Concise JSON Serialization Requirement                                                                                                                  |
+|:-----------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Record** | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
 
 ## 6.3 Concise JSON Serialization:
@@ -1559,13 +1683,13 @@ data.
 
 * When using Concise JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
 
-| JADN Type | Concise JSON Serialization Requirement |
-| :--- | :--- |
-| **Enumerated** | JSON **integer** ItemID |
-| **Choice** | JSON **object** with one property. Property key is the FieldID converted to string. |
-| **Map** | JSON **object**. Property keys are FieldIDs converted to strings. |
-| **MapOf** | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record** |  JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted. |
+| JADN Type      | Concise JSON Serialization Requirement                                                                                                                                                                                                                                                              |
+|:---------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enumerated** | JSON **integer** ItemID                                                                                                                                                                                                                                                                             |
+| **Choice**     | JSON **object** with one property. Property key is the FieldID converted to string.                                                                                                                                                                                                                 |
+| **Map**        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                   |
+| **MapOf**      | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **Record**     | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                             |
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
 
@@ -1606,56 +1730,54 @@ serialized as:
 | **f32** | Number    | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 | **f64** | Number    | **float64**: IEEE 754 Double-Precision Float (#7.27). |
 
-<!---
+
 ## 6.5 XML Serialization:
-*XML serialization rules based on [XSD](#xsd) datatypes will be defined in a future version of this specification.*
 
 * When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
 
-| JADN Type | XML Serialization Requirement |
-| :--- | :--- |
-| **Binary**  | <xs:element name="FieldName" type="xs:base64Binary"/> |
-| **Boolean** | <xs:attribute name="FieldName" type="xs:boolean"/> |
-| **Integer** | <xs:element name="FieldName" type="xs:integer"/> |
-| **Number**  | <xs:element name="FieldName" type="xs:decimal"/> |
-| **String**  | <xs:element name="FieldName" type="xs:string"/> |
-| **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item |
-| **Choice**  | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
-| **Array**   | <xs:element name="FieldName"/> containing elements with name FieldName of each field |
-| **ArrayOf** | <xs:element name="FieldName"/> containing elements with the same FieldName for all fields |
-| **Map**     | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
-| **MapOf**   | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute |
-| **Record**  | same as **Map** |
+| JADN Type      | XML Serialization Requirement                                                                   |
+|:---------------|:------------------------------------------------------------------------------------------------|
+| **Binary**     | <xs:element name="FieldName" type="xs:base64Binary"/>                                           |
+| **Boolean**    | <xs:attribute name="FieldName" type="xs:boolean"/>                                              |
+| **Integer**    | <xs:element name="FieldName" type="xs:integer"/>                                                |
+| **Number**     | <xs:element name="FieldName" type="xs:decimal"/>                                                |
+| **String**     | <xs:element name="FieldName" type="xs:string"/>                                                 |
+| **Enumerated** | <xs:element name="FieldName" type="xs:string"/> ItemValue of the selected item                  |
+| **Choice**     | <xs:element name="FieldName"/> containing one element with name FieldName of the selected field |
+| **Array**      | <xs:element name="FieldName"/> containing elements with name FieldName of each field            |
+| **ArrayOf**    | <xs:element name="FieldName"/> containing elements with the same FieldName for all fields       |
+| **Map**        | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute             |
+| **MapOf**      | <xs:element name="FieldName"/> containing "MapEntry" elements with "key=" attribute             |
+| **Record**     | same as **Map**                                                                                 |
 
 **Format options that affect XML serialization**
 * When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
 
-| Option | JADN Type | XML Serialization Requirement |
-| :--- | :--- | :--- |
-| **x**   | Binary  | <xs:element name="FieldName" type="xs:hexBinary"/> |
-| **i8**  | Integer | <xs:element name="FieldName" type="xs:byte"/> |
-| **i16** | Integer | <xs:element name="FieldName" type="xs:short"/> |
-| **i32** | Integer | <xs:element name="FieldName" type="xs:int"/> |
-| **u1..u8**  | Integer | <xs:element name="FieldName" type="xs:unsignedByte"/> |
-| **u9..u16** | Integer | <xs:element name="FieldName" type="xs:unsignedShort"/> |
-| **u17..u32** | Integer | <xs:element name="FieldName" type="xs:unsignedInt"/> |
-| **u33..u*** | Integer | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
---->
+| Option       | JADN Type | XML Serialization Requirement                               |
+|:-------------|:----------|:------------------------------------------------------------|
+| **x**        | Binary    | <xs:element name="FieldName" type="xs:hexBinary"/>          |
+| **i8**       | Integer   | <xs:element name="FieldName" type="xs:byte"/>               |
+| **i16**      | Integer   | <xs:element name="FieldName" type="xs:short"/>              |
+| **i32**      | Integer   | <xs:element name="FieldName" type="xs:int"/>                |
+| **u1..u8**   | Integer   | <xs:element name="FieldName" type="xs:unsignedByte"/>       |
+| **u9..u16**  | Integer   | <xs:element name="FieldName" type="xs:unsignedShort"/>      |
+| **u17..u32** | Integer   | <xs:element name="FieldName" type="xs:unsignedInt"/>        |
+| **u33..u***  | Integer   | <xs:element name="FieldName" type="xs:nonNegativeInteger"/> |
 
 -------
 
 # 7 Alternate Schema Representations
 
-[Section 3.1](#31-type-definitions) defines the normative JSON format of JADN type definitions.
+[Section 4](#4-jadn-types) defines the normative JSON format of JADN type definitions.
 Although JSON data is unambiguous, it is not ideal as a documentation format. This section suggests
 several more readable ways of describing and documenting information models.
 
-*This section is informative*
+***Note:*** *This section is informative*
 
 ## 7.1 Information Definition Language
 
 JADN Interface Definition Language (IDL) is a textual representation of JADN type definitions.
-It replicates the structure of [Section 3.1](#31-type-definitions) but combines each type
+It replicates the structure of [Section 4.1](#41-type-definition-structure) but combines each type
 and its options into a single string formatted for readability.
 The conversion between JSON and JADN-IDL formats is lossless in both directions, meaning that
 the IDL described here is unambiguous and complete.  But it is not intended to be immutable; syntactic
@@ -1682,8 +1804,6 @@ Compound types without the *id* option:
         FieldID FieldName[/] FIELDSTRING      // FieldDescription
         ...
 ```
-If a field includes the [*dir*](#335-pointers) FieldOption, the SOLIDUS character (/)
-as specified in [RFC 6901](#rfc6901) is appended to FieldName.
 
 Compound types with the *id* option treat the item/field name as an informative label
 (see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
@@ -1702,9 +1822,9 @@ followed by a label terminator ("::"):
 **Type Options:**
 
 TYPESTRING is the value of CoreType or FieldType, followed by string representations of the type options,
-if applicable to TYPE as specified in [Table 3-3](#table-3-3-allowed-options).
-* TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.2](#312-name-formats).
-* FMTNAME is the name of a semantic validation function as specified in [Section 3.2.1.5](#3215-semantic-validation).
+if applicable to TYPE as specified in [Section 4.2](#42-core-types).
+* TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.3](#313-package-conformance-requirements).
+* FMTNAME is the name of a semantic validation function as specified in [Section 4.1.5](#425-semantic-validation).
 ```
     TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is CoreType or FieldType
     ID          = ".ID"
@@ -1750,15 +1870,15 @@ breaks out the MULTIPLICITY field options into a separate column:
 ```
 followed by (for compound types without the *id* option):
 ```
-+---------+---------------+-------------+--------+------------------+
-| FieldID | FieldName[/]  | FIELDSTRING | [m..n] | FieldDescription |
-+---------+---------------+-------------+--------+------------------+
++---------+------------+-------------+--------+------------------+
+| FieldID | FieldName  | FIELDSTRING | [m..n] | FieldDescription |
++---------+------------+-------------+--------+------------------+
 ```
 or (for compound types with the *id* option):
 ```
-+---------+-------------+--------+----------------------------------+
-| FieldID | FIELDSTRING | [m..n] | FieldName[/]:: FieldDescription  |
-+---------+-------------+--------+----------------------------------+
++---------+-------------+--------+-------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription  |
++---------+-------------+--------+-------------------------------+
 ```
 **Example Markdown Table:**
 
@@ -1886,31 +2006,29 @@ Figure 7-3 is an example instance of the University type serialized in
 
 # 8 Conformance
 
-Conformance targets:
-This document defines two conformance levels for JADN implementations: Core and Shortcuts.
+Information Modeling is applied within a system design process that may include:
+* IM Design
+  * Abstract Schema Design and Validation
+  * Alternate Schema Format Translation
+* Message Processing
+  * Single Format Message Validation
+  * Multiple Format Lossless Roundtrip Message Translation
+* Concrete Schema Conversion
 
-This document defines several data formats. Conformance claims are made with respect to a specified data format,
-and conforming implementations must support at least one data format.
+As noted in the introduction, an information modeling language is a formal syntax that allows users
+to capture data semantics and constraints. This specification defines the JADN IM language, and its
+conformance requirements address schema design and validation. Although Sections 6 and 7 present
+example message encoding rules and alternate schema presentation formats, this specification has
+no conformance requirements related to those activities.
 
-* Core JADN
-    * Validate schema packages according to [Section 3.1](#31-type-definitions), [Section 3.2](#32-options)
-    and [section 3](#3-schema-packages)
-    * Validate API values against a schema package
-    * Encode and decode documents according to serialization rules for data format \<X\> defined in Section [Section 6](#6-serialization-and-data-formats)
-* JADN Shortcuts
-    * Satisfy all Core requirements
-    * Perform all shortcut unfolding operations defined in [Section 3.3](#33-jadn-shortcuts)
-
-This document describes information modeling functions but defines no corresponding conformance requirements:
-
-* JADN Schema Translator
-    * Translate JADN packages to and from documentation formats (IDL, table, diagram) described in
-      [Section 6](#6-serialization-and-data-formats).
-* JADN Concrete Schema Generators
-    * Generate format-specific concrete schemas per serialization rules in Section 4.x.
-* JADN Shortcuts
-    * Recognize opportunities to fold related types into shortcuts, i.e., given a core schema package,
-     generate syntactic sugar where possible.
+Conforming implementations SHALL satisfy all conformance requirements listed in Sections 1-5 of this document,
+including the following sections:
+* [3.1.3 Package](#313-package-conformance-requirements)
+* [4.1.5 Types](#415-type-conformance-requirements)
+* [4.2.1.6 Primitive Types](#4216-primitive-type-conformance-requirements)
+* [4.2.2.4 Compound Types](#4224-compound-type-conformance-requirements)
+* [4.2.3.5 Union Types](#4235-union-type-conformance-requirements)
+* [4.2.4.2 Inherited Types](#4242-general-type-conformance-requirements)
 
 -------
 
@@ -1927,41 +2045,50 @@ While any hyperlinks included in this appendix were valid at the time of publica
 The following documents are referenced in such a way that some or all of their content constitutes requirements of this document.
 
 ###### [ECMASCRIPT]
-ECMA International, *"ECMAScript 2023 Language Specification"*, ECMA-262 14th Edition, June 2023, https://www.ecma-international.org/ecma-262 (*or corresponding section(s) in current edition*).
+ECMA International, *"ECMAScript 2024 Language Specification"*, ECMA-262 15th Edition, June 2024, https://www.ecma-international.org/ecma-262 (*or corresponding section(s) in current edition*).
 ###### [EUI]
 IEEE, *"IEEE Registration Authority Guidelines for use of EUI, OUI, and CID"*, August 2017, https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf.
+###### [IEEE754]
+*"Floating Point Arithmetic"*, IEEE Std 754-2019, https://ieeexplore.ieee.org/document/8766229, ISO/IEC 60559:2020, https://www.iso.org/obp/ui/en/#iso:std:80985
 ###### [IRI]
 Duerst, M., Suignard, M., *"Internationalized Resource Identifiers (IRIs)"*, January 2005, https://datatracker.ietf.org/doc/html/rfc3987
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 June 2022, https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01.
 ###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, https://datatracker.ietf.org/doc/html/rfc791.
+Postel, J., "Internet Protocol", RFC 791, September 1981, https://www.rfc-editor.org/rfc/rfc791.
 ###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://datatracker.ietf.org/doc/html/rfc2119.
+Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://www.rfc-editor.org/rfc/rfc2119.
 ###### [RFC2673]
-Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://datatracker.ietf.org/doc/html/rfc2673.
+Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://www.rfc-editor.org/rfc/rfc2673.
 ###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://datatracker.ietf.org/doc/html/rfc4291.
+Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://www.rfc-editor.org/rfc/rfc4291.
 ###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://datatracker.ietf.org/doc/html/rfc4632.
+Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://www.rfc-editor.org/rfc/html/rfc4632.
 ###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://datatracker.ietf.org/doc/html/rfc4648.
+Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://www.rfc-editor.org/rfc/rfc4648.
 ###### [RFC5234]
-Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://datatracker.ietf.org/doc/html/rfc5234.
+Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://www.rfc-editor.org/rfc/rfc5234.
 ###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://datatracker.ietf.org/doc/html/rfc6901.
+Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://www.rfc-editor.org/rfc/rfc6901.
 ###### [RFC8949]
-Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://datatracker.ietf.org/doc/html/rfc8949.
+Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://www.rfc-editor.org/rfc/rfc8949.
 ###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://datatracker.ietf.org/doc/html/rfc7405.
+Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://www.rfc-editor.org/rfc/rfc7405.
 ###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://datatracker.ietf.org/doc/html/rfc8174.
+Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://www.rfc-editor.org/rfc/rfc8174.
 ###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://datatracker.ietf.org/doc/html/rfc8200.
+Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://www.rfc-editor.org/rfc/rfc8200.
 ###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, RFC 8259, December 2017, https://datatracker.ietf.org/doc/html/rfc8259.
+Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, IETF RFC 8259, December 2017, https://www.rfc-editor.org/rfc/rfc8259.
+###### [RFC9562]
+Davis, K., Peabody, B., Leach P., "Universally Unique IDentifiers (UUIDs)", IETF RFC 9562, May 2024, https://www.rfc-editor.org/rfc/rfc9562.
+###### [POSIX Time]
+IEEE and The Open Group, "POSIX.1-2024 - standard operating system and environment: time()", "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
 ###### [XML Namespaces]
 W3C, *"Namespaces in XML 1.0"*, December 2009, https://www.w3.org/TR/xml-names/
+###### [XSD]
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 ## A.2 Informative References
 
@@ -1985,8 +2112,6 @@ FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
 *"Graph Visualization Software"*, https://graphviz.gitlab.io/
-###### [IEEE754]
-*"Floating Point Arithmetic"*, IEEE Std 754-2019, https://ieeexplore.ieee.org/document/8766229, ISO/IEC 60559:2020, https://www.iso.org/obp/ui/en/#iso:std:80985
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [JADN-CN]
@@ -2000,20 +2125,22 @@ W3C, *"RDF 1.2 Concepts and Abstract Syntax"*, https://www.w3.org/TR/rdf12-conce
 ###### [RELAXNG]
 OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng.
 ###### [RFC3444]
-Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://datatracker.ietf.org/doc/html/rfc3444.
+Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://www.rfc-editor.org/rfc/rfc3444.
 ###### [RFC3552]
-Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/info/rfc3552.
+Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/rfc/rfc3552.
 ###### [RFC7303]
 Hansen, T., Melnikov, A., "Additional Media Type Structured Syntax Suffixes", RFC 7303, January 2013
 ###### [RFC7493]
-Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://datatracker.ietf.org/doc/html/rfc7493.
+Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://www.rfc-editor.org/rfc/rfc7493.
 ###### [RFC8340]
-Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://datatracker.ietf.org/doc/html/rfc8340.
+Bjorklund, M., Berger, L., *"YANG Tree Diagrams"*, RFC 8340, March 2018, https://www.rfc-editor.org/rfc/rfc8340.
 ###### [RFC8477]
 Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (IoT) Semantic Interoperability
-(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://datatracker.ietf.org/doc/html/rfc8477.
+(IOTSI) Workshop 2016"*, RFC 8477, October 2018, https://www.rfc-editor.org/rfc/rfc8477.
 ###### [RFC8610]
-Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://datatracker.ietf.org/doc/html/rfc8610.html.
+Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://www.rfc-editor.org/rfc/rfc8610.html.
+###### [STIX]
+Bret Jordan, Rich Piazza, Trey Darley, "Structured Threat Information Expression (STIX) Version 2.1", OASIS Cyber Threat Intelligence (CTI) TC, 10 June 2021, https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [TRANSFORM]
@@ -2024,9 +2151,6 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 "Union Type", Wikipedia, https://en.wikipedia.org/wiki/Union_type.
 ###### [TAGGEDUNION]
 "Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
-###### [XSD]
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 -------
 
@@ -2089,13 +2213,20 @@ The following individuals have participated in the creation of this specificatio
 
 ### Changes from v1.0 to v2.0
 
-* Change "unlimited" maxOccurs sentinel value from 0 to -1.
-  *This minor but incompatible change required a new major version.*
-* Add Choice untagged unions.
-* Add type inheritance.
-* Change "namespaces" prefix list from mappings to pairings.
-* Rename package "Information" to "Metadata" to avoid conflation with information modeling.
-* Rename package "exports" to "roots" to better describe purpose and effect.
+* Add type inheritance options.
+* Add untagged union options to Choice type.
+* Allow multiple namespace prefixes to designate the same namespace.
+* Define two special values for maxOccurs upper bound: "unspecified" and "unlimited".
+* Split single range option into value range and length.
+* Add format options:
+  * /d<n> - decimal scale factor for fixed-point Integer type
+  * /tag-uuid for labeling uuid references to specific types
+* Define separate format option behavior when applied to logical vs. text values.
+* Add XML serialization rules.
+* Define XSD-compatible format options.
+* In package header:
+  * rename "Information" to "Metadata" to avoid conflation with information modeling.
+  * rename "exports" to "roots" to better describe purpose and effect.
 
 ### Changes from v1.0 CSD 01 to v1.0
 
