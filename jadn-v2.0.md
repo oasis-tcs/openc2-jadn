@@ -95,7 +95,7 @@ Latest stage: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
 -------
 
 ## Notices
-Copyright © OASIS Open 2021. All Rights Reserved.
+Copyright © OASIS Open 2025. All Rights Reserved.
 
 Distributed under the terms of the OASIS [IPR Policy](https://www.oasis-open.org/policies-guidelines/ipr).
 
@@ -269,26 +269,30 @@ instances that can be validated for content integrity and compared for equality.
 
 * **Equivalence**:
     The relation between the meaning represented by two data values such that each logically implies the other.
-    Two data values are equivalent if and only if they are classified as instances of the same logical type
+    Two data values are equivalent if and only if they are classified as instances of the same DataType
     and have the same logical value.
 
-* **Logical Type**:
-    An abstract DataType that defines the meaning and essential content of a discrete data item used
+* **DataType (logical type, type)**:
+    An abstract type that defines the meaning and essential content of a discrete data item used
     in computing independently of how it is represented for processing, communication or storage.
-    Logical types are defined by and composed using an information modeling language.
+    DataTypes are defined by and composed using an information modeling language.
+    Every DataType has a value space as defined in [XSD](#xsd) Part 2 Section 2.1
+    and a lexical space defined by a specified data format.
 
 * **Logical Value (information value)**:
-    An immutable instance of a logical type used for processing and comparison, specified by
+    An immutable instance of a DataType used for processing and comparison, specified by
     behavioral effect independently of programming languages and techniques.
+    Every logical value is a member of the value space of its DataType.
 
 * **Data Value (document, message, artifact, lexical value, literal value)**:
-    An immutable instance of a logical type used for transmission or storage, consisting of a sequence of
+    An immutable instance of a DataType used for transmission or storage, consisting of a sequence of
     octets or characters in an external data format.
-    Or equivalently, the same sequence as defined by a data model.
+    Every lexical value is a member of a lexical space of its DataType.
 
 * **Data Format**:
     Serialization rules that specify the media type (e.g., XML, JSON, CBOR, Protobuf),
     design goals (human readability, efficiency), and style preferences for data values in that format.
+    A data format defines a lexical space and a lexical mapping for each DataType.
 
 * **Data Model**:
     A concrete schema that defines the structure and value constraints of serialized data.
@@ -304,12 +308,12 @@ instances that can be validated for content integrity and compared for equality.
     if one is specified by the data format.
 
 * **Valid**:
-    A logical value is valid if it satisfies the constraints of its logical type.
-    A data value is valid if it is well-formed and is classified as an instance of a logical type.
+    A logical value is valid if it satisfies the constraints of its DataType.
+    A data value is valid if it is well-formed and is classified as an instance of a DataType.
 
 * **Serialization**:
     Serialization, or encoding, converts a logical value into a data value.
-    De-serialization, or decoding, classifies a data value and converts it into an instance of a logical type.
+    De-serialization, or decoding, classifies a data value and converts it into an instance of a DataType.
 
 * **Description (annotation)**:
     Description fields of an information model are reserved for comments from authors to readers
@@ -1121,10 +1125,10 @@ This option is valid only in an `allOf` Choice where one or more fields restrict
 because a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 ```
-UserName = Choice(allOf)            // A combination of lower, upper and digits, but not all digits.
-   1 a          String {pattern="^[a-zA-Z0-9]$"}
-   2 b          String [4,16]
-   3 c          !String {pattern="^[0-9]$"}
+UserName = Choice(allOf)                         // A combination of lower, upper and digits, but not all digits.
+   1  String{pattern="^[a-zA-Z0-9]$"}            // a::
+   2  String{4..*} [1..16]                       // b::
+   3  !String{pattern="^[0-9]$"}                 // c::
 ```
 
 A tagged union within a structured type may use the `tagId` option to specify a separate field within
@@ -1178,13 +1182,13 @@ of types based on the same primitive type is equivalent to extend or restrict re
 
 Examples:
 ```
-Name1 = Choice(anyOf)   // Extend equivalent:  "2915", "a34c", "D72F" are valid.   "g16H" is not.
-  1 a       String{pattern="^[a-z0-9]$"}
-  2 b       String{pattern="^[A-Z0-9]$"}
+Name1 = Choice(anyOf)                            // Extend equivalent: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern="^[a-z0-9]$"}               // a::
+   2  String{pattern="^[A-Z0-9]$"}               // b::
 
-Name2 = Choice(allOf)   // Restrict equivalent: "2915" is valid.   "a34c", "D72F", "g16H are not.
-  1 a       String{pattern="^[a-z0-9]$"}
-  2 b       String{pattern="^[A-Z0-9]$"}
+Name2 = Choice(allOf)                            // Restrict equivalent: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern="^[a-z0-9]$"}               // a::
+   2  String{pattern="^[A-Z0-9]$"}               // b::
 ```
 
 * **Compound:**
@@ -1282,7 +1286,7 @@ by the specified power of 10, using an integer to hold a fixed-precision rationa
 or changing the unit scaling of a physical value:
 ```
 Amount = Integer /d2    // Integer 152 represents an application value of 1.52,
-                        // changing units of currency in USD to cents.
+                        // changing currency unit from US dollars to cents
 ```
 
 The IEEE 754 floating point number keywords `/f#` indicate the significand and exponent ranges of logical
@@ -1298,9 +1302,9 @@ The `tagged-uuid` keyword indicates an Array consisting of a String prefix and a
 of the object identified by the UUID, this specification is not specific to any message protocol and does
 not constrain prefix content:
 ```
-ObjectId = Array /tagged-uuid
-   1 String                         // prefix:: Type Prefix
-   2 UUID                           // uuid:: Unique Identifier
+ObjectId = Array /tag-uuid
+   1  String                                     // prefix:: Type Prefix
+   2  UUID                                       // uuid:: Unique Identifier
 ```
 When serialized in a text data format the `prefix` and `uuid` fields are separated by two dashes:
 ```
@@ -1347,7 +1351,7 @@ Timestamp2 = String /date-time
 
 #### 4.2.5.2 XSD Semantic Validation Keywords
 
-XML Schema Definition Language ([[XSD]()]) Section 3 defines a set of built-in DataTypes
+XML Schema Definition Language ([[XSD](#xsd)]) Section 3 defines a set of built-in DataTypes
 using a text-centric approach:
 > The *value space* of *anyAtomicType* is the union of the value spaces of all the *primitive* datatypes
 > defined here or supplied as implementation-defined primitives.
@@ -1505,15 +1509,15 @@ Example:
 
     Roster = Record
        1 org_name     String
-       2 members      Member [0..*]         // Optional and repeated: minc=0, maxc=0
+       2 members      Member [0..*]             // Optional and repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
 
 Expanding replaces this with:
 
     Roster = Record
        1 org_name     String
-       2 members      Roster.members optional// Optional: minc=0, maxc=1
-    
-    Roster.members = ArrayOf(Member){1..*} // Tool-generated array: minv=1, maxv=0
+       2 members      Roster.members optional   // Optional: minOccurs=0, default maxOccurs (1)
+
+    Roster.members = ArrayOf(Member){1..*}      // Tool-generated array: minLength=1, no maxLength
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
@@ -1521,9 +1525,9 @@ field multiplicity shortcut:
 
     Roster = Record
        1 org_name     String
-       2 members      Members       // members field is required: default minc = 1, maxc = 1
-    
-    Members = ArrayOf(Member)       // Explicitly-defined array: default minv = 0, maxv = 0
+       2 members      Members       // members field is required: default minOccurs (1), maxOccurs (1)
+
+    Members = ArrayOf(Member)       // Explicitly-defined array: no minLength, no maxLength
 
 ## 5.3 Derived Enumerations
 
@@ -2082,6 +2086,9 @@ Davis, K., Peabody, B., Leach P., "Universally Unique IDentifiers (UUIDs)", IETF
 IEEE and The Open Group, "POSIX.1-2024 - standard operating system and environment: time()", "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
 ###### [XML Namespaces]
 W3C, *"Namespaces in XML 1.0"*, December 2009, https://www.w3.org/TR/xml-names/
+###### [XSD]
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
+W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 ## A.2 Informative References
 
@@ -2144,9 +2151,6 @@ Boyer, J., et. al., *"Experiences with JSON and XML Transformations"*, October 2
 "Union Type", Wikipedia, https://en.wikipedia.org/wiki/Union_type.
 ###### [TAGGEDUNION]
 "Tagged Union", Wikipedia, https://en.wikipedia.org/wiki/Tagged_union.
-###### [XSD]
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 -------
 
