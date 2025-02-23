@@ -8,20 +8,20 @@
 
 &nbsp;
 
-#### This stage:
-https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.md (Authoritative) \
-https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.html \
-https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.pdf
+#### This version:
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.pdf
 
-#### Previous stage:
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd02/jadn-v1.0-csd02.md (Authoritative) \
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd02/jadn-v1.0-csd02.html \
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd02/jadn-v1.0-csd02.pdf
-
-#### Latest stage:
+#### Previous version:
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md (Authoritative) \
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html \
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf
+
+#### Latest version:
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html \
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.pdf
 
 #### Technical Committee:
 [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -35,13 +35,13 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.json
 * JADN metaschema for JADN documents:
   * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jadn
   * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jidl
 * JADN schema for Examples:
   * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jadn
   * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jidl
+* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.json
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
@@ -87,10 +87,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 #### Citation format:
 When referencing this specification the following citation format should be used:
 
-**[JADN-v1.0]**  
-_JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 17 August 2021. 
-OASIS Committee Specification 01. https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.html. 
-Latest stage: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
+**[JADN-v2.0]**  
+_JSON Abstract Data Notation Version 2.0_. Edited by David Kemp. 19 February 2025. 
+OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html. 
+Latest version: https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html.
 
 -------
 
@@ -2115,7 +2115,7 @@ Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://arc
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [JADN-CN]
-OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
+OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md
 ###### [ORDER]
 LaFontaine, Robin, *"Element order is always important in XML, except when it isn't"*, Balisage: The Markup Conference, 2021, https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html
 ###### [PROTO]
