@@ -35,13 +35,14 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JADN metaschema for JADN documents:
-  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jadn
-  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jidl
-* JADN schema for Examples:
-  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jadn
-  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jidl
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.json
+* JADN metaschema for JADN documents:  \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn  \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl
+* JSON schema for JADN documents:  \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json
+* JADN schema for Examples:  \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn  \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
