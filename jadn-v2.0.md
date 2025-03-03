@@ -703,7 +703,7 @@ without regard to processing mechanisms or data format. As shown in [Figure 4-1]
 the primitive core types are Binary, Boolean, Integer, Number and String.
 
 Type options specify value restrictions such as size, range, and regular expression patterns.
-Semantic validation keywords (formats) listed in [Section 4.2.4](#424-semantic-validation-keywords)
+Semantic validation keywords (formats) listed in [Section 4.2.5](#425-semantic-validation)
 also define value restrictions on primitive types.
 
 Primitive TypeOptions are listed in Table 4-1:
@@ -1431,10 +1431,10 @@ These are unequal strings even though they represent the same timestamp.
 
 | Keyword               | Type   | Requirement                                                                           |
 |-----------------------|--------|---------------------------------------------------------------------------------------|
-| date-time             | String | String literal [RFC 3339](#rfc3339) Section 5.6 "date-time"                           |
-| date                  | String | String literal RFC 3339 Section 5.6 "full-date"                                       |
-| time                  | String | String literal RFC 3339 Section 5.6 "full-time"                                       |
-| duration              | String | String literal RFC 3339 Appendix A "duration"                                         |
+| date-time             | String | String literal [RFC 9557](#rfc9557) Section 4.1 "date-time-ext"                       |
+| date                  | String | String literal [RFC 3339](#rfc3339) Section 5.6 "full-date"                           |
+| time                  | String | String literal [RFC 3339](#rfc3339) Section 5.6 "full-time"                           |
+| duration              | String | String literal [RFC 3339](#rfc3339) Appendix A "duration"                             |
 | email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                            |
 | idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                              |
 | hostname              | String | RFC 1123 Section 2.1                                                                  |
@@ -1501,11 +1501,11 @@ Coordinate.longitude = Number [-180.0, 180.0]
 ## 5.2 Field Multiplicity
 
 Fields may be defined to have multiple values of the same type. Expanding converts each field that can
-have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
-FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
-size (*minv* and *maxv*) TypeOptions of the new ArrayOf type, except that if *minc* is 0
-(field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
-size of 1.
+have more than one value to a separate ArrayOf type. The multiplicity (*minOccurs* and *maxOccurs*)
+FieldOptions ([Section 4.2.2.2](#4222-multiplicity)) are moved from FieldOptions to the minimum and maximum
+length (*minLength* and *maxLength*) TypeOptions ([Section 4.2.3](#423-union-types))) of the new ArrayOf type,
+except that if *minOccurs* is 0 (field is optional), it remains in FieldOptions and the new ArrayOf type
+has a minimum length of 1.
 
 Example:
 
@@ -1538,7 +1538,7 @@ in the option rather than being listed individually in the definition.
 Expanding removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
-In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) the *enum* option is represented
+In JADN-IDL ([Section 7.1](#71-information-definition-language)) the *enum* option is represented
 as a function string: "Enum(\<referenced-type\>)".
 Within ArrayOf and MapOf types, the *ktype* and *vtype* options may contain an enum option.  As an
 example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN vtype option "*#Pixel".
@@ -1624,7 +1624,7 @@ BomList = Enumerated
 # 6 Serialization and Data Formats
 
 Applications may use any internal information representation that exhibits the characteristics defined in
-[Table 3-1](#table-3-1-jadn-core-types). Serialization rules define how to represent instances of each type using
+[Section 4](#4-jadn-types). Serialization rules define how to represent instances of each type using
 a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
 serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
@@ -1793,31 +1793,31 @@ Primitive types:
     TypeName = TYPESTRING                     // TypeDescription
 ```
 
-Enumerated type:
+Enumerated type without the `id` option:
 ```
     TypeName = TYPESTRING                     // TypeDescription
         ItemID ItemValue                      // ItemDescription
         ...
 ```
 
-Compound types without the *id* option:
+Compound types without the `id` option:
 ```
     TypeName = TYPESTRING                     // TypeDescription
-        FieldID FieldName[/] FIELDSTRING      // FieldDescription
+        FieldID FieldName FIELDSTRING         // FieldDescription
         ...
 ```
 
-Compound types with the *id* option treat the item/field name as an informative label
-(see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
+Structured types with the `id` [TypeOption](#table-4-2-typeoptions-specific-to-compound-types)
+treat the item/field name as an informative label and display it in the description
 followed by a label terminator ("::"):
 ```
-    /* Enumerated.ID */
+    /* Enumerated# */
     TypeName = TYPESTRING                     // TypeDescription
         ItemID                                // ItemValue:: ItemDescription
     
-    /* Choice.ID, Map.ID */
+    /* Choice#, Map# */
     TypeName = TYPESTRING                     // TypeDescription
-        FieldID FIELDSTRING                   // FieldName[/]:: FieldDescription
+        FieldID FIELDSTRING                   // FieldName:: FieldDescription
         ...
 ```
 
@@ -1886,11 +1886,11 @@ or (for compound types with the *id* option):
 
   *Type: Person (Record)*
 
-|  ID  |    Name   |   Type  |   #  | Description |
-| ---: | --------- | ------- | ---: | ----------- |
-|   1  | **name**  | String  |    1 |             |
-|   2  | **id**    | Integer |    1 |             |
-|   3  | **email** | String  | 0..1 |             |
+| ID | Name      | Type    |     # | Description |
+|---:|-----------|---------|------:|-------------|
+|  1 | **name**  | String  |     1 |             |
+|  2 | **id**    | Integer |     1 |             |
+|  3 | **email** | String  |  0..1 |             |
 
 
 ## 7.3 Entity Relationship Diagrams
@@ -1945,7 +1945,7 @@ digraph G {
 ###### Figure 7-2: GraphViz Source for University Conceptual ERD
 
 Figure 7-3 is an example instance of the University type serialized in
-[verbose](#41-verbose-json-serialization) and [compact](#42-compact-json-serialization) JSON data formats:
+[verbose](#61-verbose-json-serialization) and [compact](#62-compact-json-serialization) JSON data formats:
 ```json
 {
   "name": "Faber College",
@@ -2057,40 +2057,48 @@ Duerst, M., Suignard, M., *"Internationalized Resource Identifiers (IRIs)"*, Jan
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 June 2022, https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01.
 ###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, https://www.rfc-editor.org/rfc/rfc791.
+Postel, J., *"Internet Protocol"*, RFC 791, September 1981, https://www.rfc-editor.org/rfc/rfc791.
 ###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://www.rfc-editor.org/rfc/rfc2119.
+Bradner, S., *"Key words for use in RFCs to Indicate Requirement Levels"*, BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://www.rfc-editor.org/rfc/rfc2119.
 ###### [RFC2673]
 Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://www.rfc-editor.org/rfc/rfc2673.
+###### [RFC3339]
+Klyne, G., Newman, C., *"Date and Time on the Internet: Timestamps"*, RFC 3339, July 2002, https://www.rfc-editor.org/rfc/rfc3339.html
+###### [RFC3986]
+Berners-Lee, T., Fielding, R., Masinter, L., *"Uniform Resource Identifier (URI): Generic Syntax:*, RFC 3986, https://www.rfc-editor.org/rfc/rfc3986.html.
 ###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://www.rfc-editor.org/rfc/rfc4291.
+Hinden, R., Deering, S., *"IP Version 6 Addressing Architecture"*, RFC 4291, February 2006, https://www.rfc-editor.org/rfc/rfc4291.
 ###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://www.rfc-editor.org/rfc/html/rfc4632.
+Fuller, V., Li, T., *"Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan"*, RFC 4632, August 2006, https://www.rfc-editor.org/rfc/html/rfc4632.
 ###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://www.rfc-editor.org/rfc/rfc4648.
+Josefsson, S., *"The Base16, Base32, and Base64 Data Encodings"*, RFC 4648, October 2006, https://www.rfc-editor.org/rfc/rfc4648.
 ###### [RFC5234]
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://www.rfc-editor.org/rfc/rfc5234.
+###### [RFC6570]
+Gregorio, J., Fielding, R., Hadley, M., Nottingham, M., Orchard, D., *"URI Template"*, RFC 6570, March 2012, https://www.rfc-editor.org/rfc/rfc6570.html.
 ###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://www.rfc-editor.org/rfc/rfc6901.
+Bryan, P., Zyp, K., Nottingham, M., *"JavaScript Object Notation (JSON) Pointer"*, RFC 6901, April 2013, https://www.rfc-editor.org/rfc/rfc6901.
 ###### [RFC8949]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://www.rfc-editor.org/rfc/rfc8949.
 ###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://www.rfc-editor.org/rfc/rfc7405.
+Kyzivat, P., *"Case-Sensitive String Support in ABNF"*, RFC 7405, December 2014, https://www.rfc-editor.org/rfc/rfc7405.
 ###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://www.rfc-editor.org/rfc/rfc8174.
+Leiba, B., *"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"*, BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://www.rfc-editor.org/rfc/rfc8174.
 ###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://www.rfc-editor.org/rfc/rfc8200.
+Deering, S., Hinden, R., *"Internet Protocol, Version 6 (IPv6) Specification"*, RFC 8200, July 2017, https://www.rfc-editor.org/rfc/rfc8200.
 ###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, IETF RFC 8259, December 2017, https://www.rfc-editor.org/rfc/rfc8259.
+Bray, T., *"The JavaScript Object Notation (JSON) Data Interchange Format"*, STD 90, IETF RFC 8259, December 2017, https://www.rfc-editor.org/rfc/rfc8259.
+###### [RFC9557]
+Sharma, U., Bormann, C., *"Date and Time on the Internet: Timestamps with Additional Information"*, IETF RFC 9557, April 2024, https://www.rfc-editor.org/rfc/rfc9557.
 ###### [RFC9562]
-Davis, K., Peabody, B., Leach P., "Universally Unique IDentifiers (UUIDs)", IETF RFC 9562, May 2024, https://www.rfc-editor.org/rfc/rfc9562.
+Davis, K., Peabody, B., Leach P., *"Universally Unique IDentifiers (UUIDs)"*, IETF RFC 9562, May 2024, https://www.rfc-editor.org/rfc/rfc9562.
 ###### [POSIX Time]
-IEEE and The Open Group, "POSIX.1-2024 - standard operating system and environment: time()", "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
+IEEE and The Open Group, *"POSIX.1-2024 - standard operating system and environment: time()"*, "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
 ###### [XML Namespaces]
 W3C, *"Namespaces in XML 1.0"*, December 2009, https://www.w3.org/TR/xml-names/
 ###### [XSD]
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
+W3C, *"XML Schema Definition Language (XSD) 1.1 Part 1: Structures"*, 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
+W3C, *"XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes"*, 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 ## A.2 Informative References
 
@@ -2105,7 +2113,7 @@ Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [ENUM]
-*"Enumerated Type"*, https://en.wikipedia.org/wiki/Enumerated_type
+*"Enumerated Type"*, https://en.wikipedia.org/wiki/Enumerated_type.
 ###### [FDT]
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8.
 ###### [FIX]
@@ -2113,13 +2121,13 @@ FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
-*"Graph Visualization Software"*, https://graphviz.gitlab.io/
+*"Graph Visualization Software"*, https://graphviz.gitlab.io/.
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [JADN-CN]
-OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md
+OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md.
 ###### [ORDER]
-LaFontaine, Robin, *"Element order is always important in XML, except when it isn't"*, Balisage: The Markup Conference, 2021, https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html
+LaFontaine, Robin, *"Element order is always important in XML, except when it isn't"*, Balisage: The Markup Conference, 2021, https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html.
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RDF]
@@ -2129,9 +2137,13 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 ###### [RFC3444]
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://www.rfc-editor.org/rfc/rfc3444.
 ###### [RFC3552]
-Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/rfc/rfc3552.
+Rescorla, E. and B. Korver, *"Guidelines for Writing RFC Text on Security Considerations"*, BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/rfc/rfc3552.
+###### [RFC5321]
+Klensin, J., *"Simple Mail Transfer Protocol"*, RFC 5321, October 2008, https://www.rfc-editor.org/rfc/rfc5321.html.
+###### [RFC6531]
+Yao, J., Mao, W., *"SMTP Extension for Internationalized Email"*, RFC 6531, February 2012, https://www.rfc-editor.org/rfc/rfc6531.html.
 ###### [RFC7303]
-Hansen, T., Melnikov, A., "Additional Media Type Structured Syntax Suffixes", RFC 7303, January 2013
+Hansen, T., Melnikov, A., *"Additional Media Type Structured Syntax Suffixes"*, RFC 7303, January 2013, https://www.rfc-editor.org/rfc/rfc7303.
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://www.rfc-editor.org/rfc/rfc7493.
 ###### [RFC8340]
@@ -2142,7 +2154,7 @@ Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (I
 ###### [RFC8610]
 Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://www.rfc-editor.org/rfc/rfc8610.html.
 ###### [STIX]
-Bret Jordan, Rich Piazza, Trey Darley, "Structured Threat Information Expression (STIX) Version 2.1", OASIS Cyber Threat Intelligence (CTI) TC, 10 June 2021, https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html.
+Bret Jordan, Rich Piazza, Trey Darley, *"Structured Threat Information Expression (STIX) Version 2.1"*, OASIS Cyber Threat Intelligence (CTI) TC, 10 June 2021, https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [TRANSFORM]
@@ -2232,11 +2244,10 @@ The following individuals have participated in the creation of this specificatio
 
 ### Changes from v1.0 CSD 01 to v1.0
 
-* Added serialization style description to [Section 2.2](#22-information-modeling).
-* Removed the Null core type from [Table 3.1](#table-3-1-jadn-core-types).
-* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
-* Raised the default maximum length for type and field names from 32 to 64 characters
-   ([Section 3.1.2](#312-name-formats)).
+* Added serialization style description.
+* Removed the Null core type.
+* Added default values for type definition elements.
+* Raised the default maximum length for type and field names from 32 to 64 characters.
 
 -------
 
