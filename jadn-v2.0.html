@@ -314,7 +314,7 @@
   /* style for code blocks */
   code,kbd,pre,samp{
       font-family: CourierNew, monospace;
-      font-size: 1em;
+      font-size: 0.9em;
       white-space: pre-wrap;
       background-color: #e8e8e8;
   }
@@ -330,9 +330,8 @@
 <h2 id="oasis-logo"><img
 src="http://docs.oasis-open.org/templates/OASISLogo-v3.0.png"
 alt="OASIS Logo" /></h2>
-<h1
-id="specification-for-json-abstract-data-notation-jadn-version-20">Specification
-for JSON Abstract Data Notation (JADN) Version 2.0</h1>
+<h1 id="json-abstract-data-notation-jadn-version-20">JSON Abstract Data
+Notation (JADN) Version 2.0</h1>
 <h2 id="committee-specification-draft-01">Committee Specification Draft
 01</h2>
 <h2 id="19-february-2025">19 February 2025</h2>
@@ -378,19 +377,25 @@ href="https://www.nsa.gov/">National Security Agency</a></p>
 <p>This prose specification is one component of a Work Product that also
 includes:</p>
 <ul>
-<li>JADN metaschema for JADN documents:<br />
-<a
-href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn</a><br />
-<a
+<li>JADN metaschema for JADN documents:
+<ul>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn</a></li>
+<li><a
 href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl</a></li>
-<li>JSON schema for JADN documents:<br />
-<a
+</ul></li>
+<li>JSON schema for JADN documents:
+<ul>
+<li><a
 href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json</a></li>
-<li>JADN schema for Examples:<br />
-<a
-href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn</a><br />
-<a
+</ul></li>
+<li>JADN schema for Examples:
+<ul>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn</a></li>
+<li><a
 href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl</a></li>
+</ul></li>
 </ul>
 <h4 id="abstract">Abstract:</h4>
 <p>An Information Model (IM) defines the meaning and essential content
@@ -853,41 +858,41 @@ of type definitions defined in <a href="#4-jadn-types">Section
        roots: [&quot;Schema&quot;]
       config: {&quot;$FieldName&quot;: &quot;^[$A-Za-z][_A-Za-z0-9]{0,63}$&quot;}
 
-Schema = Record                                  // Definition of a JADN package
-   1 meta             Metadata optional          // Information about this package
-   2 types            Type unique [1..*]         // Types defined in this package
+Schema = Record                              // Definition of a JADN package
+   1 meta           Metadata optional        // Information about this package
+   2 types          Type unique [1..*]       // Types defined in this package
 
-Metadata = Map                                   // Information about this package
-   1 package          Namespace                  // Unique name/version of this package
-   2 version          String{1..*} optional      // Incrementing version within package
-   3 title            String{1..*} optional      // Title
-   4 description      String{1..*} optional      // Description
-   5 comment          String{1..*} optional      // Comment
-   6 copyright        String{1..*} optional      // Copyright notice
-   7 license          String{1..*} optional      // SPDX licenseId of this package
-   8 namespaces       PrefixNs unique [0..*]     // Referenced packages
-   9 roots            TypeName unique [0..*]     // Roots of the type tree(s) in this package
-  10 config           Config optional            // Configuration variables
-  11 jadn_version     Namespace optional         // JADN Metaschema package
+Metadata = Map                               // Information about this package
+   1 package        Namespace                // Unique name/version of this package
+   2 version        String{1..*} optional    // Incrementing version within package
+   3 title          String{1..*} optional    // Title
+   4 description    String{1..*} optional    // Description
+   5 comment        String{1..*} optional    // Comment
+   6 copyright      String{1..*} optional    // Copyright notice
+   7 license        String{1..*} optional    // SPDX licenseId of this package
+   8 namespaces     PrefixNs unique [0..*]   // Referenced packages
+   9 roots          TypeName unique [0..*]   // Roots of the type tree(s) in this package
+  10 config         Config optional          // Configuration variables
+  11 jadn_version   Namespace optional       // JADN Metaschema package
 
-PrefixNs = Array                                 // Prefix corresponding to a namespace IRI
-   1  NSID                                       // prefix:: Namespace prefix string
-   2  Namespace                                  // namespace:: Namespace IRI
+PrefixNs = Array                             // Prefix corresponding to a namespace IRI
+   1  NSID                                   // prefix:: Namespace prefix string
+   2  Namespace                              // namespace:: Namespace IRI
 
-Config = Map{1..*}                               // Config vars override JADN defaults
-   1 $MaxBinary       Integer{1..*} optional     // Package max octets, default = 255
-   2 $MaxString       Integer{1..*} optional     // Package max characters, default = 255
-   3 $MaxElements     Integer{1..*} optional     // Package max items/properties, default = 255
-   4 $Sys             String{1..1} optional      // System character for TypeName, default = &#39;.&#39;
-   5 $TypeName        String /regex optional     // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName       String /regex optional     // Default = ^[a-z][_A-Za-z0-9]{0,63}$
-   7 $NSID            String /regex optional     // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+Config = Map{1..*}                           // Config vars override JADN defaults
+   1 $MaxBinary     Integer{1..*} optional   // Package max octets, default = 255
+   2 $MaxString     Integer{1..*} optional   // Package max characters, default = 255
+   3 $MaxElements   Integer{1..*} optional   // Package max items/properties, default = 255
+   4 $Sys           String{1..1} optional    // System character for TypeName, default = &#39;.&#39;
+   5 $TypeName      String /regex optional   // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName     String /regex optional   // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID          String /regex optional   // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
-Namespace = String /uri                          // Unique name of a package
-NSID = String{pattern=&quot;$NSID&quot;}                   // Namespace prefix matching $NSID
-TypeName = String{pattern=&quot;$TypeName&quot;}           // Name of a logical type
-FieldName = String{pattern=&quot;$FieldName&quot;}         // Name of a field in a structured type
-TypeRef = String                                 // Reference to a type, matching ($NSID &#39;:&#39;)? $TypeName</code></pre>
+Namespace = String /uri                      // Unique name of a package
+NSID = String{pattern=&quot;$NSID&quot;}               // Namespace prefix matching $NSID
+TypeName = String{pattern=&quot;$TypeName&quot;}       // Name of a logical type
+FieldName = String{pattern=&quot;$FieldName&quot;}     // Name of a field in a structured type
+TypeRef = String                             // Reference to a type, matching ($NSID &#39;:&#39;)? $TypeName</code></pre>
 <h6 id="figure-3-1----jadn-schema-metadata">Figure 3-1 -- JADN Schema:
 Metadata</h6>
 <h3 id="311-descriptive-metadata">3.1.1 Descriptive Metadata</h3>
@@ -944,15 +949,17 @@ readability. These variables define a package's naming conventions:</p>
 <ul>
 <li><strong>$Sys:</strong> A "system" character used in
 software-generated TypeNames. Default = '.'</li>
-<li>**<span
-class="math inline"><em>T</em><em>y</em><em>p</em><em>e</em><em>N</em><em>a</em><em>m</em><em>e</em> : * * <em>T</em><em>h</em><em>e</em><em>r</em><em>e</em><em>g</em><em>e</em><em>x</em><em>u</em><em>s</em><em>e</em><em>d</em><em>t</em><em>o</em><em>v</em><em>a</em><em>l</em><em>i</em><em>d</em><em>a</em><em>t</em><em>e</em><em>T</em><em>y</em><em>p</em><em>e</em><em>N</em><em>a</em><em>m</em><em>e</em>.<em>D</em><em>e</em><em>f</em><em>a</em><em>u</em><em>l</em><em>t</em><em>b</em><em>e</em><em>g</em><em>i</em><em>n</em><em>s</em><em>w</em><em>i</em><em>t</em><em>h</em><em>a</em><em>n</em><em>u</em><em>p</em><em>p</em><em>e</em><em>r</em> − <em>c</em><em>a</em><em>s</em><em>e</em><em>c</em><em>h</em><em>a</em><em>r</em><em>a</em><em>c</em><em>t</em><em>e</em><em>r</em>:<sup>[<em>A</em> − <em>Z</em>]</sup>[−.<em>A</em> − <em>Z</em><em>a</em> − <em>z</em>0 − 9]0, 63</span></li>
-<li>**<span
-class="math inline"><em>F</em><em>i</em><em>e</em><em>l</em><em>d</em><em>N</em><em>a</em><em>m</em><em>e</em> : * * <em>T</em><em>h</em><em>e</em><em>r</em><em>e</em><em>g</em><em>e</em><em>x</em><em>u</em><em>s</em><em>e</em><em>d</em><em>t</em><em>o</em><em>v</em><em>a</em><em>l</em><em>i</em><em>d</em><em>a</em><em>t</em><em>e</em><em>F</em><em>i</em><em>e</em><em>l</em><em>d</em><em>N</em><em>a</em><em>m</em><em>e</em>.<em>D</em><em>e</em><em>f</em><em>a</em><em>u</em><em>l</em><em>t</em><em>b</em><em>e</em><em>g</em><em>i</em><em>n</em><em>s</em><em>w</em><em>i</em><em>t</em><em>h</em><em>a</em><em>l</em><em>o</em><em>w</em><em>e</em><em>r</em> − <em>c</em><em>a</em><em>s</em><em>e</em><em>c</em><em>h</em><em>a</em><em>r</em><em>a</em><em>c</em><em>t</em><em>e</em><em>r</em>:<sup>[<em>a</em> − <em>z</em>]</sup>[<sub><em>A</em></sub> − <em>Z</em><em>a</em> − <em>z</em>0 − 9]0, 63</span><br />
-The JADN Metaschema overrides the default <span
-class="math inline"><em>F</em><em>i</em><em>e</em><em>l</em><em>d</em><em>N</em><em>a</em><em>m</em><em>e</em><em>p</em><em>a</em><em>t</em><em>t</em><em>e</em><em>r</em><em>n</em><em>t</em><em>o</em><em>a</em><em>l</em><em>l</em><em>o</em><em>w</em><em>c</em><em>o</em><em>n</em><em>f</em><em>i</em><em>g</em><em>v</em><em>a</em><em>r</em><em>i</em><em>a</em><em>b</em><em>l</em><em>e</em><em>s</em><em>b</em><em>e</em><em>g</em><em>i</em><em>n</em><em>n</em><em>i</em><em>n</em><em>g</em><em>w</em><em>i</em><em>t</em><em>h</em>′</span>'
-and core type names beginning with a capital letter.</li>
-<li>**<span
-class="math inline"><em>N</em><em>S</em><em>I</em><em>D</em> : * * <em>T</em><em>h</em><em>e</em><em>r</em><em>e</em><em>g</em><em>e</em><em>x</em><em>u</em><em>s</em><em>e</em><em>d</em><em>t</em><em>o</em><em>v</em><em>a</em><em>l</em><em>i</em><em>d</em><em>a</em><em>t</em><em>e</em><em>a</em><em>n</em><em>e</em><em>x</em><em>t</em><em>e</em><em>r</em><em>n</em><em>a</em><em>l</em><em>t</em><em>y</em><em>p</em><em>e</em><em>r</em><em>e</em><em>f</em><em>e</em><em>r</em><em>e</em><em>n</em><em>c</em><em>e</em>′<em>s</em><em>p</em><em>r</em><em>e</em><em>f</em><em>i</em><em>x</em><em>s</em><em>t</em><em>r</em><em>i</em><em>n</em><em>g</em>.<em>D</em><em>e</em><em>f</em><em>a</em><em>u</em><em>l</em><em>t</em>:<sup>([<em>A</em> − <em>Z</em><em>a</em> − <em>z</em>][<em>A</em> − <em>Z</em><em>a</em> − <em>z</em>0 − 9]0, 7)</sup>?</span><br />
+<li><strong>$TypeName:</strong> The regex used to validate TypeName.
+Default begins with an upper-case character:
+^[A-Z][-.A-Za-z0-9]{0,63}$</li>
+<li><strong>$FieldName:</strong> The regex used to validate FieldName.
+Default begins with a lower-case character:
+^[a-z][_A-Za-z0-9]{0,63}$<br />
+The JADN Metaschema overrides the default $FieldName pattern to allow
+config variables beginning with '$' and core type names beginning with a
+capital letter.</li>
+<li><strong>$NSID:</strong> The regex used to validate an external type
+reference's prefix string. Default: ^([A-Za-z][A-Za-z0-9]{0,7})?$<br />
 External type references (TypeRef in <a
 href="#figure-4-2----jadn-schema-types">Figure 4-2</a>) are prefixed
 names that include an NSID.</li>
@@ -1130,9 +1137,9 @@ applicable to <strong>FieldType</strong></li>
         [2, &quot;longitude&quot;, &quot;Longitude&quot;, [], &quot;A Number between -180 and 180 degrees&quot;]
     ]]</code></pre>
 <p>IDL Example:</p>
-<pre><code>Coordinate = Record                              // A GPS coordinate
-   1 latitude         Latitude                   // A Number between -90 and 90 degrees
-   2 longitude        Longitude                  // A Number between -180 and 180 degrees</code></pre>
+<pre><code>Coordinate = Record                      // A GPS coordinate
+   1 latitude       Latitude             // A Number between -90 and 90 degrees
+   2 longitude      Longitude            // A Number between -180 and 180 degrees</code></pre>
 <h3 id="414-type-and-field-options">4.1.4 Type and Field Options</h3>
 <p>Type and field options are the mechanisms to support a varied set of
 information needs within the strictly regular type definition structure.
@@ -1521,9 +1528,9 @@ instead of FieldName</p>
   [3, &quot;blue&quot;, &quot;Violets&quot;]
 ]]</code></pre>
 <pre><code>Colors = Enumerated
-   1 red                          // The color of roses
+   1 red                         // The color of roses
    2 green
-   3 blue                         // Violets
+   3 blue                        // Violets
 
 ColorIds = Enumerated#
    1                             // red:: The color of roses
@@ -1787,7 +1794,7 @@ Organization = Record
     3 ceo       Link(Person)</code></pre>
 <p>Example composite key:</p>
 <pre><code>LineItem = Record
-   1 item_id    Key(ItemId)     // Composite unique identifier for a line item within an order
+   1 item_id    Key(ItemId)     // Composite unique identifier for a line item
    2 quantity   Integer         // Other information about the ordered item
 
 ItemId = Array
@@ -2000,7 +2007,7 @@ field identifier for the Choice, and is normally an Enumerated type
 generated from the Choice using the <a
 href="#53-derived-enumerations">Derived Enumeration</a> shortcut:</p>
 <pre><code>Connection = Record
-  1 version      Enumerated(Enum[IP-Addr])      // source and destination versions must agree
+  1 version      Enumerated(Enum[IP-Addr])    // src and dst versions must agree
   2 source       IP-Addr(TagId[version])
   3 destination  IP-Addr(TagId[version])
 
@@ -2014,10 +2021,10 @@ valid only in an <code>allOf</code> Choice where one or more fields
 restrict the set of instances, because a complement without a
 restriction matches instances of arbitrary size, type and
 complexity.</p>
-<pre><code>UserName = Choice(allOf)                         // A combination of lower, upper and digits, but not all digits.
-   1  String{pattern=&quot;^[a-zA-Z0-9]$&quot;}            // a::
-   2  String{4..*} [1..16]                       // b::
-   3  !String{pattern=&quot;^[0-9]$&quot;}                 // c::</code></pre>
+<pre><code>UserName = Choice(allOf)               // lower, upper and digits, but not all digits.
+   1  String{pattern=&quot;^[a-zA-Z0-9]$&quot;}  // a::
+   2  String{4..*} [1..16]             // b::
+   3  !String{pattern=&quot;^[0-9]$&quot;}       // c::</code></pre>
 <p>A tagged union within a structured type may use the
 <code>tagId</code> option to specify a separate field within that type
 to be used as its tag. The value of the designated field must be a valid
@@ -2117,13 +2124,13 @@ respectively.</li>
 </ul></li>
 </ul>
 <p>Examples:</p>
-<pre><code>Name1 = Choice(anyOf)                            // Extend equivalent: 2915, a34c, D72F are valid.  g16H is not.
-   1  String{pattern=&quot;^[a-z0-9]$&quot;}               // a::
-   2  String{pattern=&quot;^[A-Z0-9]$&quot;}               // b::
+<pre><code>Name1 = Choice(anyOf)                // Extend: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern=&quot;^[a-z0-9]$&quot;}   // a::
+   2  String{pattern=&quot;^[A-Z0-9]$&quot;}   // b::
 
-Name2 = Choice(allOf)                            // Restrict equivalent: 2915 is valid.  a34c, D72F, g16H are not.
-   1  String{pattern=&quot;^[a-z0-9]$&quot;}               // a::
-   2  String{pattern=&quot;^[A-Z0-9]$&quot;}               // b::</code></pre>
+Name2 = Choice(allOf)                // Restrict: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern=&quot;^[a-z0-9]$&quot;}   // a::
+   2  String{pattern=&quot;^[A-Z0-9]$&quot;}   // b::</code></pre>
 <ul>
 <li><strong>Compound:</strong>
 <ul>
@@ -2137,14 +2144,14 @@ fields in structured compound types.</li>
 </ul></li>
 </ul>
 <p>Examples:</p>
-<pre><code>Entity = Record abstract                    // Base type, cannot be instantiated
+<pre><code>Entity = Record abstract                // Base type, cannot be instantiated
   1 id      Integer
   2 name    String optional
 
-Person = Record extends(Entity)             // Add email address
+Person = Record extends(Entity)         // Add email address
   3 email   String /email optional
 
-AnonymousPerson = Record restricts(Person) final  // Prohibit &quot;name&quot; field, cannot be subtyped
+AnonymousPerson = Record restricts(Person) final  // Prohibit &quot;name&quot;, no subtypes
   2 name    String [0]</code></pre>
 <ul>
 <li><strong>Enumerated:</strong>
@@ -2359,8 +2366,8 @@ String prefix and a Binary UUID, similar in purpose to a [STIX] Section
 specification is not specific to any message protocol and does not
 constrain prefix content:</p>
 <pre><code>ObjectId = Array /tag-uuid
-   1  String                                     // prefix:: Type Prefix
-   2  UUID                                       // uuid:: Unique Identifier</code></pre>
+   1  String                           // prefix:: Type Prefix
+   2  UUID                             // uuid:: Unique Identifier</code></pre>
 <p>When serialized in a text data format the <code>prefix</code> and
 <code>uuid</code> fields are separated by two dashes:</p>
 <pre><code>&quot;ipv4-addr--ff26c055-6336-5bc5-b98d-13d6226742dd&quot;</code></pre>
@@ -2389,8 +2396,8 @@ date and time formats, decimal string, hex string, base64 string, or an
 integer value in binary serializations.</p>
 <p>The decimal scale factor format <code>/d&lt;n&gt;</code> can be used
 with Integer times to specify time resolution:</p>
-<pre><code>Timestamp = Integer /date-time              // 1727877600 seconds         = 2024-10-02T15:00:00Z
-Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z</code></pre>
+<pre><code>Timestamp = Integer /date-time          // 1727877600 sec:     2024-10-02T15:00:00Z
+Timestamp-ms = Integer /date-time /d3   // 1727877600000 msec: 2024-10-02T15:00:00.000Z</code></pre>
 <p>A String type with a time-related keyword is a logical string equal
 to its text representation, where different strings are non-equal values
 that sort alphabetically even if they represent the same logical
@@ -2852,13 +2859,13 @@ generated type. This requires the anonymous field to be a non-structured
 core type and any TypeOption values included in FieldOptions to apply to
 FieldType.</p>
 <p>Example: a structured type with anonymous fields:</p>
-<pre><code>Coordinate = Record                              // A GPS coordinate
-   1 latitude         Number [-90.0, 90.0]       // A Number between -90 and 90 degrees
-   2 longitude        Number [-180.0, 180.0]     // A Number between -180 and 180 degrees</code></pre>
+<pre><code>Coordinate = Record                        // A GPS coordinate
+   1 latitude     Number [-90.0, 90.0]     // A Number between -90 and 90 degrees
+   2 longitude    Number [-180.0, 180.0]   // A Number between -180 and 180 degrees</code></pre>
 <p>Expanded type with references to generated types:</p>
-<pre><code>Coordinate = Record                              // A GPS coordinate
-   1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
-   2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
+<pre><code>Coordinate = Record                        // A GPS coordinate
+   1 latitude     Coordinate.latitude      // A Number between -90 and 90 degrees
+   2 longitude    Coordinate.longitude     // A Number between -180 and 180 degrees
 
 Coordinate.latitude = Number [-90.0, 90.0]
 Coordinate.longitude = Number [-180.0, 180.0]</code></pre>
@@ -2874,22 +2881,22 @@ TypeOptions of the new ArrayOf type, except that if <em>minc</em> is 0
 defaults to a minimum size of 1.</p>
 <p>Example:</p>
 <pre><code>Roster = Record
-   1 org_name     String
-   2 members      Member [0..*]             // Optional and repeated: minOccurs=0, maxOccurs=MAX_DEFAULT</code></pre>
+   1 org_name   String
+   2 members    Member [0..*]   // Optional repeated: minOccurs=0, maxOccurs=MAX_DEFAULT</code></pre>
 <p>Expanding replaces this with:</p>
 <pre><code>Roster = Record
-   1 org_name     String
-   2 members      Roster.members optional   // Optional: minOccurs=0, default maxOccurs (1)
+   1 org_name   String
+   2 members    Roster.members optional // Optional: minOccurs=0, default maxOccurs (1)
 
-Roster.members = ArrayOf(Member){1..*}      // Tool-generated array: minLength=1, no maxLength</code></pre>
+Roster.members = ArrayOf(Member){1..*}  // Tool-generated array: minLength=1, no maxLength</code></pre>
 <p>If a list with no elements should be represented as an empty array
 rather than omitted, its type definition must include an explicit
 ArrayOf type rather than using the field multiplicity shortcut:</p>
 <pre><code>Roster = Record
-   1 org_name     String
-   2 members      Members       // members field is required: default minOccurs (1), maxOccurs (1)
+   1 org_name   String
+   2 members    Members     // members field is required: default minOccurs (1), maxOccurs (1)
 
-Members = ArrayOf(Member)       // Explicitly-defined array: no minLength, no maxLength</code></pre>
+Members = ArrayOf(Member)   // Explicitly-defined array: no minLength, no maxLength</code></pre>
 <h2 id="53-derived-enumerations">5.3 Derived Enumerations</h2>
 <p>An Enumerated type defined with the <em>enum</em> option has fields
 copied from the type referenced in the option rather than being listed
@@ -3541,7 +3548,7 @@ in <a href="#313-package-conformance-requirements">Section
 <li>FMTNAME is the name of a semantic validation function as specified
 in <a href="#425-semantic-validation">Section 4.1.5</a>.</li>
 </ul>
-<pre><code>    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is CoreType or FieldType
+<pre><code>    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]  ; TYPE is CoreType or FieldType
     ID          = &quot;.ID&quot;
     FUNC        = &quot;(&quot; TYPEREF [&quot;,&quot; TYPEREF] &quot;)&quot;         ; if TYPE is MapOf, ArrayOf
                 | &quot;(&quot; FUNCNAME &quot;[&quot; TYPEREF &quot;])&quot;         ; if TYPE is Enumerated

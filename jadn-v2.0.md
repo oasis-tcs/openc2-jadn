@@ -1,7 +1,7 @@
 ![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v3.0.png)
 -------
 
-# Specification for JSON Abstract Data Notation (JADN) Version 2.0
+# JSON Abstract Data Notation (JADN) Version 2.0
 
 ## Committee Specification Draft 01
 ## 19 February 2025
@@ -35,14 +35,15 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JADN metaschema for JADN documents:  \
-https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn  \
-https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl
-* JSON schema for JADN documents:  \
-https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json
-* JADN schema for Examples:  \
-https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn  \
-https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl
+
+* JADN metaschema for JADN documents:
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl
+* JSON schema for JADN documents:
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json
+* JADN schema for Examples:
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
@@ -393,41 +394,41 @@ in [Section 4](#4-jadn-types).
        roots: ["Schema"]
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 
-Schema = Record                                  // Definition of a JADN package
-   1 meta             Metadata optional          // Information about this package
-   2 types            Type unique [1..*]         // Types defined in this package
+Schema = Record                              // Definition of a JADN package
+   1 meta           Metadata optional        // Information about this package
+   2 types          Type unique [1..*]       // Types defined in this package
 
-Metadata = Map                                   // Information about this package
-   1 package          Namespace                  // Unique name/version of this package
-   2 version          String{1..*} optional      // Incrementing version within package
-   3 title            String{1..*} optional      // Title
-   4 description      String{1..*} optional      // Description
-   5 comment          String{1..*} optional      // Comment
-   6 copyright        String{1..*} optional      // Copyright notice
-   7 license          String{1..*} optional      // SPDX licenseId of this package
-   8 namespaces       PrefixNs unique [0..*]     // Referenced packages
-   9 roots            TypeName unique [0..*]     // Roots of the type tree(s) in this package
-  10 config           Config optional            // Configuration variables
-  11 jadn_version     Namespace optional         // JADN Metaschema package
+Metadata = Map                               // Information about this package
+   1 package        Namespace                // Unique name/version of this package
+   2 version        String{1..*} optional    // Incrementing version within package
+   3 title          String{1..*} optional    // Title
+   4 description    String{1..*} optional    // Description
+   5 comment        String{1..*} optional    // Comment
+   6 copyright      String{1..*} optional    // Copyright notice
+   7 license        String{1..*} optional    // SPDX licenseId of this package
+   8 namespaces     PrefixNs unique [0..*]   // Referenced packages
+   9 roots          TypeName unique [0..*]   // Roots of the type tree(s) in this package
+  10 config         Config optional          // Configuration variables
+  11 jadn_version   Namespace optional       // JADN Metaschema package
 
-PrefixNs = Array                                 // Prefix corresponding to a namespace IRI
-   1  NSID                                       // prefix:: Namespace prefix string
-   2  Namespace                                  // namespace:: Namespace IRI
+PrefixNs = Array                             // Prefix corresponding to a namespace IRI
+   1  NSID                                   // prefix:: Namespace prefix string
+   2  Namespace                              // namespace:: Namespace IRI
 
-Config = Map{1..*}                               // Config vars override JADN defaults
-   1 $MaxBinary       Integer{1..*} optional     // Package max octets, default = 255
-   2 $MaxString       Integer{1..*} optional     // Package max characters, default = 255
-   3 $MaxElements     Integer{1..*} optional     // Package max items/properties, default = 255
-   4 $Sys             String{1..1} optional      // System character for TypeName, default = '.'
-   5 $TypeName        String /regex optional     // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName       String /regex optional     // Default = ^[a-z][_A-Za-z0-9]{0,63}$
-   7 $NSID            String /regex optional     // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+Config = Map{1..*}                           // Config vars override JADN defaults
+   1 $MaxBinary     Integer{1..*} optional   // Package max octets, default = 255
+   2 $MaxString     Integer{1..*} optional   // Package max characters, default = 255
+   3 $MaxElements   Integer{1..*} optional   // Package max items/properties, default = 255
+   4 $Sys           String{1..1} optional    // System character for TypeName, default = '.'
+   5 $TypeName      String /regex optional   // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName     String /regex optional   // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID          String /regex optional   // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
-Namespace = String /uri                          // Unique name of a package
-NSID = String{pattern="$NSID"}                   // Namespace prefix matching $NSID
-TypeName = String{pattern="$TypeName"}           // Name of a logical type
-FieldName = String{pattern="$FieldName"}         // Name of a field in a structured type
-TypeRef = String                                 // Reference to a type, matching ($NSID ':')? $TypeName
+Namespace = String /uri                      // Unique name of a package
+NSID = String{pattern="$NSID"}               // Namespace prefix matching $NSID
+TypeName = String{pattern="$TypeName"}       // Name of a logical type
+FieldName = String{pattern="$FieldName"}     // Name of a field in a structured type
+TypeRef = String                             // Reference to a type, matching ($NSID ':')? $TypeName
 ```
 
 ###### Figure 3-1 -- JADN Schema: Metadata
@@ -649,9 +650,9 @@ JSON Format and Example:
 
 IDL Example:
 ```
-Coordinate = Record                              // A GPS coordinate
-   1 latitude         Latitude                   // A Number between -90 and 90 degrees
-   2 longitude        Longitude                  // A Number between -180 and 180 degrees
+Coordinate = Record                      // A GPS coordinate
+   1 latitude       Latitude             // A Number between -90 and 90 degrees
+   2 longitude      Longitude            // A Number between -180 and 180 degrees
 ```
 
 ### 4.1.4 Type and Field Options
@@ -854,9 +855,9 @@ Example: the `id` option indicates that values use FieldId instead of FieldName
 
 ```
 Colors = Enumerated
-   1 red                          // The color of roses
+   1 red                         // The color of roses
    2 green
-   3 blue                         // Violets
+   3 blue                        // Violets
 
 ColorIds = Enumerated#
    1                             // red:: The color of roses
@@ -981,7 +982,7 @@ Organization = Record
 Example composite key:
 ```
 LineItem = Record
-   1 item_id    Key(ItemId)     // Composite unique identifier for a line item within an order
+   1 item_id    Key(ItemId)     // Composite unique identifier for a line item
    2 quantity   Integer         // Other information about the ordered item
 
 ItemId = Array
@@ -1110,7 +1111,7 @@ for the Choice, and is normally an Enumerated type generated from the Choice usi
 
 ```
 Connection = Record
-  1 version      Enumerated(Enum[IP-Addr])      // source and destination versions must agree
+  1 version      Enumerated(Enum[IP-Addr])    // src and dst versions must agree
   2 source       IP-Addr(TagId[version])
   3 destination  IP-Addr(TagId[version])
 
@@ -1126,10 +1127,10 @@ This option is valid only in an `allOf` Choice where one or more fields restrict
 because a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 ```
-UserName = Choice(allOf)                         // A combination of lower, upper and digits, but not all digits.
-   1  String{pattern="^[a-zA-Z0-9]$"}            // a::
-   2  String{4..*} [1..16]                       // b::
-   3  !String{pattern="^[0-9]$"}                 // c::
+UserName = Choice(allOf)               // lower, upper and digits, but not all digits.
+   1  String{pattern="^[a-zA-Z0-9]$"}  // a::
+   2  String{4..*} [1..16]             // b::
+   3  !String{pattern="^[0-9]$"}       // c::
 ```
 
 A tagged union within a structured type may use the `tagId` option to specify a separate field within
@@ -1183,13 +1184,13 @@ of types based on the same primitive type is equivalent to extend or restrict re
 
 Examples:
 ```
-Name1 = Choice(anyOf)                            // Extend equivalent: 2915, a34c, D72F are valid.  g16H is not.
-   1  String{pattern="^[a-z0-9]$"}               // a::
-   2  String{pattern="^[A-Z0-9]$"}               // b::
+Name1 = Choice(anyOf)                // Extend: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern="^[a-z0-9]$"}   // a::
+   2  String{pattern="^[A-Z0-9]$"}   // b::
 
-Name2 = Choice(allOf)                            // Restrict equivalent: 2915 is valid.  a34c, D72F, g16H are not.
-   1  String{pattern="^[a-z0-9]$"}               // a::
-   2  String{pattern="^[A-Z0-9]$"}               // b::
+Name2 = Choice(allOf)                // Restrict: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern="^[a-z0-9]$"}   // a::
+   2  String{pattern="^[A-Z0-9]$"}   // b::
 ```
 
 * **Compound:**
@@ -1200,14 +1201,14 @@ cardinality limits without referencing a parent type.
 
 Examples:
 ```
-Entity = Record abstract                    // Base type, cannot be instantiated
+Entity = Record abstract                // Base type, cannot be instantiated
   1 id      Integer
   2 name    String optional
 
-Person = Record extends(Entity)             // Add email address
+Person = Record extends(Entity)         // Add email address
   3 email   String /email optional
 
-AnonymousPerson = Record restricts(Person) final  // Prohibit "name" field, cannot be subtyped
+AnonymousPerson = Record restricts(Person) final  // Prohibit "name", no subtypes
   2 name    String [0]
 ```
 
@@ -1304,8 +1305,8 @@ of the object identified by the UUID, this specification is not specific to any 
 not constrain prefix content:
 ```
 ObjectId = Array /tag-uuid
-   1  String                                     // prefix:: Type Prefix
-   2  UUID                                       // uuid:: Unique Identifier
+   1  String                           // prefix:: Type Prefix
+   2  UUID                             // uuid:: Unique Identifier
 ```
 When serialized in a text data format the `prefix` and `uuid` fields are separated by two dashes:
 ```
@@ -1334,8 +1335,8 @@ or an integer value in binary serializations.
 
 The decimal scale factor format `/d<n>` can be used with Integer times to specify time resolution:
 ```
-Timestamp = Integer /date-time              // 1727877600 seconds         = 2024-10-02T15:00:00Z
-Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z
+Timestamp = Integer /date-time          // 1727877600 sec:     2024-10-02T15:00:00Z
+Timestamp-ms = Integer /date-time /d3   // 1727877600000 msec: 2024-10-02T15:00:00.000Z
 ```
 
 A String type with a time-related keyword is a logical string equal to its text representation, where
@@ -1483,15 +1484,15 @@ values included in FieldOptions to apply to FieldType.
 
 Example: a structured type with anonymous fields:
 ```
-Coordinate = Record                              // A GPS coordinate
-   1 latitude         Number [-90.0, 90.0]       // A Number between -90 and 90 degrees
-   2 longitude        Number [-180.0, 180.0]     // A Number between -180 and 180 degrees
+Coordinate = Record                        // A GPS coordinate
+   1 latitude     Number [-90.0, 90.0]     // A Number between -90 and 90 degrees
+   2 longitude    Number [-180.0, 180.0]   // A Number between -180 and 180 degrees
 ```
 Expanded type with references to generated types:
 ```
-Coordinate = Record                              // A GPS coordinate
-   1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
-   2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
+Coordinate = Record                        // A GPS coordinate
+   1 latitude     Coordinate.latitude      // A Number between -90 and 90 degrees
+   2 longitude    Coordinate.longitude     // A Number between -180 and 180 degrees
 
 Coordinate.latitude = Number [-90.0, 90.0]
 Coordinate.longitude = Number [-180.0, 180.0]
@@ -1509,26 +1510,26 @@ size of 1.
 Example:
 
     Roster = Record
-       1 org_name     String
-       2 members      Member [0..*]             // Optional and repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
+       1 org_name   String
+       2 members    Member [0..*]   // Optional repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
 
 Expanding replaces this with:
 
     Roster = Record
-       1 org_name     String
-       2 members      Roster.members optional   // Optional: minOccurs=0, default maxOccurs (1)
+       1 org_name   String
+       2 members    Roster.members optional // Optional: minOccurs=0, default maxOccurs (1)
 
-    Roster.members = ArrayOf(Member){1..*}      // Tool-generated array: minLength=1, no maxLength
+    Roster.members = ArrayOf(Member){1..*}  // Tool-generated array: minLength=1, no maxLength
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
 field multiplicity shortcut:
 
     Roster = Record
-       1 org_name     String
-       2 members      Members       // members field is required: default minOccurs (1), maxOccurs (1)
+       1 org_name   String
+       2 members    Members     // members field is required: default minOccurs (1), maxOccurs (1)
 
-    Members = ArrayOf(Member)       // Explicitly-defined array: no minLength, no maxLength
+    Members = ArrayOf(Member)   // Explicitly-defined array: no minLength, no maxLength
 
 ## 5.3 Derived Enumerations
 
@@ -1827,7 +1828,7 @@ if applicable to TYPE as specified in [Section 4.2](#42-core-types).
 * TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.3](#313-package-conformance-requirements).
 * FMTNAME is the name of a semantic validation function as specified in [Section 4.1.5](#425-semantic-validation).
 ```
-    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is CoreType or FieldType
+    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]  ; TYPE is CoreType or FieldType
     ID          = ".ID"
     FUNC        = "(" TYPEREF ["," TYPEREF] ")"         ; if TYPE is MapOf, ArrayOf
                 | "(" FUNCNAME "[" TYPEREF "])"         ; if TYPE is Enumerated
