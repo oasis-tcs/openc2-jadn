@@ -235,7 +235,6 @@
   <style>  /* Wrap css in <style>...< /style> for pandoc --include-in-header */
 
   /* dl 2025-02-25 - "2025-template" Adjusted to match proposed OASIS work product template */
-
   /* dl 2025-02-25: specify 10pt font in black; retain sans-serif font family (template permits either) */
   body {
       margin-left: 3pc;
@@ -263,11 +262,11 @@
   subtitle{font-size: 11pt; font-weight: bold; color: #0b5394;}
   h1 {font-size: 16pt; font-weight: bold; margin-top:0; margin-bottom: 6pt; color: #0b5394;}
   h2 {font-size: 14pt; font-weight: bold; margin-top:14pt; margin-bottom: 6pt; color: #0b5394;}
-  h3 {font-size: 13pt; font-weight: normal; margin-top:10pt; margin-bottom: 4pt;color: #0b5394;}
+  h3 {font-size: 13pt; font-weight: bold; margin-top:10pt; margin-bottom: 4pt;color: #0b5394;}
   h4 {font-size: 12pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
   h5 {font-size: 11pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
-  /* style for h6, for use as Reference tag */
-  h6 {font-size: 10pt; font-weight: normal; margin-top: 6pt; margin-bottom: 4pt; color: #000000;}
+  /* style for h6, for use as Reference tag, override pandoc italic */
+  h6 {font-size: 10pt; font-weight: normal; margin-top: 6pt; margin-bottom: 0; color: #000000; font-style: normal;}
 
   /* style for gray "OASIS Committee Note" text */
   h1gray {font-size: 18pt; font-weight: bold; color: #717171;}
@@ -313,7 +312,7 @@
 
   /* style for code blocks */
   code,kbd,pre,samp{
-      font-family: CourierNew, monospace;
+      font-family: LiberationMono, CourierNew, monospace;
       font-size: 0.9em;
       white-space: pre-wrap;
       background-color: #e8e8e8;
@@ -1196,8 +1195,8 @@ format. As shown in <a href="#figure-4-1----jadn-core-datatypes">Figure
 and String.</p>
 <p>Type options specify value restrictions such as size, range, and
 regular expression patterns. Semantic validation keywords (formats)
-listed in <a href="#424-semantic-validation-keywords">Section 4.2.4</a>
-also define value restrictions on primitive types.</p>
+listed in <a href="#425-semantic-validation">Section 4.2.5</a> also
+define value restrictions on primitive types.</p>
 <p>Primitive TypeOptions are listed in Table 4-1:</p>
 <table>
 <thead>
@@ -1924,9 +1923,6 @@ referenced structured type.</p>
 union, a structure that defines a set of tag:type pairs. Values include
 a tag specifying a single FieldType from the set, and an instance is a
 value that matches the FieldType specified by the tag.</p>
-<p>Within a Choice type <em>minOccurs</em> values of 0 and 1 are
-equivalent because all fields are inherently optional and exactly one
-(specified by the tag) must be present.</p>
 <h4 id="4233-choice-untagged">4.2.3.3 Choice (Untagged)</h4>
 <p>The Choice type containing a <em>combine</em> TypeOption is an
 untagged union, a structure that defines a set of types used
@@ -2025,12 +2021,6 @@ complexity.</p>
    1  String{pattern=&quot;^[a-zA-Z0-9]$&quot;}  // a::
    2  String{4..*} [1..16]             // b::
    3  !String{pattern=&quot;^[0-9]$&quot;}       // c::</code></pre>
-<p>A tagged union within a structured type may use the
-<code>tagId</code> option to specify a separate field within that type
-to be used as its tag. The value of the designated field must be a valid
-field identifier for the Choice, and is normally an Enumerated type
-generated from the Choice using the <a
-href="#53-derived-enumerations">Derived Enumeration</a> shortcut.</p>
 <h4 id="4235-union-type-conformance-requirements">4.2.3.5 Union Type
 Conformance Requirements</h4>
 <ul>
@@ -2704,23 +2694,26 @@ timestamp.</p>
 <tr>
 <td>date-time</td>
 <td>String</td>
-<td>String literal <a href="#rfc3339">RFC 3339</a> Section 5.6
-"date-time"</td>
+<td>String literal <a href="#rfc9557">RFC 9557</a> Section 4.1
+"date-time-ext"</td>
 </tr>
 <tr>
 <td>date</td>
 <td>String</td>
-<td>String literal RFC 3339 Section 5.6 "full-date"</td>
+<td>String literal <a href="#rfc3339">RFC 3339</a> Section 5.6
+"full-date"</td>
 </tr>
 <tr>
 <td>time</td>
 <td>String</td>
-<td>String literal RFC 3339 Section 5.6 "full-time"</td>
+<td>String literal <a href="#rfc3339">RFC 3339</a> Section 5.6
+"full-time"</td>
 </tr>
 <tr>
 <td>duration</td>
 <td>String</td>
-<td>String literal RFC 3339 Appendix A "duration"</td>
+<td>String literal <a href="#rfc3339">RFC 3339</a> Appendix A
+"duration"</td>
 </tr>
 <tr>
 <td>email</td>
@@ -2872,13 +2865,13 @@ Coordinate.longitude = Number [-180.0, 180.0]</code></pre>
 <h2 id="52-field-multiplicity">5.2 Field Multiplicity</h2>
 <p>Fields may be defined to have multiple values of the same type.
 Expanding converts each field that can have more than one value to a
-separate ArrayOf type. The minimum and maximum cardinality
-(<em>minc</em> and <em>maxc</em>) FieldOptions (<a
-href="#422-field-options">Section 4.2.2</a>) are moved from FieldOptions
-to the minimum and maximum size (<em>minv</em> and <em>maxv</em>)
-TypeOptions of the new ArrayOf type, except that if <em>minc</em> is 0
-(field is optional), it remains in FieldOptions and the new ArrayOf type
-defaults to a minimum size of 1.</p>
+separate ArrayOf type. The multiplicity (<em>minOccurs</em> and
+<em>maxOccurs</em>) FieldOptions (<a href="#4222-multiplicity">Section
+4.2.2.2</a>) are moved from FieldOptions to the minimum and maximum
+length (<em>minLength</em> and <em>maxLength</em>) TypeOptions (<a
+href="#423-union-types">Section 4.2.3</a>)) of the new ArrayOf type,
+except that if <em>minOccurs</em> is 0 (field is optional), it remains
+in FieldOptions and the new ArrayOf type has a minimum length of 1.</p>
 <p>Example:</p>
 <pre><code>Roster = Record
    1 org_name   String
@@ -2903,8 +2896,8 @@ copied from the type referenced in the option rather than being listed
 individually in the definition. Expanding removes <em>enum</em> from
 Type Options and adds fields containing FieldID, FieldName, and
 FieldDescription from each field of the referenced type.</p>
-<p>In JADN-IDL (<a href="#51-jadn-idl-format">Section 5.1</a>) the
-<em>enum</em> option is represented as a function string:
+<p>In JADN-IDL (<a href="#71-information-definition-language">Section
+7.1</a>) the <em>enum</em> option is represented as a function string:
 "Enum(&lt;referenced-type&gt;)". Within ArrayOf and MapOf types, the
 <em>ktype</em> and <em>vtype</em> options may contain an enum option. As
 an example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN
@@ -2979,11 +2972,11 @@ BomList = Enumerated(Pointer[BOM])</code></pre>
 <h1 id="6-serialization-and-data-formats">6 Serialization and Data
 Formats</h1>
 <p>Applications may use any internal information representation that
-exhibits the characteristics defined in <a
-href="#table-3-1-jadn-core-types">Table 3-1</a>. Serialization rules
-define how to represent instances of each type using a specific format.
-Several serialization formats are defined in this section. In order to
-be usable with JADN, serialization formats defined elsewhere must:</p>
+exhibits the characteristics defined in <a href="#4-jadn-types">Section
+4</a>. Serialization rules define how to represent instances of each
+type using a specific format. Several serialization formats are defined
+in this section. In order to be usable with JADN, serialization formats
+defined elsewhere must:</p>
 <ul>
 <li>Specify an unambiguous serialized representation for each JADN
 type</li>
@@ -3517,25 +3510,25 @@ affecting the JADN standard.</p>
 <p>The JADN-IDL definition formats are:</p>
 <p>Primitive types:</p>
 <pre><code>    TypeName = TYPESTRING                     // TypeDescription</code></pre>
-<p>Enumerated type:</p>
+<p>Enumerated type without the <code>id</code> option:</p>
 <pre><code>    TypeName = TYPESTRING                     // TypeDescription
         ItemID ItemValue                      // ItemDescription
         ...</code></pre>
-<p>Compound types without the <em>id</em> option:</p>
+<p>Compound types without the <code>id</code> option:</p>
 <pre><code>    TypeName = TYPESTRING                     // TypeDescription
-        FieldID FieldName[/] FIELDSTRING      // FieldDescription
+        FieldID FieldName FIELDSTRING         // FieldDescription
         ...</code></pre>
-<p>Compound types with the <em>id</em> option treat the item/field name
-as an informative label (see <a href="#3211-field-identifiers">Section
-3.2.1.1</a>) and display it in the description followed by a label
-terminator ("::"):</p>
-<pre><code>    /* Enumerated.ID */
+<p>Structured types with the <code>id</code> <a
+href="#table-4-2-typeoptions-specific-to-compound-types">TypeOption</a>
+treat the item/field name as an informative label and display it in the
+description followed by a label terminator ("::"):</p>
+<pre><code>    /* Enumerated# */
     TypeName = TYPESTRING                     // TypeDescription
         ItemID                                // ItemValue:: ItemDescription
     
-    /* Choice.ID, Map.ID */
+    /* Choice#, Map# */
     TypeName = TYPESTRING                     // TypeDescription
-        FieldID FIELDSTRING                   // FieldName[/]:: FieldDescription
+        FieldID FIELDSTRING                   // FieldName:: FieldDescription
         ...</code></pre>
 <p><strong>Type Options:</strong></p>
 <p>TYPESTRING is the value of CoreType or FieldType, followed by string
@@ -3683,8 +3676,8 @@ digraph G {
 <h6 id="figure-7-2-graphviz-source-for-university-conceptual-erd">Figure
 7-2: GraphViz Source for University Conceptual ERD</h6>
 <p>Figure 7-3 is an example instance of the University type serialized
-in <a href="#41-verbose-json-serialization">verbose</a> and <a
-href="#42-compact-json-serialization">compact</a> JSON data formats:</p>
+in <a href="#61-verbose-json-serialization">verbose</a> and <a
+href="#62-compact-json-serialization">compact</a> JSON data formats:</p>
 <div class="sourceCode" id="cb45"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Faber College&quot;</span><span class="fu">,</span></span>
@@ -3815,74 +3808,91 @@ href="https://datatracker.ietf.org/doc/html/rfc3987">https://datatracker.ietf.or
 Validation"</em>, Internet-Draft, 16 June 2022, <a
 href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01">https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01</a>.</p>
 <h6 id="rfc791">[RFC791]</h6>
-<p>Postel, J., "Internet Protocol", RFC 791, September 1981, <a
+<p>Postel, J., <em>"Internet Protocol"</em>, RFC 791, September 1981, <a
 href="https://www.rfc-editor.org/rfc/rfc791">https://www.rfc-editor.org/rfc/rfc791</a>.</p>
 <h6 id="rfc2119">[RFC2119]</h6>
-<p>Bradner, S., "Key words for use in RFCs to Indicate Requirement
-Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, <a
+<p>Bradner, S., <em>"Key words for use in RFCs to Indicate Requirement
+Levels"</em>, BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, <a
 href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>.</p>
 <h6 id="rfc2673">[RFC2673]</h6>
 <p>Crawford, M., <em>"Binary Labels in the Domain Name System"</em>, RFC
 2673, August 1999, <a
 href="https://www.rfc-editor.org/rfc/rfc2673">https://www.rfc-editor.org/rfc/rfc2673</a>.</p>
+<h6 id="rfc3339">[RFC3339]</h6>
+<p>Klyne, G., Newman, C., <em>"Date and Time on the Internet:
+Timestamps"</em>, RFC 3339, July 2002, <a
+href="https://www.rfc-editor.org/rfc/rfc3339.html">https://www.rfc-editor.org/rfc/rfc3339.html</a></p>
+<h6 id="rfc3986">[RFC3986]</h6>
+<p>Berners-Lee, T., Fielding, R., Masinter, L., <em>"Uniform Resource
+Identifier (URI): Generic Syntax:</em>, RFC 3986, <a
+href="https://www.rfc-editor.org/rfc/rfc3986.html">https://www.rfc-editor.org/rfc/rfc3986.html</a>.</p>
 <h6 id="rfc4291">[RFC4291]</h6>
-<p>Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC
-4291, February 2006, <a
+<p>Hinden, R., Deering, S., <em>"IP Version 6 Addressing
+Architecture"</em>, RFC 4291, February 2006, <a
 href="https://www.rfc-editor.org/rfc/rfc4291">https://www.rfc-editor.org/rfc/rfc4291</a>.</p>
 <h6 id="rfc4632">[RFC4632]</h6>
-<p>Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The
-Internet Address Assignment and Aggregation Plan", RFC 4632, August
+<p>Fuller, V., Li, T., <em>"Classless Inter-domain Routing (CIDR): The
+Internet Address Assignment and Aggregation Plan"</em>, RFC 4632, August
 2006, <a
 href="https://www.rfc-editor.org/rfc/html/rfc4632">https://www.rfc-editor.org/rfc/html/rfc4632</a>.</p>
 <h6 id="rfc4648">[RFC4648]</h6>
-<p>Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC
-4648, October 2006, <a
+<p>Josefsson, S., <em>"The Base16, Base32, and Base64 Data
+Encodings"</em>, RFC 4648, October 2006, <a
 href="https://www.rfc-editor.org/rfc/rfc4648">https://www.rfc-editor.org/rfc/rfc4648</a>.</p>
 <h6 id="rfc5234">[RFC5234]</h6>
 <p>Crocker, D., Overell, P., <em>"Augmented BNF for Syntax
 Specifications: ABNF"</em>, RFC 5234, January 2008, <a
 href="https://www.rfc-editor.org/rfc/rfc5234">https://www.rfc-editor.org/rfc/rfc5234</a>.</p>
+<h6 id="rfc6570">[RFC6570]</h6>
+<p>Gregorio, J., Fielding, R., Hadley, M., Nottingham, M., Orchard, D.,
+<em>"URI Template"</em>, RFC 6570, March 2012, <a
+href="https://www.rfc-editor.org/rfc/rfc6570.html">https://www.rfc-editor.org/rfc/rfc6570.html</a>.</p>
 <h6 id="rfc6901">[RFC6901]</h6>
-<p>Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation
-(JSON) Pointer", RFC 6901, April 2013, <a
+<p>Bryan, P., Zyp, K., Nottingham, M., <em>"JavaScript Object Notation
+(JSON) Pointer"</em>, RFC 6901, April 2013, <a
 href="https://www.rfc-editor.org/rfc/rfc6901">https://www.rfc-editor.org/rfc/rfc6901</a>.</p>
 <h6 id="rfc8949">[RFC8949]</h6>
 <p>Bormann, C., Hoffman, P., <em>"Concise Binary Object Representation
 (CBOR)"</em>, RFC 8949, October 2013, <a
 href="https://www.rfc-editor.org/rfc/rfc8949">https://www.rfc-editor.org/rfc/rfc8949</a>.</p>
 <h6 id="rfc7405">[RFC7405]</h6>
-<p>Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405,
-December 2014, <a
+<p>Kyzivat, P., <em>"Case-Sensitive String Support in ABNF"</em>, RFC
+7405, December 2014, <a
 href="https://www.rfc-editor.org/rfc/rfc7405">https://www.rfc-editor.org/rfc/rfc7405</a>.</p>
 <h6 id="rfc8174">[RFC8174]</h6>
-<p>Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key
-Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, <a
+<p>Leiba, B., <em>"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key
+Words"</em>, BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, <a
 href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>.</p>
 <h6 id="rfc8200">[RFC8200]</h6>
-<p>Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6)
-Specification", RFC 8200, July 2017, <a
+<p>Deering, S., Hinden, R., <em>"Internet Protocol, Version 6 (IPv6)
+Specification"</em>, RFC 8200, July 2017, <a
 href="https://www.rfc-editor.org/rfc/rfc8200">https://www.rfc-editor.org/rfc/rfc8200</a>.</p>
 <h6 id="rfc8259">[RFC8259]</h6>
-<p>Bray, T., "The JavaScript Object Notation (JSON) Data Interchange
-Format", STD 90, IETF RFC 8259, December 2017, <a
+<p>Bray, T., <em>"The JavaScript Object Notation (JSON) Data Interchange
+Format"</em>, STD 90, IETF RFC 8259, December 2017, <a
 href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a>.</p>
+<h6 id="rfc9557">[RFC9557]</h6>
+<p>Sharma, U., Bormann, C., <em>"Date and Time on the Internet:
+Timestamps with Additional Information"</em>, IETF RFC 9557, April 2024,
+<a
+href="https://www.rfc-editor.org/rfc/rfc9557">https://www.rfc-editor.org/rfc/rfc9557</a>.</p>
 <h6 id="rfc9562">[RFC9562]</h6>
-<p>Davis, K., Peabody, B., Leach P., "Universally Unique IDentifiers
-(UUIDs)", IETF RFC 9562, May 2024, <a
+<p>Davis, K., Peabody, B., Leach P., <em>"Universally Unique IDentifiers
+(UUIDs)"</em>, IETF RFC 9562, May 2024, <a
 href="https://www.rfc-editor.org/rfc/rfc9562">https://www.rfc-editor.org/rfc/rfc9562</a>.</p>
 <h6 id="posix-time">[POSIX Time]</h6>
-<p>IEEE and The Open Group, "POSIX.1-2024 - standard operating system
-and environment: time()", "<a
+<p>IEEE and The Open Group, <em>"POSIX.1-2024 - standard operating
+system and environment: time()"</em>, "<a
 href="https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html">https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html</a>"</p>
 <h6 id="xml-namespaces">[XML Namespaces]</h6>
 <p>W3C, <em>"Namespaces in XML 1.0"</em>, December 2009, <a
 href="https://www.w3.org/TR/xml-names/">https://www.w3.org/TR/xml-names/</a></p>
 <h6 id="xsd">[XSD]</h6>
-<p>W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5
-April 2012, <a
+<p>W3C, <em>"XML Schema Definition Language (XSD) 1.1 Part 1:
+Structures"</em>, 5 April 2012, <a
 href="https://www.w3.org/TR/xmlschema11-1">https://www.w3.org/TR/xmlschema11-1</a>.<br />
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5
-April 2012, <a
+W3C, <em>"XML Schema Definition Language (XSD) 1.1 Part 2:
+Datatypes"</em>, 5 April 2012, <a
 href="https://www.w3.org/TR/xmlschema11-2">https://www.w3.org/TR/xmlschema11-2</a>.</p>
 <h2 id="a2-informative-references">A.2 Informative References</h2>
 <h6 id="avro">[AVRO]</h6>
@@ -3904,7 +3914,7 @@ href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf
 href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">https://en.wikipedia.org/wiki/Don%27t_repeat_yourself</a>.</p>
 <h6 id="enum">[ENUM]</h6>
 <p><em>"Enumerated Type"</em>, <a
-href="https://en.wikipedia.org/wiki/Enumerated_type">https://en.wikipedia.org/wiki/Enumerated_type</a></p>
+href="https://en.wikipedia.org/wiki/Enumerated_type">https://en.wikipedia.org/wiki/Enumerated_type</a>.</p>
 <h6 id="fdt">[FDT]</h6>
 <p>König, H., <em>"Protocol Engineering, Chapter 8"</em>, <a
 href="https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8">https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8</a>.</p>
@@ -3917,7 +3927,7 @@ href="https://www.fixtrading.org/standards/">https://www.fixtrading.org/standard
 href="https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf">https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf</a>.</p>
 <h6 id="graphviz">[GRAPHVIZ]</h6>
 <p><em>"Graph Visualization Software"</em>, <a
-href="https://graphviz.gitlab.io/">https://graphviz.gitlab.io/</a></p>
+href="https://graphviz.gitlab.io/">https://graphviz.gitlab.io/</a>.</p>
 <h6 id="information-modeling">[INFORMATION MODELING]</h6>
 <p>Lee, Y. Tina, <em>"Information Modeling: From Design to
 Implementation"</em>, IEEE Transactions on Robotics and Automation,
@@ -3925,11 +3935,11 @@ Implementation"</em>, IEEE Transactions on Robotics and Automation,
 href="https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265">https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265</a>.</p>
 <h6 id="jadn-cn">[JADN-CN]</h6>
 <p>OASIS, <em>"Information Modeling with JADN"</em>, <a
-href="https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md">https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md</a></p>
+href="https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md">https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md</a>.</p>
 <h6 id="order">[ORDER]</h6>
 <p>LaFontaine, Robin, <em>"Element order is always important in XML,
 except when it isn't"</em>, Balisage: The Markup Conference, 2021, <a
-href="https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html">https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html</a></p>
+href="https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html">https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html</a>.</p>
 <h6 id="proto">[PROTO]</h6>
 <p>Google Developers, <em>"Protocol Buffers"</em>, <a
 href="https://developers.google.com/protocol-buffers/">https://developers.google.com/protocol-buffers/</a>.</p>
@@ -3944,13 +3954,22 @@ href="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng">http
 Information Models and Data Models"</em>, RFC 3444, January 2003, <a
 href="https://www.rfc-editor.org/rfc/rfc3444">https://www.rfc-editor.org/rfc/rfc3444</a>.</p>
 <h6 id="rfc3552">[RFC3552]</h6>
-<p>Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on
-Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July
-2003, <a
+<p>Rescorla, E. and B. Korver, <em>"Guidelines for Writing RFC Text on
+Security Considerations"</em>, BCP 72, RFC 3552, DOI 10.17487/RFC3552,
+July 2003, <a
 href="https://www.rfc-editor.org/rfc/rfc3552">https://www.rfc-editor.org/rfc/rfc3552</a>.</p>
+<h6 id="rfc5321">[RFC5321]</h6>
+<p>Klensin, J., <em>"Simple Mail Transfer Protocol"</em>, RFC 5321,
+October 2008, <a
+href="https://www.rfc-editor.org/rfc/rfc5321.html">https://www.rfc-editor.org/rfc/rfc5321.html</a>.</p>
+<h6 id="rfc6531">[RFC6531]</h6>
+<p>Yao, J., Mao, W., <em>"SMTP Extension for Internationalized
+Email"</em>, RFC 6531, February 2012, <a
+href="https://www.rfc-editor.org/rfc/rfc6531.html">https://www.rfc-editor.org/rfc/rfc6531.html</a>.</p>
 <h6 id="rfc7303">[RFC7303]</h6>
-<p>Hansen, T., Melnikov, A., "Additional Media Type Structured Syntax
-Suffixes", RFC 7303, January 2013</p>
+<p>Hansen, T., Melnikov, A., <em>"Additional Media Type Structured
+Syntax Suffixes"</em>, RFC 7303, January 2013, <a
+href="https://www.rfc-editor.org/rfc/rfc7303">https://www.rfc-editor.org/rfc/rfc7303</a>.</p>
 <h6 id="rfc7493">[RFC7493]</h6>
 <p>Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, <a
 href="https://www.rfc-editor.org/rfc/rfc7493">https://www.rfc-editor.org/rfc/rfc7493</a>.</p>
@@ -3968,9 +3987,9 @@ href="https://www.rfc-editor.org/rfc/rfc8477">https://www.rfc-editor.org/rfc/rfc
 Language"</em>, RFC 8610, June 2019, <a
 href="https://www.rfc-editor.org/rfc/rfc8610.html">https://www.rfc-editor.org/rfc/rfc8610.html</a>.</p>
 <h6 id="stix">[STIX]</h6>
-<p>Bret Jordan, Rich Piazza, Trey Darley, "Structured Threat Information
-Expression (STIX) Version 2.1", OASIS Cyber Threat Intelligence (CTI)
-TC, 10 June 2021, <a
+<p>Bret Jordan, Rich Piazza, Trey Darley, <em>"Structured Threat
+Information Expression (STIX) Version 2.1"</em>, OASIS Cyber Threat
+Intelligence (CTI) TC, 10 June 2021, <a
 href="https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html">https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html</a>.</p>
 <h6 id="thrift">[THRIFT]</h6>
 <p>Apache Software Foundation, <em>"Writing a .thrift file"</em>, <a
@@ -4126,14 +4145,11 @@ effect.</li>
 <h3 id="changes-from-v10-csd-01-to-v10">Changes from v1.0 CSD 01 to
 v1.0</h3>
 <ul>
-<li>Added serialization style description to <a
-href="#22-information-modeling">Section 2.2</a>.</li>
-<li>Removed the Null core type from <a
-href="#table-3-1-jadn-core-types">Table 3.1</a>.</li>
-<li>Added default values for type definition elements to <a
-href="#311-requirements">Section 3.1.1</a></li>
+<li>Added serialization style description.</li>
+<li>Removed the Null core type.</li>
+<li>Added default values for type definition elements.</li>
 <li>Raised the default maximum length for type and field names from 32
-to 64 characters (<a href="#312-name-formats">Section 3.1.2</a>).</li>
+to 64 characters.</li>
 </ul>
 <hr />
 <h1 id="appendix-e-notices">Appendix E. Notices</h1>

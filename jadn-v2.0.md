@@ -1050,9 +1050,6 @@ The Choice type without a *combine* TypeOption is a tagged union, a structure th
 Values include a tag specifying a single FieldType from the set, and an instance is a value that matches the
 FieldType specified by the tag.
 
-Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are inherently optional
-and exactly one (specified by the tag) must be present.
-
 #### 4.2.3.3 Choice (Untagged)
 
 The Choice type containing a *combine* TypeOption is an untagged union, a structure that defines a set of types
@@ -1132,11 +1129,6 @@ UserName = Choice(allOf)               // lower, upper and digits, but not all d
    2  String{4..*} [1..16]             // b::
    3  !String{pattern="^[0-9]$"}       // c::
 ```
-
-A tagged union within a structured type may use the `tagId` option to specify a separate field within
-that type to be used as its tag. The value of the designated field must be a valid field identifier
-for the Choice, and is normally an Enumerated type generated from the Choice using the
-[Derived Enumeration](#53-derived-enumerations) shortcut.
 
 #### 4.2.3.5 Union Type Conformance Requirements
 
