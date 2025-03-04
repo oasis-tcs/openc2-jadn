@@ -8,4 +8,9 @@ pandoc -f gfm-tex_math_dollars-tex_math_gfm -t html --include-in-header markdown
 ```
 pandoc -f html -t docx --reference-doc=oasis-reference.docx --metadata title="JADN Version 2.0" -o jadn-v2.0.docx jadn-v2.0.html
 ```
+
+* *Alternate: Upload HTML to Google Drive, Open With Google Docs, Download as Word `jadn-v2.0-gdocs.docx`*
+
 3. Print PDF from Word doc
+
+* *Alternate: Print HTML from browser as PDF `jadn-v2.0-chrome.pdf`.  Custom margins 0 left/right, custom 90% scale.*
