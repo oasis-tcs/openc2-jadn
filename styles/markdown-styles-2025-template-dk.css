@@ -20,17 +20,18 @@ html {
 /* styles for section headings - levels 1-5 (maybe include heading1, etc. later) */
 
 /* dl 2025-02-25: adjusted header formatting, may not need h1big */
-h1,h2,h3,h4,h5,h1big,h1gray,title,subtitle {
+h1,h2,h3,h4,h5,h1gray,h1title,subtitle {
     font-family: LiberationSans, Arial, Helvetica, sans-serif;
     line-height: 1.15;
+    color:#0b5394;
 }
-title{font-size: 14pt; font-weight: bold; color: #0b5394}
-subtitle{font-size: 11pt; font-weight: bold; color: #0b5394;}
-h1 {font-size: 16pt; font-weight: bold; margin-top:0; margin-bottom: 6pt; color: #0b5394;}
-h2 {font-size: 14pt; font-weight: bold; margin-top:14pt; margin-bottom: 6pt; color: #0b5394;}
-h3 {font-size: 13pt; font-weight: bold; margin-top:10pt; margin-bottom: 4pt;color: #0b5394;}
-h4 {font-size: 12pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
-h5 {font-size: 11pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
+h1title{font-size: 14pt; font-weight: bold; margin-top: 0; margin-bottom: 6pt;}
+subtitle{font-size: 11pt; font-weight: bold; margin-top: 0; margin-bottom: 0;}
+h1 {font-size: 16pt; font-weight: bold; margin-top:16pt; margin-bottom: 6pt;}
+h2 {font-size: 14pt; font-weight: bold; margin-top:14pt; margin-bottom: 6pt;}
+h3 {font-size: 13pt; font-weight: bold; margin-top:10pt; margin-bottom: 4pt;}
+h4 {font-size: 12pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;}
+h5 {font-size: 11pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;}
 /* style for h6, for use as Reference tag, override pandoc italic */
 h6 {font-size: 10pt; font-weight: normal; margin-top: 6pt; margin-bottom: 0; color: #000000; font-style: normal;}
 
