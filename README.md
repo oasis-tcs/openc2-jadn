@@ -36,7 +36,7 @@ than typical open source software project repositories:
   this branch is essentially empty
 * The **Working** branch is where all work-in-progress content is
   captured, and is the place to go for the [current working
-  version](https://github.com/oasis-tcs/openc2-jadn/blob/working/jadn-v1.0-wd02.md)
+  version](https://github.com/oasis-tcs/openc2-jadn/blob/working/jadn-v2.0.md)
   of this work product
 
 More information about the TC's repository organizing conventions
@@ -87,7 +87,7 @@ created and the associated CSDs mature.
 
 ###  :envelope_with_arrow: Contact :envelope_with_arrow:
 <div>
-<p>Please send questions or comments about <a href="https://www.oasis-open.org/resources/tcadmin/github-repositories-for-oasis-tc-members-chartered-work">OASIS TC GitHub repositories</a> to the <a href="mailto:tc-admin@oasis-open.org">OASIS TC Administrator</a>.  For questions about content in this repository, please contact the TC Chair or Co-Chairs as listed on the the <tc short name> TC's <a href="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2">home page</a>.</p>
+<p>Please send questions or comments about <a href="https://www.oasis-open.org/resources/tcadmin/github-repositories-for-oasis-tc-members-chartered-work">OASIS TC GitHub repositories</a> to the <a href="mailto:tc-admin@oasis-open.org">OASIS TC Administrator</a>.  For questions about content in this repository, please contact the TC Chair or Co-Chairs as listed on the OpenC2 TC's <a href="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2">home page</a>.</p>
 </div>
 
 

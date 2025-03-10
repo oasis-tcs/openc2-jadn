@@ -1,0 +1,4225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>jadn-v2.0</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>  /* Wrap css in <style>...< /style> for pandoc --include-in-header */
+
+  /* dl 2025-02-25 - "2025-template" Adjusted to match proposed OASIS work product template */
+  /* dl 2025-02-25: specify 10pt font in black; retain sans-serif font family (template permits either) */
+  body {
+      margin-left: 3pc;
+      margin-right: 3pc;
+      margin-bottom: 10pt;
+      font-family: LiberationSans, Arial, Helvetica, sans-serif;
+      font-size: 10pt;
+      line-height: 1.15;
+      color: #000000;
+      max-width: 48em;    /* Override pandoc 36em */
+  }
+
+  html {
+      overflow-x: auto;
+  }
+
+  /* styles for section headings - levels 1-5 (maybe include heading1, etc. later) */
+
+  /* dl 2025-02-25: adjusted header formatting, may not need h1big */
+  h1,h2,h3,h4,h5,h1big,h1gray,title,subtitle {
+      font-family: LiberationSans, Arial, Helvetica, sans-serif;
+      line-height: 1.15;
+  }
+  title{font-size: 14pt; font-weight: bold; color: #0b5394}
+  subtitle{font-size: 11pt; font-weight: bold; color: #0b5394;}
+  h1 {font-size: 16pt; font-weight: bold; margin-top:0; margin-bottom: 6pt; color: #0b5394;}
+  h2 {font-size: 14pt; font-weight: bold; margin-top:14pt; margin-bottom: 6pt; color: #0b5394;}
+  h3 {font-size: 13pt; font-weight: bold; margin-top:10pt; margin-bottom: 4pt;color: #0b5394;}
+  h4 {font-size: 12pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
+  h5 {font-size: 11pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
+  /* style for h6, for use as Reference tag, override pandoc italic */
+  h6 {font-size: 10pt; font-weight: normal; margin-top: 6pt; margin-bottom: 0; color: #000000; font-style: normal;}
+
+  /* style for gray "OASIS Committee Note" text */
+  h1gray {font-size: 18pt; font-weight: bold; color: #717171;}
+
+  /* style for hr to insert a page break before each ruled line (generated in markdown by 3 or more hyphens alone on a line) */
+  hr {
+      page-break-before: always;
+  }
+
+  /* dl 2025-02-25 - set table font size to 10pt */
+  table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      width: 100%;
+      display: table;
+      font-size: 10pt;
+      margin-top: 6pt;
+  }
+  table, th, td {
+      border: 1pt solid black;
+      padding: 6pt 6pt;
+      text-align: left;
+      vertical-align: top;
+  }
+  th {
+      color: #ffffff;
+      background-color: #0b5394;
+  }
+  /* "table-striped" tag is not generated by pandoc - add manually in HTML if wanted */
+  .table-striped tbody tr:nth-child(even) {
+      background-color: #d6f3ff;
+  }
+
+  /* Override pandoc-generated transparent background */
+  .sourceCode {
+      background-color: #e8e8e8;
+  }
+
+  /* apply to <pre><code> blocks but not inline <code> words */
+  pre {
+      padding: 1em;
+  }
+
+  /* style for code blocks */
+  code,kbd,pre,samp{
+      font-family: LiberationMono, CourierNew, monospace;
+      font-size: 0.9em;
+      white-space: pre-wrap;
+      background-color: #e8e8e8;
+  }
+
+  /* offset block quote */
+  blockquote {
+      border-left: 5px solid #ccc;
+      padding-left: 10px;
+  }
+  </style>
+</head>
+<body>
+<h2 id="oasis-logo"><img
+src="http://docs.oasis-open.org/templates/OASISLogo-v3.0.png"
+alt="OASIS Logo" /></h2>
+<h1 id="json-abstract-data-notation-jadn-version-20">JSON Abstract Data
+Notation (JADN) Version 2.0</h1>
+<h2 id="committee-specification-draft-01">Committee Specification Draft
+01</h2>
+<h2 id="19-february-2025">19 February 2025</h2>
+<p> </p>
+<h4 id="this-version">This version:</h4>
+<p><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.md">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.md</a>
+(Authoritative)<br />
+<a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html</a><br />
+<a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.pdf">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.pdf</a></p>
+<h4 id="previous-version">Previous version:</h4>
+<p><a
+href="https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md">https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md</a>
+(Authoritative)<br />
+<a
+href="https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html">https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html</a><br />
+<a
+href="https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf">https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf</a></p>
+<h4 id="latest-version">Latest version:</h4>
+<p><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.md">https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.md</a>
+(Authoritative)<br />
+<a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html">https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html</a><br />
+<a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.pdf">https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.pdf</a></p>
+<h4 id="technical-committee">Technical Committee:</h4>
+<p><a href="https://www.oasis-open.org/committees/openc2/">OASIS Open
+Command and Control (OpenC2) TC</a></p>
+<h4 id="chair">Chair:</h4>
+<p>Duncan Sparrell (<a
+href="mailto:duncan@sfractal.com">duncan@sfractal.com</a>), <a
+href="http://www.sfractal.com/">sFractal Consulting LLC</a><br />
+Michael Rosa (<a href="mailto:mjrosa@nsa.gov">mjrosa@nsa.gov</a>), <a
+href="https://www.nsa.gov/">National Security Agency</a></p>
+<h4 id="editor">Editor:</h4>
+<p>David Kemp (<a
+href="mailto:d.kemp@cyber.nsa.gov">d.kemp@cyber.nsa.gov</a>), <a
+href="https://www.nsa.gov/">National Security Agency</a></p>
+<h4 id="additional-artifacts">Additional artifacts:</h4>
+<p>This prose specification is one component of a Work Product that also
+includes:</p>
+<ul>
+<li>JADN metaschema for JADN documents:
+<ul>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn</a></li>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl</a></li>
+</ul></li>
+<li>JSON schema for JADN documents:
+<ul>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json</a></li>
+</ul></li>
+<li>JADN schema for Examples:
+<ul>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn</a></li>
+<li><a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl</a></li>
+</ul></li>
+</ul>
+<h4 id="abstract">Abstract:</h4>
+<p>An Information Model (IM) defines the meaning and essential content
+of data used in computing independently of how it is represented for
+processing, communication or storage. JSON Abstract Data Notation (JADN)
+is an information modeling language based on Unified Modeling Language
+(UML) logical DataTypes, used to both express the meaning of data items
+at a conceptual level and formally define and validate instances of
+those types. JADN uses information theory to define logical equivalence,
+which enables representation of essential content in a wide range of
+formats and ensures translation among representations without loss. This
+document defines the normative DataTypes and data formats used to
+construct a JADN IM, and describes several equivalent non-normative
+model representations including a textual information definition
+language, a table format, and a diagram format. Because a JADN IM is a
+logical value, it can also be serialized in the same formats as the data
+it describes, allowing the model to accompany the data if desired and
+facilitating dynamic model updates.</p>
+<h4 id="status">Status:</h4>
+<p>This document was last revised or approved by the OASIS Open Command
+and Control (OpenC2) TC on the above date. The level of approval is also
+listed above. Check the "Latest stage" location noted above for possible
+later revisions of this document. Any other numbered Versions and other
+technical work produced by the Technical Committee (TC) are listed at <a
+href="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical">https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=openc2#technical</a>.</p>
+<p>TC members should send comments on this specification to the TC's
+email list. Others should send comments to the TC's public comment list,
+after subscribing to it by following the instructions at the "Send A
+Comment" button on the TC's web page at <a
+href="https://www.oasis-open.org/committees/openc2/">https://www.oasis-open.org/committees/openc2/</a>.</p>
+<p>This specification is provided under the <a
+href="https://www.oasis-open.org/policies-guidelines/ipr#Non-Assertion-Mode">Non-Assertion</a>
+Mode of the OASIS IPR Policy, the mode chosen when the Technical
+Committee was established. For information on whether any patents have
+been disclosed that may be essential to implementing this specification,
+and any offers of patent licensing terms, please refer to the
+Intellectual Property Rights section of the TC's web page (<a
+href="https://www.oasis-open.org/committees/openc2/ipr.php">https://www.oasis-open.org/committees/openc2/ipr.php</a>).</p>
+<p>Note that any machine-readable content (<a
+href="https://www.oasis-open.org/policies-guidelines/tc-process#wpComponentsCompLang">Computer
+Language Definitions</a>) declared Normative for this Work Product is
+provided in separate plain text files. In the event of a discrepancy
+between any such plain text file and display content in the Work
+Product's prose narrative document(s), the content in the separate plain
+text file prevails.</p>
+<h4 id="key-words">Key words:</h4>
+<p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in BCP 14
+[<a href="#rfc2119">RFC 2119</a>] and [<a href="#rfc8174">RFC 8174</a>]
+when, and only when, they appear in all capitals, as shown here.</p>
+<h4 id="citation-format">Citation format:</h4>
+<p>When referencing this specification the following citation format
+should be used:</p>
+<p><strong>[JADN-v2.0]</strong><br />
+<em>JSON Abstract Data Notation Version 2.0</em>. Edited by David Kemp.
+19 February 2025. OASIS Committee Specification Draft 01. <a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html">https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html</a>.
+Latest version: <a
+href="https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html">https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html</a>.</p>
+<hr />
+<h2 id="notices">Notices</h2>
+<p>Copyright © OASIS Open 2025. All Rights Reserved.</p>
+<p>Distributed under the terms of the OASIS <a
+href="https://www.oasis-open.org/policies-guidelines/ipr">IPR
+Policy</a>.</p>
+<p>The name "OASIS" is a trademark of <a
+href="https://www.oasis-open.org/">OASIS</a>, the owner and developer of
+this specification, and should be used only to refer to the organization
+and its official outputs.</p>
+<p>For complete copyright information please see the Notices section in
+the Appendix.</p>
+<hr />
+<h1 id="table-of-contents">Table of Contents</h1>
+<ul>
+<li><a href="#1-introduction">1 Introduction</a>
+<ul>
+<li><a href="#11-glossary">1.1 Glossary</a>
+<ul>
+<li><a href="#111-definitions-of-terms">1.1.1 Definitions of
+terms</a></li>
+<li><a href="#112-acronyms-and-abbreviations">1.1.2 Acronyms and
+abbreviations</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#2-information-models">2 Information Models</a></li>
+<li><a href="#3-schema-packages">3 Schema Packages</a>
+<ul>
+<li><a href="#311-descriptive-metadata">3.1.1 Descriptive
+Metadata</a></li>
+<li><a href="#312-functional-metadata">3.1.2 Functional
+Metadata</a></li>
+<li><a href="#313-package-conformance-requirements">3.1.3 Package
+Conformance Requirements</a></li>
+</ul></li>
+<li><a href="#4-jadn-types">4 JADN Types</a>
+<ul>
+<li><a href="#41-type-definition-structure">4.1 Type Definition
+Structure</a>
+<ul>
+<li><a href="#411-primitive">4.1.1 Primitive</a></li>
+<li><a href="#412-enumerated">4.1.2 Enumerated</a></li>
+<li><a href="#413-compound">4.1.3 Compound</a></li>
+<li><a href="#414-type-and-field-options">4.1.4 Type and Field
+Options</a></li>
+<li><a href="#415-type-conformance-requirements">4.1.5 Type Conformance
+Requirements</a></li>
+</ul></li>
+<li><a href="#42-core-types">4.2 Core Types</a>
+<ul>
+<li><a href="#421-primitive-types">4.2.1 Primitive Types</a>
+<ul>
+<li><a href="#4211-boolean">4.2.1.1 Boolean</a></li>
+<li><a href="#4212-integer">4.2.1.2 Integer</a></li>
+<li><a href="#4213-number">4.2.1.3 Number</a></li>
+<li><a href="#4214-string">4.2.1.4 String</a></li>
+<li><a href="#4215-binary">4.2.1.5 Binary</a></li>
+<li><a href="#4216-primitive-type-conformance-requirements">4.2.1.6
+Primitive Type Conformance Requirements</a></li>
+</ul></li>
+<li><a href="#422-compound-types">4.2.2 Compound Types</a>
+<ul>
+<li><a href="#4221-field-options">4.2.2.1 Field Options</a></li>
+<li><a href="#4222-multiplicity">4.2.2.2 Multiplicity</a></li>
+<li><a href="#4223-links">4.2.2.3 Links</a></li>
+<li><a href="#4224-compound-type-conformance-requirements">4.2.2.4
+Compound Type Conformance Requirements</a></li>
+</ul></li>
+<li><a href="#423-union-types">4.2.3 Union Types</a>
+<ul>
+<li><a href="#4231-enumerated">4.2.3.1 Enumerated</a></li>
+<li><a href="#4232-choice-tagged">4.2.3.2 Choice (Tagged)</a></li>
+<li><a href="#4233-choice-untagged">4.2.3.3 Choice (Untagged)</a></li>
+<li><a href="#4234-field-options">4.2.3.4 Field Options</a></li>
+<li><a href="#4235-union-type-conformance-requirements">4.2.3.5 Union
+Type Conformance Requirements</a></li>
+</ul></li>
+<li><a href="#424-general-type-options">4.2.4 General Type Options</a>
+<ul>
+<li><a href="#4241-type-inheritance">4.2.4.1 Type Inheritance</a></li>
+<li><a href="#4242-general-type-conformance-requirements">4.2.4.2
+General Type Conformance Requirements</a></li>
+</ul></li>
+<li><a href="#425-semantic-validation">4.2.5 Semantic Validation</a>
+<ul>
+<li><a href="#4251-jadn-semantic-validation-keywords">4.2.5.1 JADN
+Semantic Validation Keywords</a></li>
+<li><a href="#4252-xsd-semantic-validation-keywords">4.2.5.2 XSD
+Semantic Validation Keywords</a></li>
+<li><a href="#4253-json-schema-semantic-validation-keywords">4.2.5.3
+JSON Schema Semantic Validation Keywords</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><a href="#5-shortcuts">5 Shortcuts</a>
+<ul>
+<li><a href="#51-anonymous-type-definition">5.1 Anonymous Type
+Definition</a></li>
+<li><a href="#52-field-multiplicity">5.2 Field Multiplicity</a></li>
+<li><a href="#53-derived-enumerations">5.3 Derived Enumerations</a></li>
+<li><a href="#54-mapof-with-enumerated-key">5.4 MapOf With Enumerated
+Key</a></li>
+<li><a href="#55-pointers">5.5 Pointers</a></li>
+</ul></li>
+<li><a href="#6-serialization-and-data-formats">6 Serialization and Data
+Formats</a>
+<ul>
+<li><a href="#61-verbose-json-serialization">6.1 Verbose JSON
+Serialization</a></li>
+<li><a href="#62-compact-json-serialization">6.2 Compact JSON
+Serialization:</a></li>
+<li><a href="#63-concise-json-serialization">6.3 Concise JSON
+Serialization:</a></li>
+<li><a href="#64-cbor-serialization">6.4 CBOR Serialization</a></li>
+<li><a href="#65-xml-serialization">6.5 XML Serialization:</a></li>
+</ul></li>
+<li><a href="#7-alternate-schema-representations">7 Alternate Schema
+Representations</a>
+<ul>
+<li><a href="#71-information-definition-language">7.1 Information
+Definition Language</a></li>
+<li><a href="#72-property-tables">7.2 Property Tables</a></li>
+<li><a href="#73-entity-relationship-diagrams">7.3 Entity Relationship
+Diagrams</a></li>
+</ul></li>
+<li><a href="#8-conformance">8 Conformance</a></li>
+<li><a href="#appendix-a-references">Appendix A. References</a>
+<ul>
+<li><a href="#a1-normative-references">A.1 Normative References</a></li>
+<li><a href="#a2-informative-references">A.2 Informative
+References</a></li>
+</ul></li>
+<li><a
+href="#appendix-b-safety-security-and-privacy-considerations">Appendix
+B. Safety, Security and Privacy Considerations</a></li>
+<li><a href="#appendix-c-acknowledgments">Appendix C.
+Acknowledgments</a>
+<ul>
+<li><a href="#c1-special-thanks">C.1 Special Thanks</a></li>
+<li><a href="#c2-participants">C.2 Participants</a></li>
+</ul></li>
+<li><a href="#appendix-d-revision-history">Appendix D. Revision
+History</a>
+<ul>
+<li><a href="#changes-from-v10-to-v20">Changes from v1.0 to
+v2.0</a></li>
+<li><a href="#changes-from-v10-csd-01-to-v10">Changes from v1.0 CSD 01
+to v1.0</a></li>
+</ul></li>
+<li><a href="#appendix-e-notices">Appendix E. Notices</a></li>
+</ul>
+<hr />
+<h1 id="1-introduction">1 Introduction</h1>
+<blockquote>
+<p><em>An information model is a representation of concepts,
+relationships, constraints, rules, and operations to specify data
+semantics for a chosen domain of discourse. An information modeling
+language is a formal syntax that allows users to capture data semantics
+and constraints.</em></p>
+</blockquote>
+<p>-- [<a href="#information-modeling">Information Modeling</a>], Y.
+Tina Lee, NIST</p>
+<p>This is the reference specification for the JADN information modeling
+language. See [<a href="#jadn-cn">JADN-CN</a>] for additional detail on
+the information modeling process and how to construct and use JADN
+information models. While the term information modeling is used broadly
+and covers a range of applications, a JADN information model defines the
+essential content of discrete data items used in computing independently
+of how that content is represented for processing, communication or
+storage.</p>
+<ul>
+<li><strong>Essential content</strong> (information, meaning) is defined
+by information theory, where the amount of information conveyed in a
+message is not directly related to the size or format of the
+message.</li>
+<li><strong>Data items</strong> (documents, messages, protocol data
+units, data structures, object state, etc.) are JADN's scope within a
+system's domain of discourse.</li>
+</ul>
+<p>An information model defines the question "What does the recipient
+know after receiving a data item" separately from "what does a data item
+look like".</p>
+<blockquote>
+<p><em>The objective of UML is to provide system architects, software
+engineers, and software developers with tools for analysis, design, and
+implementation of software-based systems as well as for modeling
+business and similar processes.</em></p>
+</blockquote>
+<p>-- [<a href="#uml">Unified Modeling Language (UML)</a>]</p>
+<p>JADN is a UML profile for documents and messages. UML's organizing
+principle is classification, where a classifier represents a
+classification of instances according to their features. The values that
+are classified by a classifier are called instances of the classifier.
+UML defines several kinds of classifier including DataType and Class.
+Instances of a DataType are identified by their value, and all instances
+of a DataType with the same value are considered to be equal instances.
+DataType instances are immutable because by definition a different value
+is a different instance. A value may be classified as an instance of
+multiple DataTypes, but value comparison is meaningful only among
+instances of the same type.</p>
+<p>Instances of a Class are objects that model operations and behavior.
+An object does not have an immutable value: its state can change over
+time and two objects instantiated from the same Class, even with
+identical property values, are different instances. Although objects are
+not values, DataTypes model object features that are values, such as
+documents and messages in business processes and public fields and API
+(getter/setter) views of private state in software-based systems.
+Additional differences between DataType and Class include:</p>
+<ul>
+<li>Collection DataTypes specify if value order is significant. Class
+public fields and API values do not have an order.</li>
+<li>DataType distinguishes between values and references, Class does
+not. For example, software functions cannot persistently modify
+arguments passed by value but can modify those passed by reference.
+Validating a document for correctness or integrity validates the values
+it contains but not the values it references. A document DataType can
+distinguish between local and external references and validate that
+local references identify values contained within that instance.</li>
+<li>Misusing Class to model data is a common practice, but often results
+in contradictions such as modeling a one-dimensional Coordinate (e.g.,
+latitude) as a DataType but a two-dimensional Coordinate (latitude,
+longitude) as a Class.</li>
+</ul>
+<p>The <strong>Resource Description Framework</strong> [<a
+href="#rdf">RDF</a>] includes DataTypes:</p>
+<blockquote>
+<p><em>RDF defines an abstract syntax (a data model) which serves to
+link all RDF-based languages and specifications. RDF graphs are sets of
+subject-predicate-object triples, where the elements may be IRIs, blank
+nodes, or <strong>datatyped literals</strong>. They are used to express
+descriptions of resources.</em></p>
+</blockquote>
+<p>RDF defines DataType as having a "lexical-to-value (L2V) mapping",
+and while an RDF graph defines relationships among physical and data
+resources, DataType is the only RDF element that defines a data resource
+in terms of both a literal representation and its
+representation-independent logical value.</p>
+<p>Defining equivalence across representations is the primary
+distinction between information modeling and other data modeling
+approaches. An information model is constructed from DataTypes, not
+Classes, because its purpose is to compare literal values for
+equivalence based on their logical information content, and only
+DataTypes have instances that can be validated for content integrity and
+compared for equality.</p>
+<h2 id="11-glossary">1.1 Glossary</h2>
+<h3 id="111-definitions-of-terms">1.1.1 Definitions of terms</h3>
+<ul>
+<li><p><strong>Information (essential content)</strong>: Informally,
+essential means that if data can be removed from a message without
+affecting its meaning, then it is not essential. Formally, information
+theory quantifies the entropy (novelty, or news value) of a message in
+bits, excluding data that is insignificant or is redundant with what is
+known <em>a priori</em>. The information content of a message can be no
+greater than the smallest data value that accurately represents
+it.</p></li>
+<li><p><strong>Information Model</strong>: An abstract schema that
+defines the meaning, structure and value constraints of information used
+in computing systems independently of representation, plus a set of
+application-independent mappings between external data values and
+internal logical values.</p></li>
+<li><p><strong>Equivalence</strong>: The relation between the meaning
+represented by two data values such that each logically implies the
+other. Two data values are equivalent if and only if they are classified
+as instances of the same DataType and have the same logical
+value.</p></li>
+<li><p><strong>DataType (logical type, type)</strong>: An abstract type
+that defines the meaning and essential content of a discrete data item
+used in computing independently of how it is represented for processing,
+communication or storage. DataTypes are defined by and composed using an
+information modeling language. Every DataType has a value space as
+defined in <a href="#xsd">XSD</a> Part 2 Section 2.1 and a lexical space
+defined by a specified data format.</p></li>
+<li><p><strong>Logical Value (information value)</strong>: An immutable
+instance of a DataType used for processing and comparison, specified by
+behavioral effect independently of programming languages and techniques.
+Every logical value is a member of the value space of its
+DataType.</p></li>
+<li><p><strong>Data Value (document, message, artifact, lexical value,
+literal value)</strong>: An immutable instance of a DataType used for
+transmission or storage, consisting of a sequence of octets or
+characters in an external data format. Every lexical value is a member
+of a lexical space of its DataType.</p></li>
+<li><p><strong>Data Format</strong>: Serialization rules that specify
+the media type (e.g., XML, JSON, CBOR, Protobuf), design goals (human
+readability, efficiency), and style preferences for data values in that
+format. A data format defines a lexical space and a lexical mapping for
+each DataType.</p></li>
+<li><p><strong>Data Model</strong>: A concrete schema that defines the
+structure and value constraints of serialized data. A single information
+model corresponds to multiple equivalent data models; data models are
+equivalent if they define data values representing the same
+information.</p></li>
+<li><p><strong>Presentation Format</strong>: A view of logical values
+that does not necessarily preserve all essential content, used for
+display or documentation purposes.</p></li>
+<li><p><strong>Well-formed</strong>: A data value that is valid
+according to a structured syntax [<a href="#rfc7303">RFC 7303</a>]
+(e.g., "+json", "+der"), if one is specified by the data
+format.</p></li>
+<li><p><strong>Valid</strong>: A logical value is valid if it satisfies
+the constraints of its DataType. A data value is valid if it is
+well-formed and is classified as an instance of a DataType.</p></li>
+<li><p><strong>Serialization</strong>: Serialization, or encoding,
+converts a logical value into a data value. De-serialization, or
+decoding, classifies a data value and converts it into an instance of a
+DataType.</p></li>
+<li><p><strong>Description (annotation)</strong>: Description fields of
+an information model are reserved for comments from authors to readers
+or maintainers of the model and are ignored by information processing
+applications.</p></li>
+</ul>
+<h3 id="112-acronyms-and-abbreviations">1.1.2 Acronyms and
+abbreviations</h3>
+<ul>
+<li><strong>DAG</strong>: Directed Acyclic Graph</li>
+<li><strong>DM</strong>: Data Model</li>
+<li><strong>IM</strong>: Information Model</li>
+</ul>
+<!--
+### 1.1.3 Document conventions
+
+- Naming conventions
+- Font colors and styles
+- Typographic conventions
+-->
+
+<hr />
+<h1 id="2-information-models">2 Information Models</h1>
+<p>A JADN information model defines the essential content of discrete
+data items used in computing independently of how that content is
+represented for processing, communication or storage. Information values
+are instances of abstract UML DataTypes, and as shown in Figure 2-1
+DataType definitions are organized into abstract schema packages which
+are included in an application's information model.</p>
+<p><img src="images/im-toplevel.jpg"
+alt="Information Model Structure" /></p>
+<h6 id="figure-2-1----information-model-organization">Figure 2-1 --
+Information Model Organization</h6>
+<ul>
+<li>A JADN IM consists of a set of abstract schemas that define
+information content, and a set of encoding rules that define the
+lexical-to-value mapping in a specific data format for each JADN core
+type.</li>
+<li>Schema is the top level JADN type. It has two fields:
+<ul>
+<li>"Metadata" containing descriptive and functional information about
+the schema package as a whole.</li>
+<li>List of "Type" containing JADN type definitions. Every type
+definition is a UML DataType.</li>
+</ul></li>
+<li>An instance of the Schema type is identified by a globally-unique
+package namespace. Types defined in a package have names qualified by
+its namespace, and reference types defined in other packages by their
+qualified names. An individual Schema instance is called a "package"
+because it is an instance, not a Type, and to distinguish it from an
+"application schema" that is the set of packages in an information
+model.</li>
+<li>There is no "information model" type containing or assigning a name
+to a set of schema packages. Applications load relevant package(s) plus
+any additional packages needed to resolve type references.</li>
+</ul>
+<p><a href="#3-schema-packages">Section 3</a> defines schema packages
+and metadata.<br />
+<a href="#4-jadn-types">Section 4</a> defines the JADN core types.<br />
+<a href="#5-shortcuts">Section 5</a> defines shortcuts that make type
+definitions more convenient without affecting meaning.<br />
+<a href="#6-serialization-and-data-formats">Section 6</a> discusses
+using encoding rules to define concrete data formats.<br />
+<a href="#7-alternate-schema-representations">Section 7</a> describes
+non-normative alternate JADN schema formats:</p>
+<ul>
+<li>a text-based information definition language (IDL) defined and
+validated by a language grammar</li>
+<li>property tables used in protocol or document format
+specifications</li>
+<li>entity-relationship diagrams (ERDs) used for data modeling</li>
+</ul>
+<p>The normative format of a Schema package, as defined in Sections 3
+and 4, is JSON data that can be validated by a schema, but a package can
+also be represented unambiguously in other formats more suited to human
+understanding. This specification uses JSON to precisely define the
+structure of a JADN schema, but uses the IDL format described in Section
+7 where understanding purpose and meaning is the primary goal. These
+representations are equivalent, but if there is a conflict the JSON
+definition has precedence.</p>
+<hr />
+<h1 id="3-schema-packages">3 Schema Packages</h1>
+<p>Packages provide the main structuring and organizing capability of
+UML. A UML package is a namespace for its members, and a JADN abstract
+schema is composed using packages. All packages, including the one
+defining JADN itself, are instances of JADN's <code>Schema</code> type.
+Schema has two fields: package metadata defined in this section (<a
+href="#figure-3-1----jadn-schema-metadata">Figure 3-1</a>), and a list
+of type definitions defined in <a href="#4-jadn-types">Section
+4</a>.</p>
+<pre><code>       title: &quot;JADN Metaschema&quot;
+     package: &quot;http://oasis-open.org/openc2/jadn/v2.0/schema&quot;
+ description: &quot;Syntax of a JSON Abstract Data Notation (JADN) package.&quot;
+     license: &quot;CC-BY-4.0&quot;
+       roots: [&quot;Schema&quot;]
+      config: {&quot;$FieldName&quot;: &quot;^[$A-Za-z][_A-Za-z0-9]{0,63}$&quot;}
+
+Schema = Record                              // Definition of a JADN package
+   1 meta           Metadata optional        // Information about this package
+   2 types          Type unique [1..*]       // Types defined in this package
+
+Metadata = Map                               // Information about this package
+   1 package        Namespace                // Unique name/version of this package
+   2 version        String{1..*} optional    // Incrementing version within package
+   3 title          String{1..*} optional    // Title
+   4 description    String{1..*} optional    // Description
+   5 comment        String{1..*} optional    // Comment
+   6 copyright      String{1..*} optional    // Copyright notice
+   7 license        String{1..*} optional    // SPDX licenseId of this package
+   8 namespaces     PrefixNs unique [0..*]   // Referenced packages
+   9 roots          TypeName unique [0..*]   // Roots of the type tree(s) in this package
+  10 config         Config optional          // Configuration variables
+  11 jadn_version   Namespace optional       // JADN Metaschema package
+
+PrefixNs = Array                             // Prefix corresponding to a namespace IRI
+   1  NSID                                   // prefix:: Namespace prefix string
+   2  Namespace                              // namespace:: Namespace IRI
+
+Config = Map{1..*}                           // Config vars override JADN defaults
+   1 $MaxBinary     Integer{1..*} optional   // Package max octets, default = 255
+   2 $MaxString     Integer{1..*} optional   // Package max characters, default = 255
+   3 $MaxElements   Integer{1..*} optional   // Package max items/properties, default = 255
+   4 $Sys           String{1..1} optional    // System character for TypeName, default = &#39;.&#39;
+   5 $TypeName      String /regex optional   // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName     String /regex optional   // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID          String /regex optional   // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+
+Namespace = String /uri                      // Unique name of a package
+NSID = String{pattern=&quot;$NSID&quot;}               // Namespace prefix matching $NSID
+TypeName = String{pattern=&quot;$TypeName&quot;}       // Name of a logical type
+FieldName = String{pattern=&quot;$FieldName&quot;}     // Name of a field in a structured type
+TypeRef = String                             // Reference to a type, matching ($NSID &#39;:&#39;)? $TypeName</code></pre>
+<h6 id="figure-3-1----jadn-schema-metadata">Figure 3-1 -- JADN Schema:
+Metadata</h6>
+<h3 id="311-descriptive-metadata">3.1.1 Descriptive Metadata</h3>
+<p>These Metadata fields provide information about a package but have no
+effect on schema processing:</p>
+<ul>
+<li><strong>title:</strong> A short name for this package.</li>
+<li><strong>description:</strong> A brief description of purpose or
+capabilities of this package</li>
+<li><strong>comment:</strong> Any other information applicable to the
+package.</li>
+<li><strong>copyright:</strong> A copyright notice.</li>
+<li><strong>license:</strong> SPDX licenseId of the contents of this
+package.</li>
+</ul>
+<h3 id="312-functional-metadata">3.1.2 Functional Metadata</h3>
+<p>These Metadata fields affect schema processing:</p>
+<ul>
+<li><p><strong>package:</strong> A namespace [<a href="#iri">IRI</a>]
+that unambiguously identifies this Schema instance and allows type
+definitions in this package to be unambiguously referenced from other
+packages. This is a unique identifier but not necessarily a resource
+locator.</p></li>
+<li><p><strong>version:</strong> Incremental revision of this package, a
+string that compares lexicographically higher than previous revisions. A
+package namespace uniquely identifies both the topic and published
+version of a referenced package. This field identifies the latest
+revision of a package when more than one revision is available.</p></li>
+<li><p><strong>jadn_version:</strong> Package namespace of the JADN
+version used to validate this package.</p></li>
+<li><p><strong>namespaces:</strong> A set of associations between
+Namespace IDs (prefixes) and namespace IRIs. Types defined in this
+package may reference types from other packages using
+<code>PrefixedName</code> as defined in [<a href="#xml-namespaces">XML
+Namespaces</a>]. Associating a blank prefix with a package namespace
+indicates that its types are treated as if they were defined in this
+package. This requires the referenced package to have non-conflicting
+type names and compatible metadata including name formats and
+namespaces.</p></li>
+<li><p><strong>roots:</strong> List of top-level types defined in this
+package. This designates a single starting point or a catalog of library
+types defined in this package, and allows schema processing tools to
+flag unreferenced type definitions.</p></li>
+<li><p><strong>config:</strong> Configuration variables used to tailor
+schema processing within a package. Variables not configured in a
+package have an implementation-defined default value, with recommended
+defaults shown below.</p>
+<ul>
+<li><p><strong>Name Formats:</strong> JADN syntax does not restrict the
+allowed name formats, but establishing naming conventions using distinct
+formats for TypeName and FieldName (<a
+href="#41-type-definition-structure">Section 4.1</a>) can aid schema
+readability. These variables define a package's naming conventions:</p>
+<ul>
+<li><strong>$Sys:</strong> A "system" character used in
+software-generated TypeNames. Default = '.'</li>
+<li><strong>$TypeName:</strong> The regex used to validate TypeName.
+Default begins with an upper-case character:
+^[A-Z][-.A-Za-z0-9]{0,63}$</li>
+<li><strong>$FieldName:</strong> The regex used to validate FieldName.
+Default begins with a lower-case character:
+^[a-z][_A-Za-z0-9]{0,63}$<br />
+The JADN Metaschema overrides the default $FieldName pattern to allow
+config variables beginning with '$' and core type names beginning with a
+capital letter.</li>
+<li><strong>$NSID:</strong> The regex used to validate an external type
+reference's prefix string. Default: ^([A-Za-z][A-Za-z0-9]{0,7})?$<br />
+External type references (TypeRef in <a
+href="#figure-4-2----jadn-schema-types">Figure 4-2</a>) are prefixed
+names that include an NSID.</li>
+</ul></li>
+<li><p><strong>Size Limits:</strong> These variables define default
+maximum sizes for variable-sized Primitive and Compound types (<a
+href="#4-jadn-types">Section 4</a>). Individual type definitions
+override implementation or package defaults using type options.</p>
+<ul>
+<li><strong>$MaxBinary:</strong> Maximum number of octets in a Binary
+instance. Default <code>maxLength</code> = 255</li>
+<li><strong>$MaxString:</strong> Maximum number of characters in a
+String instance. Default <code>maxLength</code> = 255</li>
+<li><strong>$MaxElements:</strong> Maximum number of items in an ArrayOf
+or MapOf instance. Default <code>maxOccurs</code> = 255</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="313-package-conformance-requirements">3.1.3 Package Conformance
+Requirements</h3>
+<ul>
+<li>The $TypeName format MUST permit TypeNames containing the $Sys
+character, which is used in type names generated by schema processing
+and translation.</li>
+<li>The $FieldName format MUST NOT permit FieldNames containing the $Sys
+character, to enable its use as a path component separator.</li>
+<li>A TypeRef instance MUST be a qualified name (<code>QName</code>) as
+defined in [<a href="#xml-namespaces">XML Namespaces</a>] using $NSID
+and $TypeName instances as <code>Prefix</code> and
+<code>LocalPart</code> respectively.</li>
+<li>If Metadata is present in a Schema instance it MUST include the
+package field; all other fields are optional.</li>
+</ul>
+<hr />
+<h1 id="4-jadn-types">4 JADN Types</h1>
+<p>An information modeling language's abstract DataTypes define their
+meaning and application behavior. As shown in Figure 4-1, JADN defines
+twelve core types in three categories:</p>
+<ul>
+<li><strong>Primitive</strong> (<a href="#421-primitive-types">Section
+4.2.1</a>): Types whose instances are atomic (non-decomposable)
+values.</li>
+<li><strong>Compound</strong> (<a href="#422-compound-types">Section
+4.2.2</a>: Types whose instances are collections of values.</li>
+<li><strong>Union</strong> (<a href="#423-union-types">Section
+4.2.3</a>): Types whose instances are selected from a set of possible
+values.</li>
+</ul>
+<p><img src="images/im-datatype.jpg" alt="Core DataTypes" /></p>
+<h6 id="figure-4-1----jadn-core-datatypes">Figure 4-1 -- JADN Core
+DataTypes</h6>
+<h2 id="41-type-definition-structure">4.1 Type Definition Structure</h2>
+<p>All JADN type definitions have the identical structure, shown in <a
+href="#figure-4-2----jadn-schema-types">Figure 4-2</a>, designed to be
+easily describable, easily processed, stable, and extensible.</p>
+<pre><code>Type = Array
+   1  TypeName                                   // type_name::
+   2  Enumerated(Enum[JADN-Type])                // core_type::
+   3  Options optional                           // type_options::
+   4  Description optional                       // type_description::
+   5  JADN-Type(TagId[core_type]) optional       // fields::
+
+JADN-Type = Choice
+   1 Binary           Empty
+   2 Boolean          Empty
+   3 Integer          Empty
+   4 Number           Empty
+   5 String           Empty
+   6 Enumerated       Items
+   7 Choice           Fields
+   8 Array            Fields
+   9 ArrayOf          Empty
+  10 Map              Fields
+  11 MapOf            Empty
+  12 Record           Fields
+
+Empty = Array{0}
+Items = ArrayOf(Item)
+Fields = ArrayOf(Field)
+
+Item = Array
+   1  FieldID                                    // item_id::
+   2  String                                     // item_value::
+   3  Description optional                       // item_description::
+
+Field = Array
+   1  FieldID                                    // field_id::
+   2  FieldName                                  // field_name::
+   3  TypeRef                                    // field_type::
+   4  Options optional                           // field_options::
+   5  Description optional                       // field_description::
+
+FieldID = Integer
+Options = ArrayOf(Option) unique
+Option = String{1..*}
+Description = String</code></pre>
+<h6 id="figure-4-2----jadn-schema-types">Figure 4-2 -- JADN Schema:
+Types</h6>
+<p>Each type definition has five elements:</p>
+<ol type="1">
+<li><strong>TypeName:</strong> the name of the type being defined</li>
+<li><strong>CoreType:</strong> the JADN built-in type of the type being
+defined</li>
+<li><strong>TypeOptions:</strong> an array of zero or more
+<strong>TypeOption</strong> values applicable to
+<strong>CoreType</strong></li>
+<li><strong>TypeDescription:</strong> a non-normative comment</li>
+<li><strong>Fields:</strong> an array of <strong>Item</strong> or
+<strong>Field</strong> definitions</li>
+</ol>
+<p><strong>Defaults:</strong></p>
+<ul>
+<li>If TypeOptions is not present in a type definition, its default is
+the empty array.</li>
+<li>If TypeDescription is not present, its default is the empty
+string.</li>
+<li>If Fields is not present, its default is the empty array.</li>
+</ul>
+<h3 id="411-primitive">4.1.1 Primitive</h3>
+<p>If CoreType is a Primitive or unstructured Compound type, the
+<strong>Fields</strong> array is empty.</p>
+<p>JSON Format and Example:</p>
+<pre><code>    [TypeName, CoreType, [TypeOption, ...], TypeDescription, []]
+
+    [&quot;Username&quot;, &quot;String&quot;, [&quot;%^[a-z][a-z0-9]{3,11}$&quot;]]
+    [&quot;Users&quot;, &quot;ArrayOf&quot;, [&quot;*Username&quot;]]</code></pre>
+<p>IDL Example:</p>
+<pre><code>Username = String{pattern=&quot;^[a-z][a-z0-9]{3,11}$&quot;}
+Users = ArrayOf(Username)</code></pre>
+<h3 id="412-enumerated">4.1.2 Enumerated</h3>
+<p>If CoreType is the Enumerated Type, each item definition in the
+<strong>Fields</strong> array has three elements:</p>
+<ol type="1">
+<li><strong>ItemID:</strong> the integer identifier of the item</li>
+<li><strong>ItemValue:</strong> the string value of the item</li>
+<li><strong>ItemDescription:</strong> a non-normative comment</li>
+</ol>
+<p>JSON Format and Example:</p>
+<pre><code>    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
+        [ItemId, ItemValue, ItemDescription],
+        ...
+    ]]
+
+    [&quot;Color&quot;, &quot;Enumerated&quot;, [], &quot;&quot;, [
+        [1, &quot;red&quot;],
+        [2, &quot;green&quot;],
+        [3, &quot;blue&quot;]
+    ]]</code></pre>
+<p>IDL Example:</p>
+<pre><code>Color = Enumerated
+   1 red
+   2 green
+   3 blue</code></pre>
+<h3 id="413-compound">4.1.3 Compound</h3>
+<p>If CoreType is a structured Compound or Choice type, each field
+definition in the <strong>Fields</strong> array has five elements:</p>
+<ol type="1">
+<li><strong>FieldID:</strong> the integer identifier of the field</li>
+<li><strong>FieldName:</strong> the name or label of the field</li>
+<li><strong>FieldType:</strong> the type of the field, a
+<strong>TypeReference</strong></li>
+<li><strong>FieldOptions:</strong> an array of zero or more
+<strong>FieldOption</strong> or <strong>TypeOption</strong> values
+applicable to <strong>FieldType</strong></li>
+<li><strong>FieldDescription:</strong> a non-normative comment</li>
+</ol>
+<p>JSON Format and Example:</p>
+<pre><code>    [TypeName, CoreType, [TypeOption, ...], TypeDescription, [
+        [FieldID, FieldName, FieldType, [FieldOption, TypeOption, ...], FieldDescription],
+        ...
+    ]]
+
+    [&quot;Coordinate&quot;, &quot;Record&quot;, [], &quot;A GPS coordinate&quot;, [
+        [1, &quot;latitude&quot;, &quot;Latitude&quot;, [], &quot;A Number between -90 and 90 degrees&quot;],
+        [2, &quot;longitude&quot;, &quot;Longitude&quot;, [], &quot;A Number between -180 and 180 degrees&quot;]
+    ]]</code></pre>
+<p>IDL Example:</p>
+<pre><code>Coordinate = Record                      // A GPS coordinate
+   1 latitude       Latitude             // A Number between -90 and 90 degrees
+   2 longitude      Longitude            // A Number between -180 and 180 degrees</code></pre>
+<h3 id="414-type-and-field-options">4.1.4 Type and Field Options</h3>
+<p>Type and field options are the mechanisms to support a varied set of
+information needs within the strictly regular type definition structure.
+New requirements can be accommodated by defining new options without
+modifying that structure. Each TypeOption and FieldOption provides a
+limited piece of information about some aspect of the DataType to which
+it applies, similar in purpose to an [<a href="#xsd">XSD</a>]
+<em>facet</em>. Each option has an ID and value listed in <a
+href="#42-core-types">Section 4.2</a>, and is represented in JSON format
+as a string where the first character's Unicode codepoint is the
+option's ID and the remaining characters are its value. Boolean options
+have no additional characters; if the option ID is present its value is
+True, otherwise False.</p>
+<p>As an example the TypeOption "minLength = 1" is represented as:</p>
+<pre><code>+----+-----------+     Option ID = 0x7b (Left Curley Bracket) = &quot;minLength&quot;
+| ID | Value     |     Value = 1 (Integer)
++----+-----------+     TypeOption = &quot;{1&quot; (String)</code></pre>
+<p>In some cases the character represented by an option ID has a
+mnemonic relationship to its purpose but this is not true in general;
+option IDs are non-semantic integer identifiers.</p>
+<h3 id="415-type-conformance-requirements">4.1.5 Type Conformance
+Requirements</h3>
+<ul>
+<li>TypeName MUST NOT be a JADN core type</li>
+<li>CoreType MUST be a JADN core type</li>
+<li>FieldID and FieldName values MUST be unique within a type
+definition.</li>
+<li>If CoreType is Array or Record, FieldID MUST be the ordinal position
+of the field within the type, numbered consecutively starting at 1.</li>
+<li>If CoreType is Enumerated, Choice, or Map, ItemID/FieldID MAY be any
+integer.</li>
+<li>FieldType MUST be a Primitive type, ArrayOf, MapOf, or a
+model-defined (non-core) type.</li>
+<li>If FieldType is not a core type, FieldOptions MUST NOT contain any
+TypeOption.</li>
+<li>If FieldOptions includes a TypeOption, that option MUST apply to
+FieldType.</li>
+<li>If the <a href="#53-derived-enumerations">Derived Enumerations</a>
+or <a href="#55-pointers">Pointers</a> shortcuts are present in
+TypeOptions, the Fields array MUST be empty.</li>
+<li>The default value of TypeOptions, Fields and FieldOptions is the
+empty Array.</li>
+<li>The default value of TypeDescription, ItemDescription and
+FieldDescription is the empty String.</li>
+<li>Description values MUST have no effect on validation or
+serialization.</li>
+</ul>
+<h2 id="42-core-types">4.2 Core Types</h2>
+<h3 id="421-primitive-types">4.2.1 Primitive Types</h3>
+<p>A primitive type has no substructure, and specifies an unrestricted
+space of atomic values without regard to processing mechanisms or data
+format. As shown in <a href="#figure-4-1----jadn-core-datatypes">Figure
+4-1</a> the primitive core types are Binary, Boolean, Integer, Number
+and String.</p>
+<p>Type options specify value restrictions such as size, range, and
+regular expression patterns. Semantic validation keywords (formats)
+listed in <a href="#425-semantic-validation">Section 4.2.5</a> also
+define value restrictions on primitive types.</p>
+<p>Primitive TypeOptions are listed in Table 4-1:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x25</td>
+<td style="text-align: center;">%</td>
+<td>String</td>
+<td>pattern</td>
+<td>Instance matches the specified regular expression</td>
+</tr>
+<tr>
+<td>0x7b</td>
+<td style="text-align: center;">{</td>
+<td>Integer</td>
+<td>minLength</td>
+<td>Minimum octet or character count</td>
+</tr>
+<tr>
+<td>0x7d</td>
+<td style="text-align: center;">}</td>
+<td>Integer</td>
+<td>maxLength</td>
+<td>Maximum octet or character count</td>
+</tr>
+<tr>
+<td>0x75</td>
+<td style="text-align: center;">u</td>
+<td>*</td>
+<td>default</td>
+<td>Instance equals default if no value is given</td>
+</tr>
+<tr>
+<td>0x76</td>
+<td style="text-align: center;">v</td>
+<td>*</td>
+<td>const</td>
+<td>Instance is equal to option value</td>
+</tr>
+<tr>
+<td>0x77</td>
+<td style="text-align: center;">w</td>
+<td>*</td>
+<td>minInclusive</td>
+<td>Instance is greater than or equal to option value</td>
+</tr>
+<tr>
+<td>0x78</td>
+<td style="text-align: center;">x</td>
+<td>*</td>
+<td>maxInclusive</td>
+<td>Instance is less than or equal to option value</td>
+</tr>
+<tr>
+<td>0x79</td>
+<td style="text-align: center;">y</td>
+<td>*</td>
+<td>minExclusive</td>
+<td>Instance is greater than option value</td>
+</tr>
+<tr>
+<td>0x7a</td>
+<td style="text-align: center;">z</td>
+<td>*</td>
+<td>maxExclusive</td>
+<td>Instance is less than option value</td>
+</tr>
+</tbody>
+</table>
+<h6 id="table-4-1-typeoptions-specific-to-primitive-types">Table 4-1.
+TypeOptions Specific to Primitive Types</h6>
+<p><code>*</code> indicates that the option value must evaluate to an
+instance of CoreType.</p>
+<ul>
+<li>The <code>default</code> option specifies a pre-set value to be used
+for an optional/nullable variable when no other value is supplied.
+<ul>
+<li>When parsing a literal value of <code>null</code> or when no literal
+value is present, the logical value is set to the default.</li>
+<li>When classifying a logical value of <code>null</code> or when no
+logical value is present, the classifier uses the default.</li>
+<li>When serializing a logical value equal to the default, the literal
+value is either omitted or <code>null</code> as specified by the data
+format.</li>
+</ul></li>
+<li>The <code>const</code> option specifies a pre-set value used as a
+classifier, equivalent to setting both <code>minInclusive</code> and
+<code>maxInclusive</code> to that value.</li>
+</ul>
+<p><em>Note: This specification does not define an expression language
+but does not preclude their use. For options with type = <code>*</code>
+the result of using a value other than a single terminal element
+(literal instance of a Primitive type) is not defined here. In principle
+the <code>default</code> and <code>const</code> options apply to
+Compound types but cannot be used until a Compound literal format is
+defined.</em></p>
+<h4 id="4211-boolean">4.2.1.1 Boolean</h4>
+<p>A Boolean instance is one of the predefined values <em>true</em> and
+<em>false</em>.</p>
+<p><strong>Options:</strong> const, default</p>
+<h4 id="4212-integer">4.2.1.2 Integer</h4>
+<p>An Integer instance is a value in the ordered infinite set of
+integers (…, -2, -1, 0, 1, 2, …).</p>
+<p><strong>Options:</strong> const, default<br />
+<strong>Range Options:</strong> minInclusive, maxInclusive,
+minExclusive, maxExclusive</p>
+<h4 id="4213-number">4.2.1.3 Number</h4>
+<p>A Number instance is a value in the ordered infinite set of real
+numbers.</p>
+<p><strong>Options:</strong> const, default<br />
+<strong>Range Options:</strong> minInclusive, maxInclusive,
+minExclusive, maxExclusive</p>
+<h4 id="4214-string">4.2.1.4 String</h4>
+<p>A String instance is a sequence of characters in a character set.
+Value range options are meaningful if the character set defines a
+collation order. The pattern, length, and range options are not normally
+used together, but if more than one kind is present in a type definition
+an instance must satisfy all conditions.</p>
+<p><strong>Options:</strong> pattern, const, default<br />
+<strong>Length Options:</strong> minLength, maxLength<br />
+<strong>Range Options:</strong> minInclusive, maxInclusive,
+minExclusive, maxExclusive</p>
+<h4 id="4215-binary">4.2.1.5 Binary</h4>
+<p>A Binary instance is sequence of octets. Binary values are not
+ordered so range options do not apply.</p>
+<p><strong>Options:</strong> const, default<br />
+<strong>Length Options:</strong> minLength, maxLength</p>
+<h4 id="4216-primitive-type-conformance-requirements">4.2.1.6 Primitive
+Type Conformance Requirements</h4>
+<ul>
+<li>A value MUST satisfy the conditions defined for each type option
+listed in <a
+href="#table-4-1-typeoptions-specific-to-primitive-types">Table 4-1</a>
+to be classified as an instance of a type containing that option.</li>
+<li>The <em>pattern</em> option value SHOULD conform to the Pattern
+grammar of [<a href="#ecmascript">ECMAScript</a>] Section 22.2.</li>
+</ul>
+<h3 id="422-compound-types">4.2.2 Compound Types</h3>
+<p>Compound types define a collection of items. As shown in <a
+href="#figure-4-1----jadn-core-datatypes">Figure 4-1</a> a compound type
+defines how the items in a collection are specified, while the
+collection itself is a UML "MultiplicityElement" with cardinality bounds
+and collection properties. The Compound types are:</p>
+<table>
+<thead>
+<tr>
+<th>Compound Type</th>
+<th>Structured</th>
+<th>Mapping</th>
+<th>Collection Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArrayOf(vtype)</td>
+<td>No</td>
+<td>No</td>
+<td>Ordered, non-Unique (sequence)</td>
+</tr>
+<tr>
+<td>Array</td>
+<td>Yes</td>
+<td>No</td>
+<td>Ordered, non-Unique (sequence)</td>
+</tr>
+<tr>
+<td>MapOf(ktype, vtype)</td>
+<td>No</td>
+<td>Yes</td>
+<td>non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>Map</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>Record</td>
+<td>Yes</td>
+<td>Both</td>
+<td>non-Ordered, Unique (set)</td>
+</tr>
+</tbody>
+</table>
+<p>By default, ArrayOf and Array specify a sequence of items and MapOf,
+Map, and Record specify a set of items, but these collection properties
+can be modified using TypeOptions.</p>
+<ul>
+<li>The vtype option specifies the type of each instance in an ArrayOf
+or MapOf type.</li>
+<li>The ktype option specifies the type of each key in a MapOf
+type.</li>
+<li>If a collection is Ordered, item order is significant when comparing
+instances, otherwise it is not.</li>
+<li>If a collection is Unique, no item is duplicated within a collection
+instance, otherwise duplicates are allowed.</li>
+<li>A Structured type includes individual field definitions. Each field
+defines an association between an identifier (position and/or key) and a
+type and may include field-specific options (<a
+href="#4221-field-options">Section 4.2.2.1</a>). A non-structured
+compound type defines a collection where each item is an instance of the
+same type.</li>
+<li>Each item in a Mapping type is a key:value pair with a unique key,
+otherwise each item is a value.</li>
+<li>The Record type defines the key order, which allows Record instances
+to be represented as either arrays where items are identified by
+position within the array, or associative arrays (maps) where items are
+identified by key.</li>
+</ul>
+<p>Compound TypeOptions are listed in <a
+href="#table-4-2-typeoptions-specific-to-compound-types">Table
+4-2</a>:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x2a</td>
+<td style="text-align: center;">*</td>
+<td>TypeRef</td>
+<td>vtype</td>
+<td>Value type for ArrayOf and MapOf</td>
+</tr>
+<tr>
+<td>0x2b</td>
+<td style="text-align: center;">+</td>
+<td>TypeRef</td>
+<td>ktype</td>
+<td>Key type for MapOf</td>
+</tr>
+<tr>
+<td>0x7b</td>
+<td style="text-align: center;">{</td>
+<td>Integer</td>
+<td>minLength</td>
+<td>Minimum number of items in a collection, default is 0</td>
+</tr>
+<tr>
+<td>0x7d</td>
+<td style="text-align: center;">}</td>
+<td>Integer</td>
+<td>maxLength</td>
+<td>Maximum number of items in a collection, default is unlimited</td>
+</tr>
+<tr>
+<td>0x3d</td>
+<td style="text-align: center;">=</td>
+<td>Boolean</td>
+<td>id</td>
+<td>Fields are identified by FieldID not FieldName</td>
+</tr>
+<tr>
+<td>0x71</td>
+<td style="text-align: center;">q</td>
+<td>Boolean</td>
+<td>unique/ordered</td>
+<td>isOrdered = true, isUnique = true (ordered set)</td>
+</tr>
+<tr>
+<td>0x73</td>
+<td style="text-align: center;">s</td>
+<td>Boolean</td>
+<td>set</td>
+<td>isOrdered = false, isUnique = true (set)</td>
+</tr>
+<tr>
+<td>0x62</td>
+<td style="text-align: center;">b</td>
+<td>Boolean</td>
+<td>unordered</td>
+<td>isOrdered = false, isUnique = false (bag)</td>
+</tr>
+</tbody>
+</table>
+<h6 id="table-4-2-typeoptions-specific-to-compound-types">Table 4-2.
+TypeOptions Specific to Compound Types</h6>
+<ul>
+<li>Map and Record types have Fields identified by both a numeric
+FieldID and a text FieldName, both of which are unique within a
+type.</li>
+<li>FieldIDs for Array and Record types denote position within the
+collection and must be numbered consecutively starting at 1.</li>
+<li>For Map, Enumerated and Choice types the <code>id</code> option
+indicates that fields are always identified by FieldID.
+<ul>
+<li>Without <code>id</code>, FieldName is a defined name that is
+included in the semantics of the type, must be populated in the type
+definition, and may appear in serialized data depending on serialization
+format.</li>
+<li>With <code>id</code>, FieldName is a suggested label that is not
+included in the semantics of the type, may be empty in the type
+definition, has no effect on validation, and never appears in serialized
+data regardless of data format.</li>
+<li>The <code>id</code> option cannot be used with Record; the Array
+type is equivalent to Record with id.</li>
+</ul></li>
+<li>TypeOption <code>0x71</code> (collection is an ordered set) is
+referred to as <code>unique</code> when used with the ArrayOf type and
+<code>ordered</code> when used with MapOf, Map or Record types.</li>
+</ul>
+<p>Example: the <code>id</code> option indicates that values use FieldId
+instead of FieldName</p>
+<pre><code>[&quot;Colors&quot;, &quot;Enumerated&quot;, [], &quot;&quot;, [
+  [1, &quot;red&quot;, &quot;The color of roses&quot;],
+  [2, &quot;green&quot;],
+  [3, &quot;blue&quot;, &quot;Violets&quot;]
+]],
+
+[&quot;ColorIds&quot;, &quot;Enumerated&quot;, [&quot;=&quot;], &quot;&quot;, [
+  [1, &quot;red&quot;, &quot;The color of roses&quot;],
+  [2, &quot;green&quot;],
+  [3, &quot;blue&quot;, &quot;Violets&quot;]
+]]</code></pre>
+<pre><code>Colors = Enumerated
+   1 red                         // The color of roses
+   2 green
+   3 blue                        // Violets
+
+ColorIds = Enumerated#
+   1                             // red:: The color of roses
+   2                             // green::
+   3                             // blue:: Violets</code></pre>
+<!-- For CN?
+#### 4.2.1.1 Field Identifiers
+
+For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
+If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
+whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
+the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
+such as "NotAllowed", "Verboten", or "Interdit".
+-->
+
+<p>Multiplicity TypeOptions specify the ordering and uniqueness
+semantics of compound types. This allows collection instances with
+uniqueness constraints to be validated and instances with the same
+ordering significance to be compared, independently of their compound
+type. The ArrayOf compound type can specify the four UML collection
+types (sequence, set, ordered set, bag). Structured and MapOf compound
+types are always unique, so they can specify only set or ordered set
+collections. The non-default collection types are:</p>
+<table>
+<thead>
+<tr>
+<th>Compound Type</th>
+<th>Multiplicity Option</th>
+<th>Collection Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArrayOf</td>
+<td>set</td>
+<td>Non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>ArrayOf</td>
+<td>unique</td>
+<td>Ordered, Unique (ordered set)</td>
+</tr>
+<tr>
+<td>ArrayOf</td>
+<td>unordered</td>
+<td>Non-Ordered, Non-Unique (bag)</td>
+</tr>
+<tr>
+<td>Array</td>
+<td>set</td>
+<td>Non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>MapOf</td>
+<td>ordered</td>
+<td>Ordered, Unique (ordered set)</td>
+</tr>
+<tr>
+<td>Map</td>
+<td>ordered</td>
+<td>Ordered, Unique (ordered set)</td>
+</tr>
+<tr>
+<td>Record</td>
+<td>ordered</td>
+<td>Ordered, Unique (ordered set)</td>
+</tr>
+</tbody>
+</table>
+<p>The TypeOptions applicable to each compound CoreType are:</p>
+<table>
+<thead>
+<tr>
+<th>Compound Type</th>
+<th>Allowed TypeOptions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArrayOf(vtype)</td>
+<td>minLength, maxLength, set, unique, unordered, vtype</td>
+</tr>
+<tr>
+<td>Array</td>
+<td>minLength, maxLength, set</td>
+</tr>
+<tr>
+<td>MapOf(ktype, vtype)</td>
+<td>minLength, maxLength, ordered, ktype, vtype</td>
+</tr>
+<tr>
+<td>Map</td>
+<td>minLength, maxLength, ordered, id</td>
+</tr>
+<tr>
+<td>Record</td>
+<td>minLength, maxLength, ordered</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4221-field-options">4.2.2.1 Field Options</h4>
+<p>Structured compound types (Array, Map and Record) and the Choice type
+have Fields that define each item in a collection individually. Each
+Field has a numeric ID, Name, TypeReference, and FieldOptions from <a
+href="#table-4-3-options-applicable-to-an-individual-field">Table
+4-3</a>:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x5b</td>
+<td style="text-align: center;">[</td>
+<td>Integer</td>
+<td>minOccurs</td>
+<td>min cardinality, default = 1, 0 = field is optional</td>
+</tr>
+<tr>
+<td>0x5d</td>
+<td style="text-align: center;">]</td>
+<td>Integer</td>
+<td>maxOccurs</td>
+<td>max cardinality, default = 1, &lt;0 = inherited or none</td>
+</tr>
+<tr>
+<td>0x4b</td>
+<td style="text-align: center;">K</td>
+<td>Boolean</td>
+<td>key</td>
+<td>field is the primary key for this type</td>
+</tr>
+<tr>
+<td>0x4c</td>
+<td style="text-align: center;">L</td>
+<td>Boolean</td>
+<td>link</td>
+<td>field is a link (foreign key) to an instance of FieldType</td>
+</tr>
+</tbody>
+</table>
+<h6 id="table-4-3-options-applicable-to-an-individual-field">Table 4-3.
+Options Applicable to an Individual Field</h6>
+<h4 id="4222-multiplicity">4.2.2.2 Multiplicity</h4>
+<p>The <strong>minOccurs</strong> and <strong>maxOccurs</strong> options
+specify the minimum and maximum number of instances (the multiplicity)
+of a field within a collection:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">minOccurs</th>
+<th style="text-align: right;">maxOccurs</th>
+<th style="text-align: right;">Multiplicity</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">One instance (required) - default</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0..1</td>
+<td style="text-align: left;">Zero or one instances (optional)</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">Zero instances (prohibited)</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">&lt; 0</td>
+<td style="text-align: right;">0..*</td>
+<td style="text-align: left;">Zero or more instances</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">&lt; 0</td>
+<td style="text-align: right;">1..*</td>
+<td style="text-align: left;">One or more instance</td>
+</tr>
+<tr>
+<td style="text-align: right;">m</td>
+<td style="text-align: right;">n</td>
+<td style="text-align: right;">m..n</td>
+<td style="text-align: left;">At least m but no more than n
+instances</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The default value of minOccurs and maxOccurs is 1.</li>
+<li>maxOccurs includes non-negative integers (0..n), plus two reserved
+sentinel values less than 0:
+<ul>
+<li>UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements
+package default (<a href="#figure-3-1----jadn-schema-metadata">Figure
+3-1</a>), or if not specified, an implementation-defined default.</li>
+<li>UNLIMITED (-2) indicates that no upper bound is defined.
+Implementations are still limited by available storage capacity and the
+results of resource exhaustion are undefined.</li>
+</ul></li>
+<li>If a field has more than one instance, the <a
+href="#6-serialization-and-data-formats">data format</a> specifies
+whether its representation differs from that of a single instance. The
+<a href="#52-field-multiplicity">Field Multiplicity Shortcut</a>
+generates an ArrayOf() type definition for data formats (e.g., JSON)
+with different representations for single and multiple instances of a
+type.</li>
+</ul>
+<h4 id="4223-links">4.2.2.3 Links</h4>
+<p>An information model defines type relationships in two ways: as
+collections containing values or as references to values. Collection
+relationships are normally hierarchical: a root compound type such as
+book contains chapters, which contain sentences, which contain leaf
+types such as words. A hierarchy is a directed acyclic graph (DAG),
+meaning that its types have no circular dependencies and its values have
+no indefinitely-deep recursive nesting. When collection types have
+cyclic relationships either directly or indirectly through other types,
+the cycles should be broken by replacing a contained value with a
+reference to eliminate recursive nesting.</p>
+<p>The <code>key</code> and <code>link</code> TypeOptions support type
+references:</p>
+<ul>
+<li>The <code>key</code> option designates one field of a structured
+compound type as its primary key. Although the key field is normally a
+primitive type, it may be defined as a compound type to support
+composite keys.</li>
+<li>The <code>link</code> option designates a field as a foreign key
+that references an instance of the specified type, flattening collection
+values and supporting relationship-aware application operations such as
+checking referential integrity.</li>
+</ul>
+<p>As an example, an instance of a Person type with cyclic relationships
+would contain denormalized (duplicated) nested values. Using
+<code>link</code> references to eliminate contained value cycles results
+in a flat set of independent, normalized values:</p>
+<pre><code>Person = Record
+    1 id        Key(Integer)
+    2 name      String
+    3 mother    Link(Person)
+    4 father    Link(Person)
+    5 siblings  Link(Person) [0..*]
+    6 employer  Link(Organization) optional
+
+Organization = Record
+    1 name      String
+    2 ein       Key(String{10..10})
+    3 ceo       Link(Person)</code></pre>
+<p>Example composite key:</p>
+<pre><code>LineItem = Record
+   1 item_id    Key(ItemId)     // Composite unique identifier for a line item
+   2 quantity   Integer         // Other information about the ordered item
+
+ItemId = Array
+   1 Integer                    // order_id:: Order unique identifier
+   2 Integer                    // product_id:: Product unique identifier</code></pre>
+<h4 id="4224-compound-type-conformance-requirements">4.2.2.4 Compound
+Type Conformance Requirements</h4>
+<ul>
+<li>A compound type MUST NOT include more than one multiplicity option
+(set, unique, ordered, or unordered).</li>
+<li>If CoreType is ArrayOf, TypeOptions MUST include the
+<code>vtype</code> option.</li>
+<li>If CoreType is MapOf, TypeOptions MUST include <code>ktype</code>
+and <code>vtype</code> options.</li>
+<li>The ktype option SHOULD be a constrained type such as an
+enumeration, pattern or semantic valuation keyword that specifies a
+fixed subset of values.</li>
+<li>All values in an ArrayOf or MapOf instance must be an instance of
+<code>vtype</code>.</li>
+<li>All keys in a MapOf instance MUST be an instance of
+<code>ktype</code>.</li>
+<li>The number of items in a collection instance MUST NOT be less than
+minLength.</li>
+<li>The number of items in a collection instance MUST NOT be greater
+than maxLength.</li>
+<li>FieldIDs for Array and Record types denote position within the
+collection and MUST be numbered consecutively starting at 1.</li>
+<li>An instance of a Map, MapOf, or Record type MUST NOT have more than
+one occurrence of each key.</li>
+<li>An instance of a Map, MapOf, or Record type MUST NOT have a key of
+the null type.</li>
+<li>An instance of a Map, MapOf, or Record type with a key mapped to a
+null value MUST compare as equal to an otherwise identical instance
+without that key.</li>
+<li>The length of an Array, ArrayOf or Record instance MUST NOT include
+null values after the last non-null value.</li>
+<li>Two Array, ArrayOf or Record instances that differ only in the
+number of trailing nulls MUST compare as equal.</li>
+<li>An Array, Map or Record type MUST have no more than one
+<code>key</code> field. The key field MAY be a compound type.</li>
+<li>Values referenced by the <code>link</code> option MUST be instances
+of the referenced type.</li>
+<li>The value of a field with the <code>link</code> option MUST equal
+the value of the <code>key</code> field of the referenced type.</li>
+</ul>
+<h3 id="423-union-types">4.2.3 Union Types</h3>
+<p>A union type specifies a set of alternatives used to classify a
+value. Like Compound types, some Union types have fields individually
+identified by tag, where the tag consists of an integer FieldID and a
+string FieldName, each of which is local to and unique within the type
+definition. Union types define a set of tags, types or both:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: center;">Tag</th>
+<th style="text-align: center;">Type</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Enumerated</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">-</td>
+<td>Vocabulary, a set of tags.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Choice</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td>Tagged union, a set of tag:type pairs.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Choice(Cx)</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">Yes</td>
+<td>Untagged union, a specified logical combination of types.</td>
+</tr>
+</tbody>
+</table>
+<p>The TypeOptions applicable to Union types are:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x3d</td>
+<td style="text-align: center;">=</td>
+<td>Boolean</td>
+<td>id</td>
+<td>If present Tag is an integer FieldID, otherwise a string
+FieldName</td>
+</tr>
+<tr>
+<td>0x43</td>
+<td style="text-align: center;">C</td>
+<td>String</td>
+<td>combine</td>
+<td>Option value is a character specifying the untagged union combining
+function</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4231-enumerated">4.2.3.1 Enumerated</h4>
+<p>An Enumerated type defines a vocabulary, an explicitly listed set of
+<code>item_id</code>:<code>item_value</code> pairs. Enumerated is
+described as "a degenerate tagged union of unit type" [<a
+href="#enum">ENUM</a>] because it defines the tags of a tagged union
+without any associated type, and an instance equals one of the defined
+tags. The <code>id</code> option specifies that an instance is an
+integer matching an <code>item_id</code>, otherwise it is a string
+matching the corresponding <code>item_value</code>.</p>
+<p>The <em>enum</em> (<a href="#53-derived-enumerations">Section
+5.3</a>) and <em>pointer</em> (<a href="#55-pointers">Section 5.5</a>)
+shortcuts create an Enumerated type containing the tags from a
+referenced structured type.</p>
+<h4 id="4232-choice-tagged">4.2.3.2 Choice (Tagged)</h4>
+<p>The Choice type without a <em>combine</em> TypeOption is a tagged
+union, a structure that defines a set of tag:type pairs. Values include
+a tag specifying a single FieldType from the set, and an instance is a
+value that matches the FieldType specified by the tag.</p>
+<h4 id="4233-choice-untagged">4.2.3.3 Choice (Untagged)</h4>
+<p>The Choice type containing a <em>combine</em> TypeOption is an
+untagged union, a structure that defines a set of types used
+collectively to classify a value.</p>
+<p>The <em>combine</em> option value is a single character that
+specifies the required combination of FieldTypes:</p>
+<ul>
+<li>A: value must be an instance of <code>allOf</code> the types</li>
+<li>O: value must be an instance of <code>anyOf</code> the types, tried
+in field order until a match is found</li>
+<li>X: value must be an instance of <code>oneOf</code> the types and no
+others</li>
+</ul>
+<p>Field order does not matter for the <code>allOf</code> and
+<code>oneOf</code> options because values must always be evaluated
+against all FieldTypes.</p>
+<p>Field order is significant when using the <code>anyOf</code> option
+and the FieldTypes are not disjoint because this performs both
+classification and validation. A value may be an instance of more than
+one classifier, and classification may be used to answer two
+questions:</p>
+<ul>
+<li>given a classifier A, is value X an instance of A? (validation)</li>
+<li>given a value X, which classifier among {A, B, C, ...} is it to be
+considered an instance of? (classification)</li>
+</ul>
+<p>In this example the value "Home" is an instance of both the
+predefined and custom types and could be classified as either one. If
+any processing operations depend on the classification decision, the
+predefined type must appear first in the Choice otherwise it will never
+match and all values will be tagged, serialized, and processed as
+instances of the custom type:</p>
+<pre><code>PhoneType = Choice(anyOf)
+  1 predefined  PhoneNumberTypes   // Pre-defined names
+  2 custom      String{3..10}      // Any name 3-10 characters in length
+
+PhoneNumberTypes = Enumerated
+  1 Home
+  2 Cell
+  3 Office</code></pre>
+<p>An untagged Choice with a single field can be used to define an alias
+for FieldType. The <em>combine</em> option has no effect when there is
+only one field.</p>
+<h4 id="4234-field-options">4.2.3.4 Field Options</h4>
+<p>The FieldOptions applicable to Union types are:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x26</td>
+<td style="text-align: center;">&amp;</td>
+<td>Integer</td>
+<td>tagId</td>
+<td>field holding the tag used for a Tagged Union</td>
+</tr>
+<tr>
+<td>0x4E</td>
+<td style="text-align: center;">N</td>
+<td>Boolean</td>
+<td>not</td>
+<td>value is not an instance of FieldType in an untagged Union</td>
+</tr>
+</tbody>
+</table>
+<h5 id="42341-tagid">4.2.3.4.1 TagId</h5>
+<p>A tagged union within a structured type may use the
+<code>tagId</code> option to specify a separate field within that type
+to be used as its tag. The value of the designated field must be a valid
+field identifier for the Choice, and is normally an Enumerated type
+generated from the Choice using the <a
+href="#53-derived-enumerations">Derived Enumeration</a> shortcut:</p>
+<pre><code>Connection = Record
+  1 version      Enumerated(Enum[IP-Addr])    // src and dst versions must agree
+  2 source       IP-Addr(TagId[version])
+  3 destination  IP-Addr(TagId[version])
+
+IP-Addr = Choice
+  1 v4           IPv4-Addr
+  2 v6           IPv6-Addr</code></pre>
+<h5 id="42342-not">4.2.3.4.2 Not</h5>
+<p>A field within an untagged union may use the <code>not</code>
+(logical negation) option to complement its match result. This option is
+valid only in an <code>allOf</code> Choice where one or more fields
+restrict the set of instances, because a complement without a
+restriction matches instances of arbitrary size, type and
+complexity.</p>
+<pre><code>UserName = Choice(allOf)               // lower, upper and digits, but not all digits.
+   1  String{pattern=&quot;^[a-zA-Z0-9]$&quot;}  // a::
+   2  String{4..*} [1..16]             // b::
+   3  !String{pattern=&quot;^[0-9]$&quot;}       // c::</code></pre>
+<h4 id="4235-union-type-conformance-requirements">4.2.3.5 Union Type
+Conformance Requirements</h4>
+<ul>
+<li>The FieldIDs of a Choice(anyOf) type MUST be numbered sequentially
+starting at 1.</li>
+<li>A value MUST be classified against the fields of a Choice(anyOf)
+type in field order and as an instance of the first matching field.</li>
+<li>The <code>not</code> FieldOption MUST appear only in a Choice(allOf)
+type containing at least one field without a <code>not</code>
+option.</li>
+</ul>
+<h3 id="424-general-type-options">4.2.4 General Type Options</h3>
+<p>The TypeOptions applicable to all core types are:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x65</td>
+<td style="text-align: center;">e</td>
+<td>TypeRef</td>
+<td>extends</td>
+<td>Inheritance extension: superset of referenced type</td>
+</tr>
+<tr>
+<td>0x72</td>
+<td style="text-align: center;">r</td>
+<td>TypeRef</td>
+<td>restricts</td>
+<td>Inheritance restriction: subset of referenced type</td>
+</tr>
+<tr>
+<td>0x61</td>
+<td style="text-align: center;">a</td>
+<td>Boolean</td>
+<td>abstract</td>
+<td>Inheritance abstract: non-instantiatable type</td>
+</tr>
+<tr>
+<td>0x66</td>
+<td style="text-align: center;">f</td>
+<td>Boolean</td>
+<td>final</td>
+<td>Inheritance final: cannot be subtyped</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4241-type-inheritance">4.2.4.1 Type Inheritance</h4>
+<p>UML defines inherited classifiers, and JADN defines a mechanism for
+constructing DataType inheritance hierarchies using the
+<code>extends</code> and <code>restricts</code> TypeOptions. Type
+inheritance is static; it can be implemented as a shortcut that
+transforms inherited type definitions into expanded form prior to use,
+or as a runtime classifier operation.</p>
+<p>Unlike class inheritance, type inheritance mechanisms are defined
+using a simple subset rule:</p>
+<ul>
+<li>If type B <code>extends</code> type A, then every instance of A is
+also an instance of B</li>
+<li>If type B <code>restricts</code> type A, then every instance of B is
+also an instance of A</li>
+<li>The <code>abstract</code> TypeOption indicates that the type cannot
+be used as a classifier; values may be classified against its
+subtypes.</li>
+<li>The <code>final</code> TypeOption indicates that this type can be
+used as a classifier but cannot have subtypes.</li>
+</ul>
+<p>Although the subset rule is definitive and inheritance TypeOptions
+are valid for all core types, in practice inheritance is useful with
+only some types:</p>
+<ul>
+<li><strong>Primitive:</strong> Inheritance is not useful with primitive
+types because:
+<ul>
+<li>It is not possible to extend a Primitive type because every value
+that could be an instance of that type already is.</li>
+<li>It is not useful to restrict a Primitive type because the options
+defined in <a href="#421-primitive-types">Section 4.2.1</a> perform
+restrictions directly without referencing a parent type.</li>
+<li>Determining subsets analytically is not always practical. But an
+untagged Choice (<code>anyOf</code> or <code>allOf</code>) of types
+based on the same primitive type is equivalent to extend or restrict
+respectively.</li>
+</ul></li>
+</ul>
+<p>Examples:</p>
+<pre><code>Name1 = Choice(anyOf)                // Extend: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern=&quot;^[a-z0-9]$&quot;}   // a::
+   2  String{pattern=&quot;^[A-Z0-9]$&quot;}   // b::
+
+Name2 = Choice(allOf)                // Restrict: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern=&quot;^[a-z0-9]$&quot;}   // a::
+   2  String{pattern=&quot;^[A-Z0-9]$&quot;}   // b::</code></pre>
+<ul>
+<li><strong>Compound:</strong>
+<ul>
+<li>Inheritance may not be useful with unstructured compound types
+(ArrayOf and MapOf) because the minLength and maxLength options defined
+in <a href="#422-compound-types">Section 4.2.2</a> are used directly to
+define collections with different cardinality limits without referencing
+a parent type.</li>
+<li>Inheritance is used to add, remove, or modify the cardinality of
+fields in structured compound types.</li>
+</ul></li>
+</ul>
+<p>Examples:</p>
+<pre><code>Entity = Record abstract                // Base type, cannot be instantiated
+  1 id      Integer
+  2 name    String optional
+
+Person = Record extends(Entity)         // Add email address
+  3 email   String /email optional
+
+AnonymousPerson = Record restricts(Person) final  // Prohibit &quot;name&quot;, no subtypes
+  2 name    String [0]</code></pre>
+<ul>
+<li><strong>Enumerated:</strong>
+<ul>
+<li>Items can be added to an Enumerated type using
+<code>extends</code>.</li>
+<li>No mechanism is currently defined to remove items from an Enumerated
+type.</li>
+</ul></li>
+</ul>
+<p>Examples:</p>
+<pre><code>Colors1 = Enumerated                        // Primary colors
+  5 red
+  3 green
+ 16 blue
+
+Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
+  2 yellow
+  7 magenta
+  6 cyan</code></pre>
+<h4 id="4242-general-type-conformance-requirements">4.2.4.2 General Type
+Conformance Requirements</h4>
+<ul>
+<li>A type MUST NOT have more than one <code>extends</code> or
+<code>restricts</code> TypeOption.</li>
+<li>A type MUST NOT have both <code>extends</code> and
+<code>restricts</code> TypeOptions.</li>
+<li>A type with an <code>extends</code> or <code>restricts</code>
+TypeOption MUST have the same CoreType as the type referenced by that
+option.</li>
+</ul>
+<h3 id="425-semantic-validation">4.2.5 Semantic Validation</h3>
+<p>Semantic validation supplements type validation, ensuring that data
+values are within boundaries that applications will understand. Each
+<em>format</em> type option is a semantic validation keyword that
+references requirements defined by authoritative resources outside this
+specification.</p>
+<p>The TypeOptions field of a type definition (<a
+href="#41-type-definition-structure">Section 4.1</a>) is an id:value
+mapping whose keys must be unique. But format options have no value; the
+keyword is part of the key so a type may include multiple format
+options.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x2f</td>
+<td style="text-align: center;">/</td>
+<td>Enumerated</td>
+<td>format</td>
+<td>Semantic validation keyword</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4251-jadn-semantic-validation-keywords">4.2.5.1 JADN Semantic
+Validation Keywords</h4>
+<p>JADN types define both logical values and literals, and format
+options affect both validation and translation between values and text
+representations. See <a href="#6-serialization-and-data-formats">Section
+6</a>. The JADN format keywords are:</p>
+<table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Type</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>i&lt;n&gt;</td>
+<td>Integer</td>
+<td>Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) -
+1.</td>
+</tr>
+<tr>
+<td>u&lt;n&gt;</td>
+<td>Integer</td>
+<td>Unsigned integer or bit field of n bits, value must be between 0 and
+2^n - 1.</td>
+</tr>
+<tr>
+<td>d&lt;n&gt;</td>
+<td>Integer</td>
+<td>Decimal integer scale factor of 10^n: for n&gt;0 value has n
+fractional digits.</td>
+</tr>
+<tr>
+<td>f16</td>
+<td>Number</td>
+<td><a href="#ieee754">IEEE 754</a> Half-Precision Float</td>
+</tr>
+<tr>
+<td>f32</td>
+<td>Number</td>
+<td>IEEE 754 Single-Precision Float</td>
+</tr>
+<tr>
+<td>f64</td>
+<td>Number</td>
+<td>IEEE 754 Double-Precision Float</td>
+</tr>
+<tr>
+<td>f128</td>
+<td>Number</td>
+<td>IEEE 754 Quadruple-Precision Float</td>
+</tr>
+<tr>
+<td>f256</td>
+<td>Number</td>
+<td>IEEE 754 Octuple-Precision Float</td>
+</tr>
+<tr>
+<td>ipv4-addr</td>
+<td>Binary</td>
+<td>IPv4 address as specified in <a href="#rfc791">RFC 791</a> Section
+3.1</td>
+</tr>
+<tr>
+<td>ipv6-addr</td>
+<td>Binary</td>
+<td>IPv6 address as specified in <a href="#rfc8200">RFC 8200</a> Section
+3</td>
+</tr>
+<tr>
+<td>ipv4-net</td>
+<td>Array</td>
+<td>Binary IPv4 address and Integer prefix length as specified in <a
+href="#rfc4632">RFC 4632</a> Section 3.1</td>
+</tr>
+<tr>
+<td>ipv6-net</td>
+<td>Array</td>
+<td>Binary IPv6 address and Integer prefix length as specified in <a
+href="#rfc4291">RFC 4291</a> Section 2.3</td>
+</tr>
+<tr>
+<td>eui</td>
+<td>Binary</td>
+<td>IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64 as
+specified in <a href="#eui">EUI</a></td>
+</tr>
+<tr>
+<td>uuid</td>
+<td>Binary</td>
+<td>Universally Unique ID (UUID) as defined in <a href="#rfc9562">RFC
+9562</a></td>
+</tr>
+<tr>
+<td>tag-uuid</td>
+<td>Array</td>
+<td>UUID with string prefix</td>
+</tr>
+<tr>
+<td>date-time</td>
+<td>Integer</td>
+<td><a href="#posix-time">POSIX time</a>: the number of seconds since
+the Epoch</td>
+</tr>
+<tr>
+<td>date</td>
+<td>Integer</td>
+<td>POSIX time</td>
+</tr>
+<tr>
+<td>time</td>
+<td>Integer</td>
+<td>POSIX time</td>
+</tr>
+<tr>
+<td>duration</td>
+<td>Integer</td>
+<td>A number of seconds</td>
+</tr>
+</tbody>
+</table>
+<h5 id="integer-and-number-formats">Integer and Number Formats</h5>
+<p>The signed and unsigned integer keywords <code>/i&lt;n&gt;</code> and
+<code>/u&lt;n&gt;</code> indicate a range constraint on a logical value,
+equivalent to the <code>minInclusive</code> and
+<code>maxInclusive</code> options using two's-complement bounds for
+signed integers. They also indicate the size of the bit field used to
+hold a literal value in direct binary data format.</p>
+<p>The decimal scale factor keyword <code>/d&lt;n&gt;</code> indicates
+that an Integer holds an application value multiplied by the specified
+power of 10, using an integer to hold a fixed-precision rational number,
+or changing the unit scaling of a physical value:</p>
+<pre><code>Amount = Integer /d2    // Integer 152 represents an application value of 1.52,
+                        // changing currency unit from US dollars to cents</code></pre>
+<p>The IEEE 754 floating point number keywords <code>/f#</code> indicate
+the significand and exponent ranges of logical Number instances, and the
+size and structure of lexical Number instances when using binary data
+formats.</p>
+<h5 id="address-and-identifier-formats">Address and Identifier
+Formats</h5>
+<p>The <code>/uuid</code> keyword indicates a Universally Unique
+IDentifier (UUID), a 128 bit Binary label used to uniquely identify
+items, structured and serialized as defined in <a href="#rfc9562">RFC
+9562</a>.</p>
+<p>The <code>tag-uuid</code> keyword indicates an Array consisting of a
+String prefix and a Binary UUID, similar in purpose to a [STIX] Section
+2.9 <code>Identifier</code>. Although STIX defines the prefix to be the
+<em>type</em> property of the object identified by the UUID, this
+specification is not specific to any message protocol and does not
+constrain prefix content:</p>
+<pre><code>ObjectId = Array /tag-uuid
+   1  String                           // prefix:: Type Prefix
+   2  UUID                             // uuid:: Unique Identifier</code></pre>
+<p>When serialized in a text data format the <code>prefix</code> and
+<code>uuid</code> fields are separated by two dashes:</p>
+<pre><code>&quot;ipv4-addr--ff26c055-6336-5bc5-b98d-13d6226742dd&quot;</code></pre>
+<h5 id="time-formats">Time Formats</h5>
+<p>The meaning of an Integer with a time-related option is defined by
+the Portable Operating System Interface (<a
+href="#posix-time">POSIX</a>) specification as "the number of seconds
+since the Epoch". An epoch is a fixed date and time used as a reference
+from which time is measured. The Unix epoch is 00:00:00 UTC on January
+1, 1970, but POSIX permits other epochs such as 00:00:00 UTC on January
+1, 1900. Interoperability between systems using Integer time
+representations requires them to have a common epoch; in practice this
+means the Unix epoch is used unless specifically documented otherwise.
+POSIX also defines the relationship between integer time and the
+<code>tm</code> calendar time structure, which includes tm_year, tm_mon,
+tm_mday, tm_hour, tm_min, tm_sec.</p>
+<p>The logical value of an Integer with the <code>date</code> keyword is
+any Integer corresponding to the specified year, month and day of month,
+ignoring the time fields.<br />
+The logical value of an Integer with the <code>time</code> keyword is
+any Integer corresponding to the specified hour, minute and second,
+ignoring the date fields.</p>
+<p>The Integer type with these keywords is a logical value independent
+of representation, which can include strings in RFC 3339 format, other
+date and time formats, decimal string, hex string, base64 string, or an
+integer value in binary serializations.</p>
+<p>The decimal scale factor format <code>/d&lt;n&gt;</code> can be used
+with Integer times to specify time resolution:</p>
+<pre><code>Timestamp = Integer /date-time          // 1727877600 sec:     2024-10-02T15:00:00Z
+Timestamp-ms = Integer /date-time /d3   // 1727877600000 msec: 2024-10-02T15:00:00.000Z</code></pre>
+<p>A String type with a time-related keyword is a logical string equal
+to its text representation, where different strings are non-equal values
+that sort alphabetically even if they represent the same logical
+time:</p>
+<pre><code>Timestamp2 = String /date-time
+
+&quot;2024-10-02T10:00:00-05:00&quot;
+&quot;2024-10-02T15:00:00Z&quot;
+&quot;2024-10-02T15:00:00.000Z&quot;
+&quot;10:00:00 AM, October 2, 2024 EST&quot;
+&quot;Wednesday, October 2, 2024 11:00:00 AM GMT-04:00 DST&quot;</code></pre>
+<h4 id="4252-xsd-semantic-validation-keywords">4.2.5.2 XSD Semantic
+Validation Keywords</h4>
+<p>XML Schema Definition Language ([<a href="#xsd">XSD</a>]) Section 3
+defines a set of built-in DataTypes using a text-centric approach:</p>
+<blockquote>
+<p>The <em>value space</em> of <em>anyAtomicType</em> is the union of
+the value spaces of all the <em>primitive</em> datatypes defined here or
+supplied as implementation-defined primitives.</p>
+</blockquote>
+<p>Information models are value-centric: the JADN <em>value space</em>
+consists of the five <a href="#421-primitive-types">Primitive</a> types
+defined in Section 4.2.1, and the <em>lexical space</em> is constructed
+using semantic keywords defined here or supplied from elsewhere. This
+difference has several effects:</p>
+<ul>
+<li>Enumerated is a first-class JADN DataType, not a facet of string or
+integer representations.</li>
+<li>Integer and Number are distinct first-class JADN DataTypes, not
+subsets of a <em>decimal</em> DataType. Open and closed intervals apply
+to both Integers and Numbers.</li>
+<li>System time (Epoch + Integer offset and the Seven-property subset of
+POSIX <code>tm</code>) is the value space of time-related Integers. The
+lexical space is broad, and lexical mappings beyond ISO 8601
+(DMY/YMD/MDY, 12/24 hour, locale specifics) are out of scope but can be
+expressed in JADN as externally-defined format options.</li>
+</ul>
+<p>The following format options are defined for XSD compatibility. Many
+are aliases for JADN options applicable to all serialized data formats;
+some are specific to XML serialization but may be generalized to all
+serializations (e.g., an Array definition of QName) in a future
+version.</p>
+<table>
+<thead>
+<tr>
+<th>XSD DataType</th>
+<th>JADN DataType</th>
+<th>JADN Opts</th>
+<th>XSD-compatible</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>String</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- normalizedString</td>
+<td>String</td>
+<td></td>
+<td>/normalizedString</td>
+</tr>
+<tr>
+<td>- token</td>
+<td>String</td>
+<td></td>
+<td>/token</td>
+</tr>
+<tr>
+<td>- language</td>
+<td>String</td>
+<td></td>
+<td>/language</td>
+</tr>
+<tr>
+<td>- name</td>
+<td>String</td>
+<td></td>
+<td>/name</td>
+</tr>
+<tr>
+<td>boolean</td>
+<td>Boolean</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>decimal (integer)</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>- integer</td>
+<td>Integer</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>- long</td>
+<td>Integer</td>
+<td>/i64</td>
+<td>/long</td>
+</tr>
+<tr>
+<td>- int</td>
+<td>Integer</td>
+<td>/i32</td>
+<td>/int</td>
+</tr>
+<tr>
+<td>- short</td>
+<td>Integer</td>
+<td>/i16</td>
+<td>/short</td>
+</tr>
+<tr>
+<td>- byte</td>
+<td>Integer</td>
+<td>/i8</td>
+<td>/byte</td>
+</tr>
+<tr>
+<td>- nonNegativeInteger</td>
+<td>Integer</td>
+<td>[0, *]</td>
+<td>/nonNegativeInteger</td>
+</tr>
+<tr>
+<td>- positiveInteger</td>
+<td>Integer</td>
+<td>(0, *]</td>
+<td>/positiveInteger</td>
+</tr>
+<tr>
+<td>- unsignedLong</td>
+<td>Integer</td>
+<td>/u64</td>
+<td>/unsignedLong</td>
+</tr>
+<tr>
+<td>- unsignedInt</td>
+<td>Integer</td>
+<td>/u32</td>
+<td>/unsignedInt</td>
+</tr>
+<tr>
+<td>- unsignedShort</td>
+<td>Integer</td>
+<td>/u16</td>
+<td>/unsignedShort</td>
+</tr>
+<tr>
+<td>- unsignedByte</td>
+<td>Integer</td>
+<td>/u8</td>
+<td>/unsignedByte</td>
+</tr>
+<tr>
+<td>- nonPositiveInteger</td>
+<td>Integer</td>
+<td>[*, 0]</td>
+<td>/nonPositiveInteger</td>
+</tr>
+<tr>
+<td>- negativeInteger</td>
+<td>Integer</td>
+<td>[*, 0)</td>
+<td>/negativeInteger</td>
+</tr>
+<tr>
+<td>decimal (float)</td>
+<td>Number</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>float</td>
+<td>Number</td>
+<td>/f32</td>
+<td>/float</td>
+</tr>
+<tr>
+<td>double</td>
+<td>Number</td>
+<td>/f64</td>
+<td>/double</td>
+</tr>
+<tr>
+<td>duration</td>
+<td>Integer</td>
+<td>/duration</td>
+<td></td>
+</tr>
+<tr>
+<td>- dayTimeDuration</td>
+<td>Integer</td>
+<td></td>
+<td>/dayTimeDuration</td>
+</tr>
+<tr>
+<td>- yearMonthDuration</td>
+<td>Integer</td>
+<td></td>
+<td>/yearMonthDuration</td>
+</tr>
+<tr>
+<td>dateTime</td>
+<td>Integer</td>
+<td>/date-time</td>
+<td>/dateTime</td>
+</tr>
+<tr>
+<td>time</td>
+<td>Integer</td>
+<td>/time</td>
+<td></td>
+</tr>
+<tr>
+<td>date</td>
+<td>Integer</td>
+<td>/date</td>
+<td></td>
+</tr>
+<tr>
+<td>gYearMonth</td>
+<td>Integer</td>
+<td></td>
+<td>/gYearMonth</td>
+</tr>
+<tr>
+<td>gYear</td>
+<td>Integer</td>
+<td></td>
+<td>/gYear</td>
+</tr>
+<tr>
+<td>gMonthDay</td>
+<td>Integer</td>
+<td></td>
+<td>/gMonthDay</td>
+</tr>
+<tr>
+<td>hexBinary</td>
+<td>Binary</td>
+<td>/x, /X</td>
+<td>/hexBinary</td>
+</tr>
+<tr>
+<td>base64Binary</td>
+<td>Binary</td>
+<td>/b64</td>
+<td>/base64Binary</td>
+</tr>
+<tr>
+<td>anyUri</td>
+<td>String</td>
+<td>/uri, /iri</td>
+<td>/anyUri</td>
+</tr>
+<tr>
+<td>QName</td>
+<td>String</td>
+<td></td>
+<td>/QName</td>
+</tr>
+<tr>
+<td>Notation</td>
+<td>String</td>
+<td></td>
+<td>/Notation</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4253-json-schema-semantic-validation-keywords">4.2.5.3 JSON
+Schema Semantic Validation Keywords</h4>
+<p>The following semantic validation keywords are defined in [<a
+href="#jsonschema">JSON Schema</a>] Section 7.3. Because JSON Schema
+defines only text representations, these keywords have the meanings
+listed here when used with the String type. <a
+href="#4251-jadn-semantic-validation-keywords">JADN Semantic Validation
+Keywords</a> defines the meaning of some of these keywords when used
+with types other than String.</p>
+<p>For example, a String with <code>date-time</code> format has literal
+values such as:</p>
+<ul>
+<li>"2024-10-02T10:00:00-05:00"</li>
+<li>"2024-10-02T15:00:00Z"</li>
+<li>"2024-10-02T15:00:00.000Z"</li>
+</ul>
+<p>These are unequal strings even though they represent the same
+timestamp.</p>
+<table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Type</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>date-time</td>
+<td>String</td>
+<td>String literal <a href="#rfc9557">RFC 9557</a> Section 4.1
+"date-time-ext"</td>
+</tr>
+<tr>
+<td>date</td>
+<td>String</td>
+<td>String literal <a href="#rfc3339">RFC 3339</a> Section 5.6
+"full-date"</td>
+</tr>
+<tr>
+<td>time</td>
+<td>String</td>
+<td>String literal <a href="#rfc3339">RFC 3339</a> Section 5.6
+"full-time"</td>
+</tr>
+<tr>
+<td>duration</td>
+<td>String</td>
+<td>String literal <a href="#rfc3339">RFC 3339</a> Appendix A
+"duration"</td>
+</tr>
+<tr>
+<td>email</td>
+<td>String</td>
+<td>"Mailbox" as defined in <a href="#rfc5321">RFC 5321</a> Section
+4.1.2</td>
+</tr>
+<tr>
+<td>idn-email</td>
+<td>String</td>
+<td>"Mailbox" as defined in <a href="#rfc6531">RFC 6531</a> Section
+3.3</td>
+</tr>
+<tr>
+<td>hostname</td>
+<td>String</td>
+<td>RFC 1123 Section 2.1</td>
+</tr>
+<tr>
+<td>idn-hostname</td>
+<td>String</td>
+<td>RFC 1123 or RFC 5890 Section 2.3.2.3</td>
+</tr>
+<tr>
+<td>ipv4</td>
+<td>String</td>
+<td>"dotted quad" representation as defined in <a href="#rfc2673">RFC
+2673</a> Section 3.2</td>
+</tr>
+<tr>
+<td>ipv6</td>
+<td>String</td>
+<td>Text representation of an IPv6 address as defined in <a
+href="#rfc4291">RFC 4291</a> Section 2.2</td>
+</tr>
+<tr>
+<td>uri</td>
+<td>String</td>
+<td><a href="#rfc3986">RFC 3986</a></td>
+</tr>
+<tr>
+<td>uri-reference</td>
+<td>String</td>
+<td><a href="#rfc3986">RFC 3986</a></td>
+</tr>
+<tr>
+<td>iri</td>
+<td>String</td>
+<td><a href="#rfc3986">RFC 3987</a></td>
+</tr>
+<tr>
+<td>iri-reference</td>
+<td>String</td>
+<td><a href="#rfc3986">RFC 3987</a></td>
+</tr>
+<tr>
+<td>uuid</td>
+<td>String</td>
+<td>"hex-and-dash" representation of a UUID as defined in <a
+href="#rfc9562">RFC 9562</a></td>
+</tr>
+<tr>
+<td>uri-template</td>
+<td>String</td>
+<td><a href="#rfc6570">RFC 6570</a></td>
+</tr>
+<tr>
+<td>json-pointer</td>
+<td>String</td>
+<td><a href="#rfc6901">RFC 6901</a> Section 5</td>
+</tr>
+<tr>
+<td>relative-json-pointer</td>
+<td>String</td>
+<td>No current specification, last I-D expired Dec 2023</td>
+</tr>
+<tr>
+<td>regex</td>
+<td>String</td>
+<td>Regular Expression according to <a href="#ecmascript">ECMA-262</a>
+Section 22.2.1 "Pattern"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="5-shortcuts">5 Shortcuts</h1>
+<p>JADN consists of a set of core definition elements, plus several
+shortcuts that make type definitions more compact or support the <a
+href="#dry">DRY</a> software design principle. Shortcuts are syntactic
+sugar that can be replaced by core definitions without changing their
+meaning. Expanding shortcuts into core definitions simplifies
+serialization and validation code and may aid understanding, but creates
+additional definitions that must be kept in sync.</p>
+<p>The following shortcuts can be converted to core definitions:</p>
+<ul>
+<li>Anonymous type definition within a field</li>
+<li>Multi-value field multiplicity</li>
+<li>Derived enumeration</li>
+<li>MapOf type with Enumerated key type</li>
+<li>Derived paths</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th style="text-align: center;">Chr</th>
+<th>Type</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x23</td>
+<td style="text-align: center;">#</td>
+<td>TypeRef</td>
+<td>enum</td>
+<td>Enumerated type derived from a structured type</td>
+</tr>
+<tr>
+<td>0x3e</td>
+<td style="text-align: center;">&gt;</td>
+<td>TypeRef</td>
+<td>pointer</td>
+<td>Enumerated type containing pointers derived from a structured
+type</td>
+</tr>
+</tbody>
+</table>
+<h2 id="51-anonymous-type-definition">5.1 Anonymous Type Definition</h2>
+<p>This shortcut allows fields within a structured type to be defined
+anonymously. Expanding the definition generates a named type for each
+anonymous field, moves all TypeOptions included in the field to the
+generated type, and replaces the field type with a reference to the
+generated type. This requires the anonymous field to be a non-structured
+core type and any TypeOption values included in FieldOptions to apply to
+FieldType.</p>
+<p>Example: a structured type with anonymous fields:</p>
+<pre><code>Coordinate = Record                        // A GPS coordinate
+   1 latitude     Number [-90.0, 90.0]     // A Number between -90 and 90 degrees
+   2 longitude    Number [-180.0, 180.0]   // A Number between -180 and 180 degrees</code></pre>
+<p>Expanded type with references to generated types:</p>
+<pre><code>Coordinate = Record                        // A GPS coordinate
+   1 latitude     Coordinate.latitude      // A Number between -90 and 90 degrees
+   2 longitude    Coordinate.longitude     // A Number between -180 and 180 degrees
+
+Coordinate.latitude = Number [-90.0, 90.0]
+Coordinate.longitude = Number [-180.0, 180.0]</code></pre>
+<h2 id="52-field-multiplicity">5.2 Field Multiplicity</h2>
+<p>Fields may be defined to have multiple values of the same type.
+Expanding converts each field that can have more than one value to a
+separate ArrayOf type. The multiplicity (<em>minOccurs</em> and
+<em>maxOccurs</em>) FieldOptions (<a href="#4222-multiplicity">Section
+4.2.2.2</a>) are moved from FieldOptions to the minimum and maximum
+length (<em>minLength</em> and <em>maxLength</em>) TypeOptions (<a
+href="#423-union-types">Section 4.2.3</a>)) of the new ArrayOf type,
+except that if <em>minOccurs</em> is 0 (field is optional), it remains
+in FieldOptions and the new ArrayOf type has a minimum length of 1.</p>
+<p>Example:</p>
+<pre><code>Roster = Record
+   1 org_name   String
+   2 members    Member [0..*]   // Optional repeated: minOccurs=0, maxOccurs=MAX_DEFAULT</code></pre>
+<p>Expanding replaces this with:</p>
+<pre><code>Roster = Record
+   1 org_name   String
+   2 members    Roster.members optional // Optional: minOccurs=0, default maxOccurs (1)
+
+Roster.members = ArrayOf(Member){1..*}  // Tool-generated array: minLength=1, no maxLength</code></pre>
+<p>If a list with no elements should be represented as an empty array
+rather than omitted, its type definition must include an explicit
+ArrayOf type rather than using the field multiplicity shortcut:</p>
+<pre><code>Roster = Record
+   1 org_name   String
+   2 members    Members     // members field is required: default minOccurs (1), maxOccurs (1)
+
+Members = ArrayOf(Member)   // Explicitly-defined array: no minLength, no maxLength</code></pre>
+<h2 id="53-derived-enumerations">5.3 Derived Enumerations</h2>
+<p>An Enumerated type defined with the <em>enum</em> option has fields
+copied from the type referenced in the option rather than being listed
+individually in the definition. Expanding removes <em>enum</em> from
+Type Options and adds fields containing FieldID, FieldName, and
+FieldDescription from each field of the referenced type.</p>
+<p>In JADN-IDL (<a href="#71-information-definition-language">Section
+7.1</a>) the <em>enum</em> option is represented as a function string:
+"Enum(&lt;referenced-type&gt;)". Within ArrayOf and MapOf types, the
+<em>ktype</em> and <em>vtype</em> options may contain an enum option. As
+an example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN
+vtype option "*#Pixel".</p>
+<p>Expanding references an explicit Enumerated type if it exists,
+otherwise it creates an explicit Enumerated type. It then replaces the
+type reference with the name of the explicit Enumerated type.</p>
+<p>Example:</p>
+<pre><code>Pixel = Map
+   1 red          Integer
+   2 green        Integer
+   3 blue         Integer
+
+Channel = Enumerated(Enum[Pixel])       // Derived Enumerated type
+
+ChannelMask = ArrayOf(Enum[Pixel])      // ArrayOf(derived enumeration)</code></pre>
+<p>Expanding replaces the Channel and ChannelMask definitions with:</p>
+<pre><code>Channel2 = Enumerated
+   1 red
+   2 green
+   3 blue
+
+ChannelMask2 = ArrayOf(Channel)</code></pre>
+<h2 id="54-mapof-with-enumerated-key">5.4 MapOf With Enumerated Key</h2>
+<p>A MapOf type where <em>ktype</em> is Enumerated is equivalent to a
+Map. Expanding replaces the MapOf type definition with a Map type with
+keys from the Enumerated <em>ktype</em>. This is the complementary
+operation to derived enumeration. In order to use this shortcut, each
+ItemValue of the Enumerated type must be a valid FieldName.</p>
+<p>Example:</p>
+<pre><code>Channel3 = Enumerated
+   1 red
+   2 green
+   3 blue
+
+Pixel3 = MapOf(Channel3, Integer)</code></pre>
+<p>Expanding replaces the Pixel MapOf with the explicit Pixel Map shown
+under <a href="#53-derived-enumerations">Derived Enumerations</a>.</p>
+<h2 id="55-pointers">5.5 Pointers</h2>
+<p>The Pointer shortcut generates a depth-first list of paths, similar
+to a recursive filesystem listing. Expanding replaces the Pointer
+shortcut with an Enumerated type containing a <a href="#rfc6901">JSON
+Pointer</a> pathname for each leaf type under the specified TypeRef.
+Link fields are listed but not followed.</p>
+<p>Example:</p>
+<pre><code>BOM = Record
+   1 bomFormat        BomFormat
+   2 version          String
+   3 metadata         Metadata
+
+BomFormat = Enumerated
+   1 cyclonedx
+   2 spdx
+
+Metadata = Record
+   1 timestamp        String /date-time
+   2 tools            Tool [1..*]
+
+Tool = Record{1..*}
+   1 vendor           String optional
+   2 name             String optional
+
+BomList = Enumerated(Pointer[BOM])</code></pre>
+<p>Expanding replaces BomList with:</p>
+<pre><code>BomList = Enumerated
+   1 bomFormat
+   2 version
+   3 metadata/timestamp
+   4 metadata/tools/#/vendor
+   5 metadata/tools/#/name</code></pre>
+<hr />
+<h1 id="6-serialization-and-data-formats">6 Serialization and Data
+Formats</h1>
+<p>Applications may use any internal information representation that
+exhibits the characteristics defined in <a href="#4-jadn-types">Section
+4</a>. Serialization rules define how to represent instances of each
+type using a specific format. Several serialization formats are defined
+in this section. In order to be usable with JADN, serialization formats
+defined elsewhere must:</p>
+<ul>
+<li>Specify an unambiguous serialized representation for each JADN
+type</li>
+<li>Specify how each option applicable to a type affects serialized
+values</li>
+<li>Specify any validation requirements defined for that format</li>
+</ul>
+<h2 id="61-verbose-json-serialization">6.1 Verbose JSON
+Serialization</h2>
+<p>The following serialization rules represent JADN data types in a
+human-readable JSON format using name-value encoding for tabular
+data.</p>
+<ul>
+<li>When using JSON serialization, instances of JADN types without a
+format option listed in this section MUST be serialized as:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">JSON Serialization Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Binary</strong></td>
+<td style="text-align: left;">JSON <strong>string</strong> containing
+Base64url encoding of the binary value as defined in Section 5 of <a
+href="#rfc4648">RFC 4648</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Boolean</strong></td>
+<td style="text-align: left;">JSON <strong>true</strong> or
+<strong>false</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Integer</strong></td>
+<td style="text-align: left;">JSON <strong>number</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Number</strong></td>
+<td style="text-align: left;">JSON <strong>number</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>String</strong></td>
+<td style="text-align: left;">JSON <strong>string</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Enumerated</strong></td>
+<td style="text-align: left;">JSON <strong>string</strong>
+ItemValue</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Enumerated</strong> with "id"</td>
+<td style="text-align: left;">JSON <strong>integer</strong> ItemID</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Choice</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong> with one
+property. Property key is FieldName.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Choice</strong> with "id"</td>
+<td style="text-align: left;">JSON <strong>object</strong> with one
+property. Property key is FieldID converted to string.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Array</strong></td>
+<td style="text-align: left;">JSON <strong>array</strong> of values with
+types specified by FieldType. Omitted optional values are
+<strong>null</strong> if before the last specified value, otherwise
+omitted.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArrayOf</strong></td>
+<td style="text-align: left;">JSON <strong>array</strong> of values with
+type <em>vtype</em>, or JSON <strong>null</strong> if <em>vtype</em> is
+null.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Map</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong>. Property
+keys are FieldNames.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Map</strong> with "id"</td>
+<td style="text-align: left;">JSON <strong>object</strong>. Property
+keys are FieldIDs converted to strings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MapOf</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong> if
+<em>ktype</em> is a String type, JSON <strong>array</strong> if
+<em>ktype</em> is not a String type, or JSON <strong>null</strong> if
+<em>vtype</em> is null. Properties have key type <em>ktype</em> and
+value type <em>vtype</em>. MapOf types with non-string keys are
+serialized as in CBOR: a JSON <strong>array</strong> of keys and
+cooresponding values [key1, value1, key2, value2, ...].</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Record</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong>. Property
+keys are FieldNames.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Format options that affect JSON serialization</strong></p>
+<ul>
+<li>When using JSON serialization, instances of JADN types with one of
+the following format options MUST be serialized as:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Option</th>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">JSON Serialization Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>x</strong></td>
+<td style="text-align: left;">Binary</td>
+<td style="text-align: left;">JSON <strong>string</strong> containing
+Base16 (hex) encoding of a binary value as defined in <a
+href="#rfc4648">RFC 4648</a> Section 8. Note that the Base16 alphabet
+does not include lower-case letters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ipv4-addr</strong></td>
+<td style="text-align: left;">Binary</td>
+<td style="text-align: left;">JSON <strong>string</strong> containing a
+"dotted-quad" as specified in <a href="#rfc2673">RFC 2673</a> Section
+3.2.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ipv6-addr</strong></td>
+<td style="text-align: left;">Binary</td>
+<td style="text-align: left;">JSON <strong>string</strong> containing
+the text representation of an IPv6 address as specified in <a
+href="#rfc4291">RFC 4291</a> Section 2.2.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ipv4-net</strong></td>
+<td style="text-align: left;">Array</td>
+<td style="text-align: left;">JSON <strong>string</strong> containing
+the text representation of an IPv4 address range as specified in <a
+href="#rfc4632">RFC 4632</a> Section 3.1.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ipv6-net</strong></td>
+<td style="text-align: left;">Array</td>
+<td style="text-align: left;">JSON <strong>string</strong> containing
+the text representation of an IPv6 address range as specified in <a
+href="#rfc4291">RFC 4291</a> Section 2.3.</td>
+</tr>
+</tbody>
+</table>
+<p>Specifications MAY define additional format options for textual
+representation of Binary, Integer, Number or Array data.</p>
+<h2 id="62-compact-json-serialization">6.2 Compact JSON
+Serialization:</h2>
+<p>The following serialization rules represent JADN types in a
+human-readable JSON format using positional encoding for tabular
+data.</p>
+<ul>
+<li>When using Compact JSON serialization, instances of JADN types MUST
+be serialized as in section 4.1 except:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">Concise JSON Serialization
+Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Record</strong></td>
+<td style="text-align: left;">JSON <strong>array</strong> of values with
+types specified by FieldType. Omitted optional values are
+<strong>null</strong> if before the last specified value, otherwise
+omitted.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="63-concise-json-serialization">6.3 Concise JSON
+Serialization:</h2>
+<p>Concise JSON serialization rules represent JADN data types in a
+format optimized for minimum size. JSON data in this format may be used
+directly for communication or to visualize the content of
+CBOR-serialized data.</p>
+<ul>
+<li>When using Concise JSON serialization, instances of JADN types MUST
+be serialized as in section 4.1 except:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">Concise JSON Serialization
+Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Enumerated</strong></td>
+<td style="text-align: left;">JSON <strong>integer</strong> ItemID</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Choice</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong> with one
+property. Property key is the FieldID converted to string.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Map</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong>. Property
+keys are FieldIDs converted to strings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MapOf</strong></td>
+<td style="text-align: left;">JSON <strong>object</strong> if
+<em>ktype</em> is a String type, JSON <strong>array</strong> if
+<em>ktype</em> is not a String type. Members have key type
+<em>ktype</em> and value type <em>vtype</em>. MapOf types with
+non-string keys are serialized as in CBOR: a JSON <strong>array</strong>
+of keys and cooresponding values [key1, value1, key2, value2, ...].</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Record</strong></td>
+<td style="text-align: left;">JSON <strong>array</strong> of values with
+types specified by FieldType. Omitted optional values are
+<strong>null</strong> if before the last specified value, otherwise
+omitted.</td>
+</tr>
+</tbody>
+</table>
+<p>All formats specifying a textual representation for Binary, Integer,
+Number, or Array types are ignored when using Concise serialization.</p>
+<h2 id="64-cbor-serialization">6.4 CBOR Serialization</h2>
+<p>The following serialization rules are used to represent JADN data
+types in Concise Binary Object Representation (<a
+href="#rfc8949">CBOR</a>) format. The initial byte of each encoded data
+item contains both information about the major type (the high-order 3
+bits) and additional information (the low-order 5 bits). In this section
+CBOR type #x.y = Major type x, Additional information y.</p>
+<p>CBOR type names from Concise Data Definition Language (<a
+href="#rfc8610">CDDL</a>) are shown for reference.</p>
+<ul>
+<li>When using CBOR serialization, instances of JADN types without a
+format option listed in this section MUST be serialized as:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">JADN Type</th>
+<th>CDDL</th>
+<th style="text-align: left;">CBOR Serialization Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Binary</strong></td>
+<td>bstr</td>
+<td style="text-align: left;">a byte string (#2).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Boolean</strong></td>
+<td>bool</td>
+<td style="text-align: left;">a Boolean value (False = #7.20, True =
+#7.21).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Integer</strong></td>
+<td>int</td>
+<td style="text-align: left;">an unsigned integer (#0) or negative
+integer (#1)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Number</strong></td>
+<td>float64</td>
+<td style="text-align: left;">IEEE 754 Double-Precision Float
+(#7.27).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>String</strong></td>
+<td>tstr</td>
+<td style="text-align: left;">a text string (#3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Enumerated</strong></td>
+<td>int</td>
+<td style="text-align: left;">an unsigned integer (#0) or negative
+integer (#1) ItemID.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Choice</strong></td>
+<td>struct</td>
+<td style="text-align: left;">a map (#5) containing one pair. The first
+item is a FieldID, the second item has the corresponding FieldType.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Array</strong></td>
+<td>record</td>
+<td style="text-align: left;">an array of values (#4) with types
+specified by FieldType. Omitted optional values are
+<strong>null</strong> (#7.22) if before the last specified value,
+otherwise omitted.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArrayOf</strong></td>
+<td>vector</td>
+<td style="text-align: left;">an array of values (#4) of type
+<em>vtype</em>, or <strong>null</strong> (#7.22) if vtype is null.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Map</strong></td>
+<td>struct</td>
+<td style="text-align: left;">a map (#5) of pairs. In each pair the
+first item is a FieldID, the second item has the corresponding
+FieldType.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MapOf</strong></td>
+<td>table</td>
+<td style="text-align: left;">a map (#5) of pairs, or
+<strong>null</strong> if <em>vtype</em> is null. In each pair the first
+item has type <em>ktype</em>, the second item has type
+<em>vtype</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Record</strong></td>
+<td>record</td>
+<td style="text-align: left;">same as <strong>Array</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Format options that affect CBOR Serialization</strong></p>
+<ul>
+<li>When using CBOR serialization, instances of JADN types with one of
+the following format options MUST be serialized as:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Option</th>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">CBOR Serialization Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>f16</strong></td>
+<td style="text-align: left;">Number</td>
+<td style="text-align: left;"><strong>float16</strong>: IEEE 754
+Half-Precision Float (#7.25).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>f32</strong></td>
+<td style="text-align: left;">Number</td>
+<td style="text-align: left;"><strong>float32</strong>: IEEE 754
+Single-Precision Float (#7.26).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>f64</strong></td>
+<td style="text-align: left;">Number</td>
+<td style="text-align: left;"><strong>float64</strong>: IEEE 754
+Double-Precision Float (#7.27).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="65-xml-serialization">6.5 XML Serialization:</h2>
+<ul>
+<li>When using XML serialization, instances of JADN types without a
+format option listed in this section MUST be serialized as:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">XML Serialization Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Binary</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:base64Binary"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Boolean</strong></td>
+<td style="text-align: left;">&lt;xs:attribute name="FieldName"
+type="xs:boolean"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Integer</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:integer"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Number</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:decimal"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>String</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:string"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Enumerated</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:string"/&gt; ItemValue of the selected item</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Choice</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"/&gt;
+containing one element with name FieldName of the selected field</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Array</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"/&gt;
+containing elements with name FieldName of each field</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArrayOf</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"/&gt;
+containing elements with the same FieldName for all fields</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Map</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"/&gt;
+containing "MapEntry" elements with "key=" attribute</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MapOf</strong></td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"/&gt;
+containing "MapEntry" elements with "key=" attribute</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Record</strong></td>
+<td style="text-align: left;">same as <strong>Map</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Format options that affect XML serialization</strong></p>
+<ul>
+<li>When using XML serialization, instances of JADN types with one of
+the following format options MUST be serialized as:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Option</th>
+<th style="text-align: left;">JADN Type</th>
+<th style="text-align: left;">XML Serialization Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>x</strong></td>
+<td style="text-align: left;">Binary</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:hexBinary"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>i8</strong></td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:byte"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>i16</strong></td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:short"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>i32</strong></td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:int"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>u1..u8</strong></td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:unsignedByte"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>u9..u16</strong></td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:unsignedShort"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>u17..u32</strong></td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:unsignedInt"/&gt;</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>u33..u</strong>*</td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">&lt;xs:element name="FieldName"
+type="xs:nonNegativeInteger"/&gt;</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="7-alternate-schema-representations">7 Alternate Schema
+Representations</h1>
+<p><a href="#4-jadn-types">Section 4</a> defines the normative JSON
+format of JADN type definitions. Although JSON data is unambiguous, it
+is not ideal as a documentation format. This section suggests several
+more readable ways of describing and documenting information models.</p>
+<p><em><strong>Note:</strong></em> <em>This section is
+informative</em></p>
+<h2 id="71-information-definition-language">7.1 Information Definition
+Language</h2>
+<p>JADN Interface Definition Language (IDL) is a textual representation
+of JADN type definitions. It replicates the structure of <a
+href="#41-type-definition-structure">Section 4.1</a> but combines each
+type and its options into a single string formatted for readability. The
+conversion between JSON and JADN-IDL formats is lossless in both
+directions, meaning that the IDL described here is unambiguous and
+complete. But it is not intended to be immutable; syntactic details may
+be updated to accommodate new use cases or improve usability without
+affecting the JADN standard.</p>
+<p>The JADN-IDL definition formats are:</p>
+<p>Primitive types:</p>
+<pre><code>    TypeName = TYPESTRING                     // TypeDescription</code></pre>
+<p>Enumerated type without the <code>id</code> option:</p>
+<pre><code>    TypeName = TYPESTRING                     // TypeDescription
+        ItemID ItemValue                      // ItemDescription
+        ...</code></pre>
+<p>Compound types without the <code>id</code> option:</p>
+<pre><code>    TypeName = TYPESTRING                     // TypeDescription
+        FieldID FieldName FIELDSTRING         // FieldDescription
+        ...</code></pre>
+<p>Structured types with the <code>id</code> <a
+href="#table-4-2-typeoptions-specific-to-compound-types">TypeOption</a>
+treat the item/field name as an informative label and display it in the
+description followed by a label terminator ("::"):</p>
+<pre><code>    /* Enumerated# */
+    TypeName = TYPESTRING                     // TypeDescription
+        ItemID                                // ItemValue:: ItemDescription
+    
+    /* Choice#, Map# */
+    TypeName = TYPESTRING                     // TypeDescription
+        FieldID FIELDSTRING                   // FieldName:: FieldDescription
+        ...</code></pre>
+<p><strong>Type Options:</strong></p>
+<p>TYPESTRING is the value of CoreType or FieldType, followed by string
+representations of the type options, if applicable to TYPE as specified
+in <a href="#42-core-types">Section 4.2</a>.</p>
+<ul>
+<li>TYPEREF is a type name with optional namespace prefix as specified
+in <a href="#313-package-conformance-requirements">Section
+3.1.3</a>.</li>
+<li>FMTNAME is the name of a semantic validation function as specified
+in <a href="#425-semantic-validation">Section 4.1.5</a>.</li>
+</ul>
+<pre><code>    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]  ; TYPE is CoreType or FieldType
+    ID          = &quot;.ID&quot;
+    FUNC        = &quot;(&quot; TYPEREF [&quot;,&quot; TYPEREF] &quot;)&quot;         ; if TYPE is MapOf, ArrayOf
+                | &quot;(&quot; FUNCNAME &quot;[&quot; TYPEREF &quot;])&quot;         ; if TYPE is Enumerated
+    RANGEPAT    = &quot;{&quot; NUM [&quot;..&quot; NUM] &quot;}&quot;
+                | &quot;{pattern=&quot; DQUOTE 1*STR DQUOTE &quot;}&quot;   ; if TYPE is String. *STR should be a valid regular expression
+    FORMAT      = &quot; /&quot; FMTNAME
+    FUNCNAME    = &quot;Enum&quot; | &quot;Pointer&quot;
+    KW          = &quot;unique&quot; | &quot;set&quot; | &quot;unordered&quot;        ; if TYPE is ArrayOf
+    DQUOTE      = %x22                                  ; Double-quote character (&quot;)
+    STR         = %x20-%x7e                             ; Visible characters plus space</code></pre>
+<p><strong>Field Options:</strong></p>
+<p>Type and Field options affect the entire line of a field's IDL
+text:</p>
+<pre><code>    FIELDLINE   = INT FIELDSTRING
+    FIELDSTRING = [FIELDNAME] [DIR] TYPE [MULT | TAGID] [FIELDDESC]
+    INT         = 1*DIGIT
+    DIR         = &quot;/&quot;
+    TYPE        = TYPESTRING
+                | &quot;Key(&quot; TYPESTRING &quot;)&quot;
+                | &quot;Link(&quot; TYPESTRING &quot;)&quot;
+    MULT        = &quot;[&quot; INT [&quot;..&quot; INT] &quot;]&quot;
+    TAGID       = &quot;(TagId[&quot; (INT | FIELDNAME) &quot;])&quot;
+    FIELDDESC   = &quot;//&quot; [FIELDNAME &quot;::&quot;] STR</code></pre>
+<h2 id="72-property-tables">7.2 Property Tables</h2>
+<p>Some specifications present type definitions in property table form,
+using varied style conventions. This specification does not define a
+normative property table format, but this section shows one example of
+how JADN definitions may be displayed as property tables.</p>
+<p>This style is structurally similar to JADN-IDL and uses its
+TYPESTRING syntax, but breaks out the MULTIPLICITY field options into a
+separate column:</p>
+<pre><code>+----------+------------+-----------------+
+| TypeName | TYPESTRING | TypeDescription |
++----------+------------+-----------------+</code></pre>
+<p>followed by (for compound types without the <em>id</em> option):</p>
+<pre><code>+---------+------------+-------------+--------+------------------+
+| FieldID | FieldName  | FIELDSTRING | [m..n] | FieldDescription |
++---------+------------+-------------+--------+------------------+</code></pre>
+<p>or (for compound types with the <em>id</em> option):</p>
+<pre><code>+---------+-------------+--------+-------------------------------+
+| FieldID | FIELDSTRING | [m..n] | FieldName:: FieldDescription  |
++---------+-------------+--------+-------------------------------+</code></pre>
+<p><strong>Example Markdown Table:</strong></p>
+<p><em>Type: Person (Record)</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">ID</th>
+<th>Name</th>
+<th>Type</th>
+<th style="text-align: right;">#</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td><strong>name</strong></td>
+<td>String</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><strong>id</strong></td>
+<td>Integer</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><strong>email</strong></td>
+<td>String</td>
+<td style="text-align: right;">0..1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="73-entity-relationship-diagrams">7.3 Entity Relationship
+Diagrams</h2>
+<p>The same type definition structure can be populated with various
+levels of detail. At the conceptual level, only TypeName is present,
+along with FieldType for attributes that reference other model-defined
+types. At the logical level FieldName is populated for both core and
+reference attribute types. In a full information model, all Type and
+Options elements are defined:</p>
+<p><img src="images/jadn-defs.jpg" alt="JADN Type Definitions" /></p>
+<p>Information models extend the Conceptual/Logica/Physical design
+process. While UML defines a class diagram format that has been adopted
+for use in that process, it does not define a datatype diagram format
+suitable for representing information models. As noted in the <a
+href="#1-introduction">introduction</a>, logical/class models are
+undirected graphs with semantic relationships while information/datatype
+models are directed graphs with two relationship types: contain and
+reference. Information models may be represented as entity relationship
+diagrams using the following conventions:</p>
+<ol type="1">
+<li>Solid edges represent container relationships, dashed edges
+represent references.</li>
+<li>All edges are directed, from container to contained type or from
+referencing to referenced type.</li>
+</ol>
+<p><img src="images/logical-info-erd.jpg" alt="ERD-DB" /></p>
+<h6
+id="figure-7-1-logical-and-information-entity-relationship-diagrams">Figure
+7-1: Logical and Information Entity Relationship Diagrams</h6>
+<p>The edge type and direction show how instances are serialized, in
+this case using references from Class to Person. An alternate
+information model derived from the same logical model might use
+references "teaches" and "enrolled_in" from Person to Class.</p>
+<p>Figure 5-2 is a <a href="#graphviz">GraphViz</a> "dot" file generated
+from the University information model showing a conceptual level of
+detail. Dot diagrams may be viewed at, for example, <a
+href="https://sketchviz.com">https://sketchviz.com</a>.</p>
+<pre><code># package: http://example.com/uni
+# exports: [&#39;University&#39;]
+
+digraph G {
+  graph [fontname=Times, fontsize=12];
+  node [fontname=Arial, fontsize=8, shape=box, style=filled, fillcolor=lightskyblue1];
+  edge [fontname=Arial, fontsize=7, arrowsize=0.5, labelangle=45.0, labeldistance=0.9];
+  bgcolor=&quot;transparent&quot;;
+
+  n0 [label=&quot;University&quot;]
+    n0 -&gt; n1 [label=&quot;classes&quot;, headlabel=&quot;1..*&quot;, taillabel=&quot;1&quot;]
+    n0 -&gt; n2 [label=&quot;people&quot;, headlabel=&quot;1..*&quot;, taillabel=&quot;1&quot;]
+  n1 [label=&quot;Class&quot;]
+    n1 -&gt; n2 [style=&quot;dashed&quot;, label=&quot;teachers&quot;, headlabel=&quot;1..*&quot;, taillabel=&quot;1&quot;]
+    n1 -&gt; n2 [style=&quot;dashed&quot;, label=&quot;students&quot;, headlabel=&quot;1..*&quot;, taillabel=&quot;1&quot;]
+  n2 [label=&quot;Person&quot;]
+}</code></pre>
+<h6 id="figure-7-2-graphviz-source-for-university-conceptual-erd">Figure
+7-2: GraphViz Source for University Conceptual ERD</h6>
+<p>Figure 7-3 is an example instance of the University type serialized
+in <a href="#61-verbose-json-serialization">verbose</a> and <a
+href="#62-compact-json-serialization">compact</a> JSON data formats:</p>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Faber College&quot;</span><span class="fu">,</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;classes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ECE1010&quot;</span><span class="fu">,</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;room&quot;</span><span class="fu">:</span> <span class="st">&quot;DRGN 105&quot;</span><span class="fu">,</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;teachers&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;U-004932&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;students&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;U-194325&quot;</span><span class="ot">,</span> <span class="st">&quot;U-029437&quot;</span><span class="ot">]</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ECE1750&quot;</span><span class="fu">,</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;room&quot;</span><span class="fu">:</span> <span class="st">&quot;FLRS 102&quot;</span><span class="fu">,</span></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;teachers&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;U-004932&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;students&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;U-127439&quot;</span><span class="ot">,</span> <span class="st">&quot;U-194325&quot;</span><span class="ot">,</span> <span class="st">&quot;U-029437&quot;</span><span class="ot">]</span></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;people&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Damien Braun&quot;</span><span class="fu">,</span></span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;univ_id&quot;</span><span class="fu">:</span> <span class="st">&quot;U-004932&quot;</span><span class="fu">,</span></span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;d.braun@faber.edu&quot;</span></span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Ellie Osborne&quot;</span><span class="fu">,</span></span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;univ_id&quot;</span><span class="fu">:</span> <span class="st">&quot;U-194325&quot;</span><span class="fu">,</span></span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;ellie.osborne@faber.edu&quot;</span></span>
+<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb45-28"><a href="#cb45-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb45-29"><a href="#cb45-29" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Pierre Cox&quot;</span><span class="fu">,</span></span>
+<span id="cb45-30"><a href="#cb45-30" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;univ_id&quot;</span><span class="fu">:</span> <span class="st">&quot;U-029437&quot;</span><span class="fu">,</span></span>
+<span id="cb45-31"><a href="#cb45-31" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;pc9000@outlook.com&quot;</span></span>
+<span id="cb45-32"><a href="#cb45-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb45-33"><a href="#cb45-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb45-34"><a href="#cb45-34" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Alden Cantrel&quot;</span><span class="fu">,</span></span>
+<span id="cb45-35"><a href="#cb45-35" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;univ_id&quot;</span><span class="fu">:</span> <span class="st">&quot;U-127439&quot;</span><span class="fu">,</span></span>
+<span id="cb45-36"><a href="#cb45-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;alden.cantrel@faber.edu&quot;</span></span>
+<span id="cb45-37"><a href="#cb45-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb45-38"><a href="#cb45-38" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb45-39"><a href="#cb45-39" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Faber College&quot;</span><span class="ot">,</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span><span class="st">&quot;ECE1010&quot;</span><span class="ot">,</span> <span class="st">&quot;DRGN 105&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;U-004932&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;U-194325&quot;</span><span class="ot">,</span> <span class="st">&quot;U-029437&quot;</span><span class="ot">]],</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span><span class="st">&quot;ECE1750&quot;</span><span class="ot">,</span> <span class="st">&quot;FLRS 102&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;U-004932&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;U-127439&quot;</span><span class="ot">,</span> <span class="st">&quot;U-194325&quot;</span><span class="ot">,</span> <span class="st">&quot;U-029437&quot;</span><span class="ot">]]</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span><span class="st">&quot;Damien Braun&quot;</span><span class="ot">,</span> <span class="st">&quot;U-004932&quot;</span><span class="ot">,</span> <span class="st">&quot;d.braun@faber.edu&quot;</span><span class="ot">],</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span><span class="st">&quot;Ellie Osborne&quot;</span><span class="ot">,</span> <span class="st">&quot;U-194325&quot;</span><span class="ot">,</span> <span class="st">&quot;ellie.osborne@faber.edu&quot;</span><span class="ot">],</span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span><span class="st">&quot;Pierre Cox&quot;</span><span class="ot">,</span> <span class="st">&quot;U-029437&quot;</span><span class="ot">,</span> <span class="st">&quot;pc9000@outlook.com&quot;</span><span class="ot">],</span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">[</span><span class="st">&quot;Alden Cantrel&quot;</span><span class="ot">,</span> <span class="st">&quot;U-127439&quot;</span><span class="ot">,</span> <span class="st">&quot;alden.cantrel@faber.edu&quot;</span><span class="ot">]</span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<h6 id="figure-7-3-json-instance-of-university">Figure 7-3: JSON
+instance of University</h6>
+<hr />
+<h1 id="8-conformance">8 Conformance</h1>
+<p>Information Modeling is applied within a system design process that
+may include:</p>
+<ul>
+<li>IM Design
+<ul>
+<li>Abstract Schema Design and Validation</li>
+<li>Alternate Schema Format Translation</li>
+</ul></li>
+<li>Message Processing
+<ul>
+<li>Single Format Message Validation</li>
+<li>Multiple Format Lossless Roundtrip Message Translation</li>
+</ul></li>
+<li>Concrete Schema Conversion</li>
+</ul>
+<p>As noted in the introduction, an information modeling language is a
+formal syntax that allows users to capture data semantics and
+constraints. This specification defines the JADN IM language, and its
+conformance requirements address schema design and validation. Although
+Sections 6 and 7 present example message encoding rules and alternate
+schema presentation formats, this specification has no conformance
+requirements related to those activities.</p>
+<p>Conforming implementations SHALL satisfy all conformance requirements
+listed in Sections 1-5 of this document, including the following
+sections:</p>
+<ul>
+<li><a href="#313-package-conformance-requirements">3.1.3
+Package</a></li>
+<li><a href="#415-type-conformance-requirements">4.1.5 Types</a></li>
+<li><a href="#4216-primitive-type-conformance-requirements">4.2.1.6
+Primitive Types</a></li>
+<li><a href="#4224-compound-type-conformance-requirements">4.2.2.4
+Compound Types</a></li>
+<li><a href="#4235-union-type-conformance-requirements">4.2.3.5 Union
+Types</a></li>
+<li><a href="#4242-general-type-conformance-requirements">4.2.4.2
+Inherited Types</a></li>
+</ul>
+<hr />
+<h1 id="appendix-a-references">Appendix A. References</h1>
+<p>This appendix contains the normative and informative references that
+are used in this document. Normative references are specific (identified
+by date of publication and/or edition number or version number) and
+Informative references are either specific or non-specific.</p>
+<p>While any hyperlinks included in this appendix were valid at the time
+of publication, OASIS cannot guarantee their long-term validity.</p>
+<h2 id="a1-normative-references">A.1 Normative References</h2>
+<p>The following documents are referenced in such a way that some or all
+of their content constitutes requirements of this document.</p>
+<h6 id="ecmascript">[ECMASCRIPT]</h6>
+<p>ECMA International, <em>"ECMAScript 2024 Language
+Specification"</em>, ECMA-262 15th Edition, June 2024, <a
+href="https://www.ecma-international.org/ecma-262">https://www.ecma-international.org/ecma-262</a>
+(<em>or corresponding section(s) in current edition</em>).</p>
+<h6 id="eui">[EUI]</h6>
+<p>IEEE, <em>"IEEE Registration Authority Guidelines for use of EUI,
+OUI, and CID"</em>, August 2017, <a
+href="https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf">https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf</a>.</p>
+<h6 id="ieee754">[IEEE754]</h6>
+<p><em>"Floating Point Arithmetic"</em>, IEEE Std 754-2019, <a
+href="https://ieeexplore.ieee.org/document/8766229">https://ieeexplore.ieee.org/document/8766229</a>,
+ISO/IEC 60559:2020, <a
+href="https://www.iso.org/obp/ui/en/#iso:std:80985">https://www.iso.org/obp/ui/en/#iso:std:80985</a></p>
+<h6 id="iri">[IRI]</h6>
+<p>Duerst, M., Suignard, M., <em>"Internationalized Resource Identifiers
+(IRIs)"</em>, January 2005, <a
+href="https://datatracker.ietf.org/doc/html/rfc3987">https://datatracker.ietf.org/doc/html/rfc3987</a></p>
+<h6 id="jsonschema">[JSONSCHEMA]</h6>
+<p>Wright, A., Andrews, H., Hutton, B., <em>"JSON Schema
+Validation"</em>, Internet-Draft, 16 June 2022, <a
+href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01">https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01</a>.</p>
+<h6 id="rfc791">[RFC791]</h6>
+<p>Postel, J., <em>"Internet Protocol"</em>, RFC 791, September 1981, <a
+href="https://www.rfc-editor.org/rfc/rfc791">https://www.rfc-editor.org/rfc/rfc791</a>.</p>
+<h6 id="rfc2119">[RFC2119]</h6>
+<p>Bradner, S., <em>"Key words for use in RFCs to Indicate Requirement
+Levels"</em>, BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, <a
+href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>.</p>
+<h6 id="rfc2673">[RFC2673]</h6>
+<p>Crawford, M., <em>"Binary Labels in the Domain Name System"</em>, RFC
+2673, August 1999, <a
+href="https://www.rfc-editor.org/rfc/rfc2673">https://www.rfc-editor.org/rfc/rfc2673</a>.</p>
+<h6 id="rfc3339">[RFC3339]</h6>
+<p>Klyne, G., Newman, C., <em>"Date and Time on the Internet:
+Timestamps"</em>, RFC 3339, July 2002, <a
+href="https://www.rfc-editor.org/rfc/rfc3339.html">https://www.rfc-editor.org/rfc/rfc3339.html</a></p>
+<h6 id="rfc3986">[RFC3986]</h6>
+<p>Berners-Lee, T., Fielding, R., Masinter, L., <em>"Uniform Resource
+Identifier (URI): Generic Syntax:</em>, RFC 3986, <a
+href="https://www.rfc-editor.org/rfc/rfc3986.html">https://www.rfc-editor.org/rfc/rfc3986.html</a>.</p>
+<h6 id="rfc4291">[RFC4291]</h6>
+<p>Hinden, R., Deering, S., <em>"IP Version 6 Addressing
+Architecture"</em>, RFC 4291, February 2006, <a
+href="https://www.rfc-editor.org/rfc/rfc4291">https://www.rfc-editor.org/rfc/rfc4291</a>.</p>
+<h6 id="rfc4632">[RFC4632]</h6>
+<p>Fuller, V., Li, T., <em>"Classless Inter-domain Routing (CIDR): The
+Internet Address Assignment and Aggregation Plan"</em>, RFC 4632, August
+2006, <a
+href="https://www.rfc-editor.org/rfc/html/rfc4632">https://www.rfc-editor.org/rfc/html/rfc4632</a>.</p>
+<h6 id="rfc4648">[RFC4648]</h6>
+<p>Josefsson, S., <em>"The Base16, Base32, and Base64 Data
+Encodings"</em>, RFC 4648, October 2006, <a
+href="https://www.rfc-editor.org/rfc/rfc4648">https://www.rfc-editor.org/rfc/rfc4648</a>.</p>
+<h6 id="rfc5234">[RFC5234]</h6>
+<p>Crocker, D., Overell, P., <em>"Augmented BNF for Syntax
+Specifications: ABNF"</em>, RFC 5234, January 2008, <a
+href="https://www.rfc-editor.org/rfc/rfc5234">https://www.rfc-editor.org/rfc/rfc5234</a>.</p>
+<h6 id="rfc6570">[RFC6570]</h6>
+<p>Gregorio, J., Fielding, R., Hadley, M., Nottingham, M., Orchard, D.,
+<em>"URI Template"</em>, RFC 6570, March 2012, <a
+href="https://www.rfc-editor.org/rfc/rfc6570.html">https://www.rfc-editor.org/rfc/rfc6570.html</a>.</p>
+<h6 id="rfc6901">[RFC6901]</h6>
+<p>Bryan, P., Zyp, K., Nottingham, M., <em>"JavaScript Object Notation
+(JSON) Pointer"</em>, RFC 6901, April 2013, <a
+href="https://www.rfc-editor.org/rfc/rfc6901">https://www.rfc-editor.org/rfc/rfc6901</a>.</p>
+<h6 id="rfc8949">[RFC8949]</h6>
+<p>Bormann, C., Hoffman, P., <em>"Concise Binary Object Representation
+(CBOR)"</em>, RFC 8949, October 2013, <a
+href="https://www.rfc-editor.org/rfc/rfc8949">https://www.rfc-editor.org/rfc/rfc8949</a>.</p>
+<h6 id="rfc7405">[RFC7405]</h6>
+<p>Kyzivat, P., <em>"Case-Sensitive String Support in ABNF"</em>, RFC
+7405, December 2014, <a
+href="https://www.rfc-editor.org/rfc/rfc7405">https://www.rfc-editor.org/rfc/rfc7405</a>.</p>
+<h6 id="rfc8174">[RFC8174]</h6>
+<p>Leiba, B., <em>"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key
+Words"</em>, BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, <a
+href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>.</p>
+<h6 id="rfc8200">[RFC8200]</h6>
+<p>Deering, S., Hinden, R., <em>"Internet Protocol, Version 6 (IPv6)
+Specification"</em>, RFC 8200, July 2017, <a
+href="https://www.rfc-editor.org/rfc/rfc8200">https://www.rfc-editor.org/rfc/rfc8200</a>.</p>
+<h6 id="rfc8259">[RFC8259]</h6>
+<p>Bray, T., <em>"The JavaScript Object Notation (JSON) Data Interchange
+Format"</em>, STD 90, IETF RFC 8259, December 2017, <a
+href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a>.</p>
+<h6 id="rfc9557">[RFC9557]</h6>
+<p>Sharma, U., Bormann, C., <em>"Date and Time on the Internet:
+Timestamps with Additional Information"</em>, IETF RFC 9557, April 2024,
+<a
+href="https://www.rfc-editor.org/rfc/rfc9557">https://www.rfc-editor.org/rfc/rfc9557</a>.</p>
+<h6 id="rfc9562">[RFC9562]</h6>
+<p>Davis, K., Peabody, B., Leach P., <em>"Universally Unique IDentifiers
+(UUIDs)"</em>, IETF RFC 9562, May 2024, <a
+href="https://www.rfc-editor.org/rfc/rfc9562">https://www.rfc-editor.org/rfc/rfc9562</a>.</p>
+<h6 id="posix-time">[POSIX Time]</h6>
+<p>IEEE and The Open Group, <em>"POSIX.1-2024 - standard operating
+system and environment: time()"</em>, "<a
+href="https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html">https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html</a>"</p>
+<h6 id="xml-namespaces">[XML Namespaces]</h6>
+<p>W3C, <em>"Namespaces in XML 1.0"</em>, December 2009, <a
+href="https://www.w3.org/TR/xml-names/">https://www.w3.org/TR/xml-names/</a></p>
+<h6 id="xsd">[XSD]</h6>
+<p>W3C, <em>"XML Schema Definition Language (XSD) 1.1 Part 1:
+Structures"</em>, 5 April 2012, <a
+href="https://www.w3.org/TR/xmlschema11-1">https://www.w3.org/TR/xmlschema11-1</a>.<br />
+W3C, <em>"XML Schema Definition Language (XSD) 1.1 Part 2:
+Datatypes"</em>, 5 April 2012, <a
+href="https://www.w3.org/TR/xmlschema11-2">https://www.w3.org/TR/xmlschema11-2</a>.</p>
+<h2 id="a2-informative-references">A.2 Informative References</h2>
+<h6 id="avro">[AVRO]</h6>
+<p>Apache Software Foundation, <em>"Apache Avro Documentation"</em>, <a
+href="https://avro.apache.org/docs/current/">https://avro.apache.org/docs/current/</a>.</p>
+<h6 id="bridge">[BRIDGE]</h6>
+<p>Thaler, Dave, <em>"IoT Bridge Taxonomy"</em>, <a
+href="https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf">https://www.iab.org/wp-content/IAB-uploads/2016/03/DThaler-IOTSI.pdf</a>.</p>
+<h6 id="datamod">[DATAMOD]</h6>
+<p>InfoAdvisors, <em>"What are Conceptual, Logical, and Physical Data
+Models?"</em>, <a
+href="https://www.datamodel.com/index.php/articles/what-are-conceptual-logical-and-physical-data-models">https://www.datamodel.com/index.php/articles/what-are-conceptual-logical-and-physical-data-models</a>.</p>
+<h6 id="diek">[DIEK]</h6>
+<p>Dammann, Olaf, <em>"Data, Information, Evidence, and Knowledge"</em>,
+<a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6435353/pdf/ojphi-10-e224.pdf</a>.</p>
+<h6 id="dry">[DRY]</h6>
+<p><em>"Don't Repeat Yourself"</em>, <a
+href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">https://en.wikipedia.org/wiki/Don%27t_repeat_yourself</a>.</p>
+<h6 id="enum">[ENUM]</h6>
+<p><em>"Enumerated Type"</em>, <a
+href="https://en.wikipedia.org/wiki/Enumerated_type">https://en.wikipedia.org/wiki/Enumerated_type</a>.</p>
+<h6 id="fdt">[FDT]</h6>
+<p>König, H., <em>"Protocol Engineering, Chapter 8"</em>, <a
+href="https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8">https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8</a>.</p>
+<h6 id="fix">[FIX]</h6>
+<p>FIX Trading Community Technical Standards, <a
+href="https://www.fixtrading.org/standards/">https://www.fixtrading.org/standards/</a>.</p>
+<h6 id="graph">[GRAPH]</h6>
+<p>Rennau, Hans-Juergen, <em>"Combining graph and tree"</em>, XML Prague
+2018, <a
+href="https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf">https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf</a>.</p>
+<h6 id="graphviz">[GRAPHVIZ]</h6>
+<p><em>"Graph Visualization Software"</em>, <a
+href="https://graphviz.gitlab.io/">https://graphviz.gitlab.io/</a>.</p>
+<h6 id="information-modeling">[INFORMATION MODELING]</h6>
+<p>Lee, Y. Tina, <em>"Information Modeling: From Design to
+Implementation"</em>, IEEE Transactions on Robotics and Automation,
+1999, <a
+href="https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265">https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265</a>.</p>
+<h6 id="jadn-cn">[JADN-CN]</h6>
+<p>OASIS, <em>"Information Modeling with JADN"</em>, <a
+href="https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md">https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md</a>.</p>
+<h6 id="order">[ORDER]</h6>
+<p>LaFontaine, Robin, <em>"Element order is always important in XML,
+except when it isn't"</em>, Balisage: The Markup Conference, 2021, <a
+href="https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html">https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html</a>.</p>
+<h6 id="proto">[PROTO]</h6>
+<p>Google Developers, <em>"Protocol Buffers"</em>, <a
+href="https://developers.google.com/protocol-buffers/">https://developers.google.com/protocol-buffers/</a>.</p>
+<h6 id="rdf">[RDF]</h6>
+<p>W3C, <em>"RDF 1.2 Concepts and Abstract Syntax"</em>, <a
+href="https://www.w3.org/TR/rdf12-concepts/">https://www.w3.org/TR/rdf12-concepts/</a>.</p>
+<h6 id="relaxng">[RELAXNG]</h6>
+<p>OASIS Technical Committee, <em>"RELAX NG"</em>, November 2002, <a
+href="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng">https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=relax-ng</a>.</p>
+<h6 id="rfc3444">[RFC3444]</h6>
+<p>Pras, A., Schoenwaelder, J., <em>"On the Difference between
+Information Models and Data Models"</em>, RFC 3444, January 2003, <a
+href="https://www.rfc-editor.org/rfc/rfc3444">https://www.rfc-editor.org/rfc/rfc3444</a>.</p>
+<h6 id="rfc3552">[RFC3552]</h6>
+<p>Rescorla, E. and B. Korver, <em>"Guidelines for Writing RFC Text on
+Security Considerations"</em>, BCP 72, RFC 3552, DOI 10.17487/RFC3552,
+July 2003, <a
+href="https://www.rfc-editor.org/rfc/rfc3552">https://www.rfc-editor.org/rfc/rfc3552</a>.</p>
+<h6 id="rfc5321">[RFC5321]</h6>
+<p>Klensin, J., <em>"Simple Mail Transfer Protocol"</em>, RFC 5321,
+October 2008, <a
+href="https://www.rfc-editor.org/rfc/rfc5321.html">https://www.rfc-editor.org/rfc/rfc5321.html</a>.</p>
+<h6 id="rfc6531">[RFC6531]</h6>
+<p>Yao, J., Mao, W., <em>"SMTP Extension for Internationalized
+Email"</em>, RFC 6531, February 2012, <a
+href="https://www.rfc-editor.org/rfc/rfc6531.html">https://www.rfc-editor.org/rfc/rfc6531.html</a>.</p>
+<h6 id="rfc7303">[RFC7303]</h6>
+<p>Hansen, T., Melnikov, A., <em>"Additional Media Type Structured
+Syntax Suffixes"</em>, RFC 7303, January 2013, <a
+href="https://www.rfc-editor.org/rfc/rfc7303">https://www.rfc-editor.org/rfc/rfc7303</a>.</p>
+<h6 id="rfc7493">[RFC7493]</h6>
+<p>Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, <a
+href="https://www.rfc-editor.org/rfc/rfc7493">https://www.rfc-editor.org/rfc/rfc7493</a>.</p>
+<h6 id="rfc8340">[RFC8340]</h6>
+<p>Bjorklund, M., Berger, L., <em>"YANG Tree Diagrams"</em>, RFC 8340,
+March 2018, <a
+href="https://www.rfc-editor.org/rfc/rfc8340">https://www.rfc-editor.org/rfc/rfc8340</a>.</p>
+<h6 id="rfc8477">[RFC8477]</h6>
+<p>Jimenez, J., Tschofenig, H., Thaler, D., <em>"Report from the
+Internet of Things (IoT) Semantic Interoperability (IOTSI) Workshop
+2016"</em>, RFC 8477, October 2018, <a
+href="https://www.rfc-editor.org/rfc/rfc8477">https://www.rfc-editor.org/rfc/rfc8477</a>.</p>
+<h6 id="rfc8610">[RFC8610]</h6>
+<p>Birkholz, H., Vigano, C., Bormann, C., <em>"Concise Data Definition
+Language"</em>, RFC 8610, June 2019, <a
+href="https://www.rfc-editor.org/rfc/rfc8610.html">https://www.rfc-editor.org/rfc/rfc8610.html</a>.</p>
+<h6 id="stix">[STIX]</h6>
+<p>Bret Jordan, Rich Piazza, Trey Darley, <em>"Structured Threat
+Information Expression (STIX) Version 2.1"</em>, OASIS Cyber Threat
+Intelligence (CTI) TC, 10 June 2021, <a
+href="https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html">https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html</a>.</p>
+<h6 id="thrift">[THRIFT]</h6>
+<p>Apache Software Foundation, <em>"Writing a .thrift file"</em>, <a
+href="https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html">https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html</a>.</p>
+<h6 id="transform">[TRANSFORM]</h6>
+<p>Boyer, J., et. al., <em>"Experiences with JSON and XML
+Transformations"</em>, October 2011, <a
+href="https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf">https://www.w3.org/2011/10/integration-workshop/s/ExperienceswithJSONandXMLTransformations.v08.pdf</a>.</p>
+<h6 id="uml">[UML]</h6>
+<p><em>"Unified Modeling Language"</em>, Version 2.5.1, December 2017,
+<a
+href="https://www.omg.org/spec/UML/2.5.1/PDF">https://www.omg.org/spec/UML/2.5.1/PDF</a>.</p>
+<h6 id="union">[UNION]</h6>
+<p>"Union Type", Wikipedia, <a
+href="https://en.wikipedia.org/wiki/Union_type">https://en.wikipedia.org/wiki/Union_type</a>.</p>
+<h6 id="taggedunion">[TAGGEDUNION]</h6>
+<p>"Tagged Union", Wikipedia, <a
+href="https://en.wikipedia.org/wiki/Tagged_union">https://en.wikipedia.org/wiki/Tagged_union</a>.</p>
+<hr />
+<h1 id="appendix-b-safety-security-and-privacy-considerations">Appendix
+B. Safety, Security and Privacy Considerations</h1>
+<p>This document presents a language for expressing the information
+needs of communicating applications, and rules for generating data
+structures to satisfy those needs. As such, it does not inherently
+introduce security issues, although protocol specifications based on
+JADN naturally need security analysis when defined. Such specifications
+need to follow the guidelines in <a href="#rfc3552">RFC 3552</a>.</p>
+<p>Additional security considerations applicable to JADN-based
+specifications:</p>
+<ul>
+<li>The JADN language could cause confusion in a way that results in
+security issues. Clarity and unambiguity of this specification could
+always be improved through operational experience and developer
+feedback.</li>
+<li>Where a JADN data validator is part of a system, the security of the
+system benefits from automatic data validation but depends on both the
+specificity of the JADN specification and the correctness of the
+validation implementation. Tightening the specification (e.g., by
+defining upper bounds and other value constraints) and testing the
+validator against unreasonable data instances can address both
+concerns.</li>
+</ul>
+<p>Security and bandwidth efficiency are benefits of using an
+information model. Enumerating strings and map keys defines the
+information content of those values, which greatly reduces opportunities
+for exploitation. A firewall with a security policy of "Allow specific
+things I understand plus everything I don't understand" is less secure
+than a firewall that allows only things that are understood. The
+"Must-Ignore" policy of <a href="#rfc7493">RFC 7493</a> compromises
+security by allowing everything that is not understood. Information
+modeling's "Must-Understand" approach enhances security and accommodates
+new protocol elements by adding them to the IM's enumerated lists of
+things that are understood. An executable IM format such as JADN
+provides the agility required to support evolving protocols.</p>
+<p>Writers of JADN specifications are strongly encouraged to value
+simplicity and transparency of the specification. Although JADN makes it
+easier to both define and understand complex specifications, complexity
+that is not essential to satisfying operational requirements is itself a
+security concern.</p>
+<hr />
+<h1 id="appendix-c-acknowledgments">Appendix C. Acknowledgments</h1>
+<h2 id="c1-special-thanks">C.1 Special Thanks</h2>
+<p>The following individuals shared their expertise during creation of
+this specification and are gratefully acknowledged:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">First Name</th>
+<th style="text-align: left;">Last Name</th>
+<th style="text-align: left;">Company</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Carsten</td>
+<td style="text-align: left;">Bormann</td>
+<td style="text-align: left;">Universität Bremen</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hans-Jürgen</td>
+<td style="text-align: left;">Rennau</td>
+<td style="text-align: left;">parsQube GmbH</td>
+</tr>
+</tbody>
+</table>
+<h2 id="c2-participants">C.2 Participants</h2>
+<p>The following individuals have participated in the creation of this
+specification and are gratefully acknowledged:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">First Name</th>
+<th style="text-align: left;">Last Name</th>
+<th style="text-align: left;">Company</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Brian</td>
+<td style="text-align: left;">Berliner</td>
+<td style="text-align: left;">Symantec</td>
+</tr>
+<tr>
+<td style="text-align: left;">Joseph</td>
+<td style="text-align: left;">Brule</td>
+<td style="text-align: left;">National Security Agency</td>
+</tr>
+<tr>
+<td style="text-align: left;">Toby</td>
+<td style="text-align: left;">Considine</td>
+<td style="text-align: left;">University of North Carolina</td>
+</tr>
+<tr>
+<td style="text-align: left;">Jason</td>
+<td style="text-align: left;">Romano</td>
+<td style="text-align: left;">General Dynamics</td>
+</tr>
+<tr>
+<td style="text-align: left;">Duncan</td>
+<td style="text-align: left;">Sparrell</td>
+<td style="text-align: left;">sFractal Consulting</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="appendix-d-revision-history">Appendix D. Revision History</h1>
+<h3 id="changes-from-v10-to-v20">Changes from v1.0 to v2.0</h3>
+<ul>
+<li>Add type inheritance options.</li>
+<li>Add untagged union options to Choice type.</li>
+<li>Allow multiple namespace prefixes to designate the same
+namespace.</li>
+<li>Define two special values for maxOccurs upper bound: "unspecified"
+and "unlimited".</li>
+<li>Split single range option into value range and length.</li>
+<li>Add format options:
+<ul>
+<li>/d<n> - decimal scale factor for fixed-point Integer type</li>
+<li>/tag-uuid for labeling uuid references to specific types</li>
+</ul></li>
+<li>Define separate format option behavior when applied to logical vs.
+text values.</li>
+<li>Add XML serialization rules.</li>
+<li>Define XSD-compatible format options.</li>
+<li>In package header:
+<ul>
+<li>rename "Information" to "Metadata" to avoid conflation with
+information modeling.</li>
+<li>rename "exports" to "roots" to better describe purpose and
+effect.</li>
+</ul></li>
+</ul>
+<h3 id="changes-from-v10-csd-01-to-v10">Changes from v1.0 CSD 01 to
+v1.0</h3>
+<ul>
+<li>Added serialization style description.</li>
+<li>Removed the Null core type.</li>
+<li>Added default values for type definition elements.</li>
+<li>Raised the default maximum length for type and field names from 32
+to 64 characters.</li>
+</ul>
+<hr />
+<h1 id="appendix-e-notices">Appendix E. Notices</h1>
+<p>Copyright © OASIS Open 2024. All Rights Reserved.</p>
+<p>All capitalized terms in the following text have the meanings
+assigned to them in the OASIS Intellectual Property Rights Policy (the
+"OASIS IPR Policy"). The full <a
+href="https://www.oasis-open.org/policies-guidelines/ipr">Policy</a> may
+be found at the OASIS website.</p>
+<p>This document and translations of it may be copied and furnished to
+others, and derivative works that comment on or otherwise explain it or
+assist in its implementation may be prepared, copied, published, and
+distributed, in whole or in part, without restriction of any kind,
+provided that the above copyright notice and this section are included
+on all such copies and derivative works. However, this document itself
+may not be modified in any way, including by removing the copyright
+notice or references to OASIS, except as needed for the purpose of
+developing any document or deliverable produced by an OASIS Technical
+Committee (in which case the rules applicable to copyrights, as set
+forth in the OASIS IPR Policy, must be followed) or as required to
+translate it into languages other than English.</p>
+<p>The limited permissions granted above are perpetual and will not be
+revoked by OASIS or its successors or assigns.</p>
+<p>This document and the information contained herein is provided on an
+"AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+INFORMATION HEREIN WILL NOT INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.</p>
+<p>As stated in the OASIS IPR Policy, the following three paragraphs in
+brackets apply to OASIS Standards Final Deliverable documents (Committee
+Specification, Candidate OASIS Standard, OASIS Standard, or Approved
+Errata).</p>
+<p>[OASIS requests that any OASIS Party or any other party that believes
+it has patent claims that would necessarily be infringed by
+implementations of this OASIS Standards Final Deliverable, to notify
+OASIS TC Administrator and provide an indication of its willingness to
+grant patent licenses to such patent claims in a manner consistent with
+the IPR Mode of the OASIS Technical Committee that produced this
+deliverable.]</p>
+<p>[OASIS invites any party to contact the OASIS TC Administrator if it
+is aware of a claim of ownership of any patent claims that would
+necessarily be infringed by implementations of this OASIS Standards
+Final Deliverable by a patent holder that is not willing to provide a
+license to such patent claims in a manner consistent with the IPR Mode
+of the OASIS Technical Committee that produced this OASIS Standards
+Final Deliverable. OASIS may include such claims on its website, but
+disclaims any obligation to do so.]</p>
+<p>[OASIS takes no position regarding the validity or scope of any
+intellectual property or other rights that might be claimed to pertain
+to the implementation or use of the technology described in this OASIS
+Standards Final Deliverable or the extent to which any license under
+such rights might or might not be available; neither does it represent
+that it has made any effort to identify any such rights. Information on
+OASIS' procedures with respect to rights in any document or deliverable
+produced by an OASIS Technical Committee can be found on the OASIS
+website. Copies of claims of rights made available for publication and
+any assurances of licenses to be made available, or the result of an
+attempt made to obtain a general license or permission for the use of
+such proprietary rights by implementers or users of this OASIS Standards
+Final Deliverable, can be obtained from the OASIS TC Administrator.
+OASIS makes no representation that any information or list of
+intellectual property rights will at any time be complete, or that any
+claims in such list are, in fact, Essential Claims.]</p>
+<p>The name "OASIS" is a trademark of <a
+href="https://www.oasis-open.org/">OASIS</a>, the owner and developer of
+this specification, and should be used only to refer to the organization
+and its official outputs. OASIS welcomes reference to, and
+implementation and use of, specifications, while reserving the right to
+enforce its marks against misleading uses. Please see <a
+href="https://www.oasis-open.org/policies-guidelines/trademark">https://www.oasis-open.org/policies-guidelines/trademark</a>
+for above guidance.</p>
+</body>
+</html>

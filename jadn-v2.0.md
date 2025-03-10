@@ -1,27 +1,27 @@
 ![OASIS Logo](http://docs.oasis-open.org/templates/OASISLogo-v3.0.png)
 -------
 
-# Specification for JSON Abstract Data Notation (JADN) Version 2.0
+# JSON Abstract Data Notation (JADN) Version 2.0
 
 ## Committee Specification Draft 01
 ## 19 February 2025
 
 &nbsp;
 
-#### This stage:
-https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.md (Authoritative) \
-https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.html \
-https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.pdf
+#### This version:
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html \
+https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.pdf
 
-#### Previous stage:
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd02/jadn-v1.0-csd02.md (Authoritative) \
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd02/jadn-v1.0-csd02.html \
-https://docs.oasis-open.org/openc2/jadn/v1.0/csd02/jadn-v1.0-csd02.pdf
-
-#### Latest stage:
+#### Previous version:
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.md (Authoritative) \
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html \
 https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.pdf
+
+#### Latest version:
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.md (Authoritative) \
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html \
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.pdf
 
 #### Technical Committee:
 [OASIS Open Command and Control (OpenC2) TC](https://www.oasis-open.org/committees/openc2/)
@@ -35,13 +35,15 @@ David Kemp (d.kemp@cyber.nsa.gov), [National Security Agency](https://www.nsa.go
 
 #### Additional artifacts:
 This prose specification is one component of a Work Product that also includes:
-* JSON schema for JADN documents: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.json
+
 * JADN metaschema for JADN documents:
-  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jadn
-  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn_v2.0_schema.jidl
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jadn
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.jidl
+* JSON schema for JADN documents:
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/jadn-v2.0-schema.json
 * JADN schema for Examples:
-  * JADN format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jadn
-  * JIDL format: https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0_examples.jidl
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jadn
+  * https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/artifacts/v2.0-examples.jidl
 
 #### Abstract:
 An Information Model (IM) defines the meaning and essential content of data used in computing independently
@@ -87,10 +89,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 #### Citation format:
 When referencing this specification the following citation format should be used:
 
-**[JADN-v1.0]**  
-_JSON Abstract Data Notation Version 1.0_. Edited by David Kemp. 17 August 2021. 
-OASIS Committee Specification 01. https://docs.oasis-open.org/openc2/jadn/v1.0/cs01/jadn-v1.0-cs01.html. 
-Latest stage: https://docs.oasis-open.org/openc2/jadn/v1.0/jadn-v1.0.html.
+**[JADN-v2.0]**  
+_JSON Abstract Data Notation Version 2.0_. Edited by David Kemp. 19 February 2025. 
+OASIS Committee Specification Draft 01. https://docs.oasis-open.org/openc2/jadn/v2.0/csd01/jadn-v2.0-csd01.html. 
+Latest version: https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html.
 
 -------
 
@@ -392,41 +394,41 @@ in [Section 4](#4-jadn-types).
        roots: ["Schema"]
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 
-Schema = Record                                  // Definition of a JADN package
-   1 meta             Metadata optional          // Information about this package
-   2 types            Type unique [1..*]         // Types defined in this package
+Schema = Record                              // Definition of a JADN package
+   1 meta           Metadata optional        // Information about this package
+   2 types          Type unique [1..*]       // Types defined in this package
 
-Metadata = Map                                   // Information about this package
-   1 package          Namespace                  // Unique name/version of this package
-   2 version          String{1..*} optional      // Incrementing version within package
-   3 title            String{1..*} optional      // Title
-   4 description      String{1..*} optional      // Description
-   5 comment          String{1..*} optional      // Comment
-   6 copyright        String{1..*} optional      // Copyright notice
-   7 license          String{1..*} optional      // SPDX licenseId of this package
-   8 namespaces       PrefixNs unique [0..*]     // Referenced packages
-   9 roots            TypeName unique [0..*]     // Roots of the type tree(s) in this package
-  10 config           Config optional            // Configuration variables
-  11 jadn_version     Namespace optional         // JADN Metaschema package
+Metadata = Map                               // Information about this package
+   1 package        Namespace                // Unique name/version of this package
+   2 version        String{1..*} optional    // Incrementing version within package
+   3 title          String{1..*} optional    // Title
+   4 description    String{1..*} optional    // Description
+   5 comment        String{1..*} optional    // Comment
+   6 copyright      String{1..*} optional    // Copyright notice
+   7 license        String{1..*} optional    // SPDX licenseId of this package
+   8 namespaces     PrefixNs unique [0..*]   // Referenced packages
+   9 roots          TypeName unique [0..*]   // Roots of the type tree(s) in this package
+  10 config         Config optional          // Configuration variables
+  11 jadn_version   Namespace optional       // JADN Metaschema package
 
-PrefixNs = Array                                 // Prefix corresponding to a namespace IRI
-   1  NSID                                       // prefix:: Namespace prefix string
-   2  Namespace                                  // namespace:: Namespace IRI
+PrefixNs = Array                             // Prefix corresponding to a namespace IRI
+   1  NSID                                   // prefix:: Namespace prefix string
+   2  Namespace                              // namespace:: Namespace IRI
 
-Config = Map{1..*}                               // Config vars override JADN defaults
-   1 $MaxBinary       Integer{1..*} optional     // Package max octets, default = 255
-   2 $MaxString       Integer{1..*} optional     // Package max characters, default = 255
-   3 $MaxElements     Integer{1..*} optional     // Package max items/properties, default = 255
-   4 $Sys             String{1..1} optional      // System character for TypeName, default = '.'
-   5 $TypeName        String /regex optional     // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName       String /regex optional     // Default = ^[a-z][_A-Za-z0-9]{0,63}$
-   7 $NSID            String /regex optional     // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+Config = Map{1..*}                           // Config vars override JADN defaults
+   1 $MaxBinary     Integer{1..*} optional   // Package max octets, default = 255
+   2 $MaxString     Integer{1..*} optional   // Package max characters, default = 255
+   3 $MaxElements   Integer{1..*} optional   // Package max items/properties, default = 255
+   4 $Sys           String{1..1} optional    // System character for TypeName, default = '.'
+   5 $TypeName      String /regex optional   // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName     String /regex optional   // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID          String /regex optional   // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
-Namespace = String /uri                          // Unique name of a package
-NSID = String{pattern="$NSID"}                   // Namespace prefix matching $NSID
-TypeName = String{pattern="$TypeName"}           // Name of a logical type
-FieldName = String{pattern="$FieldName"}         // Name of a field in a structured type
-TypeRef = String                                 // Reference to a type, matching ($NSID ':')? $TypeName
+Namespace = String /uri                      // Unique name of a package
+NSID = String{pattern="$NSID"}               // Namespace prefix matching $NSID
+TypeName = String{pattern="$TypeName"}       // Name of a logical type
+FieldName = String{pattern="$FieldName"}     // Name of a field in a structured type
+TypeRef = String                             // Reference to a type, matching ($NSID ':')? $TypeName
 ```
 
 ###### Figure 3-1 -- JADN Schema: Metadata
@@ -648,9 +650,9 @@ JSON Format and Example:
 
 IDL Example:
 ```
-Coordinate = Record                              // A GPS coordinate
-   1 latitude         Latitude                   // A Number between -90 and 90 degrees
-   2 longitude        Longitude                  // A Number between -180 and 180 degrees
+Coordinate = Record                      // A GPS coordinate
+   1 latitude       Latitude             // A Number between -90 and 90 degrees
+   2 longitude      Longitude            // A Number between -180 and 180 degrees
 ```
 
 ### 4.1.4 Type and Field Options
@@ -701,7 +703,7 @@ without regard to processing mechanisms or data format. As shown in [Figure 4-1]
 the primitive core types are Binary, Boolean, Integer, Number and String.
 
 Type options specify value restrictions such as size, range, and regular expression patterns.
-Semantic validation keywords (formats) listed in [Section 4.2.4](#424-semantic-validation-keywords)
+Semantic validation keywords (formats) listed in [Section 4.2.5](#425-semantic-validation)
 also define value restrictions on primitive types.
 
 Primitive TypeOptions are listed in Table 4-1:
@@ -853,9 +855,9 @@ Example: the `id` option indicates that values use FieldId instead of FieldName
 
 ```
 Colors = Enumerated
-   1 red                          // The color of roses
+   1 red                         // The color of roses
    2 green
-   3 blue                         // Violets
+   3 blue                        // Violets
 
 ColorIds = Enumerated#
    1                             // red:: The color of roses
@@ -980,7 +982,7 @@ Organization = Record
 Example composite key:
 ```
 LineItem = Record
-   1 item_id    Key(ItemId)     // Composite unique identifier for a line item within an order
+   1 item_id    Key(ItemId)     // Composite unique identifier for a line item
    2 quantity   Integer         // Other information about the ordered item
 
 ItemId = Array
@@ -1048,9 +1050,6 @@ The Choice type without a *combine* TypeOption is a tagged union, a structure th
 Values include a tag specifying a single FieldType from the set, and an instance is a value that matches the
 FieldType specified by the tag.
 
-Within a Choice type *minOccurs* values of 0 and 1 are equivalent because all fields are inherently optional
-and exactly one (specified by the tag) must be present.
-
 #### 4.2.3.3 Choice (Untagged)
 
 The Choice type containing a *combine* TypeOption is an untagged union, a structure that defines a set of types
@@ -1109,7 +1108,7 @@ for the Choice, and is normally an Enumerated type generated from the Choice usi
 
 ```
 Connection = Record
-  1 version      Enumerated(Enum[IP-Addr])      // source and destination versions must agree
+  1 version      Enumerated(Enum[IP-Addr])    // src and dst versions must agree
   2 source       IP-Addr(TagId[version])
   3 destination  IP-Addr(TagId[version])
 
@@ -1125,16 +1124,11 @@ This option is valid only in an `allOf` Choice where one or more fields restrict
 because a complement without a restriction matches instances of arbitrary size, type and complexity.
 
 ```
-UserName = Choice(allOf)                         // A combination of lower, upper and digits, but not all digits.
-   1  String{pattern="^[a-zA-Z0-9]$"}            // a::
-   2  String{4..*} [1..16]                       // b::
-   3  !String{pattern="^[0-9]$"}                 // c::
+UserName = Choice(allOf)               // lower, upper and digits, but not all digits.
+   1  String{pattern="^[a-zA-Z0-9]$"}  // a::
+   2  String{4..*} [1..16]             // b::
+   3  !String{pattern="^[0-9]$"}       // c::
 ```
-
-A tagged union within a structured type may use the `tagId` option to specify a separate field within
-that type to be used as its tag. The value of the designated field must be a valid field identifier
-for the Choice, and is normally an Enumerated type generated from the Choice using the
-[Derived Enumeration](#53-derived-enumerations) shortcut.
 
 #### 4.2.3.5 Union Type Conformance Requirements
 
@@ -1182,13 +1176,13 @@ of types based on the same primitive type is equivalent to extend or restrict re
 
 Examples:
 ```
-Name1 = Choice(anyOf)                            // Extend equivalent: 2915, a34c, D72F are valid.  g16H is not.
-   1  String{pattern="^[a-z0-9]$"}               // a::
-   2  String{pattern="^[A-Z0-9]$"}               // b::
+Name1 = Choice(anyOf)                // Extend: 2915, a34c, D72F are valid.  g16H is not.
+   1  String{pattern="^[a-z0-9]$"}   // a::
+   2  String{pattern="^[A-Z0-9]$"}   // b::
 
-Name2 = Choice(allOf)                            // Restrict equivalent: 2915 is valid.  a34c, D72F, g16H are not.
-   1  String{pattern="^[a-z0-9]$"}               // a::
-   2  String{pattern="^[A-Z0-9]$"}               // b::
+Name2 = Choice(allOf)                // Restrict: 2915 is valid.  a34c, D72F, g16H are not.
+   1  String{pattern="^[a-z0-9]$"}   // a::
+   2  String{pattern="^[A-Z0-9]$"}   // b::
 ```
 
 * **Compound:**
@@ -1199,14 +1193,14 @@ cardinality limits without referencing a parent type.
 
 Examples:
 ```
-Entity = Record abstract                    // Base type, cannot be instantiated
+Entity = Record abstract                // Base type, cannot be instantiated
   1 id      Integer
   2 name    String optional
 
-Person = Record extends(Entity)             // Add email address
+Person = Record extends(Entity)         // Add email address
   3 email   String /email optional
 
-AnonymousPerson = Record restricts(Person) final  // Prohibit "name" field, cannot be subtyped
+AnonymousPerson = Record restricts(Person) final  // Prohibit "name", no subtypes
   2 name    String [0]
 ```
 
@@ -1303,8 +1297,8 @@ of the object identified by the UUID, this specification is not specific to any 
 not constrain prefix content:
 ```
 ObjectId = Array /tag-uuid
-   1  String                                     // prefix:: Type Prefix
-   2  UUID                                       // uuid:: Unique Identifier
+   1  String                           // prefix:: Type Prefix
+   2  UUID                             // uuid:: Unique Identifier
 ```
 When serialized in a text data format the `prefix` and `uuid` fields are separated by two dashes:
 ```
@@ -1333,8 +1327,8 @@ or an integer value in binary serializations.
 
 The decimal scale factor format `/d<n>` can be used with Integer times to specify time resolution:
 ```
-Timestamp = Integer /date-time              // 1727877600 seconds         = 2024-10-02T15:00:00Z
-Timestamp-ms = Integer /date-time /d3       // 1727877600000 milliseconds = 2024-10-02T15:00:00.000Z
+Timestamp = Integer /date-time          // 1727877600 sec:     2024-10-02T15:00:00Z
+Timestamp-ms = Integer /date-time /d3   // 1727877600000 msec: 2024-10-02T15:00:00.000Z
 ```
 
 A String type with a time-related keyword is a logical string equal to its text representation, where
@@ -1429,10 +1423,10 @@ These are unequal strings even though they represent the same timestamp.
 
 | Keyword               | Type   | Requirement                                                                           |
 |-----------------------|--------|---------------------------------------------------------------------------------------|
-| date-time             | String | String literal [RFC 3339](#rfc3339) Section 5.6 "date-time"                           |
-| date                  | String | String literal RFC 3339 Section 5.6 "full-date"                                       |
-| time                  | String | String literal RFC 3339 Section 5.6 "full-time"                                       |
-| duration              | String | String literal RFC 3339 Appendix A "duration"                                         |
+| date-time             | String | String literal [RFC 9557](#rfc9557) Section 4.1 "date-time-ext"                       |
+| date                  | String | String literal [RFC 3339](#rfc3339) Section 5.6 "full-date"                           |
+| time                  | String | String literal [RFC 3339](#rfc3339) Section 5.6 "full-time"                           |
+| duration              | String | String literal [RFC 3339](#rfc3339) Appendix A "duration"                             |
 | email                 | String | "Mailbox" as defined in [RFC 5321](#rfc5321) Section 4.1.2                            |
 | idn-email             | String | "Mailbox" as defined in [RFC 6531](#rfc6531) Section 3.3                              |
 | hostname              | String | RFC 1123 Section 2.1                                                                  |
@@ -1482,15 +1476,15 @@ values included in FieldOptions to apply to FieldType.
 
 Example: a structured type with anonymous fields:
 ```
-Coordinate = Record                              // A GPS coordinate
-   1 latitude         Number [-90.0, 90.0]       // A Number between -90 and 90 degrees
-   2 longitude        Number [-180.0, 180.0]     // A Number between -180 and 180 degrees
+Coordinate = Record                        // A GPS coordinate
+   1 latitude     Number [-90.0, 90.0]     // A Number between -90 and 90 degrees
+   2 longitude    Number [-180.0, 180.0]   // A Number between -180 and 180 degrees
 ```
 Expanded type with references to generated types:
 ```
-Coordinate = Record                              // A GPS coordinate
-   1 latitude         Coordinate.latitude        // A Number between -90 and 90 degrees
-   2 longitude        Coordinate.longitude       // A Number between -180 and 180 degrees
+Coordinate = Record                        // A GPS coordinate
+   1 latitude     Coordinate.latitude      // A Number between -90 and 90 degrees
+   2 longitude    Coordinate.longitude     // A Number between -180 and 180 degrees
 
 Coordinate.latitude = Number [-90.0, 90.0]
 Coordinate.longitude = Number [-180.0, 180.0]
@@ -1499,35 +1493,35 @@ Coordinate.longitude = Number [-180.0, 180.0]
 ## 5.2 Field Multiplicity
 
 Fields may be defined to have multiple values of the same type. Expanding converts each field that can
-have more than one value to a separate ArrayOf type. The minimum and maximum cardinality (*minc* and *maxc*)
-FieldOptions ([Section 4.2.2](#422-field-options)) are moved from FieldOptions to the minimum and maximum
-size (*minv* and *maxv*) TypeOptions of the new ArrayOf type, except that if *minc* is 0
-(field is optional), it remains in FieldOptions and the new ArrayOf type defaults to a minimum
-size of 1.
+have more than one value to a separate ArrayOf type. The multiplicity (*minOccurs* and *maxOccurs*)
+FieldOptions ([Section 4.2.2.2](#4222-multiplicity)) are moved from FieldOptions to the minimum and maximum
+length (*minLength* and *maxLength*) TypeOptions ([Section 4.2.3](#423-union-types))) of the new ArrayOf type,
+except that if *minOccurs* is 0 (field is optional), it remains in FieldOptions and the new ArrayOf type
+has a minimum length of 1.
 
 Example:
 
     Roster = Record
-       1 org_name     String
-       2 members      Member [0..*]             // Optional and repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
+       1 org_name   String
+       2 members    Member [0..*]   // Optional repeated: minOccurs=0, maxOccurs=MAX_DEFAULT
 
 Expanding replaces this with:
 
     Roster = Record
-       1 org_name     String
-       2 members      Roster.members optional   // Optional: minOccurs=0, default maxOccurs (1)
+       1 org_name   String
+       2 members    Roster.members optional // Optional: minOccurs=0, default maxOccurs (1)
 
-    Roster.members = ArrayOf(Member){1..*}      // Tool-generated array: minLength=1, no maxLength
+    Roster.members = ArrayOf(Member){1..*}  // Tool-generated array: minLength=1, no maxLength
 
 If a list with no elements should be represented as an empty array rather than omitted,
 its type definition must include an explicit ArrayOf type rather than using the
 field multiplicity shortcut:
 
     Roster = Record
-       1 org_name     String
-       2 members      Members       // members field is required: default minOccurs (1), maxOccurs (1)
+       1 org_name   String
+       2 members    Members     // members field is required: default minOccurs (1), maxOccurs (1)
 
-    Members = ArrayOf(Member)       // Explicitly-defined array: no minLength, no maxLength
+    Members = ArrayOf(Member)   // Explicitly-defined array: no minLength, no maxLength
 
 ## 5.3 Derived Enumerations
 
@@ -1536,7 +1530,7 @@ in the option rather than being listed individually in the definition.
 Expanding removes *enum* from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
-In JADN-IDL ([Section 5.1](#51-jadn-idl-format)) the *enum* option is represented
+In JADN-IDL ([Section 7.1](#71-information-definition-language)) the *enum* option is represented
 as a function string: "Enum(\<referenced-type\>)".
 Within ArrayOf and MapOf types, the *ktype* and *vtype* options may contain an enum option.  As an
 example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN vtype option "*#Pixel".
@@ -1622,7 +1616,7 @@ BomList = Enumerated
 # 6 Serialization and Data Formats
 
 Applications may use any internal information representation that exhibits the characteristics defined in
-[Table 3-1](#table-3-1-jadn-core-types). Serialization rules define how to represent instances of each type using
+[Section 4](#4-jadn-types). Serialization rules define how to represent instances of each type using
 a specific format. Several serialization formats are defined in this section. In order to be usable with JADN,
 serialization formats defined elsewhere must:
 * Specify an unambiguous serialized representation for each JADN type
@@ -1791,31 +1785,31 @@ Primitive types:
     TypeName = TYPESTRING                     // TypeDescription
 ```
 
-Enumerated type:
+Enumerated type without the `id` option:
 ```
     TypeName = TYPESTRING                     // TypeDescription
         ItemID ItemValue                      // ItemDescription
         ...
 ```
 
-Compound types without the *id* option:
+Compound types without the `id` option:
 ```
     TypeName = TYPESTRING                     // TypeDescription
-        FieldID FieldName[/] FIELDSTRING      // FieldDescription
+        FieldID FieldName FIELDSTRING         // FieldDescription
         ...
 ```
 
-Compound types with the *id* option treat the item/field name as an informative label
-(see [Section 3.2.1.1](#3211-field-identifiers)) and display it in the description
+Structured types with the `id` [TypeOption](#table-4-2-typeoptions-specific-to-compound-types)
+treat the item/field name as an informative label and display it in the description
 followed by a label terminator ("::"):
 ```
-    /* Enumerated.ID */
+    /* Enumerated# */
     TypeName = TYPESTRING                     // TypeDescription
         ItemID                                // ItemValue:: ItemDescription
     
-    /* Choice.ID, Map.ID */
+    /* Choice#, Map# */
     TypeName = TYPESTRING                     // TypeDescription
-        FieldID FIELDSTRING                   // FieldName[/]:: FieldDescription
+        FieldID FIELDSTRING                   // FieldName:: FieldDescription
         ...
 ```
 
@@ -1826,7 +1820,7 @@ if applicable to TYPE as specified in [Section 4.2](#42-core-types).
 * TYPEREF is a type name with optional namespace prefix as specified in [Section 3.1.3](#313-package-conformance-requirements).
 * FMTNAME is the name of a semantic validation function as specified in [Section 4.1.5](#425-semantic-validation).
 ```
-    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]     ; TYPE is CoreType or FieldType
+    TYPESTRING  = TYPE [ID] [FUNC] [RANGEPAT] [FORMAT] [KW]  ; TYPE is CoreType or FieldType
     ID          = ".ID"
     FUNC        = "(" TYPEREF ["," TYPEREF] ")"         ; if TYPE is MapOf, ArrayOf
                 | "(" FUNCNAME "[" TYPEREF "])"         ; if TYPE is Enumerated
@@ -1884,11 +1878,11 @@ or (for compound types with the *id* option):
 
   *Type: Person (Record)*
 
-|  ID  |    Name   |   Type  |   #  | Description |
-| ---: | --------- | ------- | ---: | ----------- |
-|   1  | **name**  | String  |    1 |             |
-|   2  | **id**    | Integer |    1 |             |
-|   3  | **email** | String  | 0..1 |             |
+| ID | Name      | Type    |     # | Description |
+|---:|-----------|---------|------:|-------------|
+|  1 | **name**  | String  |     1 |             |
+|  2 | **id**    | Integer |     1 |             |
+|  3 | **email** | String  |  0..1 |             |
 
 
 ## 7.3 Entity Relationship Diagrams
@@ -1943,7 +1937,7 @@ digraph G {
 ###### Figure 7-2: GraphViz Source for University Conceptual ERD
 
 Figure 7-3 is an example instance of the University type serialized in
-[verbose](#41-verbose-json-serialization) and [compact](#42-compact-json-serialization) JSON data formats:
+[verbose](#61-verbose-json-serialization) and [compact](#62-compact-json-serialization) JSON data formats:
 ```json
 {
   "name": "Faber College",
@@ -2055,40 +2049,48 @@ Duerst, M., Suignard, M., *"Internationalized Resource Identifiers (IRIs)"*, Jan
 ###### [JSONSCHEMA]
 Wright, A., Andrews, H., Hutton, B., *"JSON Schema Validation"*, Internet-Draft, 16 June 2022, https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01.
 ###### [RFC791]
-Postel, J., "Internet Protocol", RFC 791, September 1981, https://www.rfc-editor.org/rfc/rfc791.
+Postel, J., *"Internet Protocol"*, RFC 791, September 1981, https://www.rfc-editor.org/rfc/rfc791.
 ###### [RFC2119]
-Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://www.rfc-editor.org/rfc/rfc2119.
+Bradner, S., *"Key words for use in RFCs to Indicate Requirement Levels"*, BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997, https://www.rfc-editor.org/rfc/rfc2119.
 ###### [RFC2673]
 Crawford, M., *"Binary Labels in the Domain Name System"*, RFC 2673, August 1999, https://www.rfc-editor.org/rfc/rfc2673.
+###### [RFC3339]
+Klyne, G., Newman, C., *"Date and Time on the Internet: Timestamps"*, RFC 3339, July 2002, https://www.rfc-editor.org/rfc/rfc3339.html
+###### [RFC3986]
+Berners-Lee, T., Fielding, R., Masinter, L., *"Uniform Resource Identifier (URI): Generic Syntax:*, RFC 3986, https://www.rfc-editor.org/rfc/rfc3986.html.
 ###### [RFC4291]
-Hinden, R., Deering, S., "IP Version 6 Addressing Architecture", RFC 4291, February 2006, https://www.rfc-editor.org/rfc/rfc4291.
+Hinden, R., Deering, S., *"IP Version 6 Addressing Architecture"*, RFC 4291, February 2006, https://www.rfc-editor.org/rfc/rfc4291.
 ###### [RFC4632]
-Fuller, V., Li, T., "Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan", RFC 4632, August 2006, https://www.rfc-editor.org/rfc/html/rfc4632.
+Fuller, V., Li, T., *"Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan"*, RFC 4632, August 2006, https://www.rfc-editor.org/rfc/html/rfc4632.
 ###### [RFC4648]
-Josefsson, S., "The Base16, Base32, and Base64 Data Encodings", RFC 4648, October 2006, https://www.rfc-editor.org/rfc/rfc4648.
+Josefsson, S., *"The Base16, Base32, and Base64 Data Encodings"*, RFC 4648, October 2006, https://www.rfc-editor.org/rfc/rfc4648.
 ###### [RFC5234]
 Crocker, D., Overell, P., *"Augmented BNF for Syntax Specifications: ABNF"*, RFC 5234, January 2008, https://www.rfc-editor.org/rfc/rfc5234.
+###### [RFC6570]
+Gregorio, J., Fielding, R., Hadley, M., Nottingham, M., Orchard, D., *"URI Template"*, RFC 6570, March 2012, https://www.rfc-editor.org/rfc/rfc6570.html.
 ###### [RFC6901]
-Bryan, P., Zyp, K., Nottingham, M., "JavaScript Object Notation (JSON) Pointer", RFC 6901, April 2013, https://www.rfc-editor.org/rfc/rfc6901.
+Bryan, P., Zyp, K., Nottingham, M., *"JavaScript Object Notation (JSON) Pointer"*, RFC 6901, April 2013, https://www.rfc-editor.org/rfc/rfc6901.
 ###### [RFC8949]
 Bormann, C., Hoffman, P., *"Concise Binary Object Representation (CBOR)"*, RFC 8949, October 2013, https://www.rfc-editor.org/rfc/rfc8949.
 ###### [RFC7405]
-Kyzivat, P., "Case-Sensitive String Support in ABNF", RFC 7405, December 2014, https://www.rfc-editor.org/rfc/rfc7405.
+Kyzivat, P., *"Case-Sensitive String Support in ABNF"*, RFC 7405, December 2014, https://www.rfc-editor.org/rfc/rfc7405.
 ###### [RFC8174]
-Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://www.rfc-editor.org/rfc/rfc8174.
+Leiba, B., *"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"*, BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017, https://www.rfc-editor.org/rfc/rfc8174.
 ###### [RFC8200]
-Deering, S., Hinden, R., "Internet Protocol, Version 6 (IPv6) Specification", RFC 8200, July 2017, https://www.rfc-editor.org/rfc/rfc8200.
+Deering, S., Hinden, R., *"Internet Protocol, Version 6 (IPv6) Specification"*, RFC 8200, July 2017, https://www.rfc-editor.org/rfc/rfc8200.
 ###### [RFC8259]
-Bray, T., "The JavaScript Object Notation (JSON) Data Interchange Format", STD 90, IETF RFC 8259, December 2017, https://www.rfc-editor.org/rfc/rfc8259.
+Bray, T., *"The JavaScript Object Notation (JSON) Data Interchange Format"*, STD 90, IETF RFC 8259, December 2017, https://www.rfc-editor.org/rfc/rfc8259.
+###### [RFC9557]
+Sharma, U., Bormann, C., *"Date and Time on the Internet: Timestamps with Additional Information"*, IETF RFC 9557, April 2024, https://www.rfc-editor.org/rfc/rfc9557.
 ###### [RFC9562]
-Davis, K., Peabody, B., Leach P., "Universally Unique IDentifiers (UUIDs)", IETF RFC 9562, May 2024, https://www.rfc-editor.org/rfc/rfc9562.
+Davis, K., Peabody, B., Leach P., *"Universally Unique IDentifiers (UUIDs)"*, IETF RFC 9562, May 2024, https://www.rfc-editor.org/rfc/rfc9562.
 ###### [POSIX Time]
-IEEE and The Open Group, "POSIX.1-2024 - standard operating system and environment: time()", "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
+IEEE and The Open Group, *"POSIX.1-2024 - standard operating system and environment: time()"*, "https://pubs.opengroup.org/onlinepubs/9799919799/functions/time.html"
 ###### [XML Namespaces]
 W3C, *"Namespaces in XML 1.0"*, December 2009, https://www.w3.org/TR/xml-names/
 ###### [XSD]
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 1: Structures", 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
-W3C, "XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes", 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
+W3C, *"XML Schema Definition Language (XSD) 1.1 Part 1: Structures"*, 5 April 2012, https://www.w3.org/TR/xmlschema11-1.  \
+W3C, *"XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes"*, 5 April 2012, https://www.w3.org/TR/xmlschema11-2.
 
 ## A.2 Informative References
 
@@ -2103,7 +2105,7 @@ Dammann, Olaf, *"Data, Information, Evidence, and Knowledge"*, https://www.ncbi.
 ###### [DRY]
 *"Don't Repeat Yourself"*, https://en.wikipedia.org/wiki/Don%27t_repeat_yourself.
 ###### [ENUM]
-*"Enumerated Type"*, https://en.wikipedia.org/wiki/Enumerated_type
+*"Enumerated Type"*, https://en.wikipedia.org/wiki/Enumerated_type.
 ###### [FDT]
 König, H., *"Protocol Engineering, Chapter 8"*, https://link.springer.com/chapter/10.1007%2F978-3-642-29145-6_8.
 ###### [FIX]
@@ -2111,13 +2113,13 @@ FIX Trading Community Technical Standards, https://www.fixtrading.org/standards/
 ###### [GRAPH]
 Rennau, Hans-Juergen, *"Combining graph and tree"*, XML Prague 2018, https://archive.xmlprague.cz/2018/files/xmlprague-2018-proceedings.pdf.
 ###### [GRAPHVIZ]
-*"Graph Visualization Software"*, https://graphviz.gitlab.io/
+*"Graph Visualization Software"*, https://graphviz.gitlab.io/.
 ###### [INFORMATION MODELING]
 Lee, Y. Tina, *"Information Modeling: From Design to Implementation"*, IEEE Transactions on Robotics and Automation, 1999, https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265.
 ###### [JADN-CN]
-OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v1.0/imjadn-v1.0.md
+OASIS, *"Information Modeling with JADN"*, https://docs.oasis-open.org/openc2/imjadn/v2.0/imjadn-v2.0.md.
 ###### [ORDER]
-LaFontaine, Robin, *"Element order is always important in XML, except when it isn't"*, Balisage: The Markup Conference, 2021, https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html
+LaFontaine, Robin, *"Element order is always important in XML, except when it isn't"*, Balisage: The Markup Conference, 2021, https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html.
 ###### [PROTO]
 Google Developers, *"Protocol Buffers"*, https://developers.google.com/protocol-buffers/.
 ###### [RDF]
@@ -2127,9 +2129,13 @@ OASIS Technical Committee, *"RELAX NG"*, November 2002, https://www.oasis-open.o
 ###### [RFC3444]
 Pras, A., Schoenwaelder, J., *"On the Difference between Information Models and Data Models"*, RFC 3444, January 2003, https://www.rfc-editor.org/rfc/rfc3444.
 ###### [RFC3552]
-Rescorla, E. and B. Korver, "Guidelines for Writing RFC Text on Security Considerations", BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/rfc/rfc3552.
+Rescorla, E. and B. Korver, *"Guidelines for Writing RFC Text on Security Considerations"*, BCP 72, RFC 3552, DOI 10.17487/RFC3552, July 2003, https://www.rfc-editor.org/rfc/rfc3552.
+###### [RFC5321]
+Klensin, J., *"Simple Mail Transfer Protocol"*, RFC 5321, October 2008, https://www.rfc-editor.org/rfc/rfc5321.html.
+###### [RFC6531]
+Yao, J., Mao, W., *"SMTP Extension for Internationalized Email"*, RFC 6531, February 2012, https://www.rfc-editor.org/rfc/rfc6531.html.
 ###### [RFC7303]
-Hansen, T., Melnikov, A., "Additional Media Type Structured Syntax Suffixes", RFC 7303, January 2013
+Hansen, T., Melnikov, A., *"Additional Media Type Structured Syntax Suffixes"*, RFC 7303, January 2013, https://www.rfc-editor.org/rfc/rfc7303.
 ###### [RFC7493]
 Bray, T., "The I-JSON Message Format", RFC 7493, March 2015, https://www.rfc-editor.org/rfc/rfc7493.
 ###### [RFC8340]
@@ -2140,7 +2146,7 @@ Jimenez, J., Tschofenig, H., Thaler, D., *"Report from the Internet of Things (I
 ###### [RFC8610]
 Birkholz, H., Vigano, C., Bormann, C., *"Concise Data Definition Language"*, RFC 8610, June 2019, https://www.rfc-editor.org/rfc/rfc8610.html.
 ###### [STIX]
-Bret Jordan, Rich Piazza, Trey Darley, "Structured Threat Information Expression (STIX) Version 2.1", OASIS Cyber Threat Intelligence (CTI) TC, 10 June 2021, https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html.
+Bret Jordan, Rich Piazza, Trey Darley, *"Structured Threat Information Expression (STIX) Version 2.1"*, OASIS Cyber Threat Intelligence (CTI) TC, 10 June 2021, https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html.
 ###### [THRIFT]
 Apache Software Foundation, *"Writing a .thrift file"*, https://thrift-tutorial.readthedocs.io/en/latest/thrift-file.html.
 ###### [TRANSFORM]
@@ -2230,11 +2236,10 @@ The following individuals have participated in the creation of this specificatio
 
 ### Changes from v1.0 CSD 01 to v1.0
 
-* Added serialization style description to [Section 2.2](#22-information-modeling).
-* Removed the Null core type from [Table 3.1](#table-3-1-jadn-core-types).
-* Added default values for type definition elements to [Section 3.1.1](#311-requirements)
-* Raised the default maximum length for type and field names from 32 to 64 characters
-   ([Section 3.1.2](#312-name-formats)).
+* Added serialization style description.
+* Removed the Null core type.
+* Added default values for type definition elements.
+* Raised the default maximum length for type and field names from 32 to 64 characters.
 
 -------
 
