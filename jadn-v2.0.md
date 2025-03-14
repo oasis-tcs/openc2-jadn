@@ -110,76 +110,76 @@ For complete copyright information please see the Notices section in the Appendi
 
 # Table of Contents
 
-- [1 Introduction](#1-introduction)
-  - [1.1 Glossary](#11-glossary)
-    - [1.1.1 Definitions of terms](#111-definitions-of-terms)
-    - [1.1.2 Acronyms and abbreviations](#112-acronyms-and-abbreviations)
-- [2 Information Models](#2-information-models)
-- [3 Schema Packages](#3-schema-packages)
-    - [3.1.1 Descriptive Metadata](#311-descriptive-metadata)
-    - [3.1.2 Functional Metadata](#312-functional-metadata)
-    - [3.1.3 Package Conformance Requirements](#313-package-conformance-requirements)
-- [4 JADN Types](#4-jadn-types)
-  - [4.1 Type Definition Structure](#41-type-definition-structure)
-    - [4.1.1 Primitive](#411-primitive)
-    - [4.1.2 Enumerated](#412-enumerated)
-    - [4.1.3 Compound](#413-compound)
-    - [4.1.4 Type and Field Options](#414-type-and-field-options)
-    - [4.1.5 Type Conformance Requirements](#415-type-conformance-requirements)
-  - [4.2 Core Types](#42-core-types)
-    - [4.2.1 Primitive Types](#421-primitive-types)
-      - [4.2.1.1 Boolean](#4211-boolean)
-      - [4.2.1.2 Integer](#4212-integer)
-      - [4.2.1.3 Number](#4213-number)
-      - [4.2.1.4 String](#4214-string)
-      - [4.2.1.5 Binary](#4215-binary)
-      - [4.2.1.6 Primitive Type Conformance Requirements](#4216-primitive-type-conformance-requirements)
-    - [4.2.2 Compound Types](#422-compound-types)
-      - [4.2.2.1 Field Options](#4221-field-options)
-      - [4.2.2.2 Multiplicity](#4222-multiplicity)
-      - [4.2.2.3 Links](#4223-links)
-      - [4.2.2.4 Compound Type Conformance Requirements](#4224-compound-type-conformance-requirements)
-    - [4.2.3 Union Types](#423-union-types)
-      - [4.2.3.1 Enumerated](#4231-enumerated)
-      - [4.2.3.2 Choice (Tagged)](#4232-choice-tagged)
-      - [4.2.3.3 Choice (Untagged)](#4233-choice-untagged)
-      - [4.2.3.4 Field Options](#4234-field-options)
-      - [4.2.3.5 Union Type Conformance Requirements](#4235-union-type-conformance-requirements)
-    - [4.2.4 General Type Options](#424-general-type-options)
-      - [4.2.4.1 Type Inheritance](#4241-type-inheritance)
-      - [4.2.4.2 General Type Conformance Requirements](#4242-general-type-conformance-requirements)
-    - [4.2.5 Semantic Validation](#425-semantic-validation)
-      - [4.2.5.1 JADN Semantic Validation Keywords](#4251-jadn-semantic-validation-keywords)
-      - [4.2.5.2 XSD Semantic Validation Keywords](#4252-xsd-semantic-validation-keywords)
-      - [4.2.5.3 JSON Schema Semantic Validation Keywords](#4253-json-schema-semantic-validation-keywords)
-- [5 Shortcuts](#5-shortcuts)
-  - [5.1 Anonymous Type Definition](#51-anonymous-type-definition)
-  - [5.2 Field Multiplicity](#52-field-multiplicity)
-  - [5.3 Derived Enumerations](#53-derived-enumerations)
-  - [5.4 MapOf With Enumerated Key](#54-mapof-with-enumerated-key)
-  - [5.5 Pointers](#55-pointers)
-- [6 Serialization and Data Formats](#6-serialization-and-data-formats)
-  - [6.1 Verbose JSON Serialization](#61-verbose-json-serialization)
-  - [6.2 Compact JSON Serialization:](#62-compact-json-serialization)
-  - [6.3 Concise JSON Serialization:](#63-concise-json-serialization)
-  - [6.4 CBOR Serialization](#64-cbor-serialization)
-  - [6.5 XML Serialization:](#65-xml-serialization)
-- [7 Alternate Schema Representations](#7-alternate-schema-representations)
-  - [7.1 Information Definition Language](#71-information-definition-language)
-  - [7.2 Property Tables](#72-property-tables)
-  - [7.3 Entity Relationship Diagrams](#73-entity-relationship-diagrams)
-- [8 Conformance](#8-conformance)
-- [Appendix A. References](#appendix-a-references)
-  - [A.1 Normative References](#a1-normative-references)
-  - [A.2 Informative References](#a2-informative-references)
-- [Appendix B. Safety, Security and Privacy Considerations](#appendix-b-safety-security-and-privacy-considerations)
-- [Appendix C. Acknowledgments](#appendix-c-acknowledgments)
-  - [C.1 Special Thanks](#c1-special-thanks)
-  - [C.2 Participants](#c2-participants)
-- [Appendix D. Revision History](#appendix-d-revision-history)
-    - [Changes from v1.0 to v2.0](#changes-from-v10-to-v20)
-    - [Changes from v1.0 CSD 01 to v1.0](#changes-from-v10-csd-01-to-v10)
-- [Appendix E. Notices](#appendix-e-notices)
+* [1 Introduction](#1-introduction)
+  * [1.1 Glossary](#11-glossary)
+    * [1.1.1 Definitions of terms](#111-definitions-of-terms)
+    * [1.1.2 Acronyms and abbreviations](#112-acronyms-and-abbreviations)
+* [2 Information Models](#2-information-models)
+* [3 Schema Packages](#3-schema-packages)
+    * [3.1.1 Descriptive Metadata](#311-descriptive-metadata)
+    * [3.1.2 Functional Metadata](#312-functional-metadata)
+    * [3.1.3 Package Conformance Requirements](#313-package-conformance-requirements)
+* [4 JADN Types](#4-jadn-types)
+  * [4.1 Type Definition Structure](#41-type-definition-structure)
+    * [4.1.1 Primitive](#411-primitive)
+    * [4.1.2 Enumerated](#412-enumerated)
+    * [4.1.3 Compound](#413-compound)
+    * [4.1.4 Type and Field Options](#414-type-and-field-options)
+    * [4.1.5 Type Conformance Requirements](#415-type-conformance-requirements)
+  * [4.2 Core Types](#42-core-types)
+    * [4.2.1 Primitive Types](#421-primitive-types)
+      * [4.2.1.1 Boolean](#4211-boolean)
+      * [4.2.1.2 Integer](#4212-integer)
+      * [4.2.1.3 Number](#4213-number)
+      * [4.2.1.4 String](#4214-string)
+      * [4.2.1.5 Binary](#4215-binary)
+      * [4.2.1.6 Primitive Type Conformance Requirements](#4216-primitive-type-conformance-requirements)
+    * [4.2.2 Compound Types](#422-compound-types)
+      * [4.2.2.1 Field Options](#4221-field-options)
+      * [4.2.2.2 Multiplicity](#4222-multiplicity)
+      * [4.2.2.3 Links](#4223-links)
+      * [4.2.2.4 Compound Type Conformance Requirements](#4224-compound-type-conformance-requirements)
+    * [4.2.3 Union Types](#423-union-types)
+      * [4.2.3.1 Enumerated](#4231-enumerated)
+      * [4.2.3.2 Choice (Tagged)](#4232-choice-tagged)
+      * [4.2.3.3 Choice (Untagged)](#4233-choice-untagged)
+      * [4.2.3.4 Field Options](#4234-field-options)
+      * [4.2.3.5 Union Type Conformance Requirements](#4235-union-type-conformance-requirements)
+    * [4.2.4 General Type Options](#424-general-type-options)
+      * [4.2.4.1 Type Inheritance](#4241-type-inheritance)
+      * [4.2.4.2 General Type Conformance Requirements](#4242-general-type-conformance-requirements)
+    * [4.2.5 Semantic Validation](#425-semantic-validation)
+      * [4.2.5.1 JADN Semantic Validation Keywords](#4251-jadn-semantic-validation-keywords)
+      * [4.2.5.2 XSD Semantic Validation Keywords](#4252-xsd-semantic-validation-keywords)
+      * [4.2.5.3 JSON Schema Semantic Validation Keywords](#4253-json-schema-semantic-validation-keywords)
+* [5 Shortcuts](#5-shortcuts)
+  * [5.1 Anonymous Type Definition](#51-anonymous-type-definition)
+  * [5.2 Field Multiplicity](#52-field-multiplicity)
+  * [5.3 Derived Enumerations](#53-derived-enumerations)
+  * [5.4 MapOf With Enumerated Key](#54-mapof-with-enumerated-key)
+  * [5.5 Pointers](#55-pointers)
+* [6 Serialization and Data Formats](#6-serialization-and-data-formats)
+  * [6.1 Verbose JSON Serialization](#61-verbose-json-serialization)
+  * [6.2 Compact JSON Serialization:](#62-compact-json-serialization)
+  * [6.3 Concise JSON Serialization:](#63-concise-json-serialization)
+  * [6.4 CBOR Serialization](#64-cbor-serialization)
+  * [6.5 XML Serialization:](#65-xml-serialization)
+* [7 Alternate Schema Representations](#7-alternate-schema-representations)
+  * [7.1 Information Definition Language](#71-information-definition-language)
+  * [7.2 Property Tables](#72-property-tables)
+  * [7.3 Entity Relationship Diagrams](#73-entity-relationship-diagrams)
+* [8 Conformance](#8-conformance)
+* [Appendix A. References](#appendix-a-references)
+  * [A.1 Normative References](#a1-normative-references)
+  * [A.2 Informative References](#a2-informative-references)
+* [Appendix B. Safety, Security and Privacy Considerations](#appendix-b-safety-security-and-privacy-considerations)
+* [Appendix C. Acknowledgments](#appendix-c-acknowledgments)
+  * [C.1 Special Thanks](#c1-special-thanks)
+  * [C.2 Participants](#c2-participants)
+* [Appendix D. Revision History](#appendix-d-revision-history)
+  * [Changes from v1.0 to v2.0](#changes-from-v10-to-v20)
+  * [Changes from v1.0 CSD 01 to v1.0](#changes-from-v10-csd-01-to-v10)
+* [Appendix E. Notices](#appendix-e-notices)
 
 -------
 
@@ -476,15 +476,15 @@ defaults shown below.
 naming conventions using distinct formats for TypeName and FieldName
 ([Section 4.1](#41-type-definition-structure)) can aid schema readability. These variables define a package's
 naming conventions:
-    * **$Sys:** A "system" character used in software-generated TypeNames. Default = '.'
+    * **$Sys:** A "system" character used in software-generated TypeNames. Default = `"."`
     * **$TypeName:** The regex used to validate TypeName. Default begins with an upper-case character:
-^[A-Z][-.A-Za-z0-9]{0,63}$
+`^[A-Z][-.A-Za-z0-9]{0,63}$`
     * **$FieldName:** The regex used to validate FieldName. Default begins with a lower-case character:
-^[a-z][_A-Za-z0-9]{0,63}$  \
+`^[a-z][_A-Za-z0-9]{0,63}$`  \
 The JADN Metaschema overrides the default $FieldName pattern to allow config variables beginning
 with '$' and core type names beginning with a capital letter.
     * **$NSID:** The regex used to validate an external type reference's prefix string.
-Default: ^([A-Za-z][A-Za-z0-9]{0,7})?$  \
+Default: `^([A-Za-z][A-Za-z0-9]{0,7})?$`  \
 External type references (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types))
 are prefixed names that include an NSID.
 
@@ -800,8 +800,8 @@ The Compound types are listed in Table 4-2:
 By default, ArrayOf and Array specify a sequence of items and MapOf, Map, and Record specify a set of items,
 but these collection properties can be modified using TypeOptions.
 
-* The vtype option specifies the type of each instance in an ArrayOf or MapOf type.
-* The ktype option specifies the type of each key in a MapOf type.
+* The `vtype` option specifies the type of each instance in an ArrayOf or MapOf type.
+* The `ktype` option specifies the type of each key in a MapOf type.
 * If a collection is Ordered, item order is significant when comparing instances, otherwise it is not.
 * If a collection is Unique, no item is duplicated within a collection instance, otherwise duplicates are allowed.
 * A Structured type includes individual field definitions. Each field defines an association between an identifier
@@ -871,8 +871,8 @@ ColorIds = Enumerated#
 #### 4.2.1.1 Field Identifiers
 
 For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
-If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
-whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
+If the type definition does not include an `id` option, the API value is "Forbidden" and serialization rules determine
+whether FieldID or FieldName is used in serialized data. With the `id` option the API and serialized values are always
 the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
 such as "NotAllowed", "Verboten", or "Interdit".
 -->
@@ -1006,7 +1006,7 @@ ItemId = Array
 * A compound type MUST NOT include more than one multiplicity option (set, unique, ordered, or unordered).
 * If CoreType is ArrayOf, TypeOptions MUST include the `vtype` option.
 * If CoreType is MapOf, TypeOptions MUST include `ktype` and `vtype` options.
-* The ktype option SHOULD be a constrained type such as an enumeration, pattern or semantic valuation keyword
+* The `ktype` option SHOULD be a constrained type such as an enumeration, pattern or semantic valuation keyword
 that specifies a fixed subset of values.
 * All values in an ArrayOf or MapOf instance must be an instance of `vtype`.
 * All keys in a MapOf instance MUST be an instance of `ktype`.
@@ -1058,21 +1058,21 @@ the tags of a tagged union without any associated type, and an instance equals o
 The `id` option specifies that an instance is an integer matching an `item_id`,
 otherwise it is a string matching the corresponding `item_value`.
 
-The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
+The `enum` ([Section 5.3](#53-derived-enumerations)) and `pointer` ([Section 5.5](#55-pointers)) options
 are shortcuts that expand to an Enumerated type containing the tags from a referenced structured type.
 
 #### 4.2.3.2 Choice (Tagged)
 
-The Choice type without a *combine* TypeOption is a tagged union, a structure that defines a set of tag:type pairs.
+The Choice type without a `combine` TypeOption is a tagged union, a structure that defines a set of tag:type pairs.
 Values include a tag specifying a single FieldType from the set, and an instance is a value that matches the
 FieldType specified by the tag.
 
 #### 4.2.3.3 Choice (Untagged)
 
-The Choice type containing a *combine* TypeOption is an untagged union, a structure that defines a set of types
+The Choice type containing a `combine` TypeOption is an untagged union, a structure that defines a set of types
 used collectively to classify a value.
 
-The *combine* option value is a single character that specifies the required combination of FieldTypes:
+The `combine` option value is a single character that specifies the required combination of FieldTypes:
 * A: value must be an instance of `allOf` the types
 * O: value must be an instance of `anyOf` the types, tried in field order until a match is found
 * X: value must be an instance of `oneOf` the types and no others
@@ -1105,7 +1105,7 @@ PhoneNumberTypes = Enumerated
 ```
 
 An untagged Choice with a single field can be used to define an alias for FieldType.
-The *combine* option has no effect when there is only one field.
+The `combine` option has no effect when there is only one field.
 
 #### 4.2.3.4 Field Options
 
@@ -1251,7 +1251,7 @@ Colors2 = Enumerated extends(Colors1)       // Primary and secondary colors
 ### 4.2.5 Semantic Validation
 
 Semantic validation supplements type validation, ensuring that data values are within boundaries that
-applications will understand. Each *format* type option is a semantic validation keyword that references
+applications will understand. Each format type option is a semantic validation keyword that references
 requirements defined by authoritative resources outside this specification.
 
 The TypeOptions field of a type definition ([Section 4.1](#41-type-definition-structure)) is an id:value
@@ -1266,9 +1266,9 @@ type may include multiple format options.
 
 JADN types define both logical values and literals, and format options affect both validation and translation
 between values and text representations. See [Section 6](#6-serialization-and-data-formats).
-The JADN format keywords are shown in Table 4-12:
+The JADN format keywords are shown in Table 4-11:
 
-###### Table 4-12: JADN Formats
+###### Table 4-11: JADN Formats
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
@@ -1385,11 +1385,11 @@ of time-related Integers. The lexical space is broad, and lexical mappings beyon
 (DMY/YMD/MDY, 12/24 hour, locale specifics) are out of scope but can be expressed in JADN as
 externally-defined format options.
 
-Table 4-13 shows XSD-derived format options. Many are aliases for JADN options applicable
+Table 4-12 shows XSD-derived format options. Many are aliases for JADN options applicable
 to all serialized data formats; some are specific to XML but may be generalized to all
 serializations.
 
-###### Table 4-13: XSD Formats
+###### Table 4-12: XSD Formats
 
 | XSD DataType         | JADN DataType | JADN Opts  | XSD-compatible      |
 |----------------------|---------------|------------|---------------------|
@@ -1433,10 +1433,10 @@ serializations.
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
-Table 4-14 shows semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
+Table 4-13 shows semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
 Because JSON Schema defines only text representations, these keywords have the meanings listed here
 when used with the JADN String type.
-Table 4-12 defines the meaning of some of these keywords when used with types other than String.
+[Table 4-11](#table-4-11-jadn-formats) defines the meaning of some of these keywords when used with types other than String.
 
 For example, a String with `date-time` format has literal values such as:
 * "2024-10-02T10:00:00-05:00"
@@ -1445,7 +1445,7 @@ For example, a String with `date-time` format has literal values such as:
 
 These are unequal strings even though they represent the same timestamp.
 
-###### Table 4-14: JSON Schema Formats
+###### Table 4-13: JSON Schema Formats
 
 | Keyword               | Type   | Requirement                                                                           |
 |-----------------------|--------|---------------------------------------------------------------------------------------|
@@ -1514,10 +1514,10 @@ Coordinate.longitude = Number [-180.0, 180.0]
 ## 5.2 Field Multiplicity
 
 Fields may be defined to have multiple values of the same type. Expanding converts each field that can
-have more than one value to a separate ArrayOf type. The multiplicity (*minOccurs* and *maxOccurs*)
+have more than one value to a separate ArrayOf type. The multiplicity (`minOccurs` and `maxOccurs`)
 FieldOptions ([Section 4.2.2.2](#4222-multiplicity)) are moved from FieldOptions to the minimum and maximum
-length (*minLength* and *maxLength*) TypeOptions ([Section 4.2.3](#423-union-types))) of the new ArrayOf type,
-except that if *minOccurs* is 0 (field is optional), it remains in FieldOptions and the new ArrayOf type
+length (`minLength` and `maxLength`) TypeOptions ([Section 4.2.3](#423-union-types))) of the new ArrayOf type,
+except that if `minOccurs` is 0 (field is optional), it remains in FieldOptions and the new ArrayOf type
 has a minimum length of 1.
 
 Example:
@@ -1546,15 +1546,15 @@ field multiplicity shortcut:
 
 ## 5.3 Derived Enumerations
 
-An Enumerated type defined with the *enum* option has fields copied from the type referenced
+An Enumerated type defined with the `enum` option has fields copied from the type referenced
 in the option rather than being listed individually in the definition.
-Expanding removes *enum* from Type Options and adds fields containing
+Expanding removes `enum` from Type Options and adds fields containing
 FieldID, FieldName, and FieldDescription from each field of the referenced type.
 
-In JADN-IDL ([Section 7.1](#71-information-definition-language)) the *enum* option is represented
-as a function string: "Enum(\<referenced-type\>)".
-Within ArrayOf and MapOf types, the *ktype* and *vtype* options may contain an enum option.  As an
-example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN vtype option "*#Pixel".
+In JADN-IDL ([Section 7.1](#71-information-definition-language)) the `enum` option is represented
+as a function string: "Enum[\<referenced-type\>]".
+Within ArrayOf and MapOf types, the `ktype` and `vtype` options may contain an enum option.  As an
+example the IDL value "ArrayOf(Enum[Pixel])" corresponds to the JADN `vtype` option "*#Pixel".
 
 Expanding references an explicit Enumerated type if it exists, otherwise it creates an explicit
 Enumerated type. It then replaces the type reference with the name of the explicit Enumerated type.
@@ -1580,8 +1580,8 @@ Expanding replaces the Channel and ChannelMask definitions with:
     ChannelMask2 = ArrayOf(Channel)
 
 ## 5.4 MapOf With Enumerated Key
-A MapOf type where *ktype* is Enumerated is equivalent to a Map.  Expanding replaces the MapOf type definition
-with a Map type with keys from the Enumerated *ktype*. This is the complementary operation to derived
+A MapOf type where `ktype` is Enumerated is equivalent to a Map.  Expanding replaces the MapOf type definition
+with a Map type with keys from the Enumerated `ktype`. This is the complementary operation to derived
 enumeration. In order to use this shortcut, each ItemValue of the Enumerated type must be a valid FieldName.
 
 Example:
@@ -1665,10 +1665,10 @@ MUST be serialized as shown in Table 6-1:
 | **Choice**               | JSON **object** with one property.  Property key is FieldName.                                                                                                                                                                                                                                                                              |
 | **Choice** with "id"     | JSON **object** with one property. Property key is FieldID converted to string.                                                                                                                                                                                                                                                             |
 | **Array**                | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                                                                     |
-| **ArrayOf**              | JSON **array** of values with type *vtype*, or JSON **null** if *vtype* is null.                                                                                                                                                                                                                                                            |
+| **ArrayOf**              | JSON **array** of values with type `vtype`, or JSON **null** if `vtype` is null.                                                                                                                                                                                                                                                            |
 | **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 | **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                                                           |
-| **MapOf**                | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type, or JSON **null** if *vtype* is null. Properties have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **MapOf**                | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type, or JSON **null** if `vtype` is null. Properties have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 
 **Format options that affect JSON serialization**
@@ -1715,7 +1715,7 @@ except as shown in Table 6-3.
 | **Enumerated** | JSON **integer** ItemID                                                                                                                                                                                                                                                                             |
 | **Choice**     | JSON **object** with one property. Property key is the FieldID converted to string.                                                                                                                                                                                                                 |
 | **Map**        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                   |
-| **MapOf**      | JSON **object** if *ktype* is a String type, JSON **array** if *ktype* is not a String type. Members have key type *ktype* and value type *vtype*. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **MapOf**      | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type. Members have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
 | **Record**     | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                             |
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
@@ -1744,9 +1744,9 @@ be serialized as shown in Table 6-5.
 | **Enumerated** | int     | an unsigned integer (#0) or negative integer (#1) ItemID.                                                                                                      |
 | **Choice**     | struct  | a map (#5) containing one pair. The first item is a FieldID, the second item has the corresponding FieldType.                                                  |
 | **Array**      | record  | an array of values (#4) with types specified by FieldType. Omitted optional values are **null** (#7.22) if before the last specified value, otherwise omitted. |
-| **ArrayOf**    | vector  | an array of values (#4) of type *vtype*, or **null** (#7.22) if vtype is null.                                                                                 |
+| **ArrayOf**    | vector  | an array of values (#4) of type `vtype`, or **null** (#7.22) if vtype is null.                                                                                 |
 | **Map**        | struct  | a map (#5) of pairs. In each pair the first item is a FieldID, the second item has the corresponding FieldType.                                                |
-| **MapOf**      | table   | a map (#5) of pairs, or **null** if *vtype* is null. In each pair the first item has type *ktype*, the second item has type *vtype*.                           |
+| **MapOf**      | table   | a map (#5) of pairs, or **null** if `vtype` is null. In each pair the first item has type `ktype`, the second item has type `vtype`.                           |
 | **Record**     | record  | same as **Array**.                                                                                                                                             |
 
 **Format options that affect CBOR Serialization**
@@ -2259,7 +2259,7 @@ The following individuals have participated in the creation of this specificatio
 
 # Appendix D. Revision History
 
-### Changes from v1.0 to v2.0
+## Changes from v1.0 to v2.0
 
 * Add type inheritance options.
 * Add untagged union options to Choice type.
@@ -2276,7 +2276,7 @@ The following individuals have participated in the creation of this specificatio
   * rename "Information" to "Metadata" to avoid conflation with information modeling.
   * rename "exports" to "roots" to better describe purpose and effect.
 
-### Changes from v1.0 CSD 01 to v1.0
+## Changes from v1.0 CSD 01 to v1.0
 
 * Added serialization style description.
 * Removed the Null core type.

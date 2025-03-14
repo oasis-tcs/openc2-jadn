@@ -254,17 +254,18 @@
   /* styles for section headings - levels 1-5 (maybe include heading1, etc. later) */
 
   /* dl 2025-02-25: adjusted header formatting, may not need h1big */
-  h1,h2,h3,h4,h5,h1big,h1gray,title,subtitle {
+  h1,h2,h3,h4,h5,h1gray,h1title,subtitle {
       font-family: LiberationSans, Arial, Helvetica, sans-serif;
       line-height: 1.15;
+      color:#0b5394;
   }
-  title{font-size: 14pt; font-weight: bold; color: #0b5394}
-  subtitle{font-size: 11pt; font-weight: bold; color: #0b5394;}
-  h1 {font-size: 16pt; font-weight: bold; margin-top:0; margin-bottom: 6pt; color: #0b5394;}
-  h2 {font-size: 14pt; font-weight: bold; margin-top:14pt; margin-bottom: 6pt; color: #0b5394;}
-  h3 {font-size: 13pt; font-weight: bold; margin-top:10pt; margin-bottom: 4pt;color: #0b5394;}
-  h4 {font-size: 12pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
-  h5 {font-size: 11pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;color: #0b5394;}
+  h1title{font-size: 14pt; font-weight: bold; margin-top: 0; margin-bottom: 6pt;}
+  subtitle{font-size: 11pt; font-weight: bold; margin-top: 0; margin-bottom: 0;}
+  h1 {font-size: 16pt; font-weight: bold; margin-top:16pt; margin-bottom: 6pt;}
+  h2 {font-size: 14pt; font-weight: bold; margin-top:14pt; margin-bottom: 6pt;}
+  h3 {font-size: 13pt; font-weight: bold; margin-top:10pt; margin-bottom: 4pt;}
+  h4 {font-size: 12pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;}
+  h5 {font-size: 11pt; font-weight: normal; margin-top:6pt; margin-bottom: 4pt;}
   /* style for h6, for use as Reference tag, override pandoc italic */
   h6 {font-size: 10pt; font-weight: normal; margin-top: 6pt; margin-bottom: 0; color: #000000; font-style: normal;}
 
@@ -789,10 +790,10 @@ represented for processing, communication or storage. Information values
 are instances of abstract UML DataTypes, and as shown in Figure 2-1
 DataType definitions are organized into abstract schema packages which
 are included in an application's information model.</p>
-<p><img src="images/im-toplevel.jpg"
-alt="Information Model Structure" /></p>
 <h6 id="figure-2-1----information-model-organization">Figure 2-1 --
 Information Model Organization</h6>
+<p><img src="images/im-toplevel.jpg"
+alt="Information Model Structure" /></p>
 <ul>
 <li>A JADN IM consists of a set of abstract schemas that define
 information content, and a set of encoding rules that define the
@@ -846,10 +847,11 @@ definition has precedence.</p>
 UML. A UML package is a namespace for its members, and a JADN abstract
 schema is composed using packages. All packages, including the one
 defining JADN itself, are instances of JADN's <code>Schema</code> type.
-Schema has two fields: package metadata defined in this section (<a
-href="#figure-3-1----jadn-schema-metadata">Figure 3-1</a>), and a list
+Schema has two fields: package metadata defined in Fig. 3-1, and a list
 of type definitions defined in <a href="#4-jadn-types">Section
 4</a>.</p>
+<h6 id="fig-3-1-jadn-schema-metadata">Fig. 3-1. JADN Schema:
+Metadata</h6>
 <pre><code>       title: &quot;JADN Metaschema&quot;
      package: &quot;http://oasis-open.org/openc2/jadn/v2.0/schema&quot;
  description: &quot;Syntax of a JSON Abstract Data Notation (JADN) package.&quot;
@@ -892,8 +894,6 @@ NSID = String{pattern=&quot;$NSID&quot;}               // Namespace prefix match
 TypeName = String{pattern=&quot;$TypeName&quot;}       // Name of a logical type
 FieldName = String{pattern=&quot;$FieldName&quot;}     // Name of a field in a structured type
 TypeRef = String                             // Reference to a type, matching ($NSID &#39;:&#39;)? $TypeName</code></pre>
-<h6 id="figure-3-1----jadn-schema-metadata">Figure 3-1 -- JADN Schema:
-Metadata</h6>
 <h3 id="311-descriptive-metadata">3.1.1 Descriptive Metadata</h3>
 <p>These Metadata fields provide information about a package but have no
 effect on schema processing:</p>
@@ -947,18 +947,19 @@ href="#41-type-definition-structure">Section 4.1</a>) can aid schema
 readability. These variables define a package's naming conventions:</p>
 <ul>
 <li><strong>$Sys:</strong> A "system" character used in
-software-generated TypeNames. Default = '.'</li>
+software-generated TypeNames. Default = <code>"."</code></li>
 <li><strong>$TypeName:</strong> The regex used to validate TypeName.
 Default begins with an upper-case character:
-^[A-Z][-.A-Za-z0-9]{0,63}$</li>
+<code>^[A-Z][-.A-Za-z0-9]{0,63}$</code></li>
 <li><strong>$FieldName:</strong> The regex used to validate FieldName.
 Default begins with a lower-case character:
-^[a-z][_A-Za-z0-9]{0,63}$<br />
+<code>^[a-z][_A-Za-z0-9]{0,63}$</code><br />
 The JADN Metaschema overrides the default $FieldName pattern to allow
 config variables beginning with '$' and core type names beginning with a
 capital letter.</li>
 <li><strong>$NSID:</strong> The regex used to validate an external type
-reference's prefix string. Default: ^([A-Za-z][A-Za-z0-9]{0,7})?$<br />
+reference's prefix string. Default:
+<code>^([A-Za-z][A-Za-z0-9]{0,7})?$</code><br />
 External type references (TypeRef in <a
 href="#figure-4-2----jadn-schema-types">Figure 4-2</a>) are prefixed
 names that include an NSID.</li>
@@ -1007,13 +1008,13 @@ values.</li>
 4.2.3</a>): Types whose instances are selected from a set of possible
 values.</li>
 </ul>
+<h6 id="fig-4-1-jadn-core-datatypes">Fig. 4-1. JADN Core DataTypes</h6>
 <p><img src="images/im-datatype.jpg" alt="Core DataTypes" /></p>
-<h6 id="figure-4-1----jadn-core-datatypes">Figure 4-1 -- JADN Core
-DataTypes</h6>
 <h2 id="41-type-definition-structure">4.1 Type Definition Structure</h2>
 <p>All JADN type definitions have the identical structure, shown in <a
 href="#figure-4-2----jadn-schema-types">Figure 4-2</a>, designed to be
 easily describable, easily processed, stable, and extensible.</p>
+<h6 id="fig-4-2-jadn-schema-types">Fig. 4-2. JADN Schema: Types</h6>
 <pre><code>Type = Array
    1  TypeName                                   // type_name::
    2  Enumerated(Enum[JADN-Type])                // core_type::
@@ -1055,8 +1056,6 @@ FieldID = Integer
 Options = ArrayOf(Option) unique
 Option = String{1..*}
 Description = String</code></pre>
-<h6 id="figure-4-2----jadn-schema-types">Figure 4-2 -- JADN Schema:
-Types</h6>
 <p>Each type definition has five elements:</p>
 <ol type="1">
 <li><strong>TypeName:</strong> the name of the type being defined</li>
@@ -1198,6 +1197,8 @@ regular expression patterns. Semantic validation keywords (formats)
 listed in <a href="#425-semantic-validation">Section 4.2.5</a> also
 define value restrictions on primitive types.</p>
 <p>Primitive TypeOptions are listed in Table 4-1:</p>
+<h6 id="table-4-1-typeoptions-specific-to-primitive-types">Table 4-1:
+TypeOptions Specific to Primitive Types</h6>
 <table>
 <thead>
 <tr>
@@ -1274,8 +1275,6 @@ define value restrictions on primitive types.</p>
 </tr>
 </tbody>
 </table>
-<h6 id="table-4-1-typeoptions-specific-to-primitive-types">Table 4-1.
-TypeOptions Specific to Primitive Types</h6>
 <p><code>*</code> indicates that the option value must evaluate to an
 instance of CoreType.</p>
 <ul>
@@ -1347,7 +1346,9 @@ grammar of [<a href="#ecmascript">ECMAScript</a>] Section 22.2.</li>
 href="#figure-4-1----jadn-core-datatypes">Figure 4-1</a> a compound type
 defines how the items in a collection are specified, while the
 collection itself is a UML "MultiplicityElement" with cardinality bounds
-and collection properties. The Compound types are:</p>
+and collection properties. The Compound types are listed in Table
+4-2:</p>
+<h6 id="table-4-2-compound-types">Table 4-2: Compound Types</h6>
 <table>
 <thead>
 <tr>
@@ -1394,10 +1395,10 @@ and collection properties. The Compound types are:</p>
 Map, and Record specify a set of items, but these collection properties
 can be modified using TypeOptions.</p>
 <ul>
-<li>The vtype option specifies the type of each instance in an ArrayOf
-or MapOf type.</li>
-<li>The ktype option specifies the type of each key in a MapOf
-type.</li>
+<li>The <code>vtype</code> option specifies the type of each instance in
+an ArrayOf or MapOf type.</li>
+<li>The <code>ktype</code> option specifies the type of each key in a
+MapOf type.</li>
 <li>If a collection is Ordered, item order is significant when comparing
 instances, otherwise it is not.</li>
 <li>If a collection is Unique, no item is duplicated within a collection
@@ -1415,9 +1416,9 @@ to be represented as either arrays where items are identified by
 position within the array, or associative arrays (maps) where items are
 identified by key.</li>
 </ul>
-<p>Compound TypeOptions are listed in <a
-href="#table-4-2-typeoptions-specific-to-compound-types">Table
-4-2</a>:</p>
+<p>Compound TypeOptions are listed in Table 4-3:</p>
+<h6 id="table-4-3-typeoptions-specific-to-compound-types">Table 4-3:
+TypeOptions Specific to Compound Types</h6>
 <table>
 <thead>
 <tr>
@@ -1487,8 +1488,6 @@ href="#table-4-2-typeoptions-specific-to-compound-types">Table
 </tr>
 </tbody>
 </table>
-<h6 id="table-4-2-typeoptions-specific-to-compound-types">Table 4-2.
-TypeOptions Specific to Compound Types</h6>
 <ul>
 <li>Map and Record types have Fields identified by both a numeric
 FieldID and a text FieldName, both of which are unique within a
@@ -1539,8 +1538,8 @@ ColorIds = Enumerated#
 #### 4.2.1.1 Field Identifiers
 
 For example an Enumerated list of HTTP status codes could include the field [403, "Forbidden"].
-If the type definition does not include an *id* option, the API value is "Forbidden" and serialization rules determine
-whether FieldID or FieldName is used in serialized data. With the *id* option the API and serialized values are always
+If the type definition does not include an `id` option, the API value is "Forbidden" and serialization rules determine
+whether FieldID or FieldName is used in serialized data. With the `id` option the API and serialized values are always
 the FieldID 403. The label "Forbidden" may be displayed in messages or user interfaces, as could customized labels
 such as "NotAllowed", "Verboten", or "Interdit".
 -->
@@ -1552,7 +1551,9 @@ ordering significance to be compared, independently of their compound
 type. The ArrayOf compound type can specify the four UML collection
 types (sequence, set, ordered set, bag). Structured and MapOf compound
 types are always unique, so they can specify only set or ordered set
-collections. The non-default collection types are:</p>
+collections. The collection type specified by a Compound type and
+multiplicity option are listed in Table 4-4:</p>
+<h6 id="table-4-4-collection-types">Table 4-4: Collection Types</h6>
 <table>
 <thead>
 <tr>
@@ -1562,6 +1563,36 @@ collections. The non-default collection types are:</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>ArrayOf</td>
+<td></td>
+<td>Ordered, non-Unique (sequence)</td>
+</tr>
+<tr>
+<td>Array</td>
+<td></td>
+<td>Ordered, non-Unique (sequence)</td>
+</tr>
+<tr>
+<td>MapOf</td>
+<td></td>
+<td>Non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>Map</td>
+<td></td>
+<td>Non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>Record</td>
+<td></td>
+<td>Non-Ordered, Unique (set)</td>
+</tr>
+<tr>
+<td>----------</td>
+<td>---------------</td>
+<td>-------------------------</td>
+</tr>
 <tr>
 <td>ArrayOf</td>
 <td>set</td>
@@ -1599,7 +1630,10 @@ collections. The non-default collection types are:</p>
 </tr>
 </tbody>
 </table>
-<p>The TypeOptions applicable to each compound CoreType are:</p>
+<p>The TypeOptions applicable to each compound type are listed in Table
+4-5:</p>
+<h6 id="table-4-5-applicable-compound-type-options">Table 4-5:
+Applicable Compound Type Options</h6>
 <table>
 <thead>
 <tr>
@@ -1633,9 +1667,9 @@ collections. The non-default collection types are:</p>
 <h4 id="4221-field-options">4.2.2.1 Field Options</h4>
 <p>Structured compound types (Array, Map and Record) and the Choice type
 have Fields that define each item in a collection individually. Each
-Field has a numeric ID, Name, TypeReference, and FieldOptions from <a
-href="#table-4-3-options-applicable-to-an-individual-field">Table
-4-3</a>:</p>
+Field has a numeric ID, Name, TypeReference, and FieldOptions shown in
+Table 4-6:</p>
+<h6 id="table-4-6-field-options">Table 4-6: Field Options</h6>
 <table>
 <thead>
 <tr>
@@ -1677,8 +1711,6 @@ href="#table-4-3-options-applicable-to-an-individual-field">Table
 </tr>
 </tbody>
 </table>
-<h6 id="table-4-3-options-applicable-to-an-individual-field">Table 4-3.
-Options Applicable to an Individual Field</h6>
 <h4 id="4222-multiplicity">4.2.2.2 Multiplicity</h4>
 <p>The <strong>minOccurs</strong> and <strong>maxOccurs</strong> options
 specify the minimum and maximum number of instances (the multiplicity)
@@ -1808,8 +1840,8 @@ Type Conformance Requirements</h4>
 <code>vtype</code> option.</li>
 <li>If CoreType is MapOf, TypeOptions MUST include <code>ktype</code>
 and <code>vtype</code> options.</li>
-<li>The ktype option SHOULD be a constrained type such as an
-enumeration, pattern or semantic valuation keyword that specifies a
+<li>The <code>ktype</code> option SHOULD be a constrained type such as
+an enumeration, pattern or semantic valuation keyword that specifies a
 fixed subset of values.</li>
 <li>All values in an ArrayOf or MapOf instance must be an instance of
 <code>vtype</code>.</li>
@@ -1844,7 +1876,9 @@ the value of the <code>key</code> field of the referenced type.</li>
 value. Like Compound types, some Union types have fields individually
 identified by tag, where the tag consists of an integer FieldID and a
 string FieldName, each of which is local to and unique within the type
-definition. Union types define a set of tags, types or both:</p>
+definition. Union types define a set of tags, types or both as shown in
+Table 4-7:</p>
+<h6 id="table-4-7-union-types">Table 4-7: Union Types</h6>
 <table>
 <thead>
 <tr>
@@ -1875,7 +1909,8 @@ definition. Union types define a set of tags, types or both:</p>
 </tr>
 </tbody>
 </table>
-<p>The TypeOptions applicable to Union types are:</p>
+<p>The TypeOptions applicable to Union types are shown in Table 4-8:</p>
+<h6 id="table-4-8-union-type-options">Table 4-8: Union Type Options</h6>
 <table>
 <thead>
 <tr>
@@ -1903,6 +1938,21 @@ FieldName</td>
 <td>Option value is a character specifying the untagged union combining
 function</td>
 </tr>
+<tr>
+<td>0x23</td>
+<td style="text-align: center;">#</td>
+<td>TypeRef</td>
+<td>enum</td>
+<td>Enumerated type derived from a structured type</td>
+</tr>
+<tr>
+<td>0x3e</td>
+<td style="text-align: center;">&gt;</td>
+<td>TypeRef</td>
+<td>pointer</td>
+<td>Enumerated type containing pointers derived from a structured
+type</td>
+</tr>
 </tbody>
 </table>
 <h4 id="4231-enumerated">4.2.3.1 Enumerated</h4>
@@ -1914,20 +1964,20 @@ without any associated type, and an instance equals one of the defined
 tags. The <code>id</code> option specifies that an instance is an
 integer matching an <code>item_id</code>, otherwise it is a string
 matching the corresponding <code>item_value</code>.</p>
-<p>The <em>enum</em> (<a href="#53-derived-enumerations">Section
-5.3</a>) and <em>pointer</em> (<a href="#55-pointers">Section 5.5</a>)
-shortcuts create an Enumerated type containing the tags from a
-referenced structured type.</p>
+<p>The <code>enum</code> (<a href="#53-derived-enumerations">Section
+5.3</a>) and <code>pointer</code> (<a href="#55-pointers">Section
+5.5</a>) options are shortcuts that expand to an Enumerated type
+containing the tags from a referenced structured type.</p>
 <h4 id="4232-choice-tagged">4.2.3.2 Choice (Tagged)</h4>
-<p>The Choice type without a <em>combine</em> TypeOption is a tagged
+<p>The Choice type without a <code>combine</code> TypeOption is a tagged
 union, a structure that defines a set of tag:type pairs. Values include
 a tag specifying a single FieldType from the set, and an instance is a
 value that matches the FieldType specified by the tag.</p>
 <h4 id="4233-choice-untagged">4.2.3.3 Choice (Untagged)</h4>
-<p>The Choice type containing a <em>combine</em> TypeOption is an
+<p>The Choice type containing a <code>combine</code> TypeOption is an
 untagged union, a structure that defines a set of types used
 collectively to classify a value.</p>
-<p>The <em>combine</em> option value is a single character that
+<p>The <code>combine</code> option value is a single character that
 specifies the required combination of FieldTypes:</p>
 <ul>
 <li>A: value must be an instance of <code>allOf</code> the types</li>
@@ -1964,10 +2014,13 @@ PhoneNumberTypes = Enumerated
   2 Cell
   3 Office</code></pre>
 <p>An untagged Choice with a single field can be used to define an alias
-for FieldType. The <em>combine</em> option has no effect when there is
-only one field.</p>
+for FieldType. The <code>combine</code> option has no effect when there
+is only one field.</p>
 <h4 id="4234-field-options">4.2.3.4 Field Options</h4>
-<p>The FieldOptions applicable to Union types are:</p>
+<p>The FieldOptions applicable to Union types are shown in Table
+4-9:</p>
+<h6 id="table-4-9-union-field-options">Table 4-9: Union Field
+Options</h6>
 <table>
 <thead>
 <tr>
@@ -2033,7 +2086,10 @@ type containing at least one field without a <code>not</code>
 option.</li>
 </ul>
 <h3 id="424-general-type-options">4.2.4 General Type Options</h3>
-<p>The TypeOptions applicable to all core types are:</p>
+<p>The TypeOptions applicable to all core types are shown in Table
+4-10:</p>
+<h6 id="table-4-10-general-type-options">Table 4-10: General Type
+Options</h6>
 <table>
 <thead>
 <tr>
@@ -2176,8 +2232,8 @@ option.</li>
 <h3 id="425-semantic-validation">4.2.5 Semantic Validation</h3>
 <p>Semantic validation supplements type validation, ensuring that data
 values are within boundaries that applications will understand. Each
-<em>format</em> type option is a semantic validation keyword that
-references requirements defined by authoritative resources outside this
+format type option is a semantic validation keyword that references
+requirements defined by authoritative resources outside this
 specification.</p>
 <p>The TypeOptions field of a type definition (<a
 href="#41-type-definition-structure">Section 4.1</a>) is an id:value
@@ -2209,7 +2265,8 @@ Validation Keywords</h4>
 <p>JADN types define both logical values and literals, and format
 options affect both validation and translation between values and text
 representations. See <a href="#6-serialization-and-data-formats">Section
-6</a>. The JADN format keywords are:</p>
+6</a>. The JADN format keywords are shown in Table 4-11:</p>
+<h6 id="table-4-11-jadn-formats">Table 4-11: JADN Formats</h6>
 <table>
 <thead>
 <tr>
@@ -2425,11 +2482,10 @@ lexical space is broad, and lexical mappings beyond ISO 8601
 (DMY/YMD/MDY, 12/24 hour, locale specifics) are out of scope but can be
 expressed in JADN as externally-defined format options.</li>
 </ul>
-<p>The following format options are defined for XSD compatibility. Many
-are aliases for JADN options applicable to all serialized data formats;
-some are specific to XML serialization but may be generalized to all
-serializations (e.g., an Array definition of QName) in a future
-version.</p>
+<p>Table 4-12 shows XSD-derived format options. Many are aliases for
+JADN options applicable to all serialized data formats; some are
+specific to XML but may be generalized to all serializations.</p>
+<h6 id="table-4-12-xsd-formats">Table 4-12: XSD Formats</h6>
 <table>
 <thead>
 <tr>
@@ -2666,13 +2722,12 @@ version.</p>
 </table>
 <h4 id="4253-json-schema-semantic-validation-keywords">4.2.5.3 JSON
 Schema Semantic Validation Keywords</h4>
-<p>The following semantic validation keywords are defined in [<a
+<p>Table 4-13 shows semantic validation keywords defined in [<a
 href="#jsonschema">JSON Schema</a>] Section 7.3. Because JSON Schema
 defines only text representations, these keywords have the meanings
-listed here when used with the String type. <a
-href="#4251-jadn-semantic-validation-keywords">JADN Semantic Validation
-Keywords</a> defines the meaning of some of these keywords when used
-with types other than String.</p>
+listed here when used with the JADN String type. <a
+href="#table-4-11-jadn-formats">Table 4-11</a> defines the meaning of
+some of these keywords when used with types other than String.</p>
 <p>For example, a String with <code>date-time</code> format has literal
 values such as:</p>
 <ul>
@@ -2682,6 +2737,8 @@ values such as:</p>
 </ul>
 <p>These are unequal strings even though they represent the same
 timestamp.</p>
+<h6 id="table-4-13-json-schema-formats">Table 4-13: JSON Schema
+Formats</h6>
 <table>
 <thead>
 <tr>
@@ -2809,40 +2866,15 @@ serialization and validation code and may aid understanding, but creates
 additional definitions that must be kept in sync.</p>
 <p>The following shortcuts can be converted to core definitions:</p>
 <ul>
-<li>Anonymous type definition within a field</li>
-<li>Multi-value field multiplicity</li>
-<li>Derived enumeration</li>
-<li>MapOf type with Enumerated key type</li>
-<li>Derived paths</li>
+<li><a href="#51-anonymous-type-definition">5.1</a>: Anonymous type
+definition within a field</li>
+<li><a href="#52-field-multiplicity">5.2</a>: Multi-value field
+multiplicity</li>
+<li><a href="#53-derived-enumerations">5.3</a>: Derived enumeration</li>
+<li><a href="#54-mapof-with-enumerated-key">5.4</a>: MapOf type with
+Enumerated key type</li>
+<li><a href="#55-pointers">5.5</a>: Derived path enumeration</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th style="text-align: center;">Chr</th>
-<th>Type</th>
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0x23</td>
-<td style="text-align: center;">#</td>
-<td>TypeRef</td>
-<td>enum</td>
-<td>Enumerated type derived from a structured type</td>
-</tr>
-<tr>
-<td>0x3e</td>
-<td style="text-align: center;">&gt;</td>
-<td>TypeRef</td>
-<td>pointer</td>
-<td>Enumerated type containing pointers derived from a structured
-type</td>
-</tr>
-</tbody>
-</table>
 <h2 id="51-anonymous-type-definition">5.1 Anonymous Type Definition</h2>
 <p>This shortcut allows fields within a structured type to be defined
 anonymously. Expanding the definition generates a named type for each
@@ -2865,13 +2897,15 @@ Coordinate.longitude = Number [-180.0, 180.0]</code></pre>
 <h2 id="52-field-multiplicity">5.2 Field Multiplicity</h2>
 <p>Fields may be defined to have multiple values of the same type.
 Expanding converts each field that can have more than one value to a
-separate ArrayOf type. The multiplicity (<em>minOccurs</em> and
-<em>maxOccurs</em>) FieldOptions (<a href="#4222-multiplicity">Section
-4.2.2.2</a>) are moved from FieldOptions to the minimum and maximum
-length (<em>minLength</em> and <em>maxLength</em>) TypeOptions (<a
+separate ArrayOf type. The multiplicity (<code>minOccurs</code> and
+<code>maxOccurs</code>) FieldOptions (<a
+href="#4222-multiplicity">Section 4.2.2.2</a>) are moved from
+FieldOptions to the minimum and maximum length (<code>minLength</code>
+and <code>maxLength</code>) TypeOptions (<a
 href="#423-union-types">Section 4.2.3</a>)) of the new ArrayOf type,
-except that if <em>minOccurs</em> is 0 (field is optional), it remains
-in FieldOptions and the new ArrayOf type has a minimum length of 1.</p>
+except that if <code>minOccurs</code> is 0 (field is optional), it
+remains in FieldOptions and the new ArrayOf type has a minimum length of
+1.</p>
 <p>Example:</p>
 <pre><code>Roster = Record
    1 org_name   String
@@ -2891,17 +2925,18 @@ ArrayOf type rather than using the field multiplicity shortcut:</p>
 
 Members = ArrayOf(Member)   // Explicitly-defined array: no minLength, no maxLength</code></pre>
 <h2 id="53-derived-enumerations">5.3 Derived Enumerations</h2>
-<p>An Enumerated type defined with the <em>enum</em> option has fields
-copied from the type referenced in the option rather than being listed
-individually in the definition. Expanding removes <em>enum</em> from
-Type Options and adds fields containing FieldID, FieldName, and
-FieldDescription from each field of the referenced type.</p>
+<p>An Enumerated type defined with the <code>enum</code> option has
+fields copied from the type referenced in the option rather than being
+listed individually in the definition. Expanding removes
+<code>enum</code> from Type Options and adds fields containing FieldID,
+FieldName, and FieldDescription from each field of the referenced
+type.</p>
 <p>In JADN-IDL (<a href="#71-information-definition-language">Section
-7.1</a>) the <em>enum</em> option is represented as a function string:
-"Enum(&lt;referenced-type&gt;)". Within ArrayOf and MapOf types, the
-<em>ktype</em> and <em>vtype</em> options may contain an enum option. As
-an example the IDL value "ArrayOf(Enum(Pixel))" corresponds to the JADN
-vtype option "*#Pixel".</p>
+7.1</a>) the <code>enum</code> option is represented as a function
+string: "Enum[&lt;referenced-type&gt;]". Within ArrayOf and MapOf types,
+the <code>ktype</code> and <code>vtype</code> options may contain an
+enum option. As an example the IDL value "ArrayOf(Enum[Pixel])"
+corresponds to the JADN <code>vtype</code> option "*#Pixel".</p>
 <p>Expanding references an explicit Enumerated type if it exists,
 otherwise it creates an explicit Enumerated type. It then replaces the
 type reference with the name of the explicit Enumerated type.</p>
@@ -2922,9 +2957,9 @@ ChannelMask = ArrayOf(Enum[Pixel])      // ArrayOf(derived enumeration)</code></
 
 ChannelMask2 = ArrayOf(Channel)</code></pre>
 <h2 id="54-mapof-with-enumerated-key">5.4 MapOf With Enumerated Key</h2>
-<p>A MapOf type where <em>ktype</em> is Enumerated is equivalent to a
-Map. Expanding replaces the MapOf type definition with a Map type with
-keys from the Enumerated <em>ktype</em>. This is the complementary
+<p>A MapOf type where <code>ktype</code> is Enumerated is equivalent to
+a Map. Expanding replaces the MapOf type definition with a Map type with
+keys from the Enumerated <code>ktype</code>. This is the complementary
 operation to derived enumeration. In order to use this shortcut, each
 ItemValue of the Enumerated type must be a valid FieldName.</p>
 <p>Example:</p>
@@ -2991,8 +3026,10 @@ human-readable JSON format using name-value encoding for tabular
 data.</p>
 <ul>
 <li>When using JSON serialization, instances of JADN types without a
-format option listed in this section MUST be serialized as:</li>
+format option listed in this section MUST be serialized as shown in
+Table 6-1:</li>
 </ul>
+<h6 id="table-6-1-verbose-json">Table 6-1: Verbose JSON</h6>
 <table>
 <thead>
 <tr>
@@ -3053,8 +3090,8 @@ omitted.</td>
 <tr>
 <td style="text-align: left;"><strong>ArrayOf</strong></td>
 <td style="text-align: left;">JSON <strong>array</strong> of values with
-type <em>vtype</em>, or JSON <strong>null</strong> if <em>vtype</em> is
-null.</td>
+type <code>vtype</code>, or JSON <strong>null</strong> if
+<code>vtype</code> is null.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Map</strong></td>
@@ -3069,12 +3106,12 @@ keys are FieldIDs converted to strings.</td>
 <tr>
 <td style="text-align: left;"><strong>MapOf</strong></td>
 <td style="text-align: left;">JSON <strong>object</strong> if
-<em>ktype</em> is a String type, JSON <strong>array</strong> if
-<em>ktype</em> is not a String type, or JSON <strong>null</strong> if
-<em>vtype</em> is null. Properties have key type <em>ktype</em> and
-value type <em>vtype</em>. MapOf types with non-string keys are
-serialized as in CBOR: a JSON <strong>array</strong> of keys and
-cooresponding values [key1, value1, key2, value2, ...].</td>
+<code>ktype</code> is a String type, JSON <strong>array</strong> if
+<code>ktype</code> is not a String type, or JSON <strong>null</strong>
+if <code>vtype</code> is null. Properties have key type
+<code>ktype</code> and value type <code>vtype</code>. MapOf types with
+non-string keys are serialized as in CBOR: a JSON <strong>array</strong>
+of keys and cooresponding values [key1, value1, key2, value2, ...].</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Record</strong></td>
@@ -3086,8 +3123,11 @@ keys are FieldNames.</td>
 <p><strong>Format options that affect JSON serialization</strong></p>
 <ul>
 <li>When using JSON serialization, instances of JADN types with one of
-the following format options MUST be serialized as:</li>
+the following format options MUST be serialized as shown in Table
+6-2:</li>
 </ul>
+<h6 id="table-6-2-verbose-json-formats">Table 6-2: Verbose JSON
+Formats</h6>
 <table>
 <thead>
 <tr>
@@ -3144,8 +3184,9 @@ human-readable JSON format using positional encoding for tabular
 data.</p>
 <ul>
 <li>When using Compact JSON serialization, instances of JADN types MUST
-be serialized as in section 4.1 except:</li>
+be serialized as in Table 6.1 except as shown in Table 6-3.</li>
 </ul>
+<h6 id="table-6-3-compact-json">Table 6-3: Compact JSON</h6>
 <table>
 <thead>
 <tr>
@@ -3172,8 +3213,9 @@ directly for communication or to visualize the content of
 CBOR-serialized data.</p>
 <ul>
 <li>When using Concise JSON serialization, instances of JADN types MUST
-be serialized as in section 4.1 except:</li>
+be serialized as in Table 6.1 except as shown in Table 6-3.</li>
 </ul>
+<h6 id="table-6-4-concise-json">Table 6-4: Concise JSON</h6>
 <table>
 <thead>
 <tr>
@@ -3200,9 +3242,9 @@ keys are FieldIDs converted to strings.</td>
 <tr>
 <td style="text-align: left;"><strong>MapOf</strong></td>
 <td style="text-align: left;">JSON <strong>object</strong> if
-<em>ktype</em> is a String type, JSON <strong>array</strong> if
-<em>ktype</em> is not a String type. Members have key type
-<em>ktype</em> and value type <em>vtype</em>. MapOf types with
+<code>ktype</code> is a String type, JSON <strong>array</strong> if
+<code>ktype</code> is not a String type. Members have key type
+<code>ktype</code> and value type <code>vtype</code>. MapOf types with
 non-string keys are serialized as in CBOR: a JSON <strong>array</strong>
 of keys and cooresponding values [key1, value1, key2, value2, ...].</td>
 </tr>
@@ -3228,8 +3270,10 @@ CBOR type #x.y = Major type x, Additional information y.</p>
 href="#rfc8610">CDDL</a>) are shown for reference.</p>
 <ul>
 <li>When using CBOR serialization, instances of JADN types without a
-format option listed in this section MUST be serialized as:</li>
+format option listed in this section MUST be serialized as shown in
+Table 6-5.</li>
 </ul>
+<h6 id="table-6-5-cbor-serialization">Table 6-5: CBOR Serialization</h6>
 <table>
 <thead>
 <tr>
@@ -3291,7 +3335,8 @@ otherwise omitted.</td>
 <td style="text-align: left;"><strong>ArrayOf</strong></td>
 <td>vector</td>
 <td style="text-align: left;">an array of values (#4) of type
-<em>vtype</em>, or <strong>null</strong> (#7.22) if vtype is null.</td>
+<code>vtype</code>, or <strong>null</strong> (#7.22) if vtype is
+null.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Map</strong></td>
@@ -3304,9 +3349,9 @@ FieldType.</td>
 <td style="text-align: left;"><strong>MapOf</strong></td>
 <td>table</td>
 <td style="text-align: left;">a map (#5) of pairs, or
-<strong>null</strong> if <em>vtype</em> is null. In each pair the first
-item has type <em>ktype</em>, the second item has type
-<em>vtype</em>.</td>
+<strong>null</strong> if <code>vtype</code> is null. In each pair the
+first item has type <code>ktype</code>, the second item has type
+<code>vtype</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Record</strong></td>
@@ -3318,8 +3363,11 @@ item has type <em>ktype</em>, the second item has type
 <p><strong>Format options that affect CBOR Serialization</strong></p>
 <ul>
 <li>When using CBOR serialization, instances of JADN types with one of
-the following format options MUST be serialized as:</li>
+the following format options MUST be serialized as shown in Table
+6-6.</li>
 </ul>
+<h6 id="table-6-6-cbor-serialization-formats">Table 6-6: CBOR
+Serialization Formats</h6>
 <table>
 <thead>
 <tr>
@@ -3352,8 +3400,10 @@ Double-Precision Float (#7.27).</td>
 <h2 id="65-xml-serialization">6.5 XML Serialization:</h2>
 <ul>
 <li>When using XML serialization, instances of JADN types without a
-format option listed in this section MUST be serialized as:</li>
+format option listed in this section MUST be serialized as shown in
+Table 6-7.</li>
 </ul>
+<h6 id="table-6-7">Table 6-7:</h6>
 <table>
 <thead>
 <tr>
@@ -3426,8 +3476,11 @@ containing "MapEntry" elements with "key=" attribute</td>
 <p><strong>Format options that affect XML serialization</strong></p>
 <ul>
 <li>When using XML serialization, instances of JADN types with one of
-the following format options MUST be serialized as:</li>
+the following format options MUST be serialized as shown in Table
+6-8.</li>
 </ul>
+<h6 id="table-6-8-xml-serialization-formats">Table 6-8: XML
+Serialization Formats</h6>
 <table>
 <thead>
 <tr>
@@ -4116,7 +4169,7 @@ specification and are gratefully acknowledged:</p>
 </table>
 <hr />
 <h1 id="appendix-d-revision-history">Appendix D. Revision History</h1>
-<h3 id="changes-from-v10-to-v20">Changes from v1.0 to v2.0</h3>
+<h2 id="changes-from-v10-to-v20">Changes from v1.0 to v2.0</h2>
 <ul>
 <li>Add type inheritance options.</li>
 <li>Add untagged union options to Choice type.</li>
@@ -4142,8 +4195,8 @@ information modeling.</li>
 effect.</li>
 </ul></li>
 </ul>
-<h3 id="changes-from-v10-csd-01-to-v10">Changes from v1.0 CSD 01 to
-v1.0</h3>
+<h2 id="changes-from-v10-csd-01-to-v10">Changes from v1.0 CSD 01 to
+v1.0</h2>
 <ul>
 <li>Added serialization style description.</li>
 <li>Removed the Null core type.</li>
