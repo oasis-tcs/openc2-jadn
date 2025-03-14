@@ -344,8 +344,9 @@ of how that content is represented for processing, communication or storage.
 Information values are instances of abstract UML DataTypes, and as shown in Figure 2-1 DataType definitions are
 organized into abstract schema packages which are included in an application's information model.
 
-![Information Model Structure](images/im-toplevel.jpg)
 ###### Figure 2-1 -- Information Model Organization
+
+![Information Model Structure](images/im-toplevel.jpg)
 
 * A JADN IM consists of a set of abstract schemas that define information content, and a set of
 encoding rules that define the lexical-to-value mapping in a specific data format for each JADN core type.
@@ -382,9 +383,10 @@ These representations are equivalent, but if there is a conflict the JSON defini
 Packages provide the main structuring and organizing capability of UML.
 A UML package is a namespace for its members, and a JADN abstract schema is composed using packages.
 All packages, including the one defining JADN itself, are instances of JADN's `Schema` type.
-Schema has two fields: package metadata defined in this section
-([Figure 3-1](#figure-3-1----jadn-schema-metadata)), and a list of type definitions defined
+Schema has two fields: package metadata defined in Fig. 3-1, and a list of type definitions defined
 in [Section 4](#4-jadn-types).
+
+###### Fig. 3-1. JADN Schema: Metadata
 
 ```
        title: "JADN Metaschema"
@@ -430,9 +432,6 @@ TypeName = String{pattern="$TypeName"}       // Name of a logical type
 FieldName = String{pattern="$FieldName"}     // Name of a field in a structured type
 TypeRef = String                             // Reference to a type, matching ($NSID ':')? $TypeName
 ```
-
-###### Figure 3-1 -- JADN Schema: Metadata
-
 
 ### 3.1.1 Descriptive Metadata
 
@@ -516,13 +515,16 @@ As shown in Figure 4-1, JADN defines twelve core types in three categories:
 * **Compound** ([Section 4.2.2](#422-compound-types): Types whose instances are collections of values.
 * **Union** ([Section 4.2.3](#423-union-types)): Types whose instances are selected from a set of possible values.
 
+###### Fig. 4-1. JADN Core DataTypes
+
 ![Core DataTypes](images/im-datatype.jpg)
-###### Figure 4-1 -- JADN Core DataTypes
 
 ## 4.1 Type Definition Structure
 
 All JADN type definitions have the identical structure, shown in [Figure 4-2](#figure-4-2----jadn-schema-types),
 designed to be easily describable, easily processed, stable, and extensible.
+
+###### Fig. 4-2. JADN Schema: Types
 
 ```
 Type = Array
@@ -567,8 +569,6 @@ Options = ArrayOf(Option) unique
 Option = String{1..*}
 Description = String
 ```
-
-###### Figure 4-2 -- JADN Schema: Types
 
 Each type definition has five elements:
 
@@ -708,6 +708,8 @@ also define value restrictions on primitive types.
 
 Primitive TypeOptions are listed in Table 4-1:
 
+###### Table 4-1: TypeOptions Specific to Primitive Types
+
 | ID   | Chr | Type    | Name         | Description                                       |
 |------|:---:|---------|--------------|---------------------------------------------------|
 | 0x25 |  %  | String  | pattern      | Instance matches the specified regular expression |
@@ -719,8 +721,6 @@ Primitive TypeOptions are listed in Table 4-1:
 | 0x78 |  x  | *       | maxInclusive | Instance is less than or equal to option value    |
 | 0x79 |  y  | *       | minExclusive | Instance is greater than option value             |
 | 0x7a |  z  | *       | maxExclusive | Instance is less than option value                |
-
-###### Table 4-1. TypeOptions Specific to Primitive Types
 
 `*` indicates that the option value must evaluate to an instance of CoreType.
 
@@ -785,7 +785,9 @@ Compound types define a collection of items.
 As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes) a compound type defines how the items in a
 collection are specified, while the collection itself is a UML "MultiplicityElement" with cardinality bounds
 and collection properties.
-The Compound types are:
+The Compound types are listed in Table 4-2:
+
+###### Table 4-2: Compound Types
 
 | Compound Type       | Structured | Mapping | Collection Properties          |
 |---------------------|------------|---------|--------------------------------|
@@ -809,7 +811,9 @@ A non-structured compound type defines a collection where each item is an instan
 * The Record type defines the key order, which allows Record instances to be represented as either arrays where
 items are identified by position within the array, or associative arrays (maps) where items are identified by key.
 
-Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-to-compound-types):
+Compound TypeOptions are listed in Table 4-3:
+
+###### Table 4-3: TypeOptions Specific to Compound Types
 
 | ID   | Chr | Type    | Name           | Description                                                   |
 |------|:---:|---------|----------------|---------------------------------------------------------------|
@@ -821,8 +825,6 @@ Compound TypeOptions are listed in [Table 4-2](#table-4-2-typeoptions-specific-t
 | 0x71 |  q  | Boolean | unique/ordered | isOrdered = true,  isUnique = true (ordered set)              | 
 | 0x73 |  s  | Boolean | set            | isOrdered = false, isUnique = true (set)                      |
 | 0x62 |  b  | Boolean | unordered      | isOrdered = false, isUnique = false (bag)                     |
-
-###### Table 4-2. TypeOptions Specific to Compound Types
 
 * Map and Record types have Fields identified by both a numeric FieldID and a text FieldName, both of which
 are unique within a type.
@@ -880,19 +882,29 @@ This allows collection instances with uniqueness constraints to be validated and
 with the same ordering significance to be compared, independently of their compound type.
 The ArrayOf compound type can specify the four UML collection types (sequence, set, ordered set, bag).
 Structured and MapOf compound types are always unique, so they can specify only set or ordered set collections.
-The non-default collection types are:
+The non-default collection types are listed in Table 4-4:
 
-| Compound Type | Multiplicity Option | Collection Properties         |
-|---------------|---------------------|-------------------------------|
-| ArrayOf       | set                 | Non-Ordered, Unique (set)     |
-| ArrayOf       | unique              | Ordered, Unique (ordered set) |
-| ArrayOf       | unordered           | Non-Ordered, Non-Unique (bag) |
-| Array         | set                 | Non-Ordered, Unique (set)     |
-| MapOf         | ordered             | Ordered, Unique (ordered set) |
-| Map           | ordered             | Ordered, Unique (ordered set) |
-| Record        | ordered             | Ordered, Unique (ordered set) |
+###### Table 4-4: Collection Types
 
-The TypeOptions applicable to each compound CoreType are:
+| Compound Type | Multiplicity Option | Collection Properties          |
+|---------------|---------------------|--------------------------------|
+| ArrayOf       |                     | Ordered, non-Unique (sequence) |
+| Array         |                     | Ordered, non-Unique (sequence) |
+| MapOf         |                     | Non-Ordered, Unique (set)      |
+| Map           |                     | Non-Ordered, Unique (set)      |
+| Record        |                     | Non-Ordered, Unique (set)      |
+| ----------    | ---------------     | -------------------------      |
+| ArrayOf       | set                 | Non-Ordered, Unique (set)      |
+| ArrayOf       | unique              | Ordered, Unique (ordered set)  |
+| ArrayOf       | unordered           | Non-Ordered, Non-Unique (bag)  |
+| Array         | set                 | Non-Ordered, Unique (set)      |
+| MapOf         | ordered             | Ordered, Unique (ordered set)  |
+| Map           | ordered             | Ordered, Unique (ordered set)  |
+| Record        | ordered             | Ordered, Unique (ordered set)  |
+
+The TypeOptions applicable to each compound type are listed in Table 4-5:
+
+###### Table 4-5: Applicable Compound Type Options
 
 | Compound Type       | Allowed TypeOptions                                 |
 |---------------------|-----------------------------------------------------|
@@ -906,8 +918,9 @@ The TypeOptions applicable to each compound CoreType are:
 
 Structured compound types (Array, Map and Record) and the Choice type have Fields that define each item in a
 collection individually.
-Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
-[Table 4-3](#table-4-3-options-applicable-to-an-individual-field):
+Each Field has a numeric ID, Name, TypeReference, and FieldOptions shown in Table 4-6:
+
+###### Table 4-6: Field Options
 
 | ID   | Chr | Type    | Name      | Description                                               |
 |------|:---:|---------|-----------|-----------------------------------------------------------|
@@ -915,8 +928,6 @@ Each Field has a numeric ID, Name, TypeReference, and FieldOptions from
 | 0x5d |  ]  | Integer | maxOccurs | max cardinality, default = 1, <0 = inherited or none      |
 | 0x4b |  K  | Boolean | key       | field is the primary key for this type                    | 
 | 0x4c |  L  | Boolean | link      | field is a link (foreign key) to an instance of FieldType |
-
-###### Table 4-3. Options Applicable to an Individual Field
 
 #### 4.2.2.2 Multiplicity
 
@@ -1018,7 +1029,9 @@ otherwise identical instance without that key.
 A union type specifies a set of alternatives used to classify a value. Like Compound types, some Union types
 have fields individually identified by tag, where the tag consists of an integer FieldID and a string FieldName,
 each of which is local to and unique within the type definition.
-Union types define a set of tags, types or both:
+Union types define a set of tags, types or both as shown in Table 4-7:
+
+###### Table 4-7: Union Types
 
 | Type       | Tag | Type | Definition                                                |
 |:-----------|:---:|:----:|-----------------------------------------------------------|
@@ -1026,12 +1039,16 @@ Union types define a set of tags, types or both:
 | Choice     | Yes | Yes  | Tagged union, a set of tag:type pairs.                    |
 | Choice(Cx) |  -  | Yes  | Untagged union, a specified logical combination of types. |
 
-The TypeOptions applicable to Union types are:
+The TypeOptions applicable to Union types are shown in Table 4-8:
+
+###### Table 4-8: Union Type Options
 
 | ID   | Chr | Type    | Name    | Description                                                                  |
 |------|:---:|---------|---------|------------------------------------------------------------------------------|
 | 0x3d |  =  | Boolean | id      | If present Tag is an integer FieldID, otherwise a string FieldName           |
 | 0x43 |  C  | String  | combine | Option value is a character specifying the untagged union combining function |
+| 0x23 |  #  | TypeRef | enum    | Enumerated type derived from a structured type                               |
+| 0x3e |  >  | TypeRef | pointer | Enumerated type containing pointers derived from a structured type           |
 
 #### 4.2.3.1 Enumerated
 
@@ -1041,8 +1058,8 @@ the tags of a tagged union without any associated type, and an instance equals o
 The `id` option specifies that an instance is an integer matching an `item_id`,
 otherwise it is a string matching the corresponding `item_value`.
 
-The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) shortcuts
-create an Enumerated type containing the tags from a referenced structured type.
+The *enum* ([Section 5.3](#53-derived-enumerations)) and *pointer* ([Section 5.5](#55-pointers)) options
+are shortcuts that expand to an Enumerated type containing the tags from a referenced structured type.
 
 #### 4.2.3.2 Choice (Tagged)
 
@@ -1092,7 +1109,9 @@ The *combine* option has no effect when there is only one field.
 
 #### 4.2.3.4 Field Options
 
-The FieldOptions applicable to Union types are:
+The FieldOptions applicable to Union types are shown in Table 4-9:
+
+###### Table 4-9: Union Field Options
 
 | ID   | Chr | Type    | Name  | Description                                                |
 |------|:---:|---------|-------|------------------------------------------------------------|
@@ -1140,7 +1159,9 @@ a `not` option.
 
 ### 4.2.4 General Type Options
 
-The TypeOptions applicable to all core types are:
+The TypeOptions applicable to all core types are shown in Table 4-10:
+
+###### Table 4-10: General Type Options
 
 | ID   | Chr | Type    | Name      | Description                                        |
 |------|:---:|---------|-----------|----------------------------------------------------|
@@ -1245,7 +1266,9 @@ type may include multiple format options.
 
 JADN types define both logical values and literals, and format options affect both validation and translation
 between values and text representations. See [Section 6](#6-serialization-and-data-formats).
-The JADN format keywords are:
+The JADN format keywords are shown in Table 4-12:
+
+###### Table 4-12: JADN Formats
 
 | Keyword   | Type    | Requirement                                                                                    |
 |-----------|---------|------------------------------------------------------------------------------------------------|
@@ -1362,9 +1385,11 @@ of time-related Integers. The lexical space is broad, and lexical mappings beyon
 (DMY/YMD/MDY, 12/24 hour, locale specifics) are out of scope but can be expressed in JADN as
 externally-defined format options.
 
-The following format options are defined for XSD compatibility. Many are aliases for JADN options applicable
-to all serialized data formats; some are specific to XML serialization but may be generalized to all
-serializations (e.g., an Array definition of QName) in a future version.
+Table 4-13 shows XSD-derived format options. Many are aliases for JADN options applicable
+to all serialized data formats; some are specific to XML but may be generalized to all
+serializations.
+
+###### Table 4-13: XSD Formats
 
 | XSD DataType         | JADN DataType | JADN Opts  | XSD-compatible      |
 |----------------------|---------------|------------|---------------------|
@@ -1408,11 +1433,10 @@ serializations (e.g., an Array definition of QName) in a future version.
 
 #### 4.2.5.3 JSON Schema Semantic Validation Keywords
 
-The following semantic validation keywords are defined in [[JSON Schema](#jsonschema)] Section 7.3.
+Table 4-14 shows semantic validation keywords defined in [[JSON Schema](#jsonschema)] Section 7.3.
 Because JSON Schema defines only text representations, these keywords have the meanings listed here
-when used with the String type.
-[JADN Semantic Validation Keywords](#4251-jadn-semantic-validation-keywords) defines the meaning
-of some of these keywords when used with types other than String.
+when used with the JADN String type.
+Table 4-12 defines the meaning of some of these keywords when used with types other than String.
 
 For example, a String with `date-time` format has literal values such as:
 * "2024-10-02T10:00:00-05:00"
@@ -1420,6 +1444,8 @@ For example, a String with `date-time` format has literal values such as:
 * "2024-10-02T15:00:00.000Z"
 
 These are unequal strings even though they represent the same timestamp.
+
+###### Table 4-14: JSON Schema Formats
 
 | Keyword               | Type   | Requirement                                                                           |
 |-----------------------|--------|---------------------------------------------------------------------------------------|
@@ -1454,16 +1480,11 @@ Expanding shortcuts into core definitions simplifies serialization and validatio
 and may aid understanding, but creates additional definitions that must be kept in sync.
 
 The following shortcuts can be converted to core definitions:
-* Anonymous type definition within a field
-* Multi-value field multiplicity
-* Derived enumeration
-* MapOf type with Enumerated key type
-* Derived paths
-
-| ID   | Chr | Type    | Name    | Description                                                        |
-|------|:---:|---------|---------|--------------------------------------------------------------------|
-| 0x23 |  #  | TypeRef | enum    | Enumerated type derived from a structured type                     |
-| 0x3e |  >  | TypeRef | pointer | Enumerated type containing pointers derived from a structured type |
+* [5.1](#51-anonymous-type-definition): Anonymous type definition within a field
+* [5.2](#52-field-multiplicity): Multi-value field multiplicity
+* [5.3](#53-derived-enumerations): Derived enumeration
+* [5.4](#54-mapof-with-enumerated-key): MapOf type with Enumerated key type
+* [5.5](#55-pointers): Derived path enumeration
 
 ## 5.1 Anonymous Type Definition
 
@@ -1627,7 +1648,10 @@ serialization formats defined elsewhere must:
 The following serialization rules represent JADN data types in a human-readable JSON format using
 name-value encoding for tabular data.
 
-* When using JSON serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+* When using JSON serialization, instances of JADN types without a format option listed in this section
+MUST be serialized as shown in Table 6-1:
+
+###### Table 6-1: Verbose JSON
 
 | JADN Type                | JSON Serialization Requirement                                                                                                                                                                                                                                                                                                              |
 |:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1648,7 +1672,10 @@ name-value encoding for tabular data.
 | **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 
 **Format options that affect JSON serialization**
-* When using JSON serialization, instances of JADN types with one of the following format options MUST be serialized as:
+* When using JSON serialization, instances of JADN types with one of the following format options
+MUST be serialized as shown in Table 6-2:
+
+###### Table 6-2: Verbose JSON Formats
 
 | Option        | JADN Type | JSON Serialization Requirement                                                                                                                                                      |
 |:--------------|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1664,7 +1691,10 @@ Specifications MAY define additional format options for textual representation o
 The following serialization rules represent JADN types in a human-readable JSON format using
 positional encoding for tabular data.
 
-* When using Compact JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
+* When using Compact JSON serialization, instances of JADN types MUST be serialized as in Table 6.1
+except as shown in Table 6-3.
+
+###### Table 6-3: Compact JSON
 
 | JADN Type  | Concise JSON Serialization Requirement                                                                                                                  |
 |:-----------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1675,7 +1705,10 @@ Concise JSON serialization rules represent JADN data types in a format optimized
 JSON data in this format may be used directly for communication or to visualize the content of CBOR-serialized
 data.
 
-* When using Concise JSON serialization, instances of JADN types MUST be serialized as in section 4.1 except:
+* When using Concise JSON serialization, instances of JADN types MUST be serialized as in Table 6.1
+except as shown in Table 6-3.
+
+###### Table 6-4: Concise JSON
 
 | JADN Type      | Concise JSON Serialization Requirement                                                                                                                                                                                                                                                              |
 |:---------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1697,7 +1730,9 @@ In this section CBOR type #x.y = Major type x, Additional information y.
 CBOR type names from Concise Data Definition Language ([CDDL](#rfc8610)) are shown for reference.
 
 * When using CBOR serialization, instances of JADN types without a format option listed in this section MUST
-be serialized as:
+be serialized as shown in Table 6-5.
+
+###### Table 6-5: CBOR Serialization
 
 | JADN Type      | CDDL    | CBOR Serialization Requirement                                                                                                                                 |
 |:---------------|---------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1716,7 +1751,9 @@ be serialized as:
 
 **Format options that affect CBOR Serialization**
 * When using CBOR serialization, instances of JADN types with one of the following format options MUST be
-serialized as:
+serialized as shown in Table 6-6.
+
+###### Table 6-6: CBOR Serialization Formats
 
 | Option  | JADN Type | CBOR Serialization Requirement                        |
 |:--------|:----------|:------------------------------------------------------|
@@ -1724,10 +1761,12 @@ serialized as:
 | **f32** | Number    | **float32**: IEEE 754 Single-Precision Float (#7.26). |
 | **f64** | Number    | **float64**: IEEE 754 Double-Precision Float (#7.27). |
 
-
 ## 6.5 XML Serialization:
 
-* When using XML serialization, instances of JADN types without a format option listed in this section MUST be serialized as:
+* When using XML serialization, instances of JADN types without a format option listed in this section
+MUST be serialized as shown in Table 6-7.
+
+###### Table 6-7:
 
 | JADN Type      | XML Serialization Requirement                                                                   |
 |:---------------|:------------------------------------------------------------------------------------------------|
@@ -1745,7 +1784,10 @@ serialized as:
 | **Record**     | same as **Map**                                                                                 |
 
 **Format options that affect XML serialization**
-* When using XML serialization, instances of JADN types with one of the following format options MUST be serialized as:
+* When using XML serialization, instances of JADN types with one of the following format options
+MUST be serialized as shown in Table 6-8.
+
+###### Table 6-8: XML Serialization Formats
 
 | Option       | JADN Type | XML Serialization Requirement                               |
 |:-------------|:----------|:------------------------------------------------------------|
