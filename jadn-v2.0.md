@@ -882,7 +882,7 @@ This allows collection instances with uniqueness constraints to be validated and
 with the same ordering significance to be compared, independently of their compound type.
 The ArrayOf compound type can specify the four UML collection types (sequence, set, ordered set, bag).
 Structured and MapOf compound types are always unique, so they can specify only set or ordered set collections.
-The non-default collection types are listed in Table 4-4:
+The collection type specified by a Compound type and multiplicity option are listed in Table 4-4:
 
 ###### Table 4-4: Collection Types
 
