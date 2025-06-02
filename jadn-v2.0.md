@@ -767,7 +767,7 @@ type definition an instance must satisfy all conditions.
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.5 Binary
-A Binary instance is sequence of octets. Binary values are not ordered so range
+A Binary instance is a sequence of octets. Binary values are not ordered so range
 options do not apply. 
 
 **Options:** const, default  \
@@ -1493,7 +1493,7 @@ Expanding the definition generates a named type for each anonymous field, moves
 all TypeOptions included in the field to the generated type,
 and replaces the field type with a reference to the generated type.
 This requires the anonymous field to be a non-structured core type and any TypeOption
-values included in FieldOptions to apply to FieldType. 
+values included in FieldOptions to apply to the specified FieldType. 
 
 Example: a structured type with anonymous fields:
 ```
@@ -1668,7 +1668,7 @@ MUST be serialized as shown in Table 6-1:
 | **ArrayOf**              | JSON **array** of values with type `vtype`, or JSON **null** if `vtype` is null.                                                                                                                                                                                                                                                            |
 | **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 | **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                                                           |
-| **MapOf**                | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type, or JSON **null** if `vtype` is null. Properties have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **MapOf**                | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type, or JSON **null** if `vtype` is null. Properties have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and corresponding values [key1, value1, key2, value2, ...]. |
 | **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
 
 **Format options that affect JSON serialization**
@@ -1715,7 +1715,7 @@ except as shown in Table 6-3.
 | **Enumerated** | JSON **integer** ItemID                                                                                                                                                                                                                                                                             |
 | **Choice**     | JSON **object** with one property. Property key is the FieldID converted to string.                                                                                                                                                                                                                 |
 | **Map**        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                   |
-| **MapOf**      | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type. Members have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **MapOf**      | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type. Members have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and corresponding values [key1, value1, key2, value2, ...]. |
 | **Record**     | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                             |
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
