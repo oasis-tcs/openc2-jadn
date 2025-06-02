@@ -485,7 +485,7 @@ The JADN Metaschema overrides the default $FieldName pattern to allow config var
 with '$' and core type names beginning with a capital letter.
     * **$NSID:** The regex used to validate an external type reference's prefix string.
 Default: `^([A-Za-z][A-Za-z0-9]{0,7})?$`  \
-External type references (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types))
+External type references (TypeRef in [Figure 4-2](#fig-4-2-jadn-schema-types))
 are prefixed names that include an NSID.
 
   * **Size Limits:** These variables define default maximum sizes for variable-sized
@@ -521,7 +521,7 @@ As shown in Figure 4-1, JADN defines twelve core types in three categories:
 
 ## 4.1 Type Definition Structure
 
-All JADN type definitions have the identical structure, shown in [Figure 4-2](#figure-4-2----jadn-schema-types),
+All JADN type definitions have the identical structure, shown in [Figure 4-2](#fig-4-2-jadn-schema-types),
 designed to be easily describable, easily processed, stable, and extensible.
 
 ###### Fig. 4-2. JADN Schema: Types
@@ -699,7 +699,7 @@ in TypeOptions, the Fields array MUST be empty.
 ### 4.2.1 Primitive Types
 
 A primitive type has no substructure, and specifies an unrestricted space of atomic values
-without regard to processing mechanisms or data format. As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
+without regard to processing mechanisms or data format. As shown in [Figure 4-1](#fig-4-1-jadn-core-datatypes)
 the primitive core types are Binary, Boolean, Integer, Number and String.
 
 Type options specify value restrictions such as size, range, and regular expression patterns.
@@ -782,7 +782,7 @@ to be classified as an instance of a type containing that option.
 ### 4.2.2 Compound Types
 
 Compound types define a collection of items.
-As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes) a compound type defines how the items in a
+As shown in [Figure 4-1](#fig-4-1-jadn-core-datatypes) a compound type defines how the items in a
 collection are specified, while the collection itself is a UML "MultiplicityElement" with cardinality bounds
 and collection properties.
 The Compound types are listed in Table 4-2:
@@ -946,7 +946,7 @@ of a field within a collection:
 * The default value of minOccurs and maxOccurs is 1.
 * maxOccurs includes non-negative integers (0..n), plus two reserved sentinel values less than 0: 
   * UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements package default
-    ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), or if not specified, an implementation-defined default.
+    ([Figure 3-1](#fig-3-1-jadn-schema-metadata)), or if not specified, an implementation-defined default.
   * UNLIMITED (-2) indicates that no upper bound is defined. Implementations are still limited
     by available storage capacity and the results of resource exhaustion are undefined.
 * If a field has more than one instance, the [data format](#6-serialization-and-data-formats) specifies whether
@@ -1516,7 +1516,7 @@ Coordinate.longitude = Number [-180.0, 180.0]
 Fields may be defined to have multiple values of the same type. Expanding converts each field that can
 have more than one value to a separate ArrayOf type. The multiplicity (`minOccurs` and `maxOccurs`)
 FieldOptions ([Section 4.2.2.2](#4222-multiplicity)) are moved from FieldOptions to the minimum and maximum
-length (`minLength` and `maxLength`) TypeOptions ([Section 4.2.3](#423-union-types))) of the new ArrayOf type,
+length (`minLength` and `maxLength`) TypeOptions ([Section 4.2.3](#423-union-types)) of the new ArrayOf type,
 except that if `minOccurs` is 0 (field is optional), it remains in FieldOptions and the new ArrayOf type
 has a minimum length of 1.
 
@@ -1841,7 +1841,7 @@ Compound types without the `id` option:
         ...
 ```
 
-Structured types with the `id` [TypeOption](#table-4-2-typeoptions-specific-to-compound-types)
+Structured types with the `id` [TypeOption](#table-4-3-typeoptions-specific-to-compound-types)
 treat the item/field name as an informative label and display it in the description
 followed by a label terminator ("::"):
 ```
