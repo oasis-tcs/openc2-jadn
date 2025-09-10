@@ -485,7 +485,7 @@ The JADN Metaschema overrides the default $FieldName pattern to allow config var
 with '$' and core type names beginning with a capital letter.
     * **$NSID:** The regex used to validate an external type reference's prefix string.
 Default: `^([A-Za-z][A-Za-z0-9]{0,7})?$`  \
-External type references (TypeRef in [Figure 4-2](#figure-4-2----jadn-schema-types))
+External type references (TypeRef in [Figure 4-2](#fig-4-2-jadn-schema-types))
 are prefixed names that include an NSID.
 
   * **Size Limits:** These variables define default maximum sizes for variable-sized
@@ -521,7 +521,7 @@ As shown in Figure 4-1, JADN defines twelve core types in three categories:
 
 ## 4.1 Type Definition Structure
 
-All JADN type definitions have the identical structure, shown in [Figure 4-2](#figure-4-2----jadn-schema-types),
+All JADN type definitions have the identical structure, shown in [Figure 4-2](#fig-4-2-jadn-schema-types),
 designed to be easily describable, easily processed, stable, and extensible.
 
 ###### Fig. 4-2. JADN Schema: Types
@@ -699,7 +699,7 @@ in TypeOptions, the Fields array MUST be empty.
 ### 4.2.1 Primitive Types
 
 A primitive type has no substructure, and specifies an unrestricted space of atomic values
-without regard to processing mechanisms or data format. As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes)
+without regard to processing mechanisms or data format. As shown in [Figure 4-1](#fig-4-1-jadn-core-datatypes)
 the primitive core types are Binary, Boolean, Integer, Number and String.
 
 Type options specify value restrictions such as size, range, and regular expression patterns.
@@ -767,7 +767,7 @@ type definition an instance must satisfy all conditions.
 **Range Options:** minInclusive, maxInclusive, minExclusive, maxExclusive
 
 #### 4.2.1.5 Binary
-A Binary instance is sequence of octets. Binary values are not ordered so range
+A Binary instance is a sequence of octets. Binary values are not ordered so range
 options do not apply. 
 
 **Options:** const, default  \
@@ -782,7 +782,7 @@ to be classified as an instance of a type containing that option.
 ### 4.2.2 Compound Types
 
 Compound types define a collection of items.
-As shown in [Figure 4-1](#figure-4-1----jadn-core-datatypes) a compound type defines how the items in a
+As shown in [Figure 4-1](#fig-4-1-jadn-core-datatypes) a compound type defines how the items in a
 collection are specified, while the collection itself is a UML "MultiplicityElement" with cardinality bounds
 and collection properties.
 The Compound types are listed in Table 4-2:
@@ -946,7 +946,7 @@ of a field within a collection:
 * The default value of minOccurs and maxOccurs is 1.
 * maxOccurs includes non-negative integers (0..n), plus two reserved sentinel values less than 0: 
   * UNSPECIFIED (-1) indicates that the upper bound is the $MaxElements package default
-    ([Figure 3-1](#figure-3-1----jadn-schema-metadata)), or if not specified, an implementation-defined default.
+    ([Figure 3-1](#fig-3-1-jadn-schema-metadata)), or if not specified, an implementation-defined default.
   * UNLIMITED (-2) indicates that no upper bound is defined. Implementations are still limited
     by available storage capacity and the results of resource exhaustion are undefined.
 * If a field has more than one instance, the [data format](#6-serialization-and-data-formats) specifies whether
@@ -1493,7 +1493,7 @@ Expanding the definition generates a named type for each anonymous field, moves
 all TypeOptions included in the field to the generated type,
 and replaces the field type with a reference to the generated type.
 This requires the anonymous field to be a non-structured core type and any TypeOption
-values included in FieldOptions to apply to FieldType. 
+values included in FieldOptions to apply to the specified FieldType. 
 
 Example: a structured type with anonymous fields:
 ```
@@ -1516,7 +1516,7 @@ Coordinate.longitude = Number [-180.0, 180.0]
 Fields may be defined to have multiple values of the same type. Expanding converts each field that can
 have more than one value to a separate ArrayOf type. The multiplicity (`minOccurs` and `maxOccurs`)
 FieldOptions ([Section 4.2.2.2](#4222-multiplicity)) are moved from FieldOptions to the minimum and maximum
-length (`minLength` and `maxLength`) TypeOptions ([Section 4.2.3](#423-union-types))) of the new ArrayOf type,
+length (`minLength` and `maxLength`) TypeOptions ([Section 4.2.3](#423-union-types)) of the new ArrayOf type,
 except that if `minOccurs` is 0 (field is optional), it remains in FieldOptions and the new ArrayOf type
 has a minimum length of 1.
 
@@ -1653,23 +1653,23 @@ MUST be serialized as shown in Table 6-1:
 
 ###### Table 6-1: Verbose JSON
 
-| JADN Type                | JSON Serialization Requirement                                                                                                                                                                                                                                                                                                              |
-|:-------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Binary**               | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648).                                                                                                                                                                                                                          |
-| **Boolean**              | JSON **true** or **false**                                                                                                                                                                                                                                                                                                                  |
-| **Integer**              | JSON **number**                                                                                                                                                                                                                                                                                                                             |
-| **Number**               | JSON **number**                                                                                                                                                                                                                                                                                                                             |
-| **String**               | JSON **string**                                                                                                                                                                                                                                                                                                                             |
-| **Enumerated**           | JSON **string** ItemValue                                                                                                                                                                                                                                                                                                                   |
-| **Enumerated** with "id" | JSON **integer** ItemID                                                                                                                                                                                                                                                                                                                     |
-| **Choice**               | JSON **object** with one property.  Property key is FieldName.                                                                                                                                                                                                                                                                              |
-| **Choice** with "id"     | JSON **object** with one property. Property key is FieldID converted to string.                                                                                                                                                                                                                                                             |
-| **Array**                | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                                                                     |
-| **ArrayOf**              | JSON **array** of values with type `vtype`, or JSON **null** if `vtype` is null.                                                                                                                                                                                                                                                            |
-| **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
-| **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                                                           |
-| **MapOf**                | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type, or JSON **null** if `vtype` is null. Properties have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
-| **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                                                              |
+| JADN Type                | JSON Serialization Requirement                                                                                                                                                                                                                                                                           |
+|:-------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Binary**               | JSON **string** containing Base64url encoding of the binary value as defined in Section 5 of [RFC 4648](#rfc4648).                                                                                                                                                                                       |
+| **Boolean**              | JSON **true** or **false**                                                                                                                                                                                                                                                                               |
+| **Integer**              | JSON **number**                                                                                                                                                                                                                                                                                          |
+| **Number**               | JSON **number**                                                                                                                                                                                                                                                                                          |
+| **String**               | JSON **string**                                                                                                                                                                                                                                                                                          |
+| **Enumerated**           | JSON **string** ItemValue                                                                                                                                                                                                                                                                                |
+| **Enumerated** with "id" | JSON **integer** ItemID                                                                                                                                                                                                                                                                                  |
+| **Choice**               | JSON **object** with one property.  Property key is FieldName.                                                                                                                                                                                                                                           |
+| **Choice** with "id"     | JSON **object** with one property. Property key is FieldID converted to string.                                                                                                                                                                                                                          |
+| **Array**                | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                                  |
+| **ArrayOf**              | JSON **array** of values with type `vtype`, or JSON **null** if `vtype` is null.                                                                                                                                                                                                                         |
+| **Map**                  | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                           |
+| **Map** with "id"        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                        |
+| **MapOf**                | JSON **object** if `ktype` is a String type or JSON **array** if `ktype` is not a String type. Properties have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and corresponding values [key1, value1, key2, value2, ...]. |
+| **Record**               | JSON **object**. Property keys are FieldNames.                                                                                                                                                                                                                                                           |
 
 **Format options that affect JSON serialization**
 * When using JSON serialization, instances of JADN types with one of the following format options
@@ -1715,7 +1715,7 @@ except as shown in Table 6-3.
 | **Enumerated** | JSON **integer** ItemID                                                                                                                                                                                                                                                                             |
 | **Choice**     | JSON **object** with one property. Property key is the FieldID converted to string.                                                                                                                                                                                                                 |
 | **Map**        | JSON **object**. Property keys are FieldIDs converted to strings.                                                                                                                                                                                                                                   |
-| **MapOf**      | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type. Members have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and cooresponding values [key1, value1, key2, value2, ...]. |
+| **MapOf**      | JSON **object** if `ktype` is a String type, JSON **array** if `ktype` is not a String type. Members have key type `ktype` and value type `vtype`. MapOf types with non-string keys are serialized as in CBOR: a JSON **array** of keys and corresponding values [key1, value1, key2, value2, ...]. |
 | **Record**     | JSON **array** of values with types specified by FieldType. Omitted optional values are **null** if before the last specified value, otherwise omitted.                                                                                                                                             |
 
 All formats specifying a textual representation for Binary, Integer, Number, or Array types are ignored when using Concise serialization.
@@ -1841,7 +1841,7 @@ Compound types without the `id` option:
         ...
 ```
 
-Structured types with the `id` [TypeOption](#table-4-2-typeoptions-specific-to-compound-types)
+Structured types with the `id` [TypeOption](#table-4-3-typeoptions-specific-to-compound-types)
 treat the item/field name as an informative label and display it in the description
 followed by a label terminator ("::"):
 ```
